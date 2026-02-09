@@ -1,0 +1,233 @@
+/* CSS Variables - Design Tokens */
+
+:root {
+  /* ========== Typography ========== */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+
+  --font-family-code: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono',
+    Consolas, 'Courier New', monospace;
+
+  /* Font Sizes */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 38px;
+
+  /* Line Heights */
+  --line-height-base: 1.5715;
+  --line-height-tight: 1.3;
+  --line-height-relaxed: 1.8;
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ========== Spacing ========== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+
+  /* ========== Border Radius ========== */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-base: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* ========== Animation Duration ========== */
+  --duration-fast: 0.1s;
+  --duration-base: 0.2s;
+  --duration-slow: 0.3s;
+  --duration-slower: 0.5s;
+
+  /* ========== Easing Functions ========== */
+  --ease-in: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --ease-out-back: cubic-bezier(0.12, 0.4, 0.29, 1.46);
+  --ease-in-back: cubic-bezier(0.71, -0.46, 0.88, 0.6);
+  --ease-in-out-back: cubic-bezier(0.71, -0.46, 0.29, 1.46);
+
+  /* ========== Shadows ========== */
+  --shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
+              0 1px 6px -1px rgba(0, 0, 0, 0.02),
+              0 2px 4px 0 rgba(0, 0, 0, 0.02);
+
+  --shadow-2: 0 3px 6px -4px rgba(0, 0, 0, 0.12),
+              0 6px 16px 0 rgba(0, 0, 0, 0.08),
+              0 9px 28px 8px rgba(0, 0, 0, 0.05);
+
+  --shadow-3: 0 6px 16px -8px rgba(0, 0, 0, 0.08),
+              0 9px 28px 0 rgba(0, 0, 0, 0.05),
+              0 12px 48px 16px rgba(0, 0, 0, 0.03);
+
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.05);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-drawer: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.12);
+
+  /* ========== Functional Colors ========== */
+  --color-success: #52c41a;
+  --color-success-bg: #f6ffed;
+  --color-success-border: #b7eb8f;
+
+  --color-warning: #faad14;
+  --color-warning-bg: #fffbe6;
+  --color-warning-border: #ffe58f;
+
+  --color-error: #ff4d4f;
+  --color-error-bg: #fff2f0;
+  --color-error-border: #ffccc7;
+
+  --color-info: #1890ff;
+  --color-info-bg: #e6f7ff;
+  --color-info-border: #91d5ff;
+
+  /* ========== Neutral Colors (Light Mode) ========== */
+  --color-text-primary: rgba(0, 0, 0, 0.85);
+  --color-text-secondary: rgba(0, 0, 0, 0.65);
+  --color-text-tertiary: rgba(0, 0, 0, 0.45);
+  --color-text-quaternary: rgba(0, 0, 0, 0.25);
+
+  --color-border: #d9d9d9;
+  --color-border-secondary: #f0f0f0;
+
+  --color-bg-container: #ffffff;
+  --color-bg-layout: #f5f5f5;
+  --color-bg-mask: rgba(0, 0, 0, 0.45);
+
+  /* ========== Z-Index ========== */
+  --z-index-dropdown: 1050;
+  --z-index-modal: 1060;
+  --z-index-drawer: 1070;
+  --z-index-notification: 1080;
+}
+
+/* ========== Primary Color Themes ========== */
+
+/* Blue Theme (Default) */
+:root[data-primary-color="blue"] {
+  --color-primary-1: #e6f7ff;
+  --color-primary-2: #bae7ff;
+  --color-primary-3: #91d5ff;
+  --color-primary-4: #69c0ff;
+  --color-primary-5: #40a9ff;
+  --color-primary-6: #1890ff;
+  --color-primary-7: #096dd9;
+  --color-primary-8: #0050b3;
+  --color-primary-9: #003a8c;
+  --color-primary-10: #002766;
+  --color-primary: var(--color-primary-6);
+}
+
+/* Green Theme */
+:root[data-primary-color="green"] {
+  --color-primary-1: #f6ffed;
+  --color-primary-2: #d9f7be;
+  --color-primary-3: #b7eb8f;
+  --color-primary-4: #95de64;
+  --color-primary-5: #73d13d;
+  --color-primary-6: #52c41a;
+  --color-primary-7: #389e0d;
+  --color-primary-8: #237804;
+  --color-primary-9: #135200;
+  --color-primary-10: #092b00;
+  --color-primary: var(--color-primary-6);
+}
+
+/* Purple Theme */
+:root[data-primary-color="purple"] {
+  --color-primary-1: #f9f0ff;
+  --color-primary-2: #efdbff;
+  --color-primary-3: #d3adf7;
+  --color-primary-4: #b37feb;
+  --color-primary-5: #9254de;
+  --color-primary-6: #722ed1;
+  --color-primary-7: #531dab;
+  --color-primary-8: #391085;
+  --color-primary-9: #22075e;
+  --color-primary-10: #120338;
+  --color-primary: var(--color-primary-6);
+}
+
+/* Red Theme */
+:root[data-primary-color="red"] {
+  --color-primary-1: #fff1f0;
+  --color-primary-2: #ffccc7;
+  --color-primary-3: #ffa39e;
+  --color-primary-4: #ff7875;
+  --color-primary-5: #ff4d4f;
+  --color-primary-6: #f5222d;
+  --color-primary-7: #cf1322;
+  --color-primary-8: #a8071a;
+  --color-primary-9: #820014;
+  --color-primary-10: #5c0011;
+  --color-primary: var(--color-primary-6);
+}
+
+/* Orange Theme */
+:root[data-primary-color="orange"] {
+  --color-primary-1: #fff7e6;
+  --color-primary-2: #ffe7ba;
+  --color-primary-3: #ffd591;
+  --color-primary-4: #ffc069;
+  --color-primary-5: #ffa940;
+  --color-primary-6: #fa8c16;
+  --color-primary-7: #d46b08;
+  --color-primary-8: #ad4e00;
+  --color-primary-9: #873800;
+  --color-primary-10: #612500;
+  --color-primary: var(--color-primary-6);
+}
+
+/* Cyan Theme */
+:root[data-primary-color="cyan"] {
+  --color-primary-1: #e6fffb;
+  --color-primary-2: #b5f5ec;
+  --color-primary-3: #87e8de;
+  --color-primary-4: #5cdbd3;
+  --color-primary-5: #36cfc9;
+  --color-primary-6: #13c2c2;
+  --color-primary-7: #08979c;
+  --color-primary-8: #006d75;
+  --color-primary-9: #00474f;
+  --color-primary-10: #002329;
+  --color-primary: var(--color-primary-6);
+}
+
+/* ========== Dark Mode ========== */
+:root.dark {
+  --color-text-primary: rgba(255, 255, 255, 0.85);
+  --color-text-secondary: rgba(255, 255, 255, 0.65);
+  --color-text-tertiary: rgba(255, 255, 255, 0.45);
+  --color-text-quaternary: rgba(255, 255, 255, 0.25);
+
+  --color-border: #434343;
+  --color-border-secondary: #303030;
+
+  --color-bg-container: #1f1f1f;
+  --color-bg-layout: #141414;
+  --color-bg-mask: rgba(0, 0, 0, 0.65);
+
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ========== Gray Mode ========== */
+html.gray-mode {
+  filter: grayscale(100%);
+}

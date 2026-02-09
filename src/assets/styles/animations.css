@@ -1,0 +1,287 @@
+/* Animation Utilities */
+
+/* ========== Page Transition Animations ========== */
+
+/* Fade */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--duration-slow) var(--ease-in-out);
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Slide Left */
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: all var(--duration-slow) var(--ease-in-out);
+}
+.slide-left-enter-from {
+  transform: translateX(30px);
+  opacity: 0;
+}
+.slide-left-leave-to {
+  transform: translateX(-30px);
+  opacity: 0;
+}
+
+/* Slide Right */
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all var(--duration-slow) var(--ease-in-out);
+}
+.slide-right-enter-from {
+  transform: translateX(-30px);
+  opacity: 0;
+}
+.slide-right-leave-to {
+  transform: translateX(30px);
+  opacity: 0;
+}
+
+/* Zoom */
+.zoom-enter-active,
+.zoom-leave-active {
+  transition: all var(--duration-slow) var(--ease-out-back);
+}
+.zoom-enter-from,
+.zoom-leave-to {
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+/* Zoom Big */
+.zoom-big-enter-active,
+.zoom-big-leave-active {
+  transition: all var(--duration-slow) var(--ease-out-back);
+}
+.zoom-big-enter-from {
+  transform: scale(0.8);
+  opacity: 0;
+}
+.zoom-big-leave-to {
+  transform: scale(1.1);
+  opacity: 0;
+}
+
+/* ========== Keyframe Animations ========== */
+
+/* Spin */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Skeleton Loading */
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 37%,
+    #f0f0f0 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+:root.dark .skeleton {
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #1f1f1f 37%,
+    #2a2a2a 63%
+  );
+  background-size: 400% 100%;
+}
+
+/* Bounce In */
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.bounce-in {
+  animation: bounce-in var(--duration-slow) var(--ease-out-back);
+}
+
+/* Shake */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-10px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(10px);
+  }
+}
+
+.shake {
+  animation: shake 0.5s;
+}
+
+/* Pulse */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(24, 144, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Ripple Effect */
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Slide Down */
+@keyframes slide-down {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-down {
+  animation: slide-down var(--duration-slow) var(--ease-out);
+}
+
+/* Slide Up */
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.slide-up {
+  animation: slide-up var(--duration-slow) var(--ease-out);
+}
+
+/* Fade In Down */
+@keyframes fade-in-down {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.fade-in-down {
+  animation: fade-in-down var(--duration-slow) var(--ease-out);
+}
+
+/* Fade In Up */
+@keyframes fade-in-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.fade-in-up {
+  animation: fade-in-up var(--duration-slow) var(--ease-out);
+}
+
+/* ========== Utility Classes ========== */
+
+/* Card Hover Effect */
+.card-hover {
+  transition: all var(--duration-slow) var(--ease-out);
+  cursor: pointer;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Button Hover Effect */
+.btn-hover {
+  transition: all var(--duration-base) var(--ease-out);
+}
+
+.btn-hover:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.btn-hover:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Ripple Effect Container */
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+.ripple-effect:active::after {
+  width: 20px;
+  height: 20px;
+  animation: ripple 0.6s ease-out;
+}

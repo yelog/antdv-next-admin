@@ -1,0 +1,200 @@
+<template>
+  <a-drawer
+    v-model:open="visible"
+    :title="$t('settings.title')"
+    placement="right"
+    :width="320"
+  >
+    <div class="settings-drawer">
+      <!-- Theme Color -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.themeColor') }}</h4>
+        <div class="color-picker">
+          <div
+            v-for="color in PRESET_COLORS"
+            :key="color.value"
+            :class="['color-item', { active: settingsStore.primaryColor === color.value }]"
+            :style="{ backgroundColor: color.hex }"
+            @click="settingsStore.setPrimaryColor(color.value)"
+          >
+            <CheckOutlined v-if="settingsStore.primaryColor === color.value" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Theme -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.sidebarTheme') }}</h4>
+        <a-radio-group
+          v-model:value="settingsStore.sidebarTheme"
+          @change="handleSidebarThemeChange"
+        >
+          <a-radio value="light">{{ $t('settings.light') }}</a-radio>
+          <a-radio value="dark">{{ $t('settings.dark') }}</a-radio>
+        </a-radio-group>
+      </div>
+
+      <!-- Layout Mode -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.layoutMode') }}</h4>
+        <a-radio-group
+          v-model:value="settingsStore.layoutMode"
+          @change="handleLayoutModeChange"
+        >
+          <a-radio value="vertical">{{ $t('settings.vertical') }}</a-radio>
+          <a-radio value="horizontal">{{ $t('settings.horizontal') }}</a-radio>
+        </a-radio-group>
+      </div>
+
+      <!-- Page Animation -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.pageAnimation') }}</h4>
+        <a-select
+          v-model:value="settingsStore.pageAnimation"
+          style="width: 100%"
+          @change="handlePageAnimationChange"
+        >
+          <a-select-option value="fade">{{ $t('settings.fade') }}</a-select-option>
+          <a-select-option value="slide-left">{{ $t('settings.slideLeft') }}</a-select-option>
+          <a-select-option value="slide-right">{{ $t('settings.slideRight') }}</a-select-option>
+          <a-select-option value="zoom">{{ $t('settings.zoom') }}</a-select-option>
+          <a-select-option value="none">{{ $t('settings.none') }}</a-select-option>
+        </a-select>
+      </div>
+
+      <!-- Gray Mode -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.grayMode') }}</h4>
+        <a-switch
+          v-model:checked="settingsStore.grayMode"
+          @change="handleGrayModeChange"
+        />
+        <div class="hint">{{ $t('settings.grayModeHint') }}</div>
+      </div>
+
+      <!-- Actions -->
+      <div class="settings-actions">
+        <a-button type="primary" block @click="visible = false">
+          {{ $t('common.confirm') }}
+        </a-button>
+        <a-button block @click="handleReset" style="margin-top: 8px">
+          {{ $t('settings.reset') }}
+        </a-button>
+      </div>
+    </div>
+  </a-drawer>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { CheckOutlined } from '@ant-design/icons-vue'
+import { useSettingsStore } from '@/stores/settings'
+import { Modal } from 'ant-design-vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+const visible = ref(false)
+const settingsStore = useSettingsStore()
+
+const PRESET_COLORS = [
+  { name: '拂晓蓝', value: 'blue', hex: '#1890ff' },
+  { name: '极光绿', value: 'green', hex: '#52c41a' },
+  { name: '酱紫', value: 'purple', hex: '#722ed1' },
+  { name: '薄暮红', value: 'red', hex: '#f5222d' },
+  { name: '日暮橙', value: 'orange', hex: '#fa8c16' },
+  { name: '明青', value: 'cyan', hex: '#13c2c2' }
+]
+
+const handleSidebarThemeChange = (e: any) => {
+  settingsStore.setSidebarTheme(e.target.value)
+}
+
+const handleLayoutModeChange = (e: any) => {
+  settingsStore.setLayoutMode(e.target.value)
+}
+
+const handlePageAnimationChange = (value: any) => {
+  settingsStore.setPageAnimation(value)
+}
+
+const handleGrayModeChange = (checked: boolean) => {
+  settingsStore.setGrayMode(checked)
+}
+
+const handleReset = () => {
+  Modal.confirm({
+    title: t('settings.confirmReset'),
+    onOk: () => {
+      settingsStore.resetSettings()
+    }
+  })
+}
+
+const open = () => {
+  visible.value = true
+}
+
+const close = () => {
+  visible.value = false
+}
+
+defineExpose({ open, close })
+</script>
+
+<style scoped lang="scss">
+.settings-drawer {
+  .settings-section {
+    margin-bottom: var(--spacing-lg);
+
+    h4 {
+      margin-bottom: var(--spacing-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+
+    .color-picker {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-sm);
+
+      .color-item {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: var(--radius-base);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--duration-slow) var(--ease-out);
+        border: 2px solid transparent;
+
+        &:hover {
+          transform: scale(1.1);
+        }
+
+        &.active {
+          border-color: #fff;
+          box-shadow: 0 0 0 2px var(--color-primary);
+        }
+
+        .anticon {
+          color: #fff;
+          font-size: 20px;
+        }
+      }
+    }
+
+    .hint {
+      margin-top: var(--spacing-xs);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-tertiary);
+    }
+  }
+
+  .settings-actions {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border-secondary);
+  }
+}
+</style>
