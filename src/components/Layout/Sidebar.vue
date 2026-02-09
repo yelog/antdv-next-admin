@@ -23,30 +23,28 @@
       v-model:openKeys="openKeys"
       mode="inline"
       :theme="settingsStore.sidebarTheme"
+      :items="antMenuItems"
       class="sidebar-menu"
-    >
-      <MenuItem
-        v-for="item in menuItems"
-        :key="item.id"
-        :item="item"
-        :collapsed="layoutStore.collapsed"
-      />
-    </a-menu>
+      @click="handleMenuClick"
+    />
   </a-layout-sider>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, watch, h } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import type { MenuProps } from 'antdv-next'
 import { useLayoutStore } from '@/stores/layout'
 import { useSettingsStore } from '@/stores/settings'
 import { usePermissionStore } from '@/stores/permission'
 import { basicRoutes } from '@/router/routes'
 import { routesToMenuTree } from '@/router/utils'
 import type { MenuItem as MenuItemType } from '@/types/router'
-import MenuItem from './MenuItem.vue'
+import { resolveLocaleText } from '@/utils/i18n'
+import { resolveIcon } from '@/utils/icon'
 
 const route = useRoute()
+const router = useRouter()
 const layoutStore = useLayoutStore()
 const settingsStore = useSettingsStore()
 const permissionStore = usePermissionStore()
@@ -66,15 +64,43 @@ const menuItems = computed(() => {
   return fallbackMenuItems.value
 })
 
+const antMenuItems = computed<MenuProps['items']>(() => {
+  const convert = (menus: MenuItemType[]): NonNullable<MenuProps['items']> => {
+    return menus.map(menu => {
+      const iconComponent = resolveIcon(menu.icon)
+      const item = {
+        key: menu.path || menu.id,
+        label: resolveLocaleText(menu.label, menu.id),
+        icon: iconComponent ? h(iconComponent) : undefined
+      }
+
+      if (menu.children && menu.children.length > 0) {
+        return {
+          ...item,
+          key: menu.id,
+          children: convert(menu.children)
+        }
+      }
+
+      return item
+    })
+  }
+
+  return convert(menuItems.value)
+})
+
 function findMenuOpenKeys(
   menus: MenuItemType[],
   targetPath: string,
   parents: string[] = []
 ): string[] {
   for (const item of menus) {
-    const currentParents = [...parents, item.id]
+    const menuKey = item.children && item.children.length > 0
+      ? item.id
+      : (item.path || item.id)
+    const currentParents = [...parents, menuKey]
 
-    if (item.path === targetPath) {
+    if ((item.path || item.id) === targetPath) {
       return parents
     }
 
@@ -92,6 +118,12 @@ function findMenuOpenKeys(
 const syncMenuState = () => {
   selectedKeys.value = [route.path]
   openKeys.value = findMenuOpenKeys(menuItems.value, route.path)
+}
+
+const handleMenuClick: NonNullable<MenuProps['onClick']> = ({ key }) => {
+  if (typeof key === 'string' && key.startsWith('/')) {
+    router.push(key)
+  }
 }
 
 watch(

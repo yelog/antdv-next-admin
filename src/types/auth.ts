@@ -48,5 +48,11 @@ export interface Permission {
   action: string
   type: 'menu' | 'button' | 'api'
   parentId?: string
+  path?: string
+  component?: string
+  icon?: string
+  sort?: number
+  status?: 'active' | 'inactive'
+  visible?: boolean
   children?: Permission[]
 }

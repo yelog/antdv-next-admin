@@ -9,7 +9,6 @@
       v-model:value="searchQuery"
       :placeholder="$t('layout.searchPlaceholder')"
       size="large"
-      @input="handleSearch"
     >
       <template #prefix>
         <SearchOutlined />
@@ -39,8 +38,9 @@ import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { SearchOutlined } from '@antdv-next/icons'
 import { basicRoutes } from '@/router/routes'
-import { getAllMenuPaths } from '@/router/utils'
+import { routesToMenuTree } from '@/router/utils'
 import { usePermissionStore } from '@/stores/permission'
+import type { MenuItem } from '@/types/router'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
 
@@ -57,20 +57,48 @@ const visible = ref(false)
 const searchQuery = ref('')
 const searchResults = ref<SearchItem[]>([])
 
-const searchSource = computed<SearchItem[]>(() => {
+const fallbackMenus = computed<MenuItem[]>(() => {
   const basicChildren = basicRoutes.flatMap(route => route.children || [])
-  const dynamicRoutes = permissionStore.routes as any[]
-  const menuPaths = getAllMenuPaths([
-    ...basicChildren,
-    ...dynamicRoutes
-  ])
+  return routesToMenuTree(basicChildren)
+})
 
-  return menuPaths.map(item => ({
-    path: item.path,
-    title: resolveLocaleText(item.title, item.path),
-    icon: item.icon,
-    rawTitle: item.title
-  }))
+const menuSource = computed<MenuItem[]>(() => {
+  if (permissionStore.menuTree.length > 0) {
+    return permissionStore.menuTree
+  }
+  return fallbackMenus.value
+})
+
+const searchSource = computed<SearchItem[]>(() => {
+  const items: SearchItem[] = []
+
+  const traverse = (menus: MenuItem[]) => {
+    menus.forEach(menu => {
+      if (menu.path) {
+        items.push({
+          path: menu.path,
+          title: resolveLocaleText(menu.label, menu.path),
+          icon: menu.icon,
+          rawTitle: menu.label
+        })
+      }
+
+      if (menu.children && menu.children.length > 0) {
+        traverse(menu.children)
+      }
+    })
+  }
+
+  traverse(menuSource.value)
+
+  // Deduplicate by path
+  const uniqueByPath = new Map<string, SearchItem>()
+  items.forEach(item => {
+    if (!uniqueByPath.has(item.path)) {
+      uniqueByPath.set(item.path, item)
+    }
+  })
+  return Array.from(uniqueByPath.values())
 })
 
 const getIconComponent = (icon?: string) => resolveIcon(icon)
@@ -102,6 +130,10 @@ watch(visible, (val) => {
     searchQuery.value = ''
     searchResults.value = []
   }
+})
+
+watch(searchQuery, () => {
+  handleSearch()
 })
 
 const open = () => {

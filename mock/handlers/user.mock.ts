@@ -83,11 +83,19 @@ export default defineMock([
 
       const newUser = {
         id: faker.string.uuid(),
-        ...userData,
+        username: userData.username || `user_${faker.string.alphanumeric(6)}`,
+        email: userData.email || faker.internet.email(),
+        realName: userData.realName || faker.person.fullName(),
+        avatar: userData.avatar || faker.image.avatar(),
+        phone: userData.phone || `1${faker.string.numeric(10)}`,
+        gender: userData.gender || 'male',
+        birthDate: userData.birthDate || faker.date.birthdate({ min: 18, max: 65, mode: 'age' }).toISOString().split('T')[0],
+        bio: userData.bio || '',
+        status: userData.status || 'active',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        roles: [],
-        permissions: []
+        roles: userData.roles || [],
+        permissions: userData.permissions || []
       }
 
       mockUsers.push(newUser)

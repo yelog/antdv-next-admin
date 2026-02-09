@@ -38,7 +38,7 @@ export default {
     system: '系统管理',
     user: '用户管理',
     role: '角色管理',
-    permission: '权限管理',
+    permission: '菜单管理',
     examples: '示例页面',
     table: '表格示例',
     form: '表单示例',
@@ -164,8 +164,8 @@ export default {
   },
 
   permission: {
-    title: '权限管理',
-    name: '权限名称',
+    title: '菜单管理',
+    name: '菜单名称',
     code: '权限代码',
     type: '权限类型',
     menu: '菜单',
@@ -173,10 +173,10 @@ export default {
     api: 'API',
     resource: '资源',
     action: '操作',
-    createPermission: '创建权限',
-    editPermission: '编辑权限',
-    deletePermission: '删除权限',
-    confirmDelete: '确定要删除该权限吗？'
+    createPermission: '新增菜单',
+    editPermission: '编辑菜单',
+    deletePermission: '删除菜单',
+    confirmDelete: '确定要删除该菜单及其子节点吗？'
   },
 
   table: {

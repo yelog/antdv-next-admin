@@ -2,7 +2,9 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 import type { AppRouteRecordRaw, MenuItem } from '@/types/router'
+import type { Permission } from '@/types/auth'
 import { basicRoutes, asyncRoutes } from '@/router/routes'
+import { getUserPermissions } from '@/api/permission'
 import {
   filterRoutesByPermission,
   filterRoutesByRole,
@@ -17,6 +19,24 @@ function cloneRoutes(routes: AppRouteRecordRaw[]): AppRouteRecordRaw[] {
   }))
 }
 
+function collectPermissionCodes(permissionTree: Permission[]): string[] {
+  const codes = new Set<string>()
+
+  const traverse = (permissions: Permission[]) => {
+    permissions.forEach(permission => {
+      if (permission.code) {
+        codes.add(permission.code)
+      }
+      if (permission.children && permission.children.length > 0) {
+        traverse(permission.children)
+      }
+    })
+  }
+
+  traverse(permissionTree)
+  return Array.from(codes)
+}
+
 export const usePermissionStore = defineStore('permission', () => {
   // State
   const routes = ref<RouteRecordRaw[]>([])
@@ -25,12 +45,23 @@ export const usePermissionStore = defineStore('permission', () => {
 
   // Actions
   const generateRoutes = async (roles: string[], permissions: string[]): Promise<RouteRecordRaw[]> => {
+    let permissionCodes = permissions
+    try {
+      const permissionResponse = await getUserPermissions()
+      const apiPermissionCodes = collectPermissionCodes(permissionResponse.data || [])
+      if (apiPermissionCodes.length > 0) {
+        permissionCodes = apiPermissionCodes
+      }
+    } catch (error) {
+      console.warn('Failed to load permissions from API, fallback to user info permissions.', error)
+    }
+
     const clonedAsyncRoutes = cloneRoutes(asyncRoutes)
     const clonedBasicChildren = cloneRoutes(
       basicRoutes.flatMap(route => route.children || [])
     )
 
-    let accessedRoutes = filterRoutesByPermission(clonedAsyncRoutes, permissions)
+    let accessedRoutes = filterRoutesByPermission(clonedAsyncRoutes, permissionCodes)
     accessedRoutes = filterRoutesByRole(accessedRoutes, roles)
 
     routes.value = accessedRoutes as unknown as RouteRecordRaw[]

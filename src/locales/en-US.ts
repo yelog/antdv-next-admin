@@ -38,7 +38,7 @@ export default {
     system: 'System',
     user: 'User Management',
     role: 'Role Management',
-    permission: 'Permission Management',
+    permission: 'Menu Management',
     examples: 'Examples',
     table: 'Table Example',
     form: 'Form Example',
@@ -164,8 +164,8 @@ export default {
   },
 
   permission: {
-    title: 'Permission Management',
-    name: 'Permission Name',
+    title: 'Menu Management',
+    name: 'Menu Name',
     code: 'Permission Code',
     type: 'Type',
     menu: 'Menu',
@@ -173,10 +173,10 @@ export default {
     api: 'API',
     resource: 'Resource',
     action: 'Action',
-    createPermission: 'Create Permission',
-    editPermission: 'Edit Permission',
-    deletePermission: 'Delete Permission',
-    confirmDelete: 'Are you sure you want to delete this permission?'
+    createPermission: 'Create Menu',
+    editPermission: 'Edit Menu',
+    deletePermission: 'Delete Menu',
+    confirmDelete: 'Are you sure you want to delete this menu and its children?'
   },
 
   table: {

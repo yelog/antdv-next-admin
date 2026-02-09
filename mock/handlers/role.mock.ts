@@ -8,7 +8,7 @@ export default defineMock([
     url: '/api/roles',
     method: 'GET',
     body: (req) => {
-      const { current = 1, pageSize = 10, name } = req.query
+      const { current = 1, pageSize = 10, name, code } = req.query
 
       // Filter roles
       let filteredRoles = [...mockRoles]
@@ -16,6 +16,12 @@ export default defineMock([
       if (name) {
         filteredRoles = filteredRoles.filter(role =>
           role.name.toLowerCase().includes(name.toLowerCase())
+        )
+      }
+
+      if (code) {
+        filteredRoles = filteredRoles.filter(role =>
+          role.code.toLowerCase().includes(code.toLowerCase())
         )
       }
 
@@ -73,8 +79,10 @@ export default defineMock([
 
       const newRole = {
         id: faker.string.uuid(),
-        ...roleData,
-        permissions: [],
+        name: roleData.name,
+        code: roleData.code,
+        description: roleData.description || '',
+        permissions: roleData.permissions || [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
