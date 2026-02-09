@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { SearchOutlined } from '@ant-design/icons-vue'
+import { SearchOutlined } from '@antdv-next/icons'
 import { asyncRoutes } from '@/router/routes'
 import { getAllMenuPaths } from '@/router/utils'
 

@@ -1,15 +1,15 @@
 <template>
   <a-tooltip :title="tooltipTitle">
     <a-button type="text" class="header-action" @click="themeStore.toggleTheme">
-      <SunOutlined v-if="themeStore.isDark" />
-      <MoonOutlined v-else />
+      <BulbFilled v-if="themeStore.isDark" />
+      <BulbOutlined v-else />
     </a-button>
   </a-tooltip>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { SunOutlined, MoonOutlined } from '@ant-design/icons-vue'
+import { BulbFilled, BulbOutlined } from '@antdv-next/icons'
 import { useThemeStore } from '@/stores/theme'
 import { useI18n } from 'vue-i18n'
 

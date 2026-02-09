@@ -27,7 +27,7 @@ export default defineConfig({
     }
   },
   build: {
-    target: 'es2015',
+    target: 'es2020',
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
@@ -36,7 +36,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vue-vendor': ['vue', 'vue-router', 'pinia'],
-          'antdv-vendor': ['ant-design-vue', '@ant-design/icons-vue'],
+          'antdv-vendor': ['antdv-next', '@antdv-next/icons'],
           'chart-vendor': ['echarts', 'vue-echarts']
         }
       }

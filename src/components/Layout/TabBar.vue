@@ -64,7 +64,7 @@ import {
   CloseSquareOutlined,
   VerticalLeftOutlined,
   VerticalRightOutlined
-} from '@ant-design/icons-vue'
+} from '@antdv-next/icons'
 import { useTabsStore } from '@/stores/tabs'
 import type { Tab } from '@/types/layout'
 

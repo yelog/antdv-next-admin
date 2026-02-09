@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { BellOutlined } from '@ant-design/icons-vue'
+import { BellOutlined } from '@antdv-next/icons'
 import { useNotificationStore } from '@/stores/notification'
 import type { Notification } from '@/types/layout'
 import dayjs from 'dayjs'

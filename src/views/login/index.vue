@@ -67,9 +67,9 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
+import { UserOutlined, LockOutlined } from '@antdv-next/icons'
 import { useAuthStore } from '@/stores/auth'
-import { message } from 'ant-design-vue'
+import { message } from 'antdv-next'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()

@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { message } from 'ant-design-vue'
+import { message } from 'antdv-next'
 import dayjs from 'dayjs'
 import type { ValueType } from '@/types/pro'
 import { copyToClipboard } from '@/utils/helpers'

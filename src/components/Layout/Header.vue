@@ -61,7 +61,7 @@ import {
   MenuUnfoldOutlined,
   SearchOutlined,
   SettingOutlined
-} from '@ant-design/icons-vue'
+} from '@antdv-next/icons'
 import { useLayoutStore } from '@/stores/layout'
 import Breadcrumb from './Breadcrumb.vue'
 import FullscreenToggle from './FullscreenToggle.vue'

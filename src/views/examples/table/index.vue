@@ -40,8 +40,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
+import { PlusOutlined } from '@antdv-next/icons'
+import { message } from 'antdv-next'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProForm from '@/components/Pro/ProForm/index.vue'
 import { getUserList, createUser, updateUser, deleteUser } from '@/api/user'

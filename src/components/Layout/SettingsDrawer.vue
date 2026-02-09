@@ -87,9 +87,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { CheckOutlined } from '@ant-design/icons-vue'
+import { CheckOutlined } from '@antdv-next/icons'
 import { useSettingsStore } from '@/stores/settings'
-import { Modal } from 'ant-design-vue'
+import { Modal } from 'antdv-next'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()

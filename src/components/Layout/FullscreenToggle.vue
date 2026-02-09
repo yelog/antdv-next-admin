@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
+import { FullscreenOutlined, FullscreenExitOutlined } from '@antdv-next/icons'
 import { useFullscreen } from '@/composables/useFullscreen'
 
 const { isFullscreen, toggle } = useFullscreen()

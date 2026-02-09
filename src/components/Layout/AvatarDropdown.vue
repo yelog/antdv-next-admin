@@ -34,9 +34,9 @@ import {
   UserOutlined,
   SettingOutlined,
   LogoutOutlined
-} from '@ant-design/icons-vue'
+} from '@antdv-next/icons'
 import { useAuthStore } from '@/stores/auth'
-import { Modal } from 'ant-design-vue'
+import { Modal } from 'antdv-next'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()

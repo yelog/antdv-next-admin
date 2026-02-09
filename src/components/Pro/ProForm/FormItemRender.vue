@@ -175,7 +175,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { UploadOutlined } from '@ant-design/icons-vue'
+import { UploadOutlined } from '@antdv-next/icons'
 import type { ProFormItem } from '@/types/pro'
 
 interface Props {

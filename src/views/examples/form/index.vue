@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { message } from 'antdv-next'
 import ProForm from '@/components/Pro/ProForm/index.vue'
 import { commonRules } from '@/utils/formRules'
 import type { ProFormItem } from '@/types/pro'

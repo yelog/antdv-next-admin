@@ -107,7 +107,7 @@ import {
   RiseOutlined,
   BarChartOutlined,
   PieChartOutlined
-} from '@ant-design/icons-vue'
+} from '@antdv-next/icons'
 
 const activities = ref([
   { id: 1, action: 'User John created a new order', time: '2 minutes ago', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=john' },

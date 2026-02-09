@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { GlobalOutlined } from '@ant-design/icons-vue'
+import { GlobalOutlined } from '@antdv-next/icons'
 import { useI18n } from 'vue-i18n'
 import { setLocale } from '@/locales'
 

@@ -173,8 +173,8 @@ import {
   SettingOutlined,
   SearchOutlined,
   DownOutlined
-} from '@ant-design/icons-vue'
-import { message, Modal } from 'ant-design-vue'
+} from '@antdv-next/icons'
+import { message, Modal } from 'antdv-next'
 import type { ProTableColumn } from '@/types/pro'
 import ValueTypeRender from './ValueTypeRender.vue'
 

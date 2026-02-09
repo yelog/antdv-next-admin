@@ -10,26 +10,26 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "vue": "^3.4.0",
-    "vue-router": "^4.2.5",
-    "pinia": "^2.1.7",
-    "vue-i18n": "^9.9.0",
-    "axios": "^1.6.5",
+    "@antdv-next/icons": "^1.0.0",
     "antdv-next": "^1.0.0",
-    "@ant-design/icons-vue": "^7.0.1",
-    "echarts": "^5.4.3",
-    "vue-echarts": "^6.6.8",
+    "axios": "^1.6.5",
     "dayjs": "^1.11.10",
-    "lodash-es": "^4.17.21"
+    "echarts": "^5.4.3",
+    "lodash-es": "^4.17.21",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.0",
+    "vue-echarts": "^6.6.8",
+    "vue-i18n": "^9.9.0",
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.3.1",
+    "@types/lodash-es": "^4.17.12",
     "@vitejs/plugin-vue": "^5.0.0",
+    "sass": "^1.69.7",
     "typescript": "^5.3.3",
     "vite": "^5.0.11",
-    "vue-tsc": "^1.8.27",
-    "@types/lodash-es": "^4.17.12",
     "vite-plugin-mock-dev-server": "^1.4.0",
-    "@faker-js/faker": "^8.3.1",
-    "sass": "^1.69.7"
+    "vue-tsc": "^1.8.27"
   }
 }
