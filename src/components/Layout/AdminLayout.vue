@@ -6,7 +6,10 @@
       <Sidebar />
 
       <!-- Main Content -->
-      <a-layout class="layout-main">
+      <a-layout
+        class="layout-main"
+        :style="{ marginLeft: layoutStore.isMobile ? '0px' : `${layoutStore.getCurrentSidebarWidth()}px` }"
+      >
         <!-- Header -->
         <Header />
 
@@ -96,12 +99,7 @@ onMounted(() => {
 
     .layout-main {
       flex: 1;
-      margin-left: var(--sidebar-width, 240px);
       transition: margin-left var(--duration-slow) var(--ease-out);
-
-      &.collapsed {
-        margin-left: var(--sidebar-collapsed-width, 80px);
-      }
     }
   }
 

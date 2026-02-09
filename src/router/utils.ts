@@ -1,6 +1,20 @@
 import type { RouteRecordRaw } from 'vue-router'
 import type { AppRouteRecordRaw, MenuItem, RouteConfig } from '@/types/router'
 
+function resolveRoutePath(path: string, basePath = ''): string {
+  if (!path) {
+    return basePath || '/'
+  }
+
+  if (path.startsWith('/')) {
+    return path
+  }
+
+  const normalizedBase = basePath === '/' ? '' : basePath.replace(/\/$/, '')
+  const resolved = `${normalizedBase}/${path}`.replace(/\/+/g, '/')
+  return resolved.startsWith('/') ? resolved : `/${resolved}`
+}
+
 /**
  * Filter routes by permissions
  */
@@ -8,8 +22,10 @@ export function filterRoutesByPermission(
   routes: AppRouteRecordRaw[],
   permissions: string[]
 ): AppRouteRecordRaw[] {
+  const hasAllPermission = permissions.includes('*')
+
   return routes.filter(route => {
-    if (route.meta?.requiredPermissions) {
+    if (route.meta?.requiredPermissions && !hasAllPermission) {
       const hasPermission = route.meta.requiredPermissions.some(perm =>
         permissions.includes(perm)
       )
@@ -58,15 +74,16 @@ export function filterRoutesByRole(
 /**
  * Convert routes to menu tree
  */
-export function routesToMenuTree(routes: AppRouteRecordRaw[]): MenuItem[] {
+export function routesToMenuTree(routes: AppRouteRecordRaw[], basePath = ''): MenuItem[] {
   return routes
     .filter(route => !route.meta?.hidden)
     .map(route => {
+      const fullPath = resolveRoutePath(route.path, basePath)
       const menu: MenuItem = {
         id: route.name as string || route.path,
         label: route.meta?.title || route.name as string,
         icon: route.meta?.icon,
-        path: route.path,
+        path: fullPath,
         badge: route.meta?.badge,
         requiredPermissions: route.meta?.requiredPermissions,
         requiredRoles: route.meta?.requiredRoles,
@@ -74,7 +91,7 @@ export function routesToMenuTree(routes: AppRouteRecordRaw[]): MenuItem[] {
       }
 
       if (route.children && route.children.length > 0) {
-        menu.children = routesToMenuTree(route.children)
+        menu.children = routesToMenuTree(route.children, fullPath)
       }
 
       return menu
@@ -175,6 +192,10 @@ export function hasRoutePermission(
   route: AppRouteRecordRaw,
   permissions: string[]
 ): boolean {
+  if (permissions.includes('*')) {
+    return true
+  }
+
   if (!route.meta?.requiredPermissions) {
     return true
   }
@@ -192,18 +213,20 @@ export function getAllMenuPaths(routes: AppRouteRecordRaw[]): Array<{
 }> {
   const result: Array<{ path: string; title: string; icon?: string }> = []
 
-  const traverse = (routes: AppRouteRecordRaw[]) => {
+  const traverse = (routes: AppRouteRecordRaw[], basePath = '') => {
     routes.forEach(route => {
+      const fullPath = resolveRoutePath(route.path, basePath)
+
       if (!route.meta?.hidden && route.meta?.title) {
         result.push({
-          path: route.path,
+          path: fullPath,
           title: route.meta.title,
           icon: route.meta.icon
         })
       }
 
       if (route.children) {
-        traverse(route.children)
+        traverse(route.children, fullPath)
       }
     })
   }

@@ -12,13 +12,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { resolveLocaleText } from '@/utils/i18n'
 
 const route = useRoute()
 
 const breadcrumbs = computed(() => {
-  const matched = route.matched.filter(item => item.meta && item.meta.title)
+  const matched = route.matched
+    .filter(item => item.meta && item.meta.title)
+    .filter(item => item.path !== '/')
+
   return matched.map(item => ({
-    label: item.meta.title as string,
+    label: resolveLocaleText(
+      item.meta.title as string,
+      String(item.name || item.path || '-')
+    ),
     path: item.path
   }))
 })

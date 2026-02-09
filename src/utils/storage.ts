@@ -43,18 +43,30 @@ class Storage {
     }
 
     try {
-      const data: StorageData<T> = JSON.parse(item)
+      const data = JSON.parse(item) as StorageData<T> | T
 
-      // Check if expired
-      if (data.expire && Date.now() > data.expire) {
-        this.remove(key)
-        return defaultValue ?? null
+      // Compatible with wrapped storage format: { value, expire }
+      if (
+        typeof data === 'object' &&
+        data !== null &&
+        'value' in data
+      ) {
+        const wrappedData = data as StorageData<T>
+
+        // Check if expired
+        if (wrappedData.expire && Date.now() > wrappedData.expire) {
+          this.remove(key)
+          return defaultValue ?? null
+        }
+
+        return wrappedData.value
       }
 
-      return data.value
+      // Compatible with plain values stored by native localStorage APIs
+      return data as T
     } catch (error) {
-      console.error('Failed to parse storage item:', error)
-      return defaultValue ?? null
+      // Compatible with plain string values (e.g. legacy token format)
+      return item as unknown as T
     }
   }
 

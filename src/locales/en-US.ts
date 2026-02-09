@@ -1,5 +1,6 @@
 export default {
   common: {
+    appName: 'Antdv Next Admin',
     add: 'Add',
     edit: 'Edit',
     delete: 'Delete',

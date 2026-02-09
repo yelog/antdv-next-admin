@@ -12,7 +12,7 @@
       <img src="/logo.svg" alt="Logo" class="logo-img" />
       <transition name="fade">
         <span v-show="!layoutStore.collapsed" class="logo-title">
-          Antdv Next Admin
+          {{ $t('common.appName') }}
         </span>
       </transition>
     </div>
@@ -41,6 +41,9 @@ import { useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
 import { useSettingsStore } from '@/stores/settings'
 import { usePermissionStore } from '@/stores/permission'
+import { basicRoutes } from '@/router/routes'
+import { routesToMenuTree } from '@/router/utils'
+import type { MenuItem as MenuItemType } from '@/types/router'
 import MenuItem from './MenuItem.vue'
 
 const route = useRoute()
@@ -51,69 +54,52 @@ const permissionStore = usePermissionStore()
 const selectedKeys = ref<string[]>([])
 const openKeys = ref<string[]>([])
 
-// Mock menu items - will be replaced with real menu from permission store
-const menuItems = computed(() => {
-  return [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: 'DashboardOutlined',
-      path: '/dashboard'
-    },
-    {
-      id: 'system',
-      label: 'System',
-      icon: 'SettingOutlined',
-      children: [
-        {
-          id: 'system-user',
-          label: 'User Management',
-          icon: 'UserOutlined',
-          path: '/system/user'
-        },
-        {
-          id: 'system-role',
-          label: 'Role Management',
-          icon: 'TeamOutlined',
-          path: '/system/role'
-        },
-        {
-          id: 'system-permission',
-          label: 'Permission',
-          icon: 'SafetyOutlined',
-          path: '/system/permission'
-        }
-      ]
-    },
-    {
-      id: 'examples',
-      label: 'Examples',
-      icon: 'AppstoreOutlined',
-      children: [
-        {
-          id: 'examples-table',
-          label: 'Table',
-          icon: 'TableOutlined',
-          path: '/examples/table'
-        },
-        {
-          id: 'examples-form',
-          label: 'Form',
-          icon: 'FormOutlined',
-          path: '/examples/form'
-        }
-      ]
-    }
-  ]
+const fallbackMenuItems = computed(() => {
+  const basicChildren = basicRoutes.flatMap(route => route.children || [])
+  return routesToMenuTree(basicChildren)
 })
 
-// Update selected keys based on route
+const menuItems = computed(() => {
+  if (permissionStore.menuTree.length > 0) {
+    return permissionStore.menuTree
+  }
+  return fallbackMenuItems.value
+})
+
+function findMenuOpenKeys(
+  menus: MenuItemType[],
+  targetPath: string,
+  parents: string[] = []
+): string[] {
+  for (const item of menus) {
+    const currentParents = [...parents, item.id]
+
+    if (item.path === targetPath) {
+      return parents
+    }
+
+    if (item.children && item.children.length > 0) {
+      const matched = findMenuOpenKeys(item.children, targetPath, currentParents)
+      if (matched.length > 0) {
+        return matched
+      }
+    }
+  }
+
+  return []
+}
+
+const syncMenuState = () => {
+  selectedKeys.value = [route.path]
+  openKeys.value = findMenuOpenKeys(menuItems.value, route.path)
+}
+
 watch(
-  () => route.path,
-  (path) => {
-    selectedKeys.value = [path]
+  [() => route.path, menuItems],
+  () => {
+    syncMenuState()
   },
-  { immediate: true }
+  { immediate: true, deep: true }
 )
 </script>
 
@@ -137,14 +123,30 @@ watch(
       background: var(--color-bg-container);
       color: var(--color-text-primary);
     }
+
+    .sidebar-logo {
+      border-bottom-color: var(--color-border-secondary);
+
+      .logo-title {
+        color: var(--color-text-primary);
+      }
+    }
   }
 
   &.dark {
-    background: #001529;
+    background: linear-gradient(180deg, #001529 0%, #001d39 100%);
 
     :deep(.ant-menu) {
-      background: #001529;
+      background: transparent;
       color: rgba(255, 255, 255, 0.85);
+    }
+
+    .sidebar-logo {
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+
+      .logo-title {
+        color: rgba(255, 255, 255, 0.92);
+      }
     }
   }
 
@@ -174,6 +176,48 @@ watch(
   .sidebar-menu {
     border-right: none;
     margin-top: var(--spacing-sm);
+
+    :deep(.ant-menu-item),
+    :deep(.ant-menu-submenu-title) {
+      margin: 4px 8px;
+      border-radius: var(--radius-base);
+      transition: all var(--duration-base) var(--ease-out);
+    }
+  }
+
+  &.dark {
+    .sidebar-menu {
+      :deep(.ant-menu-item),
+      :deep(.ant-menu-submenu-title),
+      :deep(.ant-menu-submenu-arrow) {
+        color: rgba(255, 255, 255, 0.88) !important;
+      }
+
+      :deep(.ant-menu-item:hover),
+      :deep(.ant-menu-submenu-title:hover) {
+        color: #fff !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+      }
+
+      :deep(.ant-menu-item-selected) {
+        color: #fff !important;
+        background: rgba(22, 119, 255, 0.35) !important;
+      }
+    }
+  }
+
+  &.light {
+    .sidebar-menu {
+      :deep(.ant-menu-item:hover),
+      :deep(.ant-menu-submenu-title:hover) {
+        background: var(--color-primary-1) !important;
+      }
+
+      :deep(.ant-menu-item-selected) {
+        color: var(--color-primary) !important;
+        background: var(--color-primary-1) !important;
+      }
+    }
   }
 }
 

@@ -1,7 +1,21 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
-import type { MenuItem } from '@/types/router'
+import type { AppRouteRecordRaw, MenuItem } from '@/types/router'
+import { basicRoutes, asyncRoutes } from '@/router/routes'
+import {
+  filterRoutesByPermission,
+  filterRoutesByRole,
+  routesToMenuTree
+} from '@/router/utils'
+
+function cloneRoutes(routes: AppRouteRecordRaw[]): AppRouteRecordRaw[] {
+  return routes.map(route => ({
+    ...route,
+    meta: route.meta ? { ...route.meta } : undefined,
+    children: route.children ? cloneRoutes(route.children) : undefined
+  }))
+}
 
 export const usePermissionStore = defineStore('permission', () => {
   // State
@@ -11,17 +25,35 @@ export const usePermissionStore = defineStore('permission', () => {
 
   // Actions
   const generateRoutes = async (roles: string[], permissions: string[]): Promise<RouteRecordRaw[]> => {
-    // This will be implemented with actual route filtering logic
-    // For now, return empty array
+    const clonedAsyncRoutes = cloneRoutes(asyncRoutes)
+    const clonedBasicChildren = cloneRoutes(
+      basicRoutes.flatMap(route => route.children || [])
+    )
+
+    let accessedRoutes = filterRoutesByPermission(clonedAsyncRoutes, permissions)
+    accessedRoutes = filterRoutesByRole(accessedRoutes, roles)
+
+    routes.value = accessedRoutes as unknown as RouteRecordRaw[]
+    menuTree.value = routesToMenuTree([
+      ...clonedBasicChildren,
+      ...accessedRoutes
+    ])
     isRoutesGenerated.value = true
-    return []
+
+    return routes.value
   }
 
   const getAccessibleMenus = (permissions: string[]): MenuItem[] => {
+    const hasAllPermission = permissions.includes('*')
+
     // Filter menu tree based on permissions
     const filterMenu = (menus: MenuItem[]): MenuItem[] => {
       return menus
         .filter(menu => {
+          if (hasAllPermission) {
+            return true
+          }
+
           if (!menu.requiredPermissions || menu.requiredPermissions.length === 0) {
             return true
           }

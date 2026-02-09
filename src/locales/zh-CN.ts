@@ -1,5 +1,6 @@
 export default {
   common: {
+    appName: 'Antdv Next Admin',
     add: '新增',
     edit: '编辑',
     delete: '删除',

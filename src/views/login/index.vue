@@ -78,8 +78,8 @@ const { t } = useI18n()
 
 const loading = ref(false)
 const formState = reactive({
-  username: '',
-  password: '',
+  username: 'admin',
+  password: '123456',
   remember: false
 })
 

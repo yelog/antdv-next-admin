@@ -7,7 +7,9 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig({
   plugins: [
     vue(),
-    mockDevServerPlugin()
+    mockDevServerPlugin({
+      prefix: '/api'
+    })
   ],
   resolve: {
     alias: {

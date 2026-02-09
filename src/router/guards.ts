@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 import { usePermissionStore } from '@/stores/permission'
 import { useTabsStore } from '@/stores/tabs'
 import { isLoggedIn } from '@/utils/auth'
+import { resolveLocaleText } from '@/utils/i18n'
 
 /**
  * Setup router guards
@@ -16,7 +17,11 @@ export function setupRouterGuards(router: Router) {
 
     // Set page title
     if (to.meta.title) {
-      document.title = `${to.meta.title} - ${import.meta.env.VITE_APP_TITLE || 'Antdv Next Admin'}`
+      const title = resolveLocaleText(
+        to.meta.title as string,
+        String(to.name || to.path || 'Dashboard')
+      )
+      document.title = `${title} - ${import.meta.env.VITE_APP_TITLE || 'Antdv Next Admin'}`
     }
 
     // Check if route requires authentication

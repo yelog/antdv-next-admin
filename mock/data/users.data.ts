@@ -4,11 +4,11 @@ import type { User } from '@/types/auth'
 // Generate mock users
 export const mockUsers: User[] = Array.from({ length: 50 }, (_, index) => ({
   id: faker.string.uuid(),
-  username: faker.internet.username(),
+  username: faker.internet.userName(),
   email: faker.internet.email(),
   realName: faker.person.fullName(),
   avatar: faker.image.avatar(),
-  phone: faker.phone.number('1##########'),
+  phone: `1${faker.string.numeric(10)}`,
   gender: faker.helpers.arrayElement(['male', 'female'] as const),
   birthDate: faker.date.birthdate({ min: 18, max: 65, mode: 'age' }).toISOString().split('T')[0],
   bio: faker.person.bio(),

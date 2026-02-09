@@ -24,7 +24,7 @@
           class="search-result-item"
           @click="handleResultClick(result)"
         >
-          <component :is="result.icon" v-if="result.icon" class="result-icon" />
+          <component :is="getIconComponent(result.icon)" v-if="result.icon" class="result-icon" />
           <span class="result-title">{{ result.title }}</span>
           <span class="result-path">{{ result.path }}</span>
         </div>
@@ -35,18 +35,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { SearchOutlined } from '@antdv-next/icons'
-import { asyncRoutes } from '@/router/routes'
+import { basicRoutes } from '@/router/routes'
 import { getAllMenuPaths } from '@/router/utils'
+import { usePermissionStore } from '@/stores/permission'
+import { resolveLocaleText } from '@/utils/i18n'
+import { resolveIcon } from '@/utils/icon'
+
+interface SearchItem {
+  path: string
+  title: string
+  icon?: string
+  rawTitle: string
+}
 
 const router = useRouter()
+const permissionStore = usePermissionStore()
 const visible = ref(false)
 const searchQuery = ref('')
-const searchResults = ref<any[]>([])
+const searchResults = ref<SearchItem[]>([])
 
-const allMenuPaths = getAllMenuPaths(asyncRoutes)
+const searchSource = computed<SearchItem[]>(() => {
+  const basicChildren = basicRoutes.flatMap(route => route.children || [])
+  const dynamicRoutes = permissionStore.routes as any[]
+  const menuPaths = getAllMenuPaths([
+    ...basicChildren,
+    ...dynamicRoutes
+  ])
+
+  return menuPaths.map(item => ({
+    path: item.path,
+    title: resolveLocaleText(item.title, item.path),
+    icon: item.icon,
+    rawTitle: item.title
+  }))
+})
+
+const getIconComponent = (icon?: string) => resolveIcon(icon)
 
 const handleSearch = () => {
   if (!searchQuery.value) {
@@ -55,14 +82,15 @@ const handleSearch = () => {
   }
 
   const query = searchQuery.value.toLowerCase()
-  searchResults.value = allMenuPaths.filter(
+  searchResults.value = searchSource.value.filter(
     item =>
       item.title.toLowerCase().includes(query) ||
+      item.rawTitle.toLowerCase().includes(query) ||
       item.path.toLowerCase().includes(query)
   ).slice(0, 10)
 }
 
-const handleResultClick = (result: any) => {
+const handleResultClick = (result: SearchItem) => {
   router.push(result.path)
   visible.value = false
   searchQuery.value = ''
