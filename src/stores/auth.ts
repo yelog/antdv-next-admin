@@ -41,6 +41,16 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const login = async (username: string, password: string): Promise<void> => {
+    // Check if using demo mode (no real backend)
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+    const isDemoMode = import.meta.env.VITE_USE_MOCK === 'true' || apiBaseUrl === '/api'
+
+    if (isDemoMode) {
+      // Demo mode: Use client-side mock data
+      return loginDemo(username, password)
+    }
+
+    // Production mode: Call real API
     const { login: loginApi, getUserInfo } = await import('@/api/auth')
 
     const loginResult = await loginApi({ username, password })
@@ -48,6 +58,88 @@ export const useAuthStore = defineStore('auth', () => {
 
     const userInfo = await getUserInfo()
     setUserInfo(userInfo.data)
+  }
+
+  const loginDemo = async (username: string, password: string): Promise<void> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    // Validate credentials
+    if ((username === 'admin' || username === 'user') && password === '123456') {
+      const isAdmin = username === 'admin'
+
+      // Set token
+      setToken(`demo-token-${isAdmin ? '1' : '2'}-${Date.now()}`)
+
+      // Set user info
+      const userInfo: User = isAdmin ? {
+        id: '1',
+        username: 'admin',
+        email: 'admin@example.com',
+        realName: 'Administrator',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
+        phone: '13800138000',
+        gender: 'male',
+        birthDate: '1990-01-01',
+        bio: 'System Administrator',
+        status: 'active',
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: new Date().toISOString(),
+        roles: [{
+          id: '1',
+          name: 'Administrator',
+          code: 'admin',
+          description: 'System Administrator',
+          permissions: [],
+          createdAt: '2023-01-01T00:00:00.000Z',
+          updatedAt: '2023-01-01T00:00:00.000Z'
+        }],
+        permissions: [{
+          id: '1',
+          name: 'All Permissions',
+          code: '*',
+          description: 'Has all permissions',
+          resource: '*',
+          action: '*',
+          type: 'api'
+        }]
+      } : {
+        id: '2',
+        username: 'user',
+        email: 'user@example.com',
+        realName: 'Regular User',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user',
+        phone: '13800138001',
+        gender: 'female',
+        birthDate: '1995-05-15',
+        bio: 'Regular User',
+        status: 'active',
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: new Date().toISOString(),
+        roles: [{
+          id: '2',
+          name: 'User',
+          code: 'user',
+          description: 'Regular User',
+          permissions: [],
+          createdAt: '2023-01-01T00:00:00.000Z',
+          updatedAt: '2023-01-01T00:00:00.000Z'
+        }],
+        permissions: [{
+          id: '2',
+          name: 'View Dashboard',
+          code: 'dashboard.view',
+          description: 'Can view dashboard',
+          resource: 'dashboard',
+          action: 'view',
+          type: 'menu'
+        }]
+      }
+
+      setUserInfo(userInfo)
+    } else {
+      throw new Error('Invalid username or password')
+    }
   }
 
   const logout = () => {
