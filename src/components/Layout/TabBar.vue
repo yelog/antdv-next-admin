@@ -327,7 +327,7 @@ const getTabIcon = (tab: Tab) => {
 
           .ant-tabs-tab-btn {
             color: var(--color-primary);
-            font-weight: 600;
+            font-weight: 400;
           }
 
           .ant-tabs-tab-remove {
