@@ -2,6 +2,17 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { PrimaryColor, SidebarTheme, LayoutMode, PageAnimation } from '@/types/layout'
 
+const PAGE_ANIMATION_VALUES: PageAnimation[] = [
+  'fade',
+  'slide-left',
+  'slide-right',
+  'slide-up',
+  'slide-down',
+  'zoom',
+  'zoom-big',
+  'none'
+]
+
 export const useSettingsStore = defineStore('settings', () => {
   // State
   const primaryColor = ref<PrimaryColor>('blue')
@@ -57,7 +68,9 @@ export const useSettingsStore = defineStore('settings', () => {
     if (savedPrimaryColor) setPrimaryColor(savedPrimaryColor)
     if (savedSidebarTheme) setSidebarTheme(savedSidebarTheme)
     if (savedLayoutMode) setLayoutMode(savedLayoutMode)
-    if (savedPageAnimation) setPageAnimation(savedPageAnimation)
+    if (savedPageAnimation && PAGE_ANIMATION_VALUES.includes(savedPageAnimation)) {
+      setPageAnimation(savedPageAnimation)
+    }
     if (savedGrayMode) setGrayMode(savedGrayMode === 'true')
   }
 

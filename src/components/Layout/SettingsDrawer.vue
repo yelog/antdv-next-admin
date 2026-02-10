@@ -51,15 +51,10 @@
         <h4>{{ $t('settings.pageAnimation') }}</h4>
         <a-select
           v-model:value="settingsStore.pageAnimation"
+          :options="pageAnimationOptions"
           style="width: 100%"
           @change="handlePageAnimationChange"
-        >
-          <a-select-option value="fade">{{ $t('settings.fade') }}</a-select-option>
-          <a-select-option value="slide-left">{{ $t('settings.slideLeft') }}</a-select-option>
-          <a-select-option value="slide-right">{{ $t('settings.slideRight') }}</a-select-option>
-          <a-select-option value="zoom">{{ $t('settings.zoom') }}</a-select-option>
-          <a-select-option value="none">{{ $t('settings.none') }}</a-select-option>
-        </a-select>
+        />
       </div>
 
       <!-- Gray Mode -->
@@ -86,11 +81,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { CheckOutlined } from '@antdv-next/icons'
 import { useSettingsStore } from '@/stores/settings'
 import { Modal } from 'antdv-next'
 import { useI18n } from 'vue-i18n'
+import type { PageAnimation } from '@/types/layout'
 
 const { t } = useI18n()
 const visible = ref(false)
@@ -105,6 +101,17 @@ const PRESET_COLORS = [
   { name: '明青', value: 'cyan', hex: '#13c2c2' }
 ]
 
+const pageAnimationOptions = computed(() => [
+  { label: t('settings.fade'), value: 'fade' },
+  { label: t('settings.slideLeft'), value: 'slide-left' },
+  { label: t('settings.slideRight'), value: 'slide-right' },
+  { label: t('settings.slideUp'), value: 'slide-up' },
+  { label: t('settings.slideDown'), value: 'slide-down' },
+  { label: t('settings.zoom'), value: 'zoom' },
+  { label: t('settings.zoomBig'), value: 'zoom-big' },
+  { label: t('settings.none'), value: 'none' }
+])
+
 const handleSidebarThemeChange = (e: any) => {
   settingsStore.setSidebarTheme(e.target.value)
 }
@@ -113,7 +120,7 @@ const handleLayoutModeChange = (e: any) => {
   settingsStore.setLayoutMode(e.target.value)
 }
 
-const handlePageAnimationChange = (value: any) => {
+const handlePageAnimationChange = (value: PageAnimation) => {
   settingsStore.setPageAnimation(value)
 }
 
