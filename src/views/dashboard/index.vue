@@ -1,379 +1,670 @@
 <template>
   <div class="dashboard-container">
-    <!-- Page Header with Enhanced Visual Hierarchy -->
-    <div class="page-header">
-      <div class="header-content">
-        <div class="header-left">
-          <h1 class="page-title">{{ $t('dashboard.welcome') }}</h1>
-          <p class="page-subtitle">实时监控您的业务数据和系统运行状态</p>
-        </div>
-        <div class="header-right">
-          <a-avatar :size="56" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <template #icon><UserOutlined /></template>
-          </a-avatar>
+    <section class="card welcome-panel">
+      <div class="welcome-main">
+        <a-avatar :size="64" class="welcome-avatar">
+          <template #icon>
+            <UserOutlined />
+          </template>
+        </a-avatar>
+
+        <div class="welcome-content">
+          <p class="welcome-time">
+            <ClockCircleOutlined />
+            <span>{{ currentTimeText }}</span>
+          </p>
+          <h1 class="welcome-title">{{ greetingText }}，{{ displayName }}</h1>
+          <p class="welcome-subtitle">{{ $t('dashboard.subtitle') }}</p>
+
+          <div class="welcome-metas">
+            <span class="meta-chip meta-chip-primary">{{ $t('dashboard.systemStable') }}</span>
+            <span class="meta-chip">{{ $t('dashboard.todayFocus') }} · {{ $t('dashboard.totalRevenue') }}</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Statistics Cards with Enhanced Design -->
-    <a-row :gutter="24" class="stats-row">
-      <a-col :xs="24" :sm="12" :lg="6">
-        <div class="stat-card">
-          <div class="stat-icon-wrapper">
-            <div class="stat-icon" style="background: rgba(24, 144, 255, 0.1); color: #1890ff;">
-              <UserOutlined />
-            </div>
-            <div class="stat-icon-watermark" style="color: rgba(24, 144, 255, 0.05);">
-              <UserOutlined />
-            </div>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">{{ $t('dashboard.totalUsers') }}</div>
-            <div class="stat-value">12,458</div>
-            <div class="stat-trend positive">
-              <RiseOutlined /> +12.5%
-            </div>
+      <div class="welcome-visual" aria-hidden="true">
+        <div class="orb orb-a"></div>
+        <div class="orb orb-b"></div>
+        <div class="orb orb-c"></div>
+        <div class="wave"></div>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <article
+        v-for="card in statCards"
+        :key="card.key"
+        class="stat-card"
+        :class="`tone-${card.tone}`"
+      >
+        <p class="stat-label">{{ card.label }}</p>
+        <p class="stat-value">{{ card.value }}</p>
+        <p class="stat-trend">
+          <RiseOutlined />
+          <span>{{ $t('dashboard.compareYesterday', { value: card.trend }) }}</span>
+        </p>
+
+        <component :is="card.icon" class="stat-watermark" />
+      </article>
+    </section>
+
+    <section class="charts-grid">
+      <div class="card chart-card">
+        <div class="card-header">
+          <h3 class="card-title">{{ $t('dashboard.salesTrend') }}</h3>
+          <a-button type="link" size="small">{{ $t('dashboard.viewMore') }}</a-button>
+        </div>
+
+        <div class="chart-canvas line-canvas">
+          <div class="line-grid"></div>
+          <div class="line-fill"></div>
+          <div class="bars">
+            <span
+              v-for="(value, index) in salesBars"
+              :key="index"
+              :style="{ height: `${value}%` }"
+            ></span>
           </div>
         </div>
-      </a-col>
+      </div>
 
-      <a-col :xs="24" :sm="12" :lg="6">
-        <div class="stat-card">
-          <div class="stat-icon-wrapper">
-            <div class="stat-icon" style="background: rgba(82, 196, 26, 0.1); color: #52c41a;">
-              <ShoppingOutlined />
-            </div>
-            <div class="stat-icon-watermark" style="color: rgba(82, 196, 26, 0.05);">
-              <ShoppingOutlined />
-            </div>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">{{ $t('dashboard.totalOrders') }}</div>
-            <div class="stat-value">8,946</div>
-            <div class="stat-trend positive">
-              <RiseOutlined /> +8.2%
-            </div>
-          </div>
+      <div class="card chart-card">
+        <div class="card-header">
+          <h3 class="card-title">{{ $t('dashboard.userDistribution') }}</h3>
         </div>
-      </a-col>
 
-      <a-col :xs="24" :sm="12" :lg="6">
-        <div class="stat-card">
-          <div class="stat-icon-wrapper">
-            <div class="stat-icon" style="background: rgba(250, 140, 22, 0.1); color: #fa8c16;">
-              <DollarOutlined />
-            </div>
-            <div class="stat-icon-watermark" style="color: rgba(250, 140, 22, 0.05);">
-              <DollarOutlined />
-            </div>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">{{ $t('dashboard.totalRevenue') }}</div>
-            <div class="stat-value">¥456,789</div>
-            <div class="stat-trend positive">
-              <RiseOutlined /> +15.3%
-            </div>
-          </div>
+        <div class="chart-canvas donut-canvas">
+          <div class="donut-ring"></div>
+          <ul class="legend-list">
+            <li v-for="item in userDistribution" :key="item.label">
+              <span class="legend-dot" :style="{ background: item.color }"></span>
+              <span class="legend-label">{{ item.label }}</span>
+              <span class="legend-value">{{ item.value }}%</span>
+            </li>
+          </ul>
         </div>
-      </a-col>
+      </div>
+    </section>
 
-      <a-col :xs="24" :sm="12" :lg="6">
-        <div class="stat-card">
-          <div class="stat-icon-wrapper">
-            <div class="stat-icon" style="background: rgba(114, 46, 209, 0.1); color: #722ed1;">
-              <RiseOutlined />
-            </div>
-            <div class="stat-icon-watermark" style="color: rgba(114, 46, 209, 0.05);">
-              <RiseOutlined />
-            </div>
-          </div>
-          <div class="stat-content">
-            <div class="stat-label">{{ $t('dashboard.conversionRate') }}</div>
-            <div class="stat-value">3.24%</div>
-            <div class="stat-trend positive">
-              <RiseOutlined /> +0.8%
-            </div>
-          </div>
-        </div>
-      </a-col>
-    </a-row>
-
-    <!-- Charts with Asymmetric Layout (2:1 ratio) -->
-    <a-row :gutter="24" class="charts-row">
-      <a-col :xs="24" :lg="16">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">{{ $t('dashboard.salesTrend') }}</h3>
-            <a-button type="link" size="small">查看详情</a-button>
-          </div>
-          <a-skeleton active :paragraph="{ rows: 6 }" />
-        </div>
-      </a-col>
-
-      <a-col :xs="24" :lg="8">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">{{ $t('dashboard.userDistribution') }}</h3>
-          </div>
-          <a-skeleton active :paragraph="{ rows: 6 }" />
-        </div>
-      </a-col>
-    </a-row>
-
-    <!-- Recent Activities -->
-    <div class="card">
+    <section class="card activities-card">
       <div class="card-header">
         <h3 class="card-title">{{ $t('dashboard.recentActivities') }}</h3>
-        <a-button type="link" size="small">查看全部</a-button>
+        <a-button type="link" size="small">{{ $t('dashboard.viewMore') }}</a-button>
       </div>
-      <a-list
-        :data-source="activities"
-        :loading="false"
-        class="activities-list"
-      >
-        <template #renderItem="{ item }">
-          <a-list-item class="activity-item">
-            <a-list-item-meta>
-              <template #title>
-                <span class="activity-title">{{ item.action }}</span>
-              </template>
-              <template #description>
-                <span class="activity-time">{{ item.time }}</span>
-              </template>
-              <template #avatar>
-                <a-avatar :src="item.avatar" :size="40" />
-              </template>
-            </a-list-item-meta>
-          </a-list-item>
-        </template>
-      </a-list>
-    </div>
+
+      <ul class="activity-list">
+        <li v-for="item in activities" :key="item.id" class="activity-item">
+          <a-avatar :src="item.avatar" :size="40" />
+          <div class="activity-content">
+            <p class="activity-title">{{ item.action }}</p>
+            <p class="activity-time">{{ item.time }}</p>
+          </div>
+          <a-tag :color="item.tagColor">{{ item.tag }}</a-tag>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   UserOutlined,
   ShoppingOutlined,
   DollarOutlined,
-  RiseOutlined
+  RiseOutlined,
+  ClockCircleOutlined
 } from '@antdv-next/icons'
+import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/stores/auth'
+
+const { t, locale } = useI18n()
+const authStore = useAuthStore()
+
+const now = ref(new Date())
+let timer: number | null = null
+
+const displayName = computed(() => {
+  return authStore.user?.realName || authStore.user?.username || 'Administrator'
+})
+
+const greetingText = computed(() => {
+  const hour = now.value.getHours()
+  if (hour < 6) {
+    return t('dashboard.goodNight')
+  }
+  if (hour < 12) {
+    return t('dashboard.goodMorning')
+  }
+  if (hour < 18) {
+    return t('dashboard.goodAfternoon')
+  }
+  return t('dashboard.goodEvening')
+})
+
+const currentTimeText = computed(() => {
+  const targetLocale = locale.value === 'zh-CN' ? 'zh-CN' : 'en-US'
+  return new Intl.DateTimeFormat(targetLocale, {
+    month: 'short',
+    day: 'numeric',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(now.value)
+})
+
+const statCards = computed(() => [
+  {
+    key: 'users',
+    tone: 'blue',
+    label: t('dashboard.totalUsers'),
+    value: '12,458',
+    trend: '+12.5%',
+    icon: UserOutlined
+  },
+  {
+    key: 'orders',
+    tone: 'green',
+    label: t('dashboard.totalOrders'),
+    value: '8,946',
+    trend: '+8.2%',
+    icon: ShoppingOutlined
+  },
+  {
+    key: 'revenue',
+    tone: 'orange',
+    label: t('dashboard.totalRevenue'),
+    value: '¥456,789',
+    trend: '+15.3%',
+    icon: DollarOutlined
+  },
+  {
+    key: 'conversion',
+    tone: 'purple',
+    label: t('dashboard.conversionRate'),
+    value: '3.24%',
+    trend: '+0.8%',
+    icon: RiseOutlined
+  }
+])
+
+const salesBars = [34, 48, 44, 62, 58, 70, 66, 72]
+
+const userDistribution = computed(() => [
+  { label: t('dashboard.newUsers'), value: 46, color: '#1677ff' },
+  { label: t('dashboard.returningUsers'), value: 34, color: '#52c41a' },
+  { label: t('dashboard.enterpriseUsers'), value: 20, color: '#fa8c16' }
+])
 
 const activities = ref([
-  { id: 1, action: 'User John created a new order', time: '2 minutes ago', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=john' },
-  { id: 2, action: 'Admin updated system settings', time: '1 hour ago', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin' },
-  { id: 3, action: 'New user registered', time: '3 hours ago', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=new' },
-  { id: 4, action: 'System backup completed', time: '5 hours ago', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=system' }
+  {
+    id: 1,
+    action: '管理员更新了系统菜单权限配置',
+    time: '2 分钟前',
+    tag: '系统',
+    tagColor: 'blue',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin'
+  },
+  {
+    id: 2,
+    action: '新增用户 Sunny 并分配运营角色',
+    time: '18 分钟前',
+    tag: '用户',
+    tagColor: 'cyan',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sunny'
+  },
+  {
+    id: 3,
+    action: '今日订单统计任务执行完成',
+    time: '1 小时前',
+    tag: '任务',
+    tagColor: 'green',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=job'
+  },
+  {
+    id: 4,
+    action: '风控策略版本已发布到生产环境',
+    time: '2 小时前',
+    tag: '发布',
+    tagColor: 'purple',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=release'
+  }
 ])
+
+onMounted(() => {
+  timer = window.setInterval(() => {
+    now.value = new Date()
+  }, 60000)
+})
+
+onBeforeUnmount(() => {
+  if (timer !== null) {
+    window.clearInterval(timer)
+    timer = null
+  }
+})
 </script>
 
 <style scoped lang="scss">
 .dashboard-container {
-  color: var(--color-text-primary);
+  display: grid;
+  gap: var(--spacing-lg);
 
-  // Page Header with Enhanced Visual Design
-  .page-header {
-    margin-bottom: 32px;
-    padding: 28px 32px;
-    background: var(--color-bg-container);
-    border-radius: 10px;
-    border: 1px solid var(--color-border-secondary);
-    box-shadow: var(--shadow-card);
+  .welcome-panel {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px 32px;
+    background: linear-gradient(140deg, var(--color-bg-container) 0%, var(--color-primary-1) 220%);
 
-    .header-content {
+    .welcome-main {
+      position: relative;
+      z-index: 2;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 18px;
+      max-width: 70%;
+    }
 
-      .header-left {
-        flex: 1;
+    .welcome-avatar {
+      background: linear-gradient(135deg, #2f80ff 0%, #145dff 100%);
+      box-shadow: 0 10px 24px rgba(24, 119, 255, 0.24);
+      flex-shrink: 0;
+    }
 
-        .page-title {
-          font-size: 32px;
-          font-weight: 600;
-          color: var(--color-text-primary);
-          margin-bottom: 8px;
-          line-height: 1.2;
-        }
-
-        .page-subtitle {
-          font-size: 14px;
-          color: var(--color-text-secondary);
-          margin: 0;
-        }
+    .welcome-content {
+      .welcome-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--color-text-tertiary);
+        margin-bottom: 6px;
       }
 
-      .header-right {
-        margin-left: 24px;
+      .welcome-title {
+        font-size: 32px;
+        line-height: 1.2;
+        margin: 0 0 6px;
+        color: var(--color-text-primary);
+      }
+
+      .welcome-subtitle {
+        margin: 0;
+        color: var(--color-text-secondary);
+        font-size: 14px;
+      }
+
+      .welcome-metas {
+        margin-top: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+
+        .meta-chip {
+          padding: 4px 10px;
+          border-radius: 999px;
+          font-size: 12px;
+          color: var(--color-text-secondary);
+          background: var(--color-bg-layout);
+          border: 1px solid var(--color-border-secondary);
+
+          &.meta-chip-primary {
+            color: var(--color-primary);
+            background: var(--color-primary-1);
+            border-color: var(--color-primary-2);
+          }
+        }
+      }
+    }
+
+    .welcome-visual {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 38%;
+      pointer-events: none;
+
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(2px);
+      }
+
+      .orb-a {
+        width: 180px;
+        height: 180px;
+        right: 56px;
+        top: -48px;
+        background: rgba(24, 119, 255, 0.24);
+      }
+
+      .orb-b {
+        width: 120px;
+        height: 120px;
+        right: 12px;
+        top: 84px;
+        background: rgba(82, 196, 26, 0.16);
+      }
+
+      .orb-c {
+        width: 88px;
+        height: 88px;
+        right: 160px;
+        bottom: 22px;
+        background: rgba(250, 140, 22, 0.16);
+      }
+
+      .wave {
+        position: absolute;
+        right: -70px;
+        bottom: -120px;
+        width: 380px;
+        height: 260px;
+        border-radius: 42% 58% 56% 44% / 44% 44% 56% 56%;
+        background: radial-gradient(circle at 20% 30%, rgba(24, 119, 255, 0.16), rgba(24, 119, 255, 0.02));
       }
     }
   }
 
-  // Statistics Cards with Professional Design
-  .stats-row {
-    margin-bottom: 24px;
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--spacing-md);
 
     .stat-card {
       position: relative;
-      display: flex;
-      flex-direction: column;
-      padding: 24px;
-      background: var(--color-bg-container);
-      border-radius: 10px;
-      border: 1px solid var(--color-border-secondary);
-      box-shadow: var(--shadow-card);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       overflow: hidden;
-      min-height: 140px;
+      min-height: 168px;
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border-secondary);
+      background: var(--color-bg-container);
+      box-shadow: var(--shadow-card);
+      transition: all var(--duration-slow) var(--ease-out);
 
       &:hover {
         transform: translateY(-4px);
         box-shadow: var(--shadow-card-hover);
       }
 
-      .stat-icon-wrapper {
-        position: relative;
-        margin-bottom: 16px;
-
-        .stat-icon {
-          width: 56px;
-          height: 56px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-          font-size: 24px;
-          position: relative;
-          z-index: 2;
-        }
-
-        .stat-icon-watermark {
-          position: absolute;
-          right: 0;
-          top: -10px;
-          font-size: 100px;
-          opacity: 1;
-          pointer-events: none;
-        }
+      .stat-label {
+        font-size: 12px;
+        color: var(--color-text-tertiary);
+        margin-bottom: 10px;
       }
 
-      .stat-content {
-        flex: 1;
+      .stat-value {
+        margin: 0;
+        font-size: 36px;
+        line-height: 1;
+        font-family: var(--font-family-number);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-text-primary);
+        letter-spacing: -0.02em;
+      }
 
-        .stat-label {
-          font-size: 14px;
-          color: var(--color-text-secondary);
-          margin-bottom: 8px;
-          font-weight: 400;
-        }
+      .stat-trend {
+        margin-top: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--color-success);
+        font-weight: var(--font-weight-medium);
+      }
 
-        .stat-value {
-          font-size: 30px;
-          font-weight: 600;
+      .stat-watermark {
+        position: absolute;
+        right: 14px;
+        bottom: -6px;
+        font-size: 96px;
+        color: var(--accent-soft);
+      }
+
+      &.tone-blue {
+        --accent-soft: rgba(24, 119, 255, 0.12);
+      }
+
+      &.tone-green {
+        --accent-soft: rgba(82, 196, 26, 0.12);
+      }
+
+      &.tone-orange {
+        --accent-soft: rgba(250, 140, 22, 0.12);
+      }
+
+      &.tone-purple {
+        --accent-soft: rgba(114, 46, 209, 0.12);
+      }
+    }
+  }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-md);
+
+    .chart-card {
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+
+        .card-title {
+          margin: 0;
+          font-size: 18px;
           color: var(--color-text-primary);
-          margin-bottom: 8px;
-          line-height: 1;
-          font-family: 'DIN Alternate', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+      }
+
+      .chart-canvas {
+        flex: 1;
+        border-radius: 12px;
+        border: 1px solid var(--color-border-secondary);
+        background: linear-gradient(180deg, rgba(24, 119, 255, 0.03), rgba(24, 119, 255, 0));
+        position: relative;
+        overflow: hidden;
+      }
+
+      .line-canvas {
+        padding: 18px;
+
+        .line-grid {
+          position: absolute;
+          inset: 18px;
+          background-image: linear-gradient(to bottom, rgba(127, 127, 127, 0.12) 1px, transparent 1px);
+          background-size: 100% 22%;
         }
 
-        .stat-trend {
-          font-size: 13px;
-          font-weight: 500;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
+        .line-fill {
+          position: absolute;
+          left: 18px;
+          right: 18px;
+          bottom: 18px;
+          height: 42%;
+          background: linear-gradient(180deg, rgba(24, 119, 255, 0.24), rgba(24, 119, 255, 0.04));
+          clip-path: polygon(0 84%, 14% 70%, 28% 74%, 42% 58%, 56% 63%, 70% 44%, 84% 48%, 100% 30%, 100% 100%, 0 100%);
+        }
 
-          &.positive {
-            color: #52c41a;
+        .bars {
+          position: absolute;
+          left: 18px;
+          right: 18px;
+          bottom: 18px;
+          height: 64%;
+          display: grid;
+          grid-template-columns: repeat(8, minmax(0, 1fr));
+          align-items: end;
+          gap: 8px;
+
+          span {
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(24, 119, 255, 0.82), rgba(24, 119, 255, 0.22));
+          }
+        }
+      }
+
+      .donut-canvas {
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        gap: 16px;
+
+        .donut-ring {
+          width: 164px;
+          height: 164px;
+          border-radius: 50%;
+          background: conic-gradient(#1677ff 0 46%, #52c41a 46% 80%, #fa8c16 80% 100%);
+          position: relative;
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+
+          &::after {
+            content: '';
+            position: absolute;
+            inset: 26px;
+            border-radius: 50%;
+            background: var(--color-bg-container);
+            border: 1px solid var(--color-border-secondary);
+          }
+        }
+
+        .legend-list {
+          width: min(280px, 100%);
+          display: grid;
+          gap: 10px;
+
+          li {
+            display: grid;
+            grid-template-columns: 12px 1fr auto;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
           }
 
-          &.negative {
-            color: #ff4d4f;
+          .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+          }
+
+          .legend-value {
+            font-family: var(--font-family-number);
+            color: var(--color-text-primary);
+            font-weight: var(--font-weight-semibold);
           }
         }
       }
     }
   }
 
-  // Charts Section with Asymmetric Layout
-  .charts-row {
-    margin-bottom: 24px;
-  }
-
-  // Card Component with Enhanced Design
-  .card {
-    padding: 24px;
-    background: var(--color-bg-container);
-    border-radius: 10px;
-    border: 1px solid var(--color-border-secondary);
-    box-shadow: var(--shadow-card);
-    margin-bottom: 24px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &:hover {
-      box-shadow: var(--shadow-card-hover);
-    }
-
+  .activities-card {
     .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 8px;
+
+      .card-title {
+        margin: 0;
+        font-size: 18px;
+        color: var(--color-text-primary);
+      }
     }
 
-    .card-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--color-text-primary);
-      margin: 0;
-    }
+    .activity-list {
+      display: grid;
+      gap: 6px;
 
-    .chart-placeholder {
-      height: 300px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--color-text-tertiary);
+      .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 10px;
+        transition: all var(--duration-base) var(--ease-out);
 
-      .chart-icon {
-        font-size: 64px;
-        margin-bottom: var(--spacing-md);
+        &:hover {
+          background: var(--color-bg-layout);
+        }
+
+        .activity-content {
+          flex: 1;
+          min-width: 0;
+
+          .activity-title {
+            margin: 0;
+            font-size: 14px;
+            color: var(--color-text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .activity-time {
+            margin: 2px 0 0;
+            font-size: 12px;
+            color: var(--color-text-tertiary);
+          }
+        }
       }
     }
   }
+}
 
-  // Activities List
-  .activities-list {
-    :deep(.ant-list-item) {
-      padding: 16px 0;
-      border-bottom: 1px solid var(--color-border-secondary);
-      transition: background-color 0.2s;
+@media (max-width: 1200px) {
+  .dashboard-container {
+    .stats-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
-      &:hover {
-        background-color: var(--color-bg-layout);
-        padding-left: 12px;
-        padding-right: 12px;
-        margin-left: -12px;
-        margin-right: -12px;
-        border-radius: 8px;
+    .charts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    .welcome-panel {
+      padding: 22px 18px;
+
+      .welcome-main {
+        max-width: 100%;
       }
 
-      &:last-child {
-        border-bottom: none;
+      .welcome-visual {
+        display: none;
+      }
+
+      .welcome-content {
+        .welcome-title {
+          font-size: 26px;
+        }
       }
     }
 
-    .activity-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--color-text-primary);
-    }
+    .stats-grid {
+      grid-template-columns: 1fr;
 
-    .activity-time {
-      font-size: 12px;
-      color: var(--color-text-secondary);
+      .stat-card {
+        min-height: 150px;
+
+        .stat-value {
+          font-size: 32px;
+        }
+      }
     }
   }
 }

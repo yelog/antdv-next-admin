@@ -15,7 +15,7 @@
       row-key="id"
     >
       <template #toolbar-actions>
-        <a-button type="primary" @click="handleCreate">
+        <a-button type="primary" class="create-user-btn" @click="handleCreate">
           <PlusOutlined /> 新建用户
         </a-button>
       </template>
@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { PlusOutlined } from '@antdv-next/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
 import { message } from 'antdv-next'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProForm from '@/components/Pro/ProForm/index.vue'
@@ -127,10 +127,12 @@ const columns: ProTableColumn[] = [
     actions: [
       {
         label: '编辑',
+        icon: EditOutlined,
         onClick: (record) => handleEdit(record)
       },
       {
         label: '删除',
+        icon: DeleteOutlined,
         danger: true,
         confirm: '确定要删除该用户吗？',
         onClick: (record) => handleDelete(record)
@@ -255,3 +257,15 @@ const handleSubmit = async () => {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.create-user-btn {
+  box-shadow: 0 4px 14px rgba(24, 119, 255, 0.3);
+  border: none;
+
+  &:hover {
+    box-shadow: 0 8px 18px rgba(24, 119, 255, 0.36);
+    transform: translateY(-1px);
+  }
+}
+</style>

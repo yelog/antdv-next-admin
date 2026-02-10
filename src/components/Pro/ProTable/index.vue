@@ -106,6 +106,7 @@
       :data-source="dataSource"
       :loading="loading"
       :pagination="paginationConfig"
+      size="middle"
       :row-key="rowKey"
       v-bind="$attrs"
       @change="handleTableChange"
@@ -117,7 +118,7 @@
         #[`bodyCell`]="{ column, record, text, index }"
       >
         <template v-if="column.dataIndex === 'action'">
-          <a-space>
+          <a-space class="row-action-group" :size="4">
             <template v-for="(action, idx) in column.actions" :key="idx">
               <a-button
                 v-if="!action.hidden?.(record)"
@@ -125,8 +126,10 @@
                 :danger="action.danger"
                 :disabled="action.disabled?.(record)"
                 size="small"
+                class="table-action-btn"
                 @click="handleAction(action, record)"
               >
+                <component :is="action.icon" v-if="action.icon" />
                 {{ action.label }}
               </a-button>
             </template>
@@ -331,7 +334,8 @@ defineExpose({
 .pro-table {
   background: var(--color-bg-container);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border-secondary);
+  padding: var(--spacing-md);
 
   .pro-table-toolbar {
     display: flex;
@@ -364,10 +368,9 @@ defineExpose({
   }
 
   .pro-table-search {
-    margin-bottom: var(--spacing-lg);
-    padding: var(--spacing-lg);
-    background: var(--color-bg-layout);
-    border-radius: var(--radius-base);
+    margin-bottom: var(--spacing-md);
+    padding: 4px 8px 2px;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     .search-actions {
       display: flex;
@@ -377,6 +380,53 @@ defineExpose({
     .rotate-180 {
       transform: rotate(180deg);
       transition: transform var(--duration-base);
+    }
+  }
+
+  :deep(.ant-table-container) {
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  :deep(.ant-table-thead > tr > th) {
+    background: linear-gradient(180deg, rgba(24, 119, 255, 0.08), rgba(24, 119, 255, 0.02));
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: var(--font-weight-semibold);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  :deep(.ant-table-tbody > tr:hover > td) {
+    background: var(--color-bg-layout) !important;
+  }
+
+  .row-action-group {
+    opacity: 0;
+    transform: translateX(6px);
+    transition: all var(--duration-base) var(--ease-out);
+  }
+
+  :deep(.ant-table-row:hover) .row-action-group {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .table-action-btn {
+    border-radius: 8px;
+    padding-inline: 8px;
+
+    :deep(.anticon) {
+      margin-right: 2px;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .pro-table {
+    .row-action-group {
+      opacity: 1;
+      transform: none;
     }
   }
 }

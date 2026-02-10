@@ -2,10 +2,13 @@
 
 :root {
   /* ========== Typography ========== */
-  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+  --font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     'Noto Color Emoji';
+  --font-family-number: 'DIN Alternate', 'Bahnschrift', 'Inter', 'Roboto',
+    -apple-system, BlinkMacSystemFont, sans-serif;
 
   --font-family-code: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono',
     Consolas, 'Courier New', monospace;
@@ -44,8 +47,8 @@
   --radius-xs: 2px;
   --radius-sm: 4px;
   --radius-base: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
   /* ========== Animation Duration ========== */
@@ -63,14 +66,14 @@
   --ease-in-out-back: cubic-bezier(0.71, -0.46, 0.29, 1.46);
 
   /* ========== Shadows (Diffused, Professional) ========== */
-  --shadow-1: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
 
-  --shadow-2: 0 4px 16px 0 rgba(0, 0, 0, 0.06);
+  --shadow-2: 0 6px 20px rgba(15, 23, 42, 0.06);
 
-  --shadow-3: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+  --shadow-3: 0 12px 36px rgba(15, 23, 42, 0.08);
 
-  --shadow-card: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
-  --shadow-card-hover: 0 6px 30px 0 rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 6px 24px rgba(15, 23, 42, 0.06);
+  --shadow-card-hover: 0 10px 32px rgba(15, 23, 42, 0.12);
   --shadow-drawer: 0 8px 40px 0 rgba(0, 0, 0, 0.12);
   --shadow-modal: 0 12px 48px 0 rgba(0, 0, 0, 0.15);
 
@@ -217,8 +220,8 @@
   --color-bg-layout: #141414;
   --color-bg-mask: rgba(0, 0, 0, 0.65);
 
-  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.3);
-  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 8px 28px rgba(0, 0, 0, 0.28);
+  --shadow-card-hover: 0 14px 36px rgba(0, 0, 0, 0.4);
 }
 
 /* ========== Gray Mode ========== */

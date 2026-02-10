@@ -177,7 +177,7 @@ watch(
   }
 
   &.theme-dark {
-    background: linear-gradient(180deg, #001529 0%, #001d39 100%);
+    background: linear-gradient(180deg, #0b1326 0%, #111d38 58%, #132246 100%);
 
     :deep(.ant-menu) {
       background: transparent;

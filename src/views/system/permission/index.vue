@@ -36,7 +36,8 @@
             <a-button @click="handleReset">
               {{ $t('common.reset') }}
             </a-button>
-            <a-button type="primary" @click="openCreateRoot">
+            <a-button type="primary" class="create-btn" @click="openCreateRoot">
+              <PlusOutlined />
               {{ $t('permission.createPermission') }}
             </a-button>
             <a-button @click="expandAllRows">展开全部</a-button>
@@ -53,6 +54,8 @@
         :data-source="filteredMenus"
         :pagination="false"
         :children-column-name="'children'"
+        size="middle"
+        class="permission-table"
         :scroll="{ x: 1200 }"
       >
         <template #bodyCell="{ column, record }">
@@ -83,20 +86,22 @@
           </template>
 
           <template v-else-if="column.key === 'action'">
-            <a-space>
-              <a-button
-                v-if="record.type === 'menu'"
-                type="link"
-                @click="openCreateChild(record)"
-              >
-                新增子级
-              </a-button>
-              <a-button type="link" @click="openEdit(record)">
-                {{ $t('common.edit') }}
-              </a-button>
-              <a-button type="link" danger @click="handleDelete(record)">
-                {{ $t('common.delete') }}
-              </a-button>
+            <a-space class="row-actions" :size="4">
+              <a-tooltip title="新增子级" v-if="record.type === 'menu'">
+                <a-button type="text" class="action-btn add-btn" @click="openCreateChild(record)">
+                  <PlusOutlined />
+                </a-button>
+              </a-tooltip>
+              <a-tooltip :title="$t('common.edit')">
+                <a-button type="text" class="action-btn edit-btn" @click="openEdit(record)">
+                  <EditOutlined />
+                </a-button>
+              </a-tooltip>
+              <a-tooltip :title="$t('common.delete')">
+                <a-button type="text" danger class="action-btn delete-btn" @click="handleDelete(record)">
+                  <DeleteOutlined />
+                </a-button>
+              </a-tooltip>
             </a-space>
           </template>
         </template>
@@ -197,6 +202,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { message, Modal } from 'antdv-next'
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
 import { useI18n } from 'vue-i18n'
 import {
   createPermission,
@@ -279,7 +285,7 @@ const columns = [
   { title: t('common.status'), dataIndex: 'status', key: 'status', width: 100 },
   { title: '显示', dataIndex: 'visible', key: 'visible', width: 90 },
   { title: '排序', dataIndex: 'sort', key: 'sort', width: 90 },
-  { title: t('common.actions'), key: 'action', width: 220, fixed: 'right' as const }
+  { title: t('common.actions'), key: 'action', width: 160, fixed: 'right' as const }
 ]
 
 const permissionTypeOptions = [
@@ -547,13 +553,89 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .page-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
 }
 
 .filter-form {
-  padding: var(--spacing-sm) 0 var(--spacing-xs);
+  padding: 16px 20px 8px;
+  border-bottom: 1px solid var(--color-border-secondary);
+  background: linear-gradient(180deg, rgba(24, 119, 255, 0.05), rgba(24, 119, 255, 0));
+
+  :deep(.ant-form-item) {
+    margin-bottom: 10px;
+  }
+
+  :deep(.ant-input),
+  :deep(.ant-input-affix-wrapper),
+  :deep(.ant-select-selector) {
+    background: var(--color-bg-container) !important;
+    border-color: var(--color-border) !important;
+  }
+}
+
+.create-btn {
+  box-shadow: 0 4px 14px rgba(24, 119, 255, 0.3);
+  border: none;
+
+  &:hover {
+    box-shadow: 0 8px 18px rgba(24, 119, 255, 0.36);
+    transform: translateY(-1px);
+  }
+}
+
+.permission-table {
+  padding: 10px 16px 16px;
+
+  :deep(.ant-table-container) {
+    border-radius: 12px;
+    border: 1px solid var(--color-border-secondary);
+    overflow: hidden;
+  }
+
+  :deep(.ant-table-thead > tr > th) {
+    background: linear-gradient(180deg, rgba(24, 119, 255, 0.08), rgba(24, 119, 255, 0.02));
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: var(--font-weight-semibold);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  :deep(.ant-table-tbody > tr:hover > td) {
+    background: var(--color-bg-layout) !important;
+  }
+
+  .row-actions {
+    opacity: 0;
+    transform: translateX(6px);
+    transition: all var(--duration-base) var(--ease-out);
+  }
+
+  :deep(.ant-table-row:hover) .row-actions {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    color: var(--color-text-secondary);
+
+    &:hover {
+      background: var(--color-bg-layout);
+    }
+  }
+
+  .add-btn:hover,
+  .edit-btn:hover {
+    color: var(--color-primary);
+  }
+
+  .delete-btn:hover {
+    color: var(--color-error);
+  }
 }
 
 @media (max-width: 992px) {
@@ -565,6 +647,13 @@ onMounted(async () => {
 
     :deep(.ant-form-item-control-input) {
       width: 100%;
+    }
+  }
+
+  .permission-table {
+    .row-actions {
+      opacity: 1;
+      transform: none;
     }
   }
 }

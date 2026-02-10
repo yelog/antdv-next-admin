@@ -122,13 +122,13 @@ const getTabLabel = (tab: Tab) => {
 .tab-bar {
   background: var(--color-bg-container);
   border-bottom: 1px solid var(--color-border-secondary);
-  padding: 0 24px;
+  padding: 0 20px;
 
   .tabs-container {
     :deep(.ant-tabs) {
       .ant-tabs-nav {
         margin: 0;
-        padding: 8px 0;
+        padding: 10px 0;
 
         &::before {
           border-bottom: none;
@@ -136,11 +136,11 @@ const getTabLabel = (tab: Tab) => {
       }
 
       .ant-tabs-tab {
-        border: none !important;
-        background: transparent;
+        border: 1px solid transparent !important;
+        background: var(--color-bg-layout);
         margin-right: 8px;
-        padding: 8px 16px;
-        border-radius: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
         .ant-tabs-tab-btn {
@@ -150,7 +150,8 @@ const getTabLabel = (tab: Tab) => {
         }
 
         &:hover {
-          background: var(--color-bg-layout);
+          background: var(--color-bg-container);
+          border-color: var(--color-border-secondary);
 
           .ant-tabs-tab-btn {
             color: var(--color-text-primary);
@@ -158,18 +159,19 @@ const getTabLabel = (tab: Tab) => {
         }
 
         &.ant-tabs-tab-active {
-          background: var(--color-primary);
+          background: var(--color-primary-1);
+          border-color: var(--color-primary-2);
 
           .ant-tabs-tab-btn {
-            color: #ffffff;
-            font-weight: 500;
+            color: var(--color-primary);
+            font-weight: 600;
           }
 
           .ant-tabs-tab-remove {
-            color: rgba(255, 255, 255, 0.85);
+            color: var(--color-primary);
 
             &:hover {
-              color: #ffffff;
+              color: var(--color-primary-7);
             }
           }
         }
