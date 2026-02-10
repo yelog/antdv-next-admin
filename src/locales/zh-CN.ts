@@ -151,7 +151,21 @@ export default {
     userDistribution: '用户分布',
     recentActivities: '最近活动',
     quickActions: '快捷操作',
-    viewMore: '查看更多'
+    viewMore: '查看更多',
+    minutesAgo: '{value} 分钟前',
+    hoursAgo: '{value} 小时前',
+    activities: {
+      permissionUpdated: '管理员更新了系统菜单权限配置',
+      userCreated: '新增用户 Sunny 并分配运营角色',
+      orderTaskDone: '今日订单统计任务执行完成',
+      riskPolicyReleased: '风控策略版本已发布到生产环境'
+    },
+    activityTags: {
+      system: '系统',
+      user: '用户',
+      task: '任务',
+      release: '发布'
+    }
   },
 
   user: {
@@ -252,6 +266,39 @@ export default {
     reset: '重置',
     validateSuccess: '验证通过',
     validateFailed: '验证失败'
+  },
+
+  exampleTable: {
+    userList: '用户列表',
+    subTitle: 'ProTable 示例',
+    createUser: '新建用户',
+    editUser: '编辑用户',
+    deleteSuccess: '删除成功',
+    updateSuccess: '更新成功',
+    createSuccess: '创建成功'
+  },
+
+  exampleForm: {
+    description: 'ProForm 高级表单示例 - 展示各种表单控件',
+    age: '年龄',
+    ageRange: '年龄必须在1-150之间',
+    interests: '兴趣爱好',
+    birthDate: '出生日期',
+    score: '评分',
+    progress: '进度',
+    bioPlaceholder: '请输入个人简介',
+    submitSuccess: '提交成功！',
+    roles: {
+      admin: '管理员',
+      user: '普通用户',
+      guest: '访客'
+    },
+    interestOptions: {
+      reading: '阅读',
+      sports: '运动',
+      music: '音乐',
+      travel: '旅游'
+    }
   },
 
   proForm: {

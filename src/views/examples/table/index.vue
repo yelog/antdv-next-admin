@@ -4,8 +4,8 @@
       :columns="columns"
       :request="fetchData"
       :toolbar="{
-        title: '用户列表',
-        subTitle: 'ProTable 示例',
+        title: $t('exampleTable.userList'),
+        subTitle: $t('exampleTable.subTitle'),
         actions: ['refresh', 'columnSetting']
       }"
       :search="{
@@ -16,7 +16,7 @@
     >
       <template #toolbar-actions>
         <a-button type="primary" class="create-user-btn" @click="handleCreate">
-          <PlusOutlined /> 新建用户
+          <PlusOutlined /> {{ $t('exampleTable.createUser') }}
         </a-button>
       </template>
     </ProTable>
@@ -24,7 +24,7 @@
     <!-- Create/Edit Modal -->
     <a-modal
       v-model:open="modalVisible"
-      :title="editingId ? '编辑用户' : '新建用户'"
+      :title="editingId ? $t('exampleTable.editUser') : $t('exampleTable.createUser')"
       width="600px"
       @ok="handleSubmit"
     >
@@ -42,6 +42,7 @@
 import { ref } from 'vue'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
 import { message } from 'antdv-next'
+import { $t } from '@/locales'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProForm from '@/components/Pro/ProForm/index.vue'
 import { getUserList, createUser, updateUser, deleteUser } from '@/api/user'
@@ -57,7 +58,7 @@ const formData = ref({})
 // Table columns configuration
 const columns: ProTableColumn[] = [
   {
-    title: '用户名',
+    title: $t('user.username'),
     dataIndex: 'username',
     search: true,
     searchType: 'input',
@@ -65,54 +66,54 @@ const columns: ProTableColumn[] = [
     fixed: 'left'
   },
   {
-    title: '邮箱',
+    title: $t('user.email'),
     dataIndex: 'email',
     search: true,
     searchType: 'input',
     copyable: true
   },
   {
-    title: '真实姓名',
+    title: $t('user.realName'),
     dataIndex: 'realName',
     search: true,
     searchType: 'input'
   },
   {
-    title: '手机号',
+    title: $t('user.phone'),
     dataIndex: 'phone'
   },
   {
-    title: '性别',
+    title: $t('user.gender'),
     dataIndex: 'gender',
     search: true,
     searchType: 'select',
     searchOptions: [
-      { label: '男', value: 'male' },
-      { label: '女', value: 'female' }
+      { label: $t('user.male'), value: 'male' },
+      { label: $t('user.female'), value: 'female' }
     ],
     valueType: 'tag',
     valueEnum: {
-      male: { text: '男', color: 'blue' },
-      female: { text: '女', color: 'pink' }
+      male: { text: $t('user.male'), color: 'blue' },
+      female: { text: $t('user.female'), color: 'pink' }
     }
   },
   {
-    title: '状态',
+    title: $t('common.status'),
     dataIndex: 'status',
     search: true,
     searchType: 'select',
     searchOptions: [
-      { label: '启用', value: 'active' },
-      { label: '禁用', value: 'inactive' }
+      { label: $t('user.active'), value: 'active' },
+      { label: $t('user.inactive'), value: 'inactive' }
     ],
     valueType: 'badge',
     valueEnum: {
-      active: { text: '启用', status: 'success' },
-      inactive: { text: '禁用', status: 'error' }
+      active: { text: $t('user.active'), status: 'success' },
+      inactive: { text: $t('user.inactive'), status: 'error' }
     }
   },
   {
-    title: '创建时间',
+    title: $t('common.createTime'),
     dataIndex: 'createdAt',
     valueType: 'dateTime',
     search: true,
@@ -120,21 +121,21 @@ const columns: ProTableColumn[] = [
     sorter: true
   },
   {
-    title: '操作',
+    title: $t('common.actions'),
     dataIndex: 'action',
     width: 200,
     fixed: 'right',
     actions: [
       {
-        label: '编辑',
+        label: $t('common.edit'),
         icon: EditOutlined,
         onClick: (record) => handleEdit(record)
       },
       {
-        label: '删除',
+        label: $t('common.delete'),
         icon: DeleteOutlined,
         danger: true,
-        confirm: '确定要删除该用户吗？',
+        confirm: $t('user.confirmDelete'),
         onClick: (record) => handleDelete(record)
       }
     ]
@@ -145,7 +146,7 @@ const columns: ProTableColumn[] = [
 const formItems: ProFormItem[] = [
   {
     name: 'username',
-    label: '用户名',
+    label: $t('user.username'),
     type: 'input',
     required: true,
     rules: [
@@ -156,7 +157,7 @@ const formItems: ProFormItem[] = [
   },
   {
     name: 'email',
-    label: '邮箱',
+    label: $t('user.email'),
     type: 'input',
     required: true,
     rules: [
@@ -166,40 +167,40 @@ const formItems: ProFormItem[] = [
   },
   {
     name: 'realName',
-    label: '真实姓名',
+    label: $t('user.realName'),
     type: 'input',
     required: true
   },
   {
     name: 'phone',
-    label: '手机号',
+    label: $t('user.phone'),
     type: 'input',
     rules: [commonRules.phone()]
   },
   {
     name: 'gender',
-    label: '性别',
+    label: $t('user.gender'),
     type: 'radio',
     required: true,
     options: [
-      { label: '男', value: 'male' },
-      { label: '女', value: 'female' }
+      { label: $t('user.male'), value: 'male' },
+      { label: $t('user.female'), value: 'female' }
     ]
   },
   {
     name: 'status',
-    label: '状态',
+    label: $t('common.status'),
     type: 'radio',
     required: true,
     initialValue: 'active',
     options: [
-      { label: '启用', value: 'active' },
-      { label: '禁用', value: 'inactive' }
+      { label: $t('user.active'), value: 'active' },
+      { label: $t('user.inactive'), value: 'inactive' }
     ]
   },
   {
     name: 'bio',
-    label: '个人简介',
+    label: $t('user.bio'),
     type: 'textarea',
     colSpan: 2,
     props: {
@@ -234,7 +235,7 @@ const handleEdit = (record: any) => {
 
 const handleDelete = async (record: any) => {
   await deleteUser(record.id)
-  message.success('删除成功')
+  message.success($t('exampleTable.deleteSuccess'))
 }
 
 const handleSubmit = async () => {
@@ -246,14 +247,14 @@ const handleSubmit = async () => {
   try {
     if (editingId.value) {
       await updateUser(editingId.value, values)
-      message.success('更新成功')
+      message.success($t('exampleTable.updateSuccess'))
     } else {
       await createUser(values)
-      message.success('创建成功')
+      message.success($t('exampleTable.createSuccess'))
     }
     modalVisible.value = false
   } catch (error: any) {
-    message.error(error.message || '操作失败')
+    message.error(error.message || $t('common.error'))
   }
 }
 </script>

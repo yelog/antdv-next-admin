@@ -196,36 +196,36 @@ const userDistribution = computed(() => [
   { label: $t('dashboard.enterpriseUsers'), value: 20, color: '#fa8c16' }
 ])
 
-const activities = ref([
+const activities = computed(() => [
   {
     id: 1,
-    action: '管理员更新了系统菜单权限配置',
-    time: '2 分钟前',
-    tag: '系统',
+    action: $t('dashboard.activities.permissionUpdated'),
+    time: $t('dashboard.minutesAgo', { value: 2 }),
+    tag: $t('dashboard.activityTags.system'),
     tagColor: 'blue',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin'
   },
   {
     id: 2,
-    action: '新增用户 Sunny 并分配运营角色',
-    time: '18 分钟前',
-    tag: '用户',
+    action: $t('dashboard.activities.userCreated'),
+    time: $t('dashboard.minutesAgo', { value: 18 }),
+    tag: $t('dashboard.activityTags.user'),
     tagColor: 'cyan',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sunny'
   },
   {
     id: 3,
-    action: '今日订单统计任务执行完成',
-    time: '1 小时前',
-    tag: '任务',
+    action: $t('dashboard.activities.orderTaskDone'),
+    time: $t('dashboard.hoursAgo', { value: 1 }),
+    tag: $t('dashboard.activityTags.task'),
     tagColor: 'green',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=job'
   },
   {
     id: 4,
-    action: '风控策略版本已发布到生产环境',
-    time: '2 小时前',
-    tag: '发布',
+    action: $t('dashboard.activities.riskPolicyReleased'),
+    time: $t('dashboard.hoursAgo', { value: 2 }),
+    tag: $t('dashboard.activityTags.release'),
     tagColor: 'purple',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=release'
   }

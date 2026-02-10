@@ -2,7 +2,7 @@
   <div class="page-container">
     <div class="card">
       <h2>{{ $t('form.title') }}</h2>
-      <p class="mb-lg">ProForm 高级表单示例 - 展示各种表单控件</p>
+      <p class="mb-lg">{{ $t('exampleForm.description') }}</p>
 
       <ProForm
         ref="formRef"
@@ -28,6 +28,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { message } from 'antdv-next'
+import { $t } from '@/locales'
 import ProForm from '@/components/Pro/ProForm/index.vue'
 import { commonRules } from '@/utils/formRules'
 import type { ProFormItem } from '@/types/pro'
@@ -37,7 +38,7 @@ const formRef = ref()
 const formItems: ProFormItem[] = [
   {
     name: 'username',
-    label: '用户名',
+    label: $t('user.username'),
     type: 'input',
     required: true,
     rules: [
@@ -46,12 +47,12 @@ const formItems: ProFormItem[] = [
       commonRules.username()
     ],
     props: {
-      placeholder: '请输入用户名'
+      placeholder: $t('login.usernamePlaceholder')
     }
   },
   {
     name: 'email',
-    label: '邮箱',
+    label: $t('user.email'),
     type: 'input',
     required: true,
     rules: [
@@ -61,7 +62,7 @@ const formItems: ProFormItem[] = [
   },
   {
     name: 'password',
-    label: '密码',
+    label: $t('login.password'),
     type: 'password',
     required: true,
     rules: [
@@ -71,27 +72,27 @@ const formItems: ProFormItem[] = [
   },
   {
     name: 'confirmPassword',
-    label: '确认密码',
+    label: $t('profile.confirmPassword'),
     type: 'password',
     required: true,
     dependencies: ['password'],
     rules: [
       commonRules.required(),
-      ({ getFieldValue }) => commonRules.confirmPassword(getFieldValue)
+      ({ getFieldValue }: { getFieldValue: (field: string) => any }) => commonRules.confirmPassword(getFieldValue)
     ]
   },
   {
     name: 'phone',
-    label: '手机号',
+    label: $t('user.phone'),
     type: 'input',
     rules: [commonRules.phone()]
   },
   {
     name: 'age',
-    label: '年龄',
+    label: $t('exampleForm.age'),
     type: 'number',
     rules: [
-      commonRules.range(1, 150, '年龄必须在1-150之间')
+      commonRules.range(1, 150, $t('exampleForm.ageRange'))
     ],
     props: {
       min: 1,
@@ -100,39 +101,39 @@ const formItems: ProFormItem[] = [
   },
   {
     name: 'gender',
-    label: '性别',
+    label: $t('user.gender'),
     type: 'radio',
     required: true,
     options: [
-      { label: '男', value: 'male' },
-      { label: '女', value: 'female' }
+      { label: $t('user.male'), value: 'male' },
+      { label: $t('user.female'), value: 'female' }
     ]
   },
   {
     name: 'role',
-    label: '角色',
+    label: $t('user.role'),
     type: 'select',
     required: true,
     options: [
-      { label: '管理员', value: 'admin' },
-      { label: '普通用户', value: 'user' },
-      { label: '访客', value: 'guest' }
+      { label: $t('exampleForm.roles.admin'), value: 'admin' },
+      { label: $t('exampleForm.roles.user'), value: 'user' },
+      { label: $t('exampleForm.roles.guest'), value: 'guest' }
     ]
   },
   {
     name: 'interests',
-    label: '兴趣爱好',
+    label: $t('exampleForm.interests'),
     type: 'checkbox',
     options: [
-      { label: '阅读', value: 'reading' },
-      { label: '运动', value: 'sports' },
-      { label: '音乐', value: 'music' },
-      { label: '旅游', value: 'travel' }
+      { label: $t('exampleForm.interestOptions.reading'), value: 'reading' },
+      { label: $t('exampleForm.interestOptions.sports'), value: 'sports' },
+      { label: $t('exampleForm.interestOptions.music'), value: 'music' },
+      { label: $t('exampleForm.interestOptions.travel'), value: 'travel' }
     ]
   },
   {
     name: 'birthDate',
-    label: '出生日期',
+    label: $t('exampleForm.birthDate'),
     type: 'datePicker',
     props: {
       format: 'YYYY-MM-DD'
@@ -140,20 +141,20 @@ const formItems: ProFormItem[] = [
   },
   {
     name: 'status',
-    label: '状态',
+    label: $t('common.status'),
     type: 'switch',
     valuePropName: 'checked',
     initialValue: true
   },
   {
     name: 'score',
-    label: '评分',
+    label: $t('exampleForm.score'),
     type: 'rate',
     initialValue: 3
   },
   {
     name: 'progress',
-    label: '进度',
+    label: $t('exampleForm.progress'),
     type: 'slider',
     initialValue: 50,
     props: {
@@ -163,21 +164,21 @@ const formItems: ProFormItem[] = [
   },
   {
     name: 'bio',
-    label: '个人简介',
+    label: $t('user.bio'),
     type: 'textarea',
     colSpan: 2,
     props: {
       rows: 4,
       maxLength: 500,
       showCount: true,
-      placeholder: '请输入个人简介'
+      placeholder: $t('exampleForm.bioPlaceholder')
     }
   }
 ]
 
 const handleSubmit = (values: any) => {
   console.log('Form values:', values)
-  message.success('提交成功！')
+  message.success($t('exampleForm.submitSuccess'))
 }
 
 const handleReset = () => {

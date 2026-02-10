@@ -151,7 +151,21 @@ export default {
     userDistribution: 'User Distribution',
     recentActivities: 'Recent Activities',
     quickActions: 'Quick Actions',
-    viewMore: 'View More'
+    viewMore: 'View More',
+    minutesAgo: '{value} minutes ago',
+    hoursAgo: '{value} hours ago',
+    activities: {
+      permissionUpdated: 'Admin updated system menu permission settings',
+      userCreated: 'Created user Sunny and assigned the operation role',
+      orderTaskDone: 'Today\'s order statistics task has completed',
+      riskPolicyReleased: 'Risk control strategy version has been released to production'
+    },
+    activityTags: {
+      system: 'System',
+      user: 'User',
+      task: 'Task',
+      release: 'Release'
+    }
   },
 
   user: {
@@ -252,6 +266,39 @@ export default {
     reset: 'Reset',
     validateSuccess: 'Validation passed',
     validateFailed: 'Validation failed'
+  },
+
+  exampleTable: {
+    userList: 'User List',
+    subTitle: 'ProTable Example',
+    createUser: 'Create User',
+    editUser: 'Edit User',
+    deleteSuccess: 'Deleted successfully',
+    updateSuccess: 'Updated successfully',
+    createSuccess: 'Created successfully'
+  },
+
+  exampleForm: {
+    description: 'Advanced ProForm example demonstrating various form controls',
+    age: 'Age',
+    ageRange: 'Age must be between 1 and 150',
+    interests: 'Interests',
+    birthDate: 'Birth Date',
+    score: 'Score',
+    progress: 'Progress',
+    bioPlaceholder: 'Please enter bio',
+    submitSuccess: 'Submitted successfully!',
+    roles: {
+      admin: 'Administrator',
+      user: 'Regular User',
+      guest: 'Guest'
+    },
+    interestOptions: {
+      reading: 'Reading',
+      sports: 'Sports',
+      music: 'Music',
+      travel: 'Travel'
+    }
   },
 
   proForm: {
