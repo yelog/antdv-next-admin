@@ -30,9 +30,12 @@ export interface ProTableColumn {
   dataIndex: string
   key?: string
   width?: number | string
+  minWidth?: number | string
   fixed?: 'left' | 'right'
   align?: 'left' | 'center' | 'right'
   ellipsis?: boolean
+  resizable?: boolean
+  hideInTable?: boolean
 
   // Value rendering
   valueType?: ValueType
@@ -59,18 +62,20 @@ export interface ProTableColumn {
 export interface ProTableAction {
   label: string
   type?: 'link' | 'button' | 'dropdown'
+  icon?: any
   permission?: string
   danger?: boolean
   disabled?: (record: any) => boolean
+  hidden?: (record: any) => boolean
   confirm?: string
-  onClick?: (record: any) => void
+  onClick?: (record: any) => void | Promise<void>
   items?: ProTableAction[] // For dropdown
 }
 
 export interface ProTableToolbar {
   title?: string
   subTitle?: string
-  actions?: Array<'refresh' | 'export' | 'columnSetting'>
+  actions?: Array<'refresh' | 'density' | 'export' | 'columnSetting'>
 }
 
 export interface ProTableSearch {
@@ -85,7 +90,7 @@ export interface ProTablePagination {
   total?: number
   showSizeChanger?: boolean
   showQuickJumper?: boolean
-  showTotal?: boolean
+  showTotal?: boolean | ((total: number, range?: [number, number]) => string)
   pageSizeOptions?: string[]
 }
 
