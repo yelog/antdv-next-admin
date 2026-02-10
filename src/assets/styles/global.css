@@ -23,7 +23,7 @@ html.theme-transition *,
 html.theme-transition *::before,
 html.theme-transition *::after {
   transition-property: color, background-color, border-color, box-shadow, fill, stroke;
-  transition-duration: 0.28s;
+  transition-duration: 0.46s;
   transition-timing-function: var(--ease-in-out);
 }
 
@@ -33,6 +33,55 @@ html.theme-transition *::after {
   html.theme-transition *::before,
   html.theme-transition *::after {
     transition: none !important;
+  }
+
+  html.theme-view-transition::view-transition-old(root),
+  html.theme-view-transition::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
+html.theme-view-transition::view-transition-old(root),
+html.theme-view-transition::view-transition-new(root) {
+  mix-blend-mode: normal;
+  will-change: clip-path;
+}
+
+html.theme-view-transition::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+html.theme-view-transition::view-transition-new(root) {
+  animation: theme-clip-reveal 0.74s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 9999;
+}
+
+html.theme-view-transition.dark::view-transition-old(root) {
+  animation: theme-clip-conceal 0.74s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 9999;
+}
+
+html.theme-view-transition.dark::view-transition-new(root) {
+  animation: none;
+  z-index: 1;
+}
+
+@keyframes theme-clip-reveal {
+  from {
+    clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y));
+  }
+  to {
+    clip-path: circle(var(--theme-transition-radius) at var(--theme-transition-x) var(--theme-transition-y));
+  }
+}
+
+@keyframes theme-clip-conceal {
+  from {
+    clip-path: circle(var(--theme-transition-radius) at var(--theme-transition-x) var(--theme-transition-y));
+  }
+  to {
+    clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y));
   }
 }
 
