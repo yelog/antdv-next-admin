@@ -10,7 +10,7 @@ import { resolveLocaleText } from '@/utils/i18n'
  */
 export function setupRouterGuards(router: Router) {
   // Before each route navigation
-  router.beforeEach(async (to, from, next) => {
+  router.beforeEach(async (to, _from, next) => {
     const authStore = useAuthStore()
     const permissionStore = usePermissionStore()
     const tabsStore = useTabsStore()
@@ -73,8 +73,8 @@ export function setupRouterGuards(router: Router) {
       }
 
       // Check permissions
-      const requiredPermissions = to.meta.requiredPermissions
-      if (requiredPermissions && requiredPermissions.length > 0) {
+      const requiredPermissions = to.meta.requiredPermissions as string[] | undefined
+      if (requiredPermissions && Array.isArray(requiredPermissions) && requiredPermissions.length > 0) {
         const hasPermission = authStore.hasAnyPermission(requiredPermissions)
         if (!hasPermission) {
           next('/403')
@@ -83,8 +83,8 @@ export function setupRouterGuards(router: Router) {
       }
 
       // Check roles
-      const requiredRoles = to.meta.requiredRoles
-      if (requiredRoles && requiredRoles.length > 0) {
+      const requiredRoles = to.meta.requiredRoles as string[] | undefined
+      if (requiredRoles && Array.isArray(requiredRoles) && requiredRoles.length > 0) {
         const hasRole = authStore.hasAnyRole(requiredRoles)
         if (!hasRole) {
           next('/403')

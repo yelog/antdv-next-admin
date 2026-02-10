@@ -157,9 +157,7 @@ import {
   UserOutlined,
   ShoppingOutlined,
   DollarOutlined,
-  RiseOutlined,
-  BarChartOutlined,
-  PieChartOutlined
+  RiseOutlined
 } from '@antdv-next/icons'
 
 const activities = ref([

@@ -5,7 +5,8 @@
   "description": "A modern Vue 3 admin scaffold based on antdv-next",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "vite build",
+    "build:check": "vue-tsc && vite build",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit"
   },

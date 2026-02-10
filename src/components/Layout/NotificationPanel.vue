@@ -48,6 +48,9 @@ import { BellOutlined } from '@antdv-next/icons'
 import { useNotificationStore } from '@/stores/notification'
 import type { Notification } from '@/types/layout'
 import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+dayjs.extend(relativeTime)
 
 const notificationStore = useNotificationStore()
 

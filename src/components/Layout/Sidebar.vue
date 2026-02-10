@@ -120,7 +120,7 @@ const syncMenuState = () => {
   openKeys.value = findMenuOpenKeys(menuItems.value, route.path)
 }
 
-const handleMenuClick: NonNullable<MenuProps['onClick']> = ({ key }) => {
+const handleMenuClick = ({ key }: { key: string | number }) => {
   if (typeof key === 'string' && key.startsWith('/')) {
     router.push(key)
   }

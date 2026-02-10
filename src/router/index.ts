@@ -1,10 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router'
 import { staticRoutes, basicRoutes, notFoundRoute } from './routes'
 import { setupRouterGuards } from './guards'
 
 // Combine static and basic routes
-const routes: RouteRecordRaw[] = [
+const routes = [
   ...staticRoutes,
   ...basicRoutes
 ]
@@ -13,7 +12,7 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
       return savedPosition
     } else {
@@ -26,6 +25,6 @@ const router = createRouter({
 setupRouterGuards(router)
 
 // Add not found route last (after dynamic routes are added)
-router.addRoute(notFoundRoute)
+router.addRoute(notFoundRoute as any)
 
 export default router

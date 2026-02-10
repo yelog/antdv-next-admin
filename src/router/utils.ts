@@ -1,4 +1,3 @@
-import type { RouteRecordRaw } from 'vue-router'
 import type { AppRouteRecordRaw, MenuItem, RouteConfig } from '@/types/router'
 
 function resolveRoutePath(path: string, basePath = ''): string {

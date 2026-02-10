@@ -87,7 +87,7 @@ const handleChange = (key: string) => {
   }
 }
 
-const handleContextMenu = (e: any, tab: Tab) => {
+const handleContextMenu = (e: { key: string }, tab: Tab) => {
   const { key } = e
   switch (key) {
     case 'refresh':
