@@ -41,7 +41,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { message, Modal } from 'antdv-next'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
-import { useI18n } from 'vue-i18n'
+import { $t } from '@/locales'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProForm from '@/components/Pro/ProForm/index.vue'
 import { createUser, deleteUser, getUserList, updateUser } from '@/api/user'
@@ -60,7 +60,6 @@ type UserFormValues = {
   bio: string
 }
 
-const { t } = useI18n()
 
 const tableRef = ref<{
   refresh: () => void
@@ -78,19 +77,19 @@ const roleOptions = ref<Role[]>([])
 const formData = ref<UserFormValues>(createDefaultFormValues())
 
 const toolbarConfig = computed(() => ({
-  title: t('user.title'),
+  title: $t('user.title'),
   subTitle: 'ProTable + ProForm',
   actions: ['refresh', 'density', 'columnSetting'] as Array<'refresh' | 'density' | 'columnSetting'>
 }))
 
 const statusOptions = computed(() => [
-  { label: t('user.active'), value: 'active' },
-  { label: t('user.inactive'), value: 'inactive' }
+  { label: $t('user.active'), value: 'active' },
+  { label: $t('user.inactive'), value: 'inactive' }
 ])
 
 const genderOptions = computed(() => [
-  { label: t('user.male'), value: 'male' },
-  { label: t('user.female'), value: 'female' }
+  { label: $t('user.male'), value: 'male' },
+  { label: $t('user.female'), value: 'female' }
 ])
 
 const roleSelectOptions = computed(() => {
@@ -101,18 +100,18 @@ const roleSelectOptions = computed(() => {
 })
 
 const genderValueEnum = computed<Record<string, { text: string; status?: string; color?: string }>>(() => ({
-  male: { text: t('user.male'), color: 'blue' },
-  female: { text: t('user.female'), color: 'magenta' }
+  male: { text: $t('user.male'), color: 'blue' },
+  female: { text: $t('user.female'), color: 'magenta' }
 }))
 
 const statusValueEnum = computed<Record<string, { text: string; status?: string; color?: string }>>(() => ({
-  active: { text: t('user.active'), status: 'success' },
-  inactive: { text: t('user.inactive'), status: 'default' }
+  active: { text: $t('user.active'), status: 'success' },
+  inactive: { text: $t('user.inactive'), status: 'default' }
 }))
 
 const columns = computed((): ProTableColumn[] => [
   {
-    title: t('user.username'),
+    title: $t('user.username'),
     dataIndex: 'username',
     search: true,
     searchType: 'input',
@@ -120,36 +119,36 @@ const columns = computed((): ProTableColumn[] => [
     fixed: 'left'
   },
   {
-    title: t('user.realName'),
+    title: $t('user.realName'),
     dataIndex: 'realName',
     width: 140
   },
   {
-    title: t('user.email'),
+    title: $t('user.email'),
     dataIndex: 'email',
     search: true,
     searchType: 'input',
     width: 220
   },
   {
-    title: t('user.phone'),
+    title: $t('user.phone'),
     dataIndex: 'phone',
     width: 150
   },
   {
-    title: t('user.role'),
+    title: $t('user.role'),
     dataIndex: 'roleNames',
     width: 220
   },
   {
-    title: t('user.gender'),
+    title: $t('user.gender'),
     dataIndex: 'gender',
     width: 100,
     valueType: 'tag',
     valueEnum: genderValueEnum.value
   },
   {
-    title: t('user.status'),
+    title: $t('user.status'),
     dataIndex: 'status',
     search: true,
     searchType: 'select',
@@ -159,27 +158,27 @@ const columns = computed((): ProTableColumn[] => [
     valueEnum: statusValueEnum.value
   },
   {
-    title: t('common.createTime'),
+    title: $t('common.createTime'),
     dataIndex: 'createdAt',
     width: 200,
     valueType: 'dateTime'
   },
   {
-    title: t('common.actions'),
+    title: $t('common.actions'),
     dataIndex: 'action',
     width: 160,
     fixed: 'right',
     actions: [
       {
-        label: t('common.edit'),
+        label: $t('common.edit'),
         icon: EditOutlined,
         onClick: (record) => handleEdit(record as User)
       },
       {
-        label: t('common.delete'),
+        label: $t('common.delete'),
         icon: DeleteOutlined,
         danger: true,
-        confirm: t('user.confirmDelete'),
+        confirm: $t('user.confirmDelete'),
         onClick: (record) => handleDelete(record as User)
       }
     ]
@@ -189,7 +188,7 @@ const columns = computed((): ProTableColumn[] => [
 const formItems = computed<ProFormItem[]>(() => [
   {
     name: 'username',
-    label: t('user.username'),
+    label: $t('user.username'),
     type: 'input',
     required: true,
     props: {
@@ -202,42 +201,42 @@ const formItems = computed<ProFormItem[]>(() => [
   },
   {
     name: 'realName',
-    label: t('user.realName'),
+    label: $t('user.realName'),
     type: 'input',
     required: true
   },
   {
     name: 'email',
-    label: t('user.email'),
+    label: $t('user.email'),
     type: 'input',
     required: true,
     rules: [
       { required: true, message: '请输入邮箱' },
-      { type: 'email', message: t('validation.email') }
+      { type: 'email', message: $t('validation.email') }
     ]
   },
   {
     name: 'phone',
-    label: t('user.phone'),
+    label: $t('user.phone'),
     type: 'input',
-    rules: [{ pattern: /^1[3-9]\d{9}$/, message: t('validation.phone') }]
+    rules: [{ pattern: /^1[3-9]\d{9}$/, message: $t('validation.phone') }]
   },
   {
     name: 'gender',
-    label: t('user.gender'),
+    label: $t('user.gender'),
     type: 'radio',
     options: genderOptions.value
   },
   {
     name: 'status',
-    label: t('user.status'),
+    label: $t('user.status'),
     type: 'radio',
     options: statusOptions.value,
     required: true
   },
   {
     name: 'roleIds',
-    label: t('user.role'),
+    label: $t('user.role'),
     type: 'select',
     options: roleSelectOptions.value,
     props: {
@@ -342,11 +341,11 @@ const handleCancel = () => {
 
 const handleDelete = async (record: User) => {
   Modal.confirm({
-    title: t('user.deleteUser'),
-    content: t('user.confirmDelete'),
+    title: $t('user.deleteUser'),
+    content: $t('user.confirmDelete'),
     onOk: async () => {
       await deleteUser(record.id)
-      message.success(t('common.success'))
+      message.success($t('common.success'))
       refreshTable()
     }
   })

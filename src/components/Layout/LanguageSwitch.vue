@@ -9,12 +9,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { GlobalOutlined } from '@antdv-next/icons'
-import { useI18n } from 'vue-i18n'
-import { setLocale } from '@/locales'
+import i18n, { setLocale } from '@/locales'
 
-const { locale } = useI18n()
-
-const currentLocale = computed(() => locale.value)
+const currentLocale = computed(() => String(i18n.global.locale.value))
 const localeOptions = [
   { label: '简体中文', value: 'zh-CN' },
   { label: 'English', value: 'en-US' }

@@ -69,13 +69,12 @@ import { useLayoutStore } from '@/stores/layout'
 import type { Tab } from '@/types/layout'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
-import { useI18n } from 'vue-i18n'
+import { $t } from '@/locales'
 
 const route = useRoute()
 const router = useRouter()
 const tabsStore = useTabsStore()
 const layoutStore = useLayoutStore()
-const { t } = useI18n()
 
 const isFullscreen = computed(() => layoutStore.pageFullscreen)
 const toggleFullscreen = () => {
@@ -138,19 +137,19 @@ const getTabMenuItems = (tab: Tab) => [
   {
     key: 'close',
     icon: h(CloseOutlined),
-    label: t('layout.tabs.close'),
+    label: $t('layout.tabs.close'),
     disabled: !tab.closable
   },
   {
     key: 'pin',
     icon: h(tab.pinned ? PushpinFilled : PushpinOutlined),
-    label: tab.pinned ? t('layout.tabs.unpin') : t('layout.tabs.pin'),
+    label: tab.pinned ? $t('layout.tabs.unpin') : $t('layout.tabs.pin'),
     disabled: Boolean(tab.affix)
   },
   {
     key: 'refresh',
     icon: h(ReloadOutlined),
-    label: t('layout.tabs.refresh')
+    label: $t('layout.tabs.refresh')
   },
   {
     type: 'divider'
@@ -158,25 +157,25 @@ const getTabMenuItems = (tab: Tab) => [
   {
     key: 'closeLeft',
     icon: h(VerticalLeftOutlined),
-    label: t('layout.tabs.closeLeft'),
+    label: $t('layout.tabs.closeLeft'),
     disabled: !hasClosableLeftTabs(tab)
   },
   {
     key: 'closeRight',
     icon: h(VerticalRightOutlined),
-    label: t('layout.tabs.closeRight'),
+    label: $t('layout.tabs.closeRight'),
     disabled: !hasClosableRightTabs(tab)
   },
   {
     key: 'closeOthers',
     icon: h(CloseCircleOutlined),
-    label: t('layout.tabs.closeOthers'),
+    label: $t('layout.tabs.closeOthers'),
     disabled: !hasClosableOtherTabs(tab)
   },
   {
     key: 'closeAll',
     icon: h(CloseSquareOutlined),
-    label: t('layout.tabs.closeAll'),
+    label: $t('layout.tabs.closeAll'),
     disabled: !hasClosableTabs.value
   }
 ]

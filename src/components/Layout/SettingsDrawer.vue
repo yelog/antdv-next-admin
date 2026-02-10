@@ -85,10 +85,9 @@ import { computed, ref } from 'vue'
 import { CheckOutlined } from '@antdv-next/icons'
 import { useSettingsStore } from '@/stores/settings'
 import { Modal } from 'antdv-next'
-import { useI18n } from 'vue-i18n'
+import { $t } from '@/locales'
 import type { PageAnimation, PrimaryColor } from '@/types/layout'
 
-const { t } = useI18n()
 const visible = ref(false)
 const settingsStore = useSettingsStore()
 
@@ -102,14 +101,14 @@ const PRESET_COLORS: Array<{ name: string; value: PrimaryColor; hex: string }> =
 ]
 
 const pageAnimationOptions = computed(() => [
-  { label: t('settings.fade'), value: 'fade' },
-  { label: t('settings.slideLeft'), value: 'slide-left' },
-  { label: t('settings.slideRight'), value: 'slide-right' },
-  { label: t('settings.slideUp'), value: 'slide-up' },
-  { label: t('settings.slideDown'), value: 'slide-down' },
-  { label: t('settings.zoom'), value: 'zoom' },
-  { label: t('settings.zoomBig'), value: 'zoom-big' },
-  { label: t('settings.none'), value: 'none' }
+  { label: $t('settings.fade'), value: 'fade' },
+  { label: $t('settings.slideLeft'), value: 'slide-left' },
+  { label: $t('settings.slideRight'), value: 'slide-right' },
+  { label: $t('settings.slideUp'), value: 'slide-up' },
+  { label: $t('settings.slideDown'), value: 'slide-down' },
+  { label: $t('settings.zoom'), value: 'zoom' },
+  { label: $t('settings.zoomBig'), value: 'zoom-big' },
+  { label: $t('settings.none'), value: 'none' }
 ])
 
 const handleSidebarThemeChange = (e: any) => {
@@ -130,7 +129,7 @@ const handleGrayModeChange = (checked: boolean) => {
 
 const handleReset = () => {
   Modal.confirm({
-    title: t('settings.confirmReset'),
+    title: $t('settings.confirmReset'),
     onOk: () => {
       settingsStore.resetSettings()
     }

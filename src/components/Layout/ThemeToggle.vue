@@ -15,15 +15,14 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { MoonOutlined, SunOutlined } from '@antdv-next/icons'
 import { useThemeStore } from '@/stores/theme'
-import { useI18n } from 'vue-i18n'
+import { $t } from '@/locales'
 
 const themeStore = useThemeStore()
-const { t } = useI18n()
 const isRotating = ref(false)
 let rotateTimer: number | null = null
 
 const tooltipTitle = computed(() => {
-  return themeStore.isDark ? `${t('layout.theme')} (Light)` : `${t('layout.theme')} (Dark)`
+  return themeStore.isDark ? `${$t('layout.theme')} (Light)` : `${$t('layout.theme')} (Dark)`
 })
 
 const resetRotateState = () => {

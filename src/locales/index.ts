@@ -20,6 +20,20 @@ const i18n = createI18n({
 
 document.documentElement.lang = savedLocale
 
+type TranslateLike = (key: string, ...args: any[]) => unknown
+
+/**
+ * Global i18n translate helper
+ * Usage:
+ * - template: {{ $t('common.search') }} (from globalInjection)
+ * - <script setup> / ts: import { $t } from '@/locales'
+ */
+export function $t(key: string, ...args: any[]): string {
+  const translate = i18n.global.t as unknown as TranslateLike
+  const result = translate(key, ...args)
+  return typeof result === 'string' ? result : String(result)
+}
+
 export default i18n
 
 // Helper function to change locale

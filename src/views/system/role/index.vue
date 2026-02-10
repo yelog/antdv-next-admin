@@ -41,7 +41,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { message, Modal } from 'antdv-next'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
-import { useI18n } from 'vue-i18n'
+import { $t } from '@/locales'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProForm from '@/components/Pro/ProForm/index.vue'
 import { createRole, deleteRole, getRoleList, updateRole } from '@/api/role'
@@ -62,7 +62,6 @@ type PermissionOption = {
   children?: PermissionOption[]
 }
 
-const { t } = useI18n()
 
 const tableRef = ref<{
   refresh: () => void
@@ -80,7 +79,7 @@ const permissionTree = ref<Permission[]>([])
 const formData = ref<RoleFormValues>(createDefaultFormValues())
 
 const toolbarConfig = computed(() => ({
-  title: t('role.title'),
+  title: $t('role.title'),
   subTitle: 'ProTable + ProForm',
   actions: ['refresh', 'density', 'columnSetting'] as Array<'refresh' | 'density' | 'columnSetting'>
 }))
@@ -115,50 +114,50 @@ const permissionMap = computed(() => {
 
 const columns = computed<ProTableColumn[]>(() => [
   {
-    title: t('role.name'),
+    title: $t('role.name'),
     dataIndex: 'name',
     search: true,
     searchType: 'input',
     width: 200
   },
   {
-    title: t('role.code'),
+    title: $t('role.code'),
     dataIndex: 'code',
     search: true,
     searchType: 'input',
     width: 200
   },
   {
-    title: t('role.description'),
+    title: $t('role.description'),
     dataIndex: 'description'
   },
   {
-    title: t('role.permissions'),
+    title: $t('role.permissions'),
     dataIndex: 'permissionCount',
     width: 120
   },
   {
-    title: t('common.updateTime'),
+    title: $t('common.updateTime'),
     dataIndex: 'updatedAt',
     width: 200,
     valueType: 'dateTime'
   },
   {
-    title: t('common.actions'),
+    title: $t('common.actions'),
     dataIndex: 'action',
     width: 160,
     fixed: 'right',
     actions: [
       {
-        label: t('common.edit'),
+        label: $t('common.edit'),
         icon: EditOutlined,
         onClick: (record) => handleEdit(record as Role)
       },
       {
-        label: t('common.delete'),
+        label: $t('common.delete'),
         icon: DeleteOutlined,
         danger: true,
-        confirm: t('role.confirmDelete'),
+        confirm: $t('role.confirmDelete'),
         onClick: (record) => handleDelete(record as Role)
       }
     ]
@@ -168,13 +167,13 @@ const columns = computed<ProTableColumn[]>(() => [
 const formItems = computed<ProFormItem[]>(() => [
   {
     name: 'name',
-    label: t('role.name'),
+    label: $t('role.name'),
     type: 'input',
     required: true
   },
   {
     name: 'code',
-    label: t('role.code'),
+    label: $t('role.code'),
     type: 'input',
     required: true,
     props: {
@@ -187,7 +186,7 @@ const formItems = computed<ProFormItem[]>(() => [
   },
   {
     name: 'description',
-    label: t('role.description'),
+    label: $t('role.description'),
     type: 'textarea',
     colSpan: 2,
     props: {
@@ -196,7 +195,7 @@ const formItems = computed<ProFormItem[]>(() => [
   },
   {
     name: 'permissionIds',
-    label: t('role.permissions'),
+    label: $t('role.permissions'),
     type: 'treeSelect',
     colSpan: 2,
     options: permissionOptions.value as any,
@@ -278,11 +277,11 @@ const handleCancel = () => {
 
 const handleDelete = async (record: Role) => {
   Modal.confirm({
-    title: t('role.deleteRole'),
-    content: t('role.confirmDelete'),
+    title: $t('role.deleteRole'),
+    content: $t('role.confirmDelete'),
     onOk: async () => {
       await deleteRole(record.id)
-      message.success(t('common.success'))
+      message.success($t('common.success'))
       refreshTable()
     }
   })

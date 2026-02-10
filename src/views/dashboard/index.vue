@@ -116,10 +116,9 @@ import {
   RiseOutlined,
   ClockCircleOutlined
 } from '@antdv-next/icons'
-import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import i18n, { $t } from '@/locales'
 
-const { t, locale } = useI18n()
 const authStore = useAuthStore()
 
 const now = ref(new Date())
@@ -132,19 +131,19 @@ const displayName = computed(() => {
 const greetingText = computed(() => {
   const hour = now.value.getHours()
   if (hour < 6) {
-    return t('dashboard.goodNight')
+    return $t('dashboard.goodNight')
   }
   if (hour < 12) {
-    return t('dashboard.goodMorning')
+    return $t('dashboard.goodMorning')
   }
   if (hour < 18) {
-    return t('dashboard.goodAfternoon')
+    return $t('dashboard.goodAfternoon')
   }
-  return t('dashboard.goodEvening')
+  return $t('dashboard.goodEvening')
 })
 
 const currentTimeText = computed(() => {
-  const targetLocale = locale.value === 'zh-CN' ? 'zh-CN' : 'en-US'
+  const targetLocale = i18n.global.locale.value === 'zh-CN' ? 'zh-CN' : 'en-US'
   return new Intl.DateTimeFormat(targetLocale, {
     month: 'short',
     day: 'numeric',
@@ -158,7 +157,7 @@ const statCards = computed(() => [
   {
     key: 'users',
     tone: 'blue',
-    label: t('dashboard.totalUsers'),
+    label: $t('dashboard.totalUsers'),
     value: '12,458',
     trend: '+12.5%',
     icon: UserOutlined
@@ -166,7 +165,7 @@ const statCards = computed(() => [
   {
     key: 'orders',
     tone: 'green',
-    label: t('dashboard.totalOrders'),
+    label: $t('dashboard.totalOrders'),
     value: '8,946',
     trend: '+8.2%',
     icon: ShoppingOutlined
@@ -174,7 +173,7 @@ const statCards = computed(() => [
   {
     key: 'revenue',
     tone: 'orange',
-    label: t('dashboard.totalRevenue'),
+    label: $t('dashboard.totalRevenue'),
     value: '¥456,789',
     trend: '+15.3%',
     icon: DollarOutlined
@@ -182,7 +181,7 @@ const statCards = computed(() => [
   {
     key: 'conversion',
     tone: 'purple',
-    label: t('dashboard.conversionRate'),
+    label: $t('dashboard.conversionRate'),
     value: '3.24%',
     trend: '+0.8%',
     icon: RiseOutlined
@@ -192,9 +191,9 @@ const statCards = computed(() => [
 const salesBars = [34, 48, 44, 62, 58, 70, 66, 72]
 
 const userDistribution = computed(() => [
-  { label: t('dashboard.newUsers'), value: 46, color: '#1677ff' },
-  { label: t('dashboard.returningUsers'), value: 34, color: '#52c41a' },
-  { label: t('dashboard.enterpriseUsers'), value: 20, color: '#fa8c16' }
+  { label: $t('dashboard.newUsers'), value: 46, color: '#1677ff' },
+  { label: $t('dashboard.returningUsers'), value: 34, color: '#52c41a' },
+  { label: $t('dashboard.enterpriseUsers'), value: 20, color: '#fa8c16' }
 ])
 
 const activities = ref([

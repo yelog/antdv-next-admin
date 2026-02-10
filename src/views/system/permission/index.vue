@@ -56,7 +56,7 @@
 import { computed, ref } from 'vue'
 import { message, Modal } from 'antdv-next'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
-import { useI18n } from 'vue-i18n'
+import { $t } from '@/locales'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProForm from '@/components/Pro/ProForm/index.vue'
 import {
@@ -86,7 +86,6 @@ type PermissionFormValues = {
 
 type PermissionMode = 'create' | 'edit'
 
-const { t } = useI18n()
 
 const tableRef = ref<{
   refresh: () => void
@@ -109,29 +108,29 @@ const formData = ref<PermissionFormValues>(createDefaultFormValues())
 const formValues = ref<PermissionFormValues>(createDefaultFormValues())
 
 const toolbarConfig = computed(() => ({
-  title: t('permission.title'),
+  title: $t('permission.title'),
   subTitle: 'ProTable + ProForm',
   actions: ['refresh', 'density', 'columnSetting'] as Array<'refresh' | 'density' | 'columnSetting'>
 }))
 
 const permissionTypeOptions = computed(() => [
-  { label: t('permission.menu'), value: 'menu' },
-  { label: t('permission.button'), value: 'button' },
-  { label: t('permission.api'), value: 'api' }
+  { label: $t('permission.menu'), value: 'menu' },
+  { label: $t('permission.button'), value: 'button' },
+  { label: $t('permission.api'), value: 'api' }
 ])
 
 const statusOptions = computed(() => [
-  { label: t('user.active'), value: 'active' },
-  { label: t('user.inactive'), value: 'inactive' }
+  { label: $t('user.active'), value: 'active' },
+  { label: $t('user.inactive'), value: 'inactive' }
 ])
 
 const currentType = computed(() => formValues.value.type || 'menu')
 
 const modalTitle = computed(() => {
   if (modalMode.value === 'edit') {
-    return t('permission.editPermission')
+    return $t('permission.editPermission')
   }
-  return formValues.value.parentId ? '新增子菜单' : t('permission.createPermission')
+  return formValues.value.parentId ? '新增子菜单' : $t('permission.createPermission')
 })
 
 const currentParentName = computed(() => {
@@ -142,14 +141,14 @@ const currentParentName = computed(() => {
 })
 
 const permissionTypeValueEnum = computed<Record<string, { text: string; status?: string; color?: string }>>(() => ({
-  menu: { text: t('permission.menu'), color: 'processing' },
-  button: { text: t('permission.button'), color: 'success' },
-  api: { text: t('permission.api'), color: 'purple' }
+  menu: { text: $t('permission.menu'), color: 'processing' },
+  button: { text: $t('permission.button'), color: 'success' },
+  api: { text: $t('permission.api'), color: 'purple' }
 }))
 
 const permissionStatusValueEnum = computed<Record<string, { text: string; status?: string; color?: string }>>(() => ({
-  active: { text: t('user.active'), status: 'success' },
-  inactive: { text: t('user.inactive'), status: 'default' }
+  active: { text: $t('user.active'), status: 'success' },
+  inactive: { text: $t('user.inactive'), status: 'default' }
 }))
 
 const permissionVisibleValueEnum = computed<Record<string, { text: string; status?: string; color?: string }>>(() => ({
@@ -159,24 +158,24 @@ const permissionVisibleValueEnum = computed<Record<string, { text: string; statu
 
 const columns = computed((): ProTableColumn[] => [
   {
-    title: t('common.search'),
+    title: $t('common.search'),
     dataIndex: 'keyword',
     search: true,
     searchType: 'input',
     hideInTable: true
   },
   {
-    title: t('permission.name'),
+    title: $t('permission.name'),
     dataIndex: 'name',
     width: 220
   },
   {
-    title: t('permission.code'),
+    title: $t('permission.code'),
     dataIndex: 'code',
     width: 220
   },
   {
-    title: t('permission.type'),
+    title: $t('permission.type'),
     dataIndex: 'type',
     search: true,
     searchType: 'select',
@@ -196,7 +195,7 @@ const columns = computed((): ProTableColumn[] => [
     width: 220
   },
   {
-    title: t('common.status'),
+    title: $t('common.status'),
     dataIndex: 'status',
     search: true,
     searchType: 'select',
@@ -218,7 +217,7 @@ const columns = computed((): ProTableColumn[] => [
     width: 90
   },
   {
-    title: t('common.actions'),
+    title: $t('common.actions'),
     dataIndex: 'action',
     width: 220,
     fixed: 'right',
@@ -230,15 +229,15 @@ const columns = computed((): ProTableColumn[] => [
         onClick: (record) => handleCreateChild(record as Permission)
       },
       {
-        label: t('common.edit'),
+        label: $t('common.edit'),
         icon: EditOutlined,
         onClick: (record) => handleEdit(record as Permission)
       },
       {
-        label: t('common.delete'),
+        label: $t('common.delete'),
         icon: DeleteOutlined,
         danger: true,
-        confirm: t('permission.confirmDelete'),
+        confirm: $t('permission.confirmDelete'),
         onClick: (record) => handleDelete(record as Permission)
       }
     ]
@@ -248,13 +247,13 @@ const columns = computed((): ProTableColumn[] => [
 const formItems = computed<ProFormItem[]>(() => [
   {
     name: 'name',
-    label: t('permission.name'),
+    label: $t('permission.name'),
     type: 'input',
     required: true
   },
   {
     name: 'code',
-    label: t('permission.code'),
+    label: $t('permission.code'),
     type: 'input',
     required: true,
     props: {
@@ -267,14 +266,14 @@ const formItems = computed<ProFormItem[]>(() => [
   },
   {
     name: 'type',
-    label: t('permission.type'),
+    label: $t('permission.type'),
     type: 'select',
     options: permissionTypeOptions.value,
     required: true
   },
   {
     name: 'status',
-    label: t('common.status'),
+    label: $t('common.status'),
     type: 'radio',
     options: statusOptions.value
   },
@@ -316,17 +315,17 @@ const formItems = computed<ProFormItem[]>(() => [
   },
   {
     name: 'resource',
-    label: t('permission.resource'),
+    label: $t('permission.resource'),
     type: 'input'
   },
   {
     name: 'action',
-    label: t('permission.action'),
+    label: $t('permission.action'),
     type: 'input'
   },
   {
     name: 'description',
-    label: t('role.description'),
+    label: $t('role.description'),
     type: 'textarea',
     colSpan: 2,
     props: {
@@ -497,11 +496,11 @@ const handleCancel = () => {
 
 const handleDelete = async (record: Permission) => {
   Modal.confirm({
-    title: t('permission.deletePermission'),
-    content: t('permission.confirmDelete'),
+    title: $t('permission.deletePermission'),
+    content: $t('permission.confirmDelete'),
     onOk: async () => {
       await deletePermission(record.id)
-      message.success(t('common.success'))
+      message.success($t('common.success'))
       refreshTable()
     }
   })

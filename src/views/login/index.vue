@@ -89,14 +89,13 @@ import { UserOutlined, LockOutlined } from '@antdv-next/icons'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { message } from 'antdv-next'
-import { useI18n } from 'vue-i18n'
+import { $t } from '@/locales'
 import ThemeToggle from '@/components/Layout/ThemeToggle.vue'
 import LanguageSwitch from '@/components/Layout/LanguageSwitch.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
-const { t } = useI18n()
 
 const loading = ref(false)
 const formState = reactive({
@@ -106,18 +105,18 @@ const formState = reactive({
 })
 
 const rules = {
-  username: [{ required: true, message: t('login.usernameRequired') }],
-  password: [{ required: true, message: t('login.passwordRequired') }]
+  username: [{ required: true, message: $t('login.usernameRequired') }],
+  password: [{ required: true, message: $t('login.passwordRequired') }]
 }
 
 const handleSubmit = async () => {
   loading.value = true
   try {
     await authStore.login(formState.username, formState.password)
-    message.success(t('login.loginSuccess'))
+    message.success($t('login.loginSuccess'))
     router.push('/')
   } catch (error: any) {
-    message.error(error.message || t('login.loginFailed'))
+    message.error(error.message || $t('login.loginFailed'))
   } finally {
     loading.value = false
   }

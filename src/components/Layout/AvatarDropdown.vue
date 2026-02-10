@@ -20,11 +20,10 @@ import {
 } from '@antdv-next/icons'
 import { useAuthStore } from '@/stores/auth'
 import { Modal } from 'antdv-next'
-import { useI18n } from 'vue-i18n'
+import { $t } from '@/locales'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const { t } = useI18n()
 
 const handleMenuClick = ({ key }: { key: string }) => {
   switch (key) {
@@ -33,10 +32,10 @@ const handleMenuClick = ({ key }: { key: string }) => {
       break
     case 'logout':
       Modal.confirm({
-        title: t('layout.logout'),
-        content: t('layout.logoutConfirm'),
-        okText: t('common.confirm'),
-        cancelText: t('common.cancel'),
+        title: $t('layout.logout'),
+        content: $t('layout.logoutConfirm'),
+        okText: $t('common.confirm'),
+        cancelText: $t('common.cancel'),
         onOk: () => {
           authStore.logout()
           router.push('/login')
@@ -50,7 +49,7 @@ const menuProps = computed(() => ({
   items: [
     {
       key: 'profile',
-      label: t('layout.profile'),
+      label: $t('layout.profile'),
       icon: h(UserOutlined)
     },
     {
@@ -58,7 +57,7 @@ const menuProps = computed(() => ({
     },
     {
       key: 'logout',
-      label: t('layout.logout'),
+      label: $t('layout.logout'),
       icon: h(LogoutOutlined)
     }
   ],

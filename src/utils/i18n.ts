@@ -1,4 +1,4 @@
-import i18n from '@/locales'
+import { $t } from '@/locales'
 
 export function resolveLocaleText(key?: string, fallback = ''): string {
   const safeFallback = fallback || '-'
@@ -7,11 +7,9 @@ export function resolveLocaleText(key?: string, fallback = ''): string {
   }
 
   const messageKey = String(key)
-  if (i18n.global.te(messageKey as never)) {
-    const translated = i18n.global.t(messageKey as never)
-    if (typeof translated === 'string' && translated.trim()) {
-      return translated
-    }
+  const translated = $t(messageKey)
+  if (translated !== messageKey && translated.trim()) {
+    return translated
   }
 
   return messageKey || safeFallback
