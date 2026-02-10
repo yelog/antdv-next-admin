@@ -18,6 +18,8 @@ const i18n = createI18n({
   globalInjection: true
 })
 
+document.documentElement.lang = savedLocale
+
 export default i18n
 
 // Helper function to change locale
