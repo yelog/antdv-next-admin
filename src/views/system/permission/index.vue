@@ -20,8 +20,8 @@
           <a-button type="primary" class="create-permission-btn" @click="handleCreateRoot">
             <PlusOutlined /> {{ $t('permission.createPermission') }}
           </a-button>
-          <a-button @click="expandAllRows">展开全部</a-button>
-          <a-button @click="collapseAllRows">收起全部</a-button>
+          <a-button @click="expandAllRows">{{ $t('permission.expandAll') }}</a-button>
+          <a-button @click="collapseAllRows">{{ $t('permission.collapseAll') }}</a-button>
         </a-space>
       </template>
     </ProTable>
@@ -36,7 +36,7 @@
     >
       <a-alert v-if="currentParentName" type="info" show-icon style="margin-bottom: 12px">
         <template #message>
-          上级菜单：{{ currentParentName }}
+          {{ $t('permission.parentMenu') }}：{{ currentParentName }}
         </template>
       </a-alert>
 
@@ -130,7 +130,7 @@ const modalTitle = computed(() => {
   if (modalMode.value === 'edit') {
     return $t('permission.editPermission')
   }
-  return formValues.value.parentId ? '新增子菜单' : $t('permission.createPermission')
+  return formValues.value.parentId ? $t('permission.createChildMenu') : $t('permission.createPermission')
 })
 
 const currentParentName = computed(() => {
@@ -152,8 +152,8 @@ const permissionStatusValueEnum = computed<Record<string, { text: string; status
 }))
 
 const permissionVisibleValueEnum = computed<Record<string, { text: string; status?: string; color?: string }>>(() => ({
-  true: { text: '显示', color: 'blue' },
-  false: { text: '隐藏', color: 'default' }
+  true: { text: $t('permission.show'), color: 'blue' },
+  false: { text: $t('permission.hide'), color: 'default' }
 }))
 
 const columns = computed((): ProTableColumn[] => [
@@ -185,12 +185,12 @@ const columns = computed((): ProTableColumn[] => [
     valueEnum: permissionTypeValueEnum.value
   },
   {
-    title: '路由路径',
+    title: $t('permission.routePath'),
     dataIndex: 'path',
     width: 170
   },
   {
-    title: '组件路径',
+    title: $t('permission.componentPath'),
     dataIndex: 'component',
     width: 220
   },
@@ -205,14 +205,14 @@ const columns = computed((): ProTableColumn[] => [
     valueEnum: permissionStatusValueEnum.value
   },
   {
-    title: '显示',
+    title: $t('permission.visible'),
     dataIndex: 'visible',
     width: 100,
     valueType: 'tag',
     valueEnum: permissionVisibleValueEnum.value
   },
   {
-    title: '排序',
+    title: $t('permission.sort'),
     dataIndex: 'sort',
     width: 90
   },
@@ -223,7 +223,7 @@ const columns = computed((): ProTableColumn[] => [
     fixed: 'right',
     actions: [
       {
-        label: '新增子级',
+        label: $t('permission.addChild'),
         icon: PlusOutlined,
         hidden: (record) => (record as Permission).type !== 'menu',
         onClick: (record) => handleCreateChild(record as Permission)
@@ -260,8 +260,8 @@ const formItems = computed<ProFormItem[]>(() => [
       disabled: Boolean(editingPermissionId.value)
     },
     rules: [
-      { required: true, message: '请输入权限编码' },
-      { pattern: /^[a-zA-Z0-9_.-]+$/, message: '权限编码仅支持字母、数字、下划线和中划线' }
+      { required: true, message: $t('permission.codeRequired') },
+      { pattern: /^[a-zA-Z0-9_.-]+$/, message: $t('permission.codePattern') }
     ]
   },
   {
@@ -279,13 +279,13 @@ const formItems = computed<ProFormItem[]>(() => [
   },
   {
     name: 'path',
-    label: '路由路径',
+    label: $t('permission.routePath'),
     type: 'input',
     hidden: currentType.value !== 'menu',
     rules: [{
       validator: (_rule: any, value: any) => {
         if (currentType.value === 'menu' && !String(value || '').trim()) {
-          return Promise.reject(new Error('菜单类型必须填写路由路径'))
+          return Promise.reject(new Error($t('permission.menuRouteRequired')))
         }
         return Promise.resolve()
       }
@@ -293,20 +293,20 @@ const formItems = computed<ProFormItem[]>(() => [
   },
   {
     name: 'component',
-    label: '组件路径',
+    label: $t('permission.componentPath'),
     type: 'input',
     hidden: currentType.value !== 'menu'
   },
   {
     name: 'icon',
-    label: '图标',
+    label: $t('permission.icon'),
     type: 'input',
     hidden: currentType.value !== 'menu',
-    placeholder: '例如：UserOutlined'
+    placeholder: $t('permission.iconPlaceholder')
   },
   {
     name: 'sort',
-    label: '排序',
+    label: $t('permission.sort'),
     type: 'number',
     hidden: currentType.value !== 'menu',
     props: {
@@ -334,13 +334,13 @@ const formItems = computed<ProFormItem[]>(() => [
   },
   {
     name: 'visible',
-    label: '显示状态',
+    label: $t('permission.visibleStatus'),
     type: 'switch',
     colSpan: 2,
     valuePropName: 'checked',
     props: {
-      checkedChildren: '显示',
-      unCheckedChildren: '隐藏'
+      checkedChildren: $t('permission.show'),
+      unCheckedChildren: $t('permission.hide')
     }
   }
 ])
@@ -541,10 +541,10 @@ const handleSubmit = async () => {
   try {
     if (modalMode.value === 'edit' && editingPermissionId.value) {
       await updatePermission(editingPermissionId.value, payload)
-      message.success('菜单更新成功')
+      message.success($t('permission.updateSuccess'))
     } else {
       await createPermission(payload)
-      message.success('菜单创建成功')
+      message.success($t('permission.createSuccess'))
     }
     modalVisible.value = false
     editingPermissionId.value = null

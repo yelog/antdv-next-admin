@@ -172,6 +172,13 @@ export default {
     editUser: '编辑用户',
     deleteUser: '删除用户',
     confirmDelete: '确定要删除该用户吗？',
+    usernameRequired: '请输入用户名',
+    usernameLength: '用户名长度应在 3-20 之间',
+    emailRequired: '请输入邮箱',
+    selectRole: '请选择至少一个角色',
+    bio: '个人简介',
+    updateSuccess: '用户更新成功',
+    createSuccess: '用户创建成功',
     resetPassword: '重置密码',
     confirmResetPassword: '确定要重置该用户密码吗？'
   },
@@ -186,7 +193,12 @@ export default {
     editRole: '编辑角色',
     deleteRole: '删除角色',
     confirmDelete: '确定要删除该角色吗？',
-    assignPermissions: '分配权限'
+    assignPermissions: '分配权限',
+    codeRequired: '请输入角色编码',
+    codePattern: '角色编码仅支持字母、数字、下划线和中划线',
+    selectPermissions: '请选择权限',
+    updateSuccess: '角色更新成功',
+    createSuccess: '角色创建成功'
   },
 
   permission: {
@@ -202,7 +214,26 @@ export default {
     createPermission: '新增菜单',
     editPermission: '编辑菜单',
     deletePermission: '删除菜单',
-    confirmDelete: '确定要删除该菜单及其子节点吗？'
+    confirmDelete: '确定要删除该菜单及其子节点吗？',
+    expandAll: '展开全部',
+    collapseAll: '收起全部',
+    parentMenu: '上级菜单',
+    createChildMenu: '新增子菜单',
+    visible: '显示',
+    show: '显示',
+    hide: '隐藏',
+    routePath: '路由路径',
+    componentPath: '组件路径',
+    sort: '排序',
+    addChild: '新增子级',
+    codeRequired: '请输入权限编码',
+    codePattern: '权限编码仅支持字母、数字、下划线和中划线',
+    menuRouteRequired: '菜单类型必须填写路由路径',
+    icon: '图标',
+    iconPlaceholder: '例如：UserOutlined',
+    visibleStatus: '显示状态',
+    updateSuccess: '菜单更新成功',
+    createSuccess: '菜单创建成功'
   },
 
   table: {

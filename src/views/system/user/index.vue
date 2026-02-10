@@ -195,8 +195,8 @@ const formItems = computed<ProFormItem[]>(() => [
       disabled: Boolean(editingUserId.value)
     },
     rules: [
-      { required: true, message: '请输入用户名' },
-      { min: 3, max: 20, message: '用户名长度应在 3-20 之间' }
+      { required: true, message: $t('user.usernameRequired') },
+      { min: 3, max: 20, message: $t('user.usernameLength') }
     ]
   },
   {
@@ -211,7 +211,7 @@ const formItems = computed<ProFormItem[]>(() => [
     type: 'input',
     required: true,
     rules: [
-      { required: true, message: '请输入邮箱' },
+      { required: true, message: $t('user.emailRequired') },
       { type: 'email', message: $t('validation.email') }
     ]
   },
@@ -243,11 +243,11 @@ const formItems = computed<ProFormItem[]>(() => [
       mode: 'multiple',
       allowClear: true
     },
-    rules: [{ type: 'array', required: true, message: '请选择至少一个角色' }]
+    rules: [{ type: 'array', required: true, message: $t('user.selectRole') }]
   },
   {
     name: 'bio',
-    label: '个人简介',
+    label: $t('user.bio'),
     type: 'textarea',
     colSpan: 2,
     props: {
@@ -375,11 +375,11 @@ const handleSubmit = async () => {
   try {
     if (editingUserId.value) {
       await updateUser(editingUserId.value, payload)
-      message.success('用户更新成功')
+      message.success($t('user.updateSuccess'))
       refreshTable()
     } else {
       await createUser(payload)
-      message.success('用户创建成功')
+      message.success($t('user.createSuccess'))
       reloadTable()
     }
     modalVisible.value = false

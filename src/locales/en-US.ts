@@ -172,6 +172,13 @@ export default {
     editUser: 'Edit User',
     deleteUser: 'Delete User',
     confirmDelete: 'Are you sure you want to delete this user?',
+    usernameRequired: 'Please enter username',
+    usernameLength: 'Username length must be between 3 and 20 characters',
+    emailRequired: 'Please enter email',
+    selectRole: 'Please select at least one role',
+    bio: 'Bio',
+    updateSuccess: 'User updated successfully',
+    createSuccess: 'User created successfully',
     resetPassword: 'Reset Password',
     confirmResetPassword: 'Are you sure you want to reset this user\'s password?'
   },
@@ -186,7 +193,12 @@ export default {
     editRole: 'Edit Role',
     deleteRole: 'Delete Role',
     confirmDelete: 'Are you sure you want to delete this role?',
-    assignPermissions: 'Assign Permissions'
+    assignPermissions: 'Assign Permissions',
+    codeRequired: 'Please enter role code',
+    codePattern: 'Role code only supports letters, numbers, underscores and hyphens',
+    selectPermissions: 'Please select permissions',
+    updateSuccess: 'Role updated successfully',
+    createSuccess: 'Role created successfully'
   },
 
   permission: {
@@ -202,7 +214,26 @@ export default {
     createPermission: 'Create Menu',
     editPermission: 'Edit Menu',
     deletePermission: 'Delete Menu',
-    confirmDelete: 'Are you sure you want to delete this menu and its children?'
+    confirmDelete: 'Are you sure you want to delete this menu and its children?',
+    expandAll: 'Expand All',
+    collapseAll: 'Collapse All',
+    parentMenu: 'Parent Menu',
+    createChildMenu: 'Create Child Menu',
+    visible: 'Visible',
+    show: 'Show',
+    hide: 'Hide',
+    routePath: 'Route Path',
+    componentPath: 'Component Path',
+    sort: 'Sort',
+    addChild: 'Add Child',
+    codeRequired: 'Please enter permission code',
+    codePattern: 'Permission code only supports letters, numbers, underscores and hyphens',
+    menuRouteRequired: 'Route path is required for menu type',
+    icon: 'Icon',
+    iconPlaceholder: 'e.g. UserOutlined',
+    visibleStatus: 'Visibility',
+    updateSuccess: 'Menu updated successfully',
+    createSuccess: 'Menu created successfully'
   },
 
   table: {

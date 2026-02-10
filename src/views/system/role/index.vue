@@ -180,8 +180,8 @@ const formItems = computed<ProFormItem[]>(() => [
       disabled: Boolean(editingRoleId.value)
     },
     rules: [
-      { required: true, message: '请输入角色编码' },
-      { pattern: /^[a-zA-Z0-9_.-]+$/, message: '角色编码仅支持字母、数字、下划线和中划线' }
+      { required: true, message: $t('role.codeRequired') },
+      { pattern: /^[a-zA-Z0-9_.-]+$/, message: $t('role.codePattern') }
     ]
   },
   {
@@ -206,7 +206,7 @@ const formItems = computed<ProFormItem[]>(() => [
       showCheckedStrategy: 'SHOW_PARENT',
       maxTagCount: 2
     },
-    rules: [{ type: 'array', required: true, message: '请选择权限' }]
+    rules: [{ type: 'array', required: true, message: $t('role.selectPermissions') }]
   }
 ])
 
@@ -311,11 +311,11 @@ const handleSubmit = async () => {
   try {
     if (editingRoleId.value) {
       await updateRole(editingRoleId.value, payload)
-      message.success('角色更新成功')
+      message.success($t('role.updateSuccess'))
       refreshTable()
     } else {
       await createRole(payload)
-      message.success('角色创建成功')
+      message.success($t('role.createSuccess'))
       reloadTable()
     }
     modalVisible.value = false
