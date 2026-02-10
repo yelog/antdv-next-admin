@@ -150,7 +150,7 @@ onMounted(() => {
   .page-content {
     padding: 24px;
     min-height: calc(100vh - 120px);
-    background: #F5F7FA;
+    background: var(--color-bg-layout);
   }
 
   &.mobile {

@@ -1,7 +1,7 @@
 <template>
   <a-layout-sider
     v-model:collapsed="layoutStore.collapsed"
-    :class="['admin-sidebar', settingsStore.sidebarTheme]"
+    :class="['admin-sidebar', `theme-${effectiveSidebarTheme}`]"
     :width="layoutStore.sidebarWidth"
     :collapsed-width="layoutStore.collapsedWidth"
     :trigger="null"
@@ -22,7 +22,7 @@
       v-model:selectedKeys="selectedKeys"
       v-model:openKeys="openKeys"
       mode="inline"
-      :theme="settingsStore.sidebarTheme"
+      :theme="effectiveSidebarTheme"
       :items="antMenuItems"
       class="sidebar-menu"
       @click="handleMenuClick"
@@ -36,10 +36,12 @@ import { useRoute, useRouter } from 'vue-router'
 import type { MenuProps } from 'antdv-next'
 import { useLayoutStore } from '@/stores/layout'
 import { useSettingsStore } from '@/stores/settings'
+import { useThemeStore } from '@/stores/theme'
 import { usePermissionStore } from '@/stores/permission'
 import { basicRoutes } from '@/router/routes'
 import { routesToMenuTree } from '@/router/utils'
 import type { MenuItem as MenuItemType } from '@/types/router'
+import type { SidebarTheme } from '@/types/layout'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
 
@@ -47,6 +49,7 @@ const route = useRoute()
 const router = useRouter()
 const layoutStore = useLayoutStore()
 const settingsStore = useSettingsStore()
+const themeStore = useThemeStore()
 const permissionStore = usePermissionStore()
 
 const selectedKeys = ref<string[]>([])
@@ -62,6 +65,14 @@ const menuItems = computed(() => {
     return permissionStore.menuTree
   }
   return fallbackMenuItems.value
+})
+
+const effectiveSidebarTheme = computed<SidebarTheme>(() => {
+  // In global dark mode, force dark sidebar to keep readable contrast.
+  if (themeStore.isDark) {
+    return 'dark'
+  }
+  return settingsStore.sidebarTheme
 })
 
 const antMenuItems = computed<MenuProps['items']>(() => {
@@ -148,24 +159,24 @@ watch(
   z-index: 100;
   transition: all var(--duration-slow) var(--ease-out);
 
-  &.light {
-    background: var(--color-bg-container);
+  &.theme-light {
+    background: #ffffff;
 
     :deep(.ant-menu) {
-      background: var(--color-bg-container);
-      color: var(--color-text-primary);
+      background: #ffffff;
+      color: rgba(0, 0, 0, 0.85);
     }
 
     .sidebar-logo {
-      border-bottom-color: var(--color-border-secondary);
+      border-bottom-color: #f0f0f0;
 
       .logo-title {
-        color: var(--color-text-primary);
+        color: rgba(0, 0, 0, 0.88);
       }
     }
   }
 
-  &.dark {
+  &.theme-dark {
     background: linear-gradient(180deg, #001529 0%, #001d39 100%);
 
     :deep(.ant-menu) {
@@ -220,12 +231,19 @@ watch(
     }
   }
 
-  &.dark {
+  &.theme-dark {
     .sidebar-menu {
       :deep(.ant-menu-item),
       :deep(.ant-menu-submenu-title),
       :deep(.ant-menu-submenu-arrow) {
         color: rgba(255, 255, 255, 0.88) !important;
+      }
+
+      :deep(.ant-menu-item .ant-menu-title-content),
+      :deep(.ant-menu-submenu-title .ant-menu-title-content),
+      :deep(.ant-menu-item .anticon),
+      :deep(.ant-menu-submenu-title .anticon) {
+        color: inherit !important;
       }
 
       :deep(.ant-menu-item:hover),
@@ -241,16 +259,34 @@ watch(
     }
   }
 
-  &.light {
+  &.theme-light {
     .sidebar-menu {
+      :deep(.ant-menu-item),
+      :deep(.ant-menu-submenu-title) {
+        color: rgba(0, 0, 0, 0.85) !important;
+      }
+
+      :deep(.ant-menu-item .ant-menu-title-content),
+      :deep(.ant-menu-submenu-title .ant-menu-title-content),
+      :deep(.ant-menu-item .anticon),
+      :deep(.ant-menu-submenu-title .anticon),
+      :deep(.ant-menu-submenu-arrow) {
+        color: inherit !important;
+      }
+
       :deep(.ant-menu-item:hover),
       :deep(.ant-menu-submenu-title:hover) {
-        background: var(--color-primary-1) !important;
+        color: rgba(0, 0, 0, 0.88) !important;
+        background: #f5f7fa !important;
       }
 
       :deep(.ant-menu-item-selected) {
-        color: var(--color-primary) !important;
-        background: var(--color-primary-1) !important;
+        color: #1677ff !important;
+        background: #e6f4ff !important;
+      }
+
+      :deep(.ant-menu-submenu-selected > .ant-menu-submenu-title) {
+        color: #1677ff !important;
       }
     }
   }
@@ -266,7 +302,7 @@ watch(
   border-radius: 3px;
 }
 
-.admin-sidebar.dark::-webkit-scrollbar-thumb {
+.admin-sidebar.theme-dark::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
 }
 </style>

@@ -170,14 +170,16 @@ const activities = ref([
 
 <style scoped lang="scss">
 .dashboard-container {
+  color: var(--color-text-primary);
+
   // Page Header with Enhanced Visual Design
   .page-header {
     margin-bottom: 32px;
     padding: 28px 32px;
     background: var(--color-bg-container);
     border-radius: 10px;
-    border: none;
-    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--color-border-secondary);
+    box-shadow: var(--shadow-card);
 
     .header-content {
       display: flex;
@@ -190,14 +192,14 @@ const activities = ref([
         .page-title {
           font-size: 32px;
           font-weight: 600;
-          color: rgba(0, 0, 0, 0.88);
+          color: var(--color-text-primary);
           margin-bottom: 8px;
           line-height: 1.2;
         }
 
         .page-subtitle {
           font-size: 14px;
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--color-text-secondary);
           margin: 0;
         }
       }
@@ -219,15 +221,15 @@ const activities = ref([
       padding: 24px;
       background: var(--color-bg-container);
       border-radius: 10px;
-      border: none;
-      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--color-border-secondary);
+      box-shadow: var(--shadow-card);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       overflow: hidden;
       min-height: 140px;
 
       &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 6px 30px 0 rgba(0, 0, 0, 0.08);
+        box-shadow: var(--shadow-card-hover);
       }
 
       .stat-icon-wrapper {
@@ -261,7 +263,7 @@ const activities = ref([
 
         .stat-label {
           font-size: 14px;
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--color-text-secondary);
           margin-bottom: 8px;
           font-weight: 400;
         }
@@ -269,7 +271,7 @@ const activities = ref([
         .stat-value {
           font-size: 30px;
           font-weight: 600;
-          color: rgba(0, 0, 0, 0.88);
+          color: var(--color-text-primary);
           margin-bottom: 8px;
           line-height: 1;
           font-family: 'DIN Alternate', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -304,13 +306,13 @@ const activities = ref([
     padding: 24px;
     background: var(--color-bg-container);
     border-radius: 10px;
-    border: none;
-    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--color-border-secondary);
+    box-shadow: var(--shadow-card);
     margin-bottom: 24px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
-      box-shadow: 0 6px 30px 0 rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-card-hover);
     }
 
     .card-header {
@@ -323,7 +325,7 @@ const activities = ref([
     .card-title {
       font-size: 18px;
       font-weight: 600;
-      color: rgba(0, 0, 0, 0.88);
+      color: var(--color-text-primary);
       margin: 0;
     }
 
@@ -346,11 +348,11 @@ const activities = ref([
   .activities-list {
     :deep(.ant-list-item) {
       padding: 16px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      border-bottom: 1px solid var(--color-border-secondary);
       transition: background-color 0.2s;
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.02);
+        background-color: var(--color-bg-layout);
         padding-left: 12px;
         padding-right: 12px;
         margin-left: -12px;
@@ -366,47 +368,12 @@ const activities = ref([
     .activity-title {
       font-size: 14px;
       font-weight: 500;
-      color: rgba(0, 0, 0, 0.88);
+      color: var(--color-text-primary);
     }
 
     .activity-time {
       font-size: 12px;
-      color: rgba(0, 0, 0, 0.45);
-    }
-  }
-}
-
-// Dark Mode Support
-:deep(.dark) {
-  .dashboard-container {
-    .page-header {
-      background: var(--color-bg-container);
-      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15);
-    }
-
-    .page-title {
-      color: rgba(255, 255, 255, 0.88) !important;
-    }
-
-    .page-subtitle {
-      color: rgba(255, 255, 255, 0.45) !important;
-    }
-
-    .stat-card,
-    .card {
-      background: var(--color-bg-container);
-      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15);
-    }
-
-    .stat-value,
-    .card-title,
-    .activity-title {
-      color: rgba(255, 255, 255, 0.88) !important;
-    }
-
-    .stat-label,
-    .activity-time {
-      color: rgba(255, 255, 255, 0.45) !important;
+      color: var(--color-text-secondary);
     }
   }
 }

@@ -103,9 +103,9 @@ const openSettings = () => {
   justify-content: space-between;
   padding: 0 24px;
   background: var(--color-bg-container);
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-1);
   height: 64px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--color-border-secondary);
 
   .header-left {
     display: flex;
@@ -117,10 +117,12 @@ const openSettings = () => {
       width: 40px;
       height: 40px;
       border-radius: var(--radius-base);
+      color: var(--color-text-secondary);
       transition: all var(--duration-base) var(--ease-out);
 
       &:hover {
         background: var(--color-bg-layout);
+        color: var(--color-text-primary);
       }
     }
   }
@@ -136,11 +138,12 @@ const openSettings = () => {
       height: 36px;
       padding: 0 !important;
       border-radius: 8px;
+      color: var(--color-text-secondary);
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover {
-        background: rgba(0, 0, 0, 0.04);
-        color: var(--color-primary);
+        background: var(--color-bg-layout);
+        color: var(--color-text-primary);
       }
     }
 
@@ -151,7 +154,17 @@ const openSettings = () => {
       height: 36px;
       padding: 0 !important;
       border-radius: 8px;
+      color: var(--color-text-secondary);
     }
+
+    :deep(.header-action:hover) {
+      background: var(--color-bg-layout);
+      color: var(--color-text-primary);
+    }
+  }
+
+  :deep(.ant-divider-vertical) {
+    border-inline-start-color: var(--color-border-secondary);
   }
 }
 </style>

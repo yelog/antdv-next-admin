@@ -121,7 +121,7 @@ const getTabLabel = (tab: Tab) => {
 <style scoped lang="scss">
 .tab-bar {
   background: var(--color-bg-container);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--color-border-secondary);
   padding: 0 24px;
 
   .tabs-container {
@@ -144,16 +144,16 @@ const getTabLabel = (tab: Tab) => {
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
         .ant-tabs-tab-btn {
-          color: rgba(0, 0, 0, 0.65);
+          color: var(--color-text-secondary);
           font-weight: 400;
           font-size: 14px;
         }
 
         &:hover {
-          background: rgba(0, 0, 0, 0.04);
+          background: var(--color-bg-layout);
 
           .ant-tabs-tab-btn {
-            color: rgba(0, 0, 0, 0.88);
+            color: var(--color-text-primary);
           }
         }
 
@@ -176,11 +176,11 @@ const getTabLabel = (tab: Tab) => {
 
         .ant-tabs-tab-remove {
           margin-left: 8px;
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--color-text-tertiary);
           transition: color 0.2s;
 
           &:hover {
-            color: rgba(0, 0, 0, 0.88);
+            color: var(--color-text-primary);
           }
         }
       }
