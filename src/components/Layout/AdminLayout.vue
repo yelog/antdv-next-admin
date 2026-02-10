@@ -3,15 +3,15 @@
     <!-- Vertical Layout -->
     <template v-if="settingsStore.layoutMode === 'vertical'">
       <!-- Sidebar -->
-      <Sidebar />
+      <Sidebar v-if="!layoutStore.pageFullscreen" />
 
       <!-- Main Content -->
       <a-layout
         class="layout-main"
-        :style="{ marginLeft: layoutStore.isMobile ? '0px' : `${layoutStore.getCurrentSidebarWidth()}px` }"
+        :style="{ marginLeft: layoutStore.isMobile || layoutStore.pageFullscreen ? '0px' : `${layoutStore.getCurrentSidebarWidth()}px` }"
       >
         <!-- Header -->
-        <Header />
+        <Header v-if="!layoutStore.pageFullscreen" />
 
         <!-- Tabs -->
         <TabBar />
@@ -33,7 +33,7 @@
 
     <!-- Horizontal Layout -->
     <template v-else>
-      <a-layout-header class="horizontal-header">
+      <a-layout-header v-if="!layoutStore.pageFullscreen" class="horizontal-header">
         <div class="header-left">
           <div class="logo">
             <img src="/logo.svg" alt="Logo" />
@@ -47,7 +47,7 @@
 
       <a-layout>
         <!-- Horizontal Menu -->
-        <div class="horizontal-menu">
+        <div v-if="!layoutStore.pageFullscreen" class="horizontal-menu">
           <!-- Menu items will go here -->
         </div>
 

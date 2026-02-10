@@ -1,5 +1,5 @@
 <template>
-  <a-config-provider :theme="antdThemeConfig">
+  <a-config-provider :theme="antdThemeConfig" :input="inputConfig">
     <router-view />
   </a-config-provider>
 </template>
@@ -9,6 +9,7 @@ import { computed, onMounted } from 'vue'
 import { theme as antdTheme, type ThemeConfig } from 'antdv-next'
 import { useThemeStore } from './stores/theme'
 import { useSettingsStore } from './stores/settings'
+import { appDefaultSettings } from './settings'
 
 const themeStore = useThemeStore()
 const settingsStore = useSettingsStore()
@@ -19,6 +20,8 @@ const antdThemeConfig = computed<ThemeConfig>(() => ({
     colorPrimary: settingsStore.primaryColorHex
   }
 }))
+
+const inputConfig = computed(() => appDefaultSettings.input)
 
 onMounted(() => {
   // Initialize theme and settings from localStorage

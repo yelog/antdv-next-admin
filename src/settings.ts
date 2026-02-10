@@ -10,8 +10,13 @@ export interface ProTableDefaultSettings {
   fixedHeader: boolean
 }
 
+export interface InputDefaultSettings {
+  allowClear: boolean
+}
+
 export interface AppDefaultSettings {
   proTable: ProTableDefaultSettings
+  input: InputDefaultSettings
 }
 
 export const appDefaultSettings: AppDefaultSettings = {
@@ -22,6 +27,8 @@ export const appDefaultSettings: AppDefaultSettings = {
     ellipsis: true,
     bordered: true,
     fixedHeader: true
+  },
+  input: {
+    allowClear: true
   }
 }
-

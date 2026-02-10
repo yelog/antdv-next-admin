@@ -7,6 +7,7 @@ export const useLayoutStore = defineStore('layout', () => {
   const sidebarWidth = ref(240)
   const collapsedWidth = ref(80)
   const isMobile = ref(false)
+  const pageFullscreen = ref(false)
 
   // Actions
   const toggleSidebar = () => {
@@ -25,6 +26,14 @@ export const useLayoutStore = defineStore('layout', () => {
     if (value) {
       collapsed.value = true
     }
+  }
+
+  const togglePageFullscreen = () => {
+    pageFullscreen.value = !pageFullscreen.value
+  }
+
+  const setPageFullscreen = (value: boolean) => {
+    pageFullscreen.value = value
   }
 
   const getCurrentSidebarWidth = () => {
@@ -52,10 +61,13 @@ export const useLayoutStore = defineStore('layout', () => {
     sidebarWidth,
     collapsedWidth,
     isMobile,
+    pageFullscreen,
     // Actions
     toggleSidebar,
     setSidebarCollapsed,
     setIsMobile,
+    togglePageFullscreen,
+    setPageFullscreen,
     getCurrentSidebarWidth,
     initLayout
   }

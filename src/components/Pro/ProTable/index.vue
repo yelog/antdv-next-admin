@@ -298,8 +298,6 @@ const props = withDefaults(defineProps<Props>(), {
   bordered: appDefaultSettings.proTable.bordered,
   fixedHeader: appDefaultSettings.proTable.fixedHeader,
   pagination: () => ({
-    current: 1,
-    pageSize: 10,
     showSizeChanger: true,
     showQuickJumper: true,
     showTotal: (total: number) => `共 ${total} 条`
@@ -434,13 +432,15 @@ const paginationConfig = computed(() => {
     return false
   }
 
+  const pagination = props.pagination || {}
+
   return {
-    current: currentPage.value,
-    pageSize: pageSize.value,
     showSizeChanger: true,
     showQuickJumper: true,
     showTotal: (value: number) => `共 ${value} 条`,
-    ...props.pagination,
+    ...pagination,
+    current: currentPage.value,
+    pageSize: pageSize.value,
     total: total.value
   }
 })
@@ -660,8 +660,10 @@ const handleRefresh = () => {
 
 const handleTableChange = (pagination: any) => {
   if (paginationEnabled.value) {
-    currentPage.value = pagination.current
-    pageSize.value = pagination.pageSize
+    const nextCurrent = Number(pagination?.current || 1)
+    const nextPageSize = Number(pagination?.pageSize || pageSize.value || 10)
+    currentPage.value = nextCurrent
+    pageSize.value = nextPageSize
   }
   loadData()
 }
@@ -774,6 +776,23 @@ watch(
   () => {
     initializeColumnStates()
     scheduleMeasureTable()
+  },
+  { deep: true }
+)
+
+watch(
+  () => props.pagination,
+  (value) => {
+    if (value === false) {
+      return
+    }
+
+    if (value?.current != null) {
+      currentPage.value = Number(value.current)
+    }
+    if (value?.pageSize != null) {
+      pageSize.value = Number(value.pageSize)
+    }
   },
   { deep: true }
 )

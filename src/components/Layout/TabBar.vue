@@ -65,7 +65,7 @@ import {
   VerticalRightOutlined
 } from '@antdv-next/icons'
 import { useTabsStore } from '@/stores/tabs'
-import { useFullscreen } from '@/composables/useFullscreen'
+import { useLayoutStore } from '@/stores/layout'
 import type { Tab } from '@/types/layout'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
@@ -74,8 +74,13 @@ import { useI18n } from 'vue-i18n'
 const route = useRoute()
 const router = useRouter()
 const tabsStore = useTabsStore()
-const { isFullscreen, toggle: toggleFullscreen } = useFullscreen()
+const layoutStore = useLayoutStore()
 const { t } = useI18n()
+
+const isFullscreen = computed(() => layoutStore.pageFullscreen)
+const toggleFullscreen = () => {
+  layoutStore.togglePageFullscreen()
+}
 
 type TabMenuKey =
   | 'close'
