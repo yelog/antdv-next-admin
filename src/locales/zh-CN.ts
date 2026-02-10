@@ -47,6 +47,7 @@ export default {
 
   layout: {
     logout: '退出登录',
+    logoutConfirm: '确定要退出登录吗？',
     profile: '个人中心',
     settings: '系统设置',
     theme: '主题设置',

@@ -1,6 +1,6 @@
 <template>
   <a-tooltip :title="tooltipTitle">
-    <a-button type="text" class="header-action" @click="themeStore.toggleTheme">
+    <a-button type="text" class="header-action" @click="handleThemeToggle">
       <BulbFilled v-if="themeStore.isDark" />
       <BulbOutlined v-else />
     </a-button>
@@ -17,6 +17,10 @@ const themeStore = useThemeStore()
 const { t } = useI18n()
 
 const tooltipTitle = computed(() => {
-  return themeStore.isDark ? t('layout.theme') + ' (Light)' : t('layout.theme') + ' (Dark)'
+  return themeStore.isDark ? `${t('layout.theme')} (Light)` : `${t('layout.theme')} (Dark)`
 })
+
+const handleThemeToggle = () => {
+  themeStore.setTheme(themeStore.isDark ? 'light' : 'dark')
+}
 </script>

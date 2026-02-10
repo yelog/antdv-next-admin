@@ -1,5 +1,5 @@
 <template>
-  <a-dropdown>
+  <a-dropdown :trigger="['click']" placement="bottomRight" :menu="menuProps">
     <div class="avatar-dropdown">
       <a-avatar :src="authStore.user?.avatar" :size="32">
         {{ authStore.user?.username?.charAt(0).toUpperCase() }}
@@ -7,32 +7,15 @@
       <span class="username">{{ authStore.user?.realName || authStore.user?.username }}</span>
       <DownOutlined class="dropdown-icon" />
     </div>
-    <template #overlay>
-      <a-menu @click="handleMenuClick">
-        <a-menu-item key="profile">
-          <UserOutlined />
-          <span>{{ $t('layout.profile') }}</span>
-        </a-menu-item>
-        <a-menu-item key="settings">
-          <SettingOutlined />
-          <span>{{ $t('layout.settings') }}</span>
-        </a-menu-item>
-        <a-menu-divider />
-        <a-menu-item key="logout">
-          <LogoutOutlined />
-          <span>{{ $t('layout.logout') }}</span>
-        </a-menu-item>
-      </a-menu>
-    </template>
   </a-dropdown>
 </template>
 
 <script setup lang="ts">
+import { computed, h } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   DownOutlined,
   UserOutlined,
-  SettingOutlined,
   LogoutOutlined
 } from '@antdv-next/icons'
 import { useAuthStore } from '@/stores/auth'
@@ -48,13 +31,12 @@ const handleMenuClick = ({ key }: { key: string }) => {
     case 'profile':
       router.push('/profile')
       break
-    case 'settings':
-      // Open settings drawer
-      break
     case 'logout':
       Modal.confirm({
         title: t('layout.logout'),
-        content: 'Are you sure you want to logout?',
+        content: t('layout.logoutConfirm'),
+        okText: t('common.confirm'),
+        cancelText: t('common.cancel'),
         onOk: () => {
           authStore.logout()
           router.push('/login')
@@ -63,6 +45,25 @@ const handleMenuClick = ({ key }: { key: string }) => {
       break
   }
 }
+
+const menuProps = computed(() => ({
+  items: [
+    {
+      key: 'profile',
+      label: t('layout.profile'),
+      icon: h(UserOutlined)
+    },
+    {
+      type: 'divider'
+    },
+    {
+      key: 'logout',
+      label: t('layout.logout'),
+      icon: h(LogoutOutlined)
+    }
+  ],
+  onClick: handleMenuClick
+}))
 </script>
 
 <style scoped lang="scss">

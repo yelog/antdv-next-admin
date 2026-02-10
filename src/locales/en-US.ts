@@ -47,6 +47,7 @@ export default {
 
   layout: {
     logout: 'Logout',
+    logoutConfirm: 'Are you sure you want to logout?',
     profile: 'Profile',
     settings: 'Settings',
     theme: 'Theme',
