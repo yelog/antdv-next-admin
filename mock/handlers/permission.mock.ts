@@ -81,7 +81,7 @@ function filterPermissionTree(
 
     const matchedKeyword = !normalizedKeyword ||
       permission.name.toLowerCase().includes(normalizedKeyword) ||
-      permission.code.toLowerCase().includes(normalizedKeyword) ||
+      String(permission.code || '').toLowerCase().includes(normalizedKeyword) ||
       (permission.path || '').toLowerCase().includes(normalizedKeyword)
 
     const matchedType = !type || permission.type === type
@@ -96,7 +96,20 @@ function filterPermissionTree(
     }
 
     return result
-  })
+  }, [])
+}
+
+function normalizeQueryValue(value: unknown): string | undefined {
+  if (Array.isArray(value)) {
+    return normalizeQueryValue(value[0])
+  }
+
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  const trimmed = value.trim()
+  return trimmed ? trimmed : undefined
 }
 
 export default defineMock([
@@ -105,7 +118,10 @@ export default defineMock([
     url: '/api/permissions',
     method: 'GET',
     body: (req) => {
-      const { keyword, type, status } = req.query
+      const query = req.query || {}
+      const keyword = normalizeQueryValue(query.keyword)
+      const type = normalizeQueryValue(query.type)
+      const status = normalizeQueryValue(query.status)
       const filtered = filterPermissionTree(permissionStore, keyword, type, status)
 
       return {
