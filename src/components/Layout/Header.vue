@@ -3,6 +3,7 @@
     <div class="header-left">
       <!-- Collapse Button -->
       <a-button
+        v-if="showCollapseButton"
         type="text"
         class="collapse-btn"
         @click="layoutStore.toggleSidebar"
@@ -77,10 +78,12 @@ import SettingsDrawer from './SettingsDrawer.vue'
 
 interface Props {
   showBreadcrumb?: boolean
+  showCollapseButton?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
-  showBreadcrumb: true
+  showBreadcrumb: true,
+  showCollapseButton: true
 })
 
 const layoutStore = useLayoutStore()
