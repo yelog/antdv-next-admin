@@ -15,7 +15,7 @@
         >
           <template #tab>
             <a-dropdown :trigger="['contextmenu']">
-              <span>{{ tab.name }}</span>
+              <span>{{ getTabLabel(tab) }}</span>
               <template #overlay>
                 <a-menu @click="(e) => handleContextMenu(e, tab)">
                   <a-menu-item key="refresh">
@@ -67,6 +67,7 @@ import {
 } from '@antdv-next/icons'
 import { useTabsStore } from '@/stores/tabs'
 import type { Tab } from '@/types/layout'
+import { resolveLocaleText } from '@/utils/i18n'
 
 const router = useRouter()
 const tabsStore = useTabsStore()
@@ -110,6 +111,10 @@ const handleContextMenu = (e: { key: string }, tab: Tab) => {
       tabsStore.closeRightTabs(tab.path)
       break
   }
+}
+
+const getTabLabel = (tab: Tab) => {
+  return resolveLocaleText(tab.title, tab.name)
 }
 </script>
 

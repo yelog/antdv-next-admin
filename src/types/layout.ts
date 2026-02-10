@@ -2,7 +2,10 @@
 
 export interface Tab {
   id: string
+  // Route name, used by keep-alive include
   name: string
+  // i18n message key or plain title text for display
+  title?: string
   path: string
   fullPath: string
   query?: Record<string, any>

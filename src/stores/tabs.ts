@@ -22,6 +22,8 @@ export const useTabsStore = defineStore('tabs', () => {
   // Actions
   const addTab = (route: RouteLocationNormalized) => {
     const { path, fullPath, name, meta, query, params } = route
+    const routeName = String(name || path)
+    const routeTitle = meta?.title ? String(meta.title) : routeName
 
     // Skip if hidden
     if (meta?.hidden) return
@@ -29,6 +31,11 @@ export const useTabsStore = defineStore('tabs', () => {
     // Check if tab already exists
     const existingTab = tabs.value.find(tab => tab.path === path)
     if (existingTab) {
+      existingTab.name = routeName
+      existingTab.title = routeTitle
+      existingTab.fullPath = fullPath
+      existingTab.query = query as Record<string, any>
+      existingTab.params = params as Record<string, any>
       activeTabPath.value = path
       return
     }
@@ -36,11 +43,12 @@ export const useTabsStore = defineStore('tabs', () => {
     // Create new tab
     const newTab: Tab = {
       id: fullPath,
-      name: name as string,
+      name: routeName,
+      title: routeTitle,
       path,
       fullPath,
-      query,
-      params,
+      query: query as Record<string, any>,
+      params: params as Record<string, any>,
       closable: !meta?.affix,
       affix: meta?.affix
     }
@@ -119,9 +127,12 @@ export const useTabsStore = defineStore('tabs', () => {
     const findAffixRoutes = (routes: any[], basePath = '') => {
       routes.forEach(route => {
         if (route.meta?.affix && route.path) {
+          const routeName = String(route.name || route.path)
+          const routeTitle = route.meta?.title ? String(route.meta.title) : routeName
           affixTabs.push({
             id: basePath + route.path,
-            name: route.name,
+            name: routeName,
+            title: routeTitle,
             path: basePath + route.path,
             fullPath: basePath + route.path,
             closable: false,
