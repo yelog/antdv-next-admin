@@ -4,6 +4,78 @@
     class="pro-table"
     :style="tableRootStyle"
   >
+    <!-- Search Form -->
+    <div v-if="showSearchForm" ref="searchRef" class="pro-table-search">
+      <a-form
+        :model="searchForm"
+        :label-col="{ span: searchLabelWidth }"
+        class="search-form"
+      >
+        <a-row :gutter="16">
+          <a-col
+            v-for="col in visibleSearchColumns"
+            :key="col.dataIndex"
+            :xs="24"
+            :sm="12"
+            :lg="8"
+          >
+            <a-form-item :label="col.title" :name="col.dataIndex">
+              <a-input
+                v-if="col.searchType === 'input'"
+                v-model:value="searchForm[col.dataIndex]"
+                :placeholder="`请输入${col.title}`"
+                v-bind="col.searchProps"
+              />
+
+              <a-select
+                v-else-if="col.searchType === 'select'"
+                v-model:value="searchForm[col.dataIndex]"
+                :placeholder="`请选择${col.title}`"
+                :options="col.searchOptions"
+                v-bind="col.searchProps"
+              />
+
+              <a-date-picker
+                v-else-if="col.searchType === 'datePicker'"
+                v-model:value="searchForm[col.dataIndex]"
+                :placeholder="`请选择${col.title}`"
+                style="width: 100%"
+                v-bind="col.searchProps"
+              />
+
+              <a-range-picker
+                v-else-if="col.searchType === 'dateRange'"
+                v-model:value="searchForm[col.dataIndex]"
+                style="width: 100%"
+                v-bind="col.searchProps"
+              />
+            </a-form-item>
+          </a-col>
+
+          <a-col :xs="24" :sm="12" :lg="8" class="search-actions">
+            <a-form-item>
+              <a-space>
+                <a-button type="primary" @click="handleSearch">
+                  <SearchOutlined /> 查询
+                </a-button>
+                <a-button @click="handleReset">
+                  <ReloadOutlined /> 重置
+                </a-button>
+                <a-button
+                  v-if="searchColumns.length > 3"
+                  type="link"
+                  @click="searchCollapsed = !searchCollapsed"
+                >
+                  {{ searchCollapsed ? '展开' : '收起' }}
+                  <DownOutlined :class="{ 'rotate-180': !searchCollapsed }" />
+                </a-button>
+              </a-space>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
+    </div>
+
     <!-- Toolbar -->
     <div v-if="toolbar" ref="toolbarRef" class="pro-table-toolbar">
       <div class="toolbar-left">
@@ -106,78 +178,6 @@
           </a-popover>
         </a-space>
       </div>
-    </div>
-
-    <!-- Search Form -->
-    <div v-if="showSearchForm" ref="searchRef" class="pro-table-search">
-      <a-form
-        :model="searchForm"
-        :label-col="{ span: searchLabelWidth }"
-        class="search-form"
-      >
-        <a-row :gutter="16">
-          <a-col
-            v-for="col in visibleSearchColumns"
-            :key="col.dataIndex"
-            :xs="24"
-            :sm="12"
-            :lg="8"
-          >
-            <a-form-item :label="col.title" :name="col.dataIndex">
-              <a-input
-                v-if="col.searchType === 'input'"
-                v-model:value="searchForm[col.dataIndex]"
-                :placeholder="`请输入${col.title}`"
-                v-bind="col.searchProps"
-              />
-
-              <a-select
-                v-else-if="col.searchType === 'select'"
-                v-model:value="searchForm[col.dataIndex]"
-                :placeholder="`请选择${col.title}`"
-                :options="col.searchOptions"
-                v-bind="col.searchProps"
-              />
-
-              <a-date-picker
-                v-else-if="col.searchType === 'datePicker'"
-                v-model:value="searchForm[col.dataIndex]"
-                :placeholder="`请选择${col.title}`"
-                style="width: 100%"
-                v-bind="col.searchProps"
-              />
-
-              <a-range-picker
-                v-else-if="col.searchType === 'dateRange'"
-                v-model:value="searchForm[col.dataIndex]"
-                style="width: 100%"
-                v-bind="col.searchProps"
-              />
-            </a-form-item>
-          </a-col>
-
-          <a-col :xs="24" :sm="12" :lg="8" class="search-actions">
-            <a-form-item>
-              <a-space>
-                <a-button type="primary" @click="handleSearch">
-                  <SearchOutlined /> 查询
-                </a-button>
-                <a-button @click="handleReset">
-                  <ReloadOutlined /> 重置
-                </a-button>
-                <a-button
-                  v-if="searchColumns.length > 3"
-                  type="link"
-                  @click="searchCollapsed = !searchCollapsed"
-                >
-                  {{ searchCollapsed ? '展开' : '收起' }}
-                  <DownOutlined :class="{ 'rotate-180': !searchCollapsed }" />
-                </a-button>
-              </a-space>
-            </a-form-item>
-          </a-col>
-        </a-row>
-      </a-form>
     </div>
 
     <!-- Table -->
@@ -860,7 +860,6 @@ defineExpose({
     height: 32px;
     min-height: 32px;
     padding: 0 8px;
-    border-bottom: 1px solid var(--color-border-secondary);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -911,7 +910,7 @@ defineExpose({
 
   .pro-table-search {
     padding: 8px 12px 0;
-    border-bottom: 1px solid var(--color-border-secondary);
+    margin-bottom: 15px;
     flex-shrink: 0;
 
     .search-actions {
