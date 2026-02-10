@@ -80,7 +80,10 @@
     <div
       ref="tableSectionRef"
       class="pro-table-main"
-      :class="{ 'main-scroll-mode': !effectiveFixedHeader && !isAutoHeight }"
+      :class="{
+        'main-scroll-mode': !effectiveFixedHeader && !isAutoHeight,
+        'main-fill-mode': effectiveFixedHeader || isAutoHeight
+      }"
     >
       <a-table
         :columns="displayColumns"
@@ -392,9 +395,13 @@ const isAutoHeight = computed(() => {
   return String(effectiveHeight.value) === 'auto'
 })
 
+const isFillMode = computed(() => {
+  return isAutoHeight.value || effectiveFixedHeader.value
+})
+
 const tableRootStyle = computed<Record<string, string> | undefined>(() => {
   if (isAutoHeight.value) {
-    return undefined
+    return { height: '100%' }
   }
 
   const height = typeof effectiveHeight.value === 'number'
@@ -486,7 +493,7 @@ const tableScroll = computed(() => {
     scroll.x = 'max-content'
   }
 
-  if (!isAutoHeight.value && effectiveFixedHeader.value && tableScrollY.value) {
+  if (isFillMode.value && tableScrollY.value) {
     scroll.y = tableScrollY.value
   }
 
@@ -702,8 +709,18 @@ const getHeaderFallbackHeight = () => {
   return 48
 }
 
+const getPaginationFallbackHeight = () => {
+  if (!paginationEnabled.value) return 0
+  return 56
+}
+
+const getTitleFallbackHeight = () => {
+  if (!props.toolbar) return 0
+  return 32
+}
+
 const measureTableScroll = () => {
-  if (isAutoHeight.value || !effectiveFixedHeader.value) {
+  if (!isFillMode.value) {
     tableScrollY.value = undefined
     return
   }
@@ -715,10 +732,10 @@ const measureTableScroll = () => {
   if (!sectionHeight) return
 
   const paginationEl = section.querySelector('.ant-pagination') as HTMLElement | null
-  const paginationHeight = paginationEl ? getOuterHeight(paginationEl) : 0
+  const paginationHeight = paginationEl ? getOuterHeight(paginationEl) : getPaginationFallbackHeight()
 
   const titleEl = section.querySelector('.ant-table-title') as HTMLElement | null
-  const titleHeight = titleEl ? getOuterHeight(titleEl) : 0
+  const titleHeight = titleEl ? getOuterHeight(titleEl) : getTitleFallbackHeight()
 
   const headerEl = section.querySelector('.ant-table-header') as HTMLElement | null
   const theadEl = section.querySelector('.ant-table-thead') as HTMLElement | null
@@ -726,7 +743,10 @@ const measureTableScroll = () => {
     ? headerEl.getBoundingClientRect().height
     : (theadEl?.getBoundingClientRect().height || getHeaderFallbackHeight())
 
-  const nextY = Math.max(120, Math.floor(sectionHeight - paginationHeight - titleHeight - headerHeight - 2))
+  const nextY = Math.max(
+    120,
+    Math.floor(sectionHeight - paginationHeight - titleHeight - headerHeight - 2)
+  )
   if (!tableScrollY.value || Math.abs(nextY - tableScrollY.value) > 1) {
     tableScrollY.value = nextY
   }
@@ -750,6 +770,7 @@ const scheduleMeasureTable = () => {
 // Lifecycle
 onMounted(() => {
   initializeColumnStates()
+  measureTableScroll()
   loadData()
 
   if (typeof ResizeObserver !== 'undefined') {
@@ -854,6 +875,7 @@ defineExpose({
 .pro-table {
   display: flex;
   flex-direction: column;
+  height: 100%;
   min-height: 0;
   background: transparent;
 
@@ -934,6 +956,8 @@ defineExpose({
     flex: 1;
     min-height: 0;
     padding: 8px;
+    display: flex;
+    flex-direction: column;
     background: var(--color-bg-container);
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border-secondary);
@@ -941,6 +965,34 @@ defineExpose({
 
     &.main-scroll-mode {
       overflow: auto;
+    }
+
+    &.main-fill-mode {
+      :deep(.ant-table-wrapper),
+      :deep(.ant-spin-nested-loading),
+      :deep(.ant-spin-container),
+      :deep(.ant-table),
+      :deep(.ant-table-container) {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+      }
+
+      :deep(.ant-table-content) {
+        min-height: 0;
+      }
+
+      :deep(.ant-table-body) {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto !important;
+      }
+
+      :deep(.ant-table-pagination.ant-pagination) {
+        margin: 8px 0 0;
+        flex-shrink: 0;
+      }
     }
   }
 
@@ -952,6 +1004,7 @@ defineExpose({
   :deep(.ant-table-container) {
     border-radius: 10px;
     overflow: hidden;
+    min-height: 0;
   }
 
   :deep(.ant-table-thead > tr > th) {

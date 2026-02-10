@@ -192,6 +192,10 @@ onMounted(() => {
 
   .page-scroll :deep(.page-container) {
     min-height: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
 
   &.mobile {
