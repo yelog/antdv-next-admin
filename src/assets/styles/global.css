@@ -315,8 +315,9 @@ ul, ol {
 /* ========== Page Container ========== */
 
 .page-container {
-  padding: var(--spacing-lg);
-  min-height: calc(100vh - 88px);
+  box-sizing: border-box;
+  padding: 0;
+  min-height: 100%;
 }
 
 .page-header {
@@ -368,7 +369,7 @@ ul, ol {
 
 @media (max-width: 768px) {
   .page-container {
-    padding: var(--spacing-md);
+    padding: 0;
   }
 
   .card {

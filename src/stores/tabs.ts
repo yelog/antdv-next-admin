@@ -28,6 +28,20 @@ export const useTabsStore = defineStore('tabs', () => {
     activeTabPath.value = tabs.value[0]?.path || ''
   }
 
+  const resolveRoutePath = (path: string, basePath = ''): string => {
+    if (!path) {
+      return basePath || '/'
+    }
+
+    if (path.startsWith('/')) {
+      return path
+    }
+
+    const normalizedBase = basePath === '/' ? '' : basePath.replace(/\/$/, '')
+    const resolved = `${normalizedBase}/${path}`.replace(/\/+/g, '/')
+    return resolved.startsWith('/') ? resolved : `/${resolved}`
+  }
+
   // Getters
   const cachedTabs = computed(() => {
     return tabs.value
@@ -164,16 +178,19 @@ export const useTabsStore = defineStore('tabs', () => {
 
     const findAffixRoutes = (routes: any[], basePath = '') => {
       routes.forEach(route => {
-        if (route.meta?.affix && route.path) {
-          const routeName = String(route.name || route.path)
+        const routePath = route.path ? String(route.path) : ''
+        const fullPath = resolveRoutePath(routePath, basePath)
+
+        if (route.meta?.affix && routePath) {
+          const routeName = String(route.name || routePath)
           const routeTitle = route.meta?.title ? String(route.meta.title) : routeName
           affixTabs.push({
-            id: basePath + route.path,
+            id: fullPath,
             name: routeName,
             title: routeTitle,
             icon: route.meta?.icon ? String(route.meta.icon) : undefined,
-            path: basePath + route.path,
-            fullPath: basePath + route.path,
+            path: fullPath,
+            fullPath,
             closable: false,
             pinned: false,
             affix: true
@@ -181,13 +198,16 @@ export const useTabsStore = defineStore('tabs', () => {
         }
 
         if (route.children) {
-          findAffixRoutes(route.children, basePath + route.path)
+          findAffixRoutes(route.children, fullPath)
         }
       })
     }
 
     findAffixRoutes(routes)
     tabs.value = affixTabs
+    if (affixTabs.length > 0) {
+      activeTabPath.value = affixTabs[0].path
+    }
   }
 
   return {

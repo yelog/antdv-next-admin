@@ -18,13 +18,15 @@
 
         <!-- Page Content -->
         <a-layout-content class="page-content">
-          <router-view v-slot="{ Component }">
-            <transition :name="settingsStore.pageAnimation" mode="out-in">
-              <keep-alive :include="cachedTabs">
-                <component :is="Component" :key="$route.fullPath" />
-              </keep-alive>
-            </transition>
-          </router-view>
+          <div class="page-scroll">
+            <router-view v-slot="{ Component }">
+              <transition :name="settingsStore.pageAnimation" mode="out-in">
+                <keep-alive :include="cachedTabs">
+                  <component :is="Component" :key="$route.fullPath" />
+                </keep-alive>
+              </transition>
+            </router-view>
+          </div>
         </a-layout-content>
       </a-layout>
     </template>
@@ -55,13 +57,15 @@
 
           <!-- Page Content -->
           <div class="page-content">
-            <router-view v-slot="{ Component }">
-              <transition :name="settingsStore.pageAnimation" mode="out-in">
-                <keep-alive :include="cachedTabs">
-                  <component :is="Component" :key="$route.fullPath" />
-                </keep-alive>
-              </transition>
-            </router-view>
+            <div class="page-scroll">
+              <router-view v-slot="{ Component }">
+                <transition :name="settingsStore.pageAnimation" mode="out-in">
+                  <keep-alive :include="cachedTabs">
+                    <component :is="Component" :key="$route.fullPath" />
+                  </keep-alive>
+                </transition>
+              </router-view>
+            </div>
           </div>
         </a-layout-content>
       </a-layout>
@@ -91,19 +95,30 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .admin-layout {
+  height: 100vh;
   min-height: 100vh;
   background: var(--color-bg-layout);
+  overflow: hidden;
 
   &.vertical {
     display: flex;
 
     .layout-main {
       flex: 1;
+      min-width: 0;
+      min-height: 100vh;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
       transition: margin-left var(--duration-slow) var(--ease-out);
+      overflow: hidden;
     }
   }
 
   &.horizontal {
+    display: flex;
+    flex-direction: column;
+
     .horizontal-header {
       display: flex;
       align-items: center;
@@ -114,6 +129,7 @@ onMounted(() => {
       box-sizing: border-box;
       height: 50px;
       border-bottom: 1px solid var(--color-border-secondary);
+      flex-shrink: 0;
 
       .header-left {
         display: flex;
@@ -145,14 +161,37 @@ onMounted(() => {
     }
 
     .horizontal-content {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
       background: var(--color-bg-layout);
+    }
+
+    > :deep(.ant-layout) {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
   }
 
   .page-content {
-    padding: 24px;
-    min-height: calc(100vh - 88px);
+    flex: 1;
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 16px;
     background: var(--color-bg-layout);
+  }
+
+  .page-scroll {
+    height: 100%;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .page-scroll :deep(.page-container) {
+    min-height: 100%;
   }
 
   &.mobile {
