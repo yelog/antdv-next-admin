@@ -148,8 +148,9 @@ onMounted(() => {
   }
 
   .page-content {
-    padding: var(--spacing-lg);
+    padding: 24px;
     min-height: calc(100vh - 120px);
+    background: #F5F7FA;
   }
 
   &.mobile {

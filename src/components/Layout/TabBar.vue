@@ -116,14 +116,14 @@ const handleContextMenu = (e: any, tab: Tab) => {
 <style scoped lang="scss">
 .tab-bar {
   background: var(--color-bg-container);
-  border-bottom: 1px solid var(--color-border-secondary);
-  padding: 0 var(--spacing-md);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 0 24px;
 
   .tabs-container {
     :deep(.ant-tabs) {
       .ant-tabs-nav {
         margin: 0;
-        padding: 4px 0;
+        padding: 8px 0;
 
         &::before {
           border-bottom: none;
@@ -131,21 +131,51 @@ const handleContextMenu = (e: any, tab: Tab) => {
       }
 
       .ant-tabs-tab {
-        border: 1px solid var(--color-border-secondary) !important;
-        background: var(--color-bg-layout);
-        margin-right: 4px;
-        transition: all var(--duration-base) var(--ease-out);
+        border: none !important;
+        background: transparent;
+        margin-right: 8px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+        .ant-tabs-tab-btn {
+          color: rgba(0, 0, 0, 0.65);
+          font-weight: 400;
+          font-size: 14px;
+        }
 
         &:hover {
-          background: var(--color-bg-container);
+          background: rgba(0, 0, 0, 0.04);
+
+          .ant-tabs-tab-btn {
+            color: rgba(0, 0, 0, 0.88);
+          }
         }
 
         &.ant-tabs-tab-active {
-          background: var(--color-bg-container);
-          border-color: var(--color-primary) !important;
+          background: var(--color-primary);
 
           .ant-tabs-tab-btn {
-            color: var(--color-primary);
+            color: #ffffff;
+            font-weight: 500;
+          }
+
+          .ant-tabs-tab-remove {
+            color: rgba(255, 255, 255, 0.85);
+
+            &:hover {
+              color: #ffffff;
+            }
+          }
+        }
+
+        .ant-tabs-tab-remove {
+          margin-left: 8px;
+          color: rgba(0, 0, 0, 0.45);
+          transition: color 0.2s;
+
+          &:hover {
+            color: rgba(0, 0, 0, 0.88);
           }
         }
       }

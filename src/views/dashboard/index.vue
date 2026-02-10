@@ -1,94 +1,147 @@
 <template>
   <div class="dashboard-container">
-    <h1 class="page-title">{{ $t('dashboard.welcome') }}</h1>
+    <!-- Page Header with Enhanced Visual Hierarchy -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-left">
+          <h1 class="page-title">{{ $t('dashboard.welcome') }}</h1>
+          <p class="page-subtitle">实时监控您的业务数据和系统运行状态</p>
+        </div>
+        <div class="header-right">
+          <a-avatar :size="56" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <template #icon><UserOutlined /></template>
+          </a-avatar>
+        </div>
+      </div>
+    </div>
 
-    <!-- Statistics Cards -->
-    <a-row :gutter="16" class="stats-row">
+    <!-- Statistics Cards with Enhanced Design -->
+    <a-row :gutter="24" class="stats-row">
       <a-col :xs="24" :sm="12" :lg="6">
         <div class="stat-card">
-          <div class="stat-icon" style="background: #e6f7ff; color: #1890ff;">
-            <UserOutlined />
+          <div class="stat-icon-wrapper">
+            <div class="stat-icon" style="background: rgba(24, 144, 255, 0.1); color: #1890ff;">
+              <UserOutlined />
+            </div>
+            <div class="stat-icon-watermark" style="color: rgba(24, 144, 255, 0.05);">
+              <UserOutlined />
+            </div>
           </div>
           <div class="stat-content">
-            <div class="stat-value">12,458</div>
             <div class="stat-label">{{ $t('dashboard.totalUsers') }}</div>
+            <div class="stat-value">12,458</div>
+            <div class="stat-trend positive">
+              <RiseOutlined /> +12.5%
+            </div>
           </div>
         </div>
       </a-col>
 
       <a-col :xs="24" :sm="12" :lg="6">
         <div class="stat-card">
-          <div class="stat-icon" style="background: #f6ffed; color: #52c41a;">
-            <ShoppingOutlined />
+          <div class="stat-icon-wrapper">
+            <div class="stat-icon" style="background: rgba(82, 196, 26, 0.1); color: #52c41a;">
+              <ShoppingOutlined />
+            </div>
+            <div class="stat-icon-watermark" style="color: rgba(82, 196, 26, 0.05);">
+              <ShoppingOutlined />
+            </div>
           </div>
           <div class="stat-content">
-            <div class="stat-value">8,946</div>
             <div class="stat-label">{{ $t('dashboard.totalOrders') }}</div>
+            <div class="stat-value">8,946</div>
+            <div class="stat-trend positive">
+              <RiseOutlined /> +8.2%
+            </div>
           </div>
         </div>
       </a-col>
 
       <a-col :xs="24" :sm="12" :lg="6">
         <div class="stat-card">
-          <div class="stat-icon" style="background: #fff7e6; color: #fa8c16;">
-            <DollarOutlined />
+          <div class="stat-icon-wrapper">
+            <div class="stat-icon" style="background: rgba(250, 140, 22, 0.1); color: #fa8c16;">
+              <DollarOutlined />
+            </div>
+            <div class="stat-icon-watermark" style="color: rgba(250, 140, 22, 0.05);">
+              <DollarOutlined />
+            </div>
           </div>
           <div class="stat-content">
-            <div class="stat-value">¥456,789</div>
             <div class="stat-label">{{ $t('dashboard.totalRevenue') }}</div>
+            <div class="stat-value">¥456,789</div>
+            <div class="stat-trend positive">
+              <RiseOutlined /> +15.3%
+            </div>
           </div>
         </div>
       </a-col>
 
       <a-col :xs="24" :sm="12" :lg="6">
         <div class="stat-card">
-          <div class="stat-icon" style="background: #f9f0ff; color: #722ed1;">
-            <RiseOutlined />
+          <div class="stat-icon-wrapper">
+            <div class="stat-icon" style="background: rgba(114, 46, 209, 0.1); color: #722ed1;">
+              <RiseOutlined />
+            </div>
+            <div class="stat-icon-watermark" style="color: rgba(114, 46, 209, 0.05);">
+              <RiseOutlined />
+            </div>
           </div>
           <div class="stat-content">
-            <div class="stat-value">3.24%</div>
             <div class="stat-label">{{ $t('dashboard.conversionRate') }}</div>
+            <div class="stat-value">3.24%</div>
+            <div class="stat-trend positive">
+              <RiseOutlined /> +0.8%
+            </div>
           </div>
         </div>
       </a-col>
     </a-row>
 
-    <!-- Charts -->
-    <a-row :gutter="16" class="charts-row">
-      <a-col :xs="24" :lg="12">
+    <!-- Charts with Asymmetric Layout (2:1 ratio) -->
+    <a-row :gutter="24" class="charts-row">
+      <a-col :xs="24" :lg="16">
         <div class="card">
-          <h3 class="card-title">{{ $t('dashboard.salesTrend') }}</h3>
-          <div class="chart-placeholder">
-            <BarChartOutlined class="chart-icon" />
-            <p>Chart will be here</p>
+          <div class="card-header">
+            <h3 class="card-title">{{ $t('dashboard.salesTrend') }}</h3>
+            <a-button type="link" size="small">查看详情</a-button>
           </div>
+          <a-skeleton active :paragraph="{ rows: 6 }" />
         </div>
       </a-col>
 
-      <a-col :xs="24" :lg="12">
+      <a-col :xs="24" :lg="8">
         <div class="card">
-          <h3 class="card-title">{{ $t('dashboard.userDistribution') }}</h3>
-          <div class="chart-placeholder">
-            <PieChartOutlined class="chart-icon" />
-            <p>Chart will be here</p>
+          <div class="card-header">
+            <h3 class="card-title">{{ $t('dashboard.userDistribution') }}</h3>
           </div>
+          <a-skeleton active :paragraph="{ rows: 6 }" />
         </div>
       </a-col>
     </a-row>
 
     <!-- Recent Activities -->
     <div class="card">
-      <h3 class="card-title">{{ $t('dashboard.recentActivities') }}</h3>
+      <div class="card-header">
+        <h3 class="card-title">{{ $t('dashboard.recentActivities') }}</h3>
+        <a-button type="link" size="small">查看全部</a-button>
+      </div>
       <a-list
         :data-source="activities"
         :loading="false"
+        class="activities-list"
       >
         <template #renderItem="{ item }">
-          <a-list-item>
-            <a-list-item-meta :description="item.time">
-              <template #title>{{ item.action }}</template>
+          <a-list-item class="activity-item">
+            <a-list-item-meta>
+              <template #title>
+                <span class="activity-title">{{ item.action }}</span>
+              </template>
+              <template #description>
+                <span class="activity-time">{{ item.time }}</span>
+              </template>
               <template #avatar>
-                <a-avatar :src="item.avatar" />
+                <a-avatar :src="item.avatar" :size="40" />
               </template>
             </a-list-item-meta>
           </a-list-item>
@@ -119,75 +172,161 @@ const activities = ref([
 
 <style scoped lang="scss">
 .dashboard-container {
-  .page-title {
-    font-size: var(--font-size-3xl);
-    font-weight: var(--font-weight-semibold);
-    margin-bottom: var(--spacing-xl);
-    color: var(--color-text-primary);
-  }
+  // Page Header with Enhanced Visual Design
+  .page-header {
+    margin-bottom: 32px;
+    padding: 28px 32px;
+    background: var(--color-bg-container);
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
 
-  .stats-row {
-    margin-bottom: var(--spacing-xl);
-
-    .stat-card {
+    .header-content {
       display: flex;
       align-items: center;
-      gap: var(--spacing-md);
-      padding: var(--spacing-lg);
+      justify-content: space-between;
+
+      .header-left {
+        flex: 1;
+
+        .page-title {
+          font-size: 32px;
+          font-weight: 600;
+          color: rgba(0, 0, 0, 0.88);
+          margin-bottom: 8px;
+          line-height: 1.2;
+        }
+
+        .page-subtitle {
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.45);
+          margin: 0;
+        }
+      }
+
+      .header-right {
+        margin-left: 24px;
+      }
+    }
+  }
+
+  // Statistics Cards with Professional Design
+  .stats-row {
+    margin-bottom: 24px;
+
+    .stat-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
       background: var(--color-bg-container);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-card);
-      transition: all var(--duration-slow) var(--ease-out);
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      min-height: 140px;
 
       &:hover {
         transform: translateY(-4px);
-        box-shadow: var(--shadow-card-hover);
+        box-shadow: 0 6px 30px 0 rgba(0, 0, 0, 0.08);
       }
 
-      .stat-icon {
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: var(--radius-lg);
-        font-size: 28px;
+      .stat-icon-wrapper {
+        position: relative;
+        margin-bottom: 16px;
+
+        .stat-icon {
+          width: 56px;
+          height: 56px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          font-size: 24px;
+          position: relative;
+          z-index: 2;
+        }
+
+        .stat-icon-watermark {
+          position: absolute;
+          right: 0;
+          top: -10px;
+          font-size: 100px;
+          opacity: 1;
+          pointer-events: none;
+        }
       }
 
       .stat-content {
         flex: 1;
 
-        .stat-value {
-          font-size: var(--font-size-2xl);
-          font-weight: var(--font-weight-bold);
-          color: var(--color-text-primary);
-          margin-bottom: var(--spacing-xs);
+        .stat-label {
+          font-size: 14px;
+          color: rgba(0, 0, 0, 0.45);
+          margin-bottom: 8px;
+          font-weight: 400;
         }
 
-        .stat-label {
-          font-size: var(--font-size-sm);
-          color: var(--color-text-secondary);
+        .stat-value {
+          font-size: 30px;
+          font-weight: 600;
+          color: rgba(0, 0, 0, 0.88);
+          margin-bottom: 8px;
+          line-height: 1;
+          font-family: 'DIN Alternate', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .stat-trend {
+          font-size: 13px;
+          font-weight: 500;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+
+          &.positive {
+            color: #52c41a;
+          }
+
+          &.negative {
+            color: #ff4d4f;
+          }
         }
       }
     }
   }
 
+  // Charts Section with Asymmetric Layout
   .charts-row {
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: 24px;
   }
 
+  // Card Component with Enhanced Design
   .card {
-    padding: var(--spacing-lg);
+    padding: 24px;
     background: var(--color-bg-container);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
-    margin-bottom: var(--spacing-lg);
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      box-shadow: 0 6px 30px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
 
     .card-title {
-      font-size: var(--font-size-lg);
-      font-weight: var(--font-weight-semibold);
-      margin-bottom: var(--spacing-md);
-      color: var(--color-text-primary);
+      font-size: 18px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.88);
+      margin: 0;
     }
 
     .chart-placeholder {
@@ -202,6 +341,74 @@ const activities = ref([
         font-size: 64px;
         margin-bottom: var(--spacing-md);
       }
+    }
+  }
+
+  // Activities List
+  .activities-list {
+    :deep(.ant-list-item) {
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+        padding-left: 12px;
+        padding-right: 12px;
+        margin-left: -12px;
+        margin-right: -12px;
+        border-radius: 8px;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .activity-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.88);
+    }
+
+    .activity-time {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.45);
+    }
+  }
+}
+
+// Dark Mode Support
+:deep(.dark) {
+  .dashboard-container {
+    .page-header {
+      background: var(--color-bg-container);
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15);
+    }
+
+    .page-title {
+      color: rgba(255, 255, 255, 0.88) !important;
+    }
+
+    .page-subtitle {
+      color: rgba(255, 255, 255, 0.45) !important;
+    }
+
+    .stat-card,
+    .card {
+      background: var(--color-bg-container);
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-value,
+    .card-title,
+    .activity-title {
+      color: rgba(255, 255, 255, 0.88) !important;
+    }
+
+    .stat-label,
+    .activity-time {
+      color: rgba(255, 255, 255, 0.45) !important;
     }
   }
 }

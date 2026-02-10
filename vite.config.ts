@@ -5,6 +5,8 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // GitHub Pages 部署配置
+  base: process.env.NODE_ENV === 'production' ? '/antdv-next-admin/' : '/',
   plugins: [
     vue(),
     mockDevServerPlugin({

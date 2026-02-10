@@ -42,6 +42,9 @@
         </a-button>
       </a-tooltip>
 
+      <!-- Divider -->
+      <a-divider type="vertical" style="height: 24px; margin: 0 4px;" />
+
       <!-- User Avatar Dropdown -->
       <AvatarDropdown />
     </div>
@@ -98,10 +101,11 @@ const openSettings = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--spacing-lg);
+  padding: 0 24px;
   background: var(--color-bg-container);
-  box-shadow: var(--shadow-1);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
   height: 64px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 
   .header-left {
     display: flex;
@@ -124,18 +128,29 @@ const openSettings = () => {
   .header-right {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: 0;
 
     .header-action {
       font-size: 18px;
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-base);
-      transition: all var(--duration-base) var(--ease-out);
+      width: 36px;
+      height: 36px;
+      padding: 0 !important;
+      border-radius: 8px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover {
-        background: var(--color-bg-layout);
+        background: rgba(0, 0, 0, 0.04);
+        color: var(--color-primary);
       }
+    }
+
+    // 确保所有子组件的按钮也应用相同样式
+    :deep(.header-action) {
+      font-size: 18px;
+      width: 36px;
+      height: 36px;
+      padding: 0 !important;
+      border-radius: 8px;
     }
   }
 }

@@ -207,13 +207,16 @@ watch(
 
   .sidebar-menu {
     border-right: none;
-    margin-top: var(--spacing-sm);
+    margin-top: 8px;
+    padding: 0 12px;
 
     :deep(.ant-menu-item),
     :deep(.ant-menu-submenu-title) {
-      margin: 4px 8px;
-      border-radius: var(--radius-base);
-      transition: all var(--duration-base) var(--ease-out);
+      margin: 4px 0;
+      border-radius: 8px;
+      height: 40px;
+      line-height: 40px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
