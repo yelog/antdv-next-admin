@@ -2,10 +2,8 @@
   <a-tooltip :title="tooltipTitle">
     <a-button type="text" class="header-action" @click="handleThemeToggle">
       <span class="theme-icon-wrapper" :class="{ rotating: isRotating }">
-        <transition name="theme-icon-switch" mode="out-in">
-          <MoonOutlined v-if="themeStore.isDark" key="moon" class="theme-icon" />
-          <SunOutlined v-else key="sun" class="theme-icon" />
-        </transition>
+        <MoonOutlined class="theme-icon theme-icon-dark" :class="{ active: themeStore.isDark }" />
+        <SunOutlined class="theme-icon theme-icon-light" :class="{ active: !themeStore.isDark }" />
       </span>
     </a-button>
   </a-tooltip>
@@ -54,32 +52,33 @@ onBeforeUnmount(resetRotateState)
 
 <style scoped lang="scss">
 .theme-icon-wrapper {
+  position: relative;
   display: inline-flex;
+  width: 18px;
+  height: 18px;
   align-items: center;
   justify-content: center;
 }
 
 .theme-icon {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 18px;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.22s ease, transform 0.3s ease;
+}
+
+.theme-icon.active {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .theme-icon-wrapper.rotating .theme-icon {
   animation: icon-rotate 0.62s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.theme-icon-switch-enter-active,
-.theme-icon-switch-leave-active {
-  transition: opacity 0.22s ease, transform 0.3s ease;
-}
-
-.theme-icon-switch-enter-from {
-  opacity: 0;
-  transform: scale(0.76);
-}
-
-.theme-icon-switch-leave-to {
-  opacity: 0;
-  transform: scale(1.14);
 }
 
 @keyframes icon-rotate {
@@ -99,8 +98,7 @@ onBeforeUnmount(resetRotateState)
     animation: none;
   }
 
-  .theme-icon-switch-enter-active,
-  .theme-icon-switch-leave-active {
+  .theme-icon {
     transition: none;
   }
 }

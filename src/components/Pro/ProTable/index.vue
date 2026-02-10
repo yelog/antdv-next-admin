@@ -82,11 +82,12 @@
       class="pro-table-main"
       :class="{
         'main-scroll-mode': !effectiveFixedHeader && !isAutoHeight,
-        'main-fill-mode': effectiveFixedHeader || isAutoHeight
+        'main-fill-mode': effectiveFixedHeader || isAutoHeight,
+        'no-vertical-scrollbar': isFillMode && !shouldUseVerticalScroll
       }"
     >
       <a-table
-        :columns="displayColumns"
+        :columns="tableColumns"
         :data-source="dataSource"
         :loading="loading"
         :pagination="paginationConfig"
@@ -343,6 +344,8 @@ const pageSize = ref(props.pagination !== false ? (props.pagination?.pageSize ||
 const total = ref(0)
 const tableSize = ref<TableSize>(normalizeDensity(props.size))
 const tableScrollY = ref<number>()
+const shouldUseVerticalScroll = ref(false)
+const tableViewportWidth = ref(0)
 
 const showIndexColumn = ref(true)
 const defaultShowIndexColumn = ref(true)
@@ -487,14 +490,81 @@ const hasFixedColumns = computed(() => {
   return displayColumns.value.some(col => Boolean(col.fixed))
 })
 
+const parseColumnWidth = (width: unknown): number | null => {
+  if (typeof width === 'number' && Number.isFinite(width)) {
+    return width
+  }
+
+  if (typeof width !== 'string') {
+    return null
+  }
+
+  const value = width.trim()
+  if (!value) {
+    return null
+  }
+
+  if (/^\d+(\.\d+)?$/.test(value)) {
+    return Number.parseFloat(value)
+  }
+
+  if (value.endsWith('px')) {
+    const parsed = Number.parseFloat(value)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+
+  return null
+}
+
+const columnTotalWidth = computed(() => {
+  return displayColumns.value.reduce((sum, column) => {
+    const width = parseColumnWidth((column as ProTableColumn).width)
+    return width == null ? sum : sum + width
+  }, 0)
+})
+
+const canMeasureColumnWidth = computed(() => {
+  if (displayColumns.value.length === 0) {
+    return false
+  }
+  return displayColumns.value.every(column => parseColumnWidth((column as ProTableColumn).width) != null)
+})
+
+const shouldUseHorizontalScroll = computed(() => {
+  if (!hasFixedColumns.value) {
+    return false
+  }
+
+  if (!canMeasureColumnWidth.value || tableViewportWidth.value <= 0) {
+    return true
+  }
+
+  return columnTotalWidth.value > tableViewportWidth.value + 1
+})
+
+const tableColumns = computed<ProTableColumn[]>(() => {
+  if (shouldUseHorizontalScroll.value) {
+    return displayColumns.value
+  }
+
+  return displayColumns.value.map(column => ({
+    ...column,
+    fixed: undefined
+  }))
+})
+
 const tableScroll = computed(() => {
   const scroll: Record<string, any> = {}
 
-  if (hasFixedColumns.value) {
-    scroll.x = 'max-content'
+  if (hasFixedColumns.value && shouldUseHorizontalScroll.value) {
+    if (canMeasureColumnWidth.value && tableViewportWidth.value > 0) {
+      scroll.x = Math.max(columnTotalWidth.value, tableViewportWidth.value)
+    } else {
+      scroll.x = 'max-content'
+    }
   }
 
-  if (isFillMode.value && tableScrollY.value) {
+  if (isFillMode.value && shouldUseVerticalScroll.value && tableScrollY.value) {
     scroll.y = tableScrollY.value
   }
 
@@ -735,6 +805,7 @@ const getTitleFallbackHeight = () => {
 const measureTableScroll = () => {
   if (!isFillMode.value) {
     tableScrollY.value = undefined
+    shouldUseVerticalScroll.value = false
     return
   }
 
@@ -743,6 +814,9 @@ const measureTableScroll = () => {
 
   const sectionHeight = section.clientHeight
   if (!sectionHeight) return
+
+  const tableWrapperEl = section.querySelector('.ant-table-wrapper') as HTMLElement | null
+  tableViewportWidth.value = Math.floor(tableWrapperEl?.clientWidth || section.clientWidth || 0)
 
   const paginationEl = section.querySelector('.ant-pagination') as HTMLElement | null
   const paginationHeight = paginationEl ? getOuterHeight(paginationEl) : getPaginationFallbackHeight()
@@ -760,6 +834,11 @@ const measureTableScroll = () => {
     120,
     Math.floor(sectionHeight - paginationHeight - titleHeight - headerHeight - 2)
   )
+
+  const bodyTableEl = section.querySelector('.ant-table-body table, .ant-table-content table') as HTMLElement | null
+  const bodyContentHeight = bodyTableEl ? bodyTableEl.getBoundingClientRect().height : 0
+  shouldUseVerticalScroll.value = bodyContentHeight > nextY + 1
+
   if (!tableScrollY.value || Math.abs(nextY - tableScrollY.value) > 1) {
     tableScrollY.value = nextY
   }
@@ -1030,6 +1109,17 @@ defineExpose({
         flex-shrink: 0;
       }
     }
+
+    &.no-vertical-scrollbar {
+      :deep(.ant-table-cell-scrollbar) {
+        width: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+      }
+    }
   }
 
   :deep(.ant-table-title) {
@@ -1048,6 +1138,13 @@ defineExpose({
     font-size: 12px;
     font-weight: var(--font-weight-semibold);
     border-bottom: 1px solid var(--color-border);
+  }
+
+  :deep(.ant-table-cell-fix-right-first::after) {
+    content: none !important;
+    display: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
   }
 
   :deep(.ant-table-tbody > tr:hover > td) {
