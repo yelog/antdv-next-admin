@@ -53,8 +53,8 @@
           </a-col>
 
           <a-col :xs="24" :sm="12" :lg="8" class="search-actions">
-            <a-form-item>
-              <a-space>
+            <a-form-item :wrapper-col="{ span: 24 }" class="search-actions-item">
+              <a-space wrap :size="[8, 8]" class="search-actions-space">
                 <a-button type="primary" @click="handleSearch">
                   <SearchOutlined /> 查询
                 </a-button>
@@ -932,7 +932,7 @@ defineExpose({
   }
 
   .pro-table-search {
-    padding: 8px 12px 0;
+    padding: 8px 12px 8px;
     margin-bottom: 15px;
     background: var(--color-bg-container);
     border-radius: var(--radius-lg);
@@ -944,6 +944,25 @@ defineExpose({
       align-items: flex-end;
       justify-content: flex-end;
       margin-left: auto;
+      min-width: 0;
+    }
+
+    .search-actions-item {
+      width: 100%;
+      margin-bottom: 0;
+
+      :deep(.ant-form-item-control) {
+        width: 100%;
+      }
+
+      :deep(.ant-form-item-control-input-content) {
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+
+    .search-actions-space {
+      justify-content: flex-end;
     }
 
     .rotate-180 {
