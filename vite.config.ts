@@ -10,9 +10,20 @@ export default defineConfig({
   plugins: [
     vue(),
     mockDevServerPlugin({
-      prefix: '/api'
+      prefix: '/api',
+      log: 'error'
     })
   ],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: ['legacy-js-api']
+      },
+      sass: {
+        silenceDeprecations: ['legacy-js-api']
+      }
+    }
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
