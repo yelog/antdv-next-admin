@@ -8,6 +8,26 @@ export const useTabsStore = defineStore('tabs', () => {
   const tabs = ref<Tab[]>([])
   const activeTabPath = ref<string>('')
 
+  const isFixedTab = (tab: Tab) => Boolean(tab.affix || tab.pinned)
+  const updateTabClosable = (tab: Tab) => {
+    tab.closable = !isFixedTab(tab)
+  }
+
+  const ensureActiveTab = (fallbackPath?: string) => {
+    const activeExists = tabs.value.some(tab => tab.path === activeTabPath.value)
+    if (activeExists) return
+
+    if (fallbackPath) {
+      const fallbackTab = tabs.value.find(tab => tab.path === fallbackPath)
+      if (fallbackTab) {
+        activeTabPath.value = fallbackTab.path
+        return
+      }
+    }
+
+    activeTabPath.value = tabs.value[0]?.path || ''
+  }
+
   // Getters
   const cachedTabs = computed(() => {
     return tabs.value
@@ -24,6 +44,8 @@ export const useTabsStore = defineStore('tabs', () => {
     const { path, fullPath, name, meta, query, params } = route
     const routeName = String(name || path)
     const routeTitle = meta?.title ? String(meta.title) : routeName
+    const routeIcon = meta?.icon ? String(meta.icon) : undefined
+    const isAffix = Boolean(meta?.affix)
 
     // Skip if hidden
     if (meta?.hidden) return
@@ -33,9 +55,15 @@ export const useTabsStore = defineStore('tabs', () => {
     if (existingTab) {
       existingTab.name = routeName
       existingTab.title = routeTitle
+      existingTab.icon = routeIcon
       existingTab.fullPath = fullPath
       existingTab.query = query as Record<string, any>
       existingTab.params = params as Record<string, any>
+      existingTab.affix = isAffix
+      if (isAffix) {
+        existingTab.pinned = false
+      }
+      updateTabClosable(existingTab)
       activeTabPath.value = path
       return
     }
@@ -45,12 +73,14 @@ export const useTabsStore = defineStore('tabs', () => {
       id: fullPath,
       name: routeName,
       title: routeTitle,
+      icon: routeIcon,
       path,
       fullPath,
       query: query as Record<string, any>,
       params: params as Record<string, any>,
-      closable: !meta?.affix,
-      affix: meta?.affix
+      closable: !isAffix,
+      pinned: false,
+      affix: isAffix
     }
 
     tabs.value.push(newTab)
@@ -62,45 +92,53 @@ export const useTabsStore = defineStore('tabs', () => {
     if (index === -1) return
 
     const tab = tabs.value[index]
-    // Cannot close affix tabs
-    if (tab.affix) return
+    // Cannot close fixed tabs
+    if (isFixedTab(tab)) return
 
     tabs.value.splice(index, 1)
 
     // If closing active tab, activate adjacent tab
     if (activeTabPath.value === path) {
       const nextTab = tabs.value[index] || tabs.value[index - 1]
-      if (nextTab) {
-        activeTabPath.value = nextTab.path
-      }
+      activeTabPath.value = nextTab?.path || ''
     }
+
+    ensureActiveTab()
   }
 
   const closeOtherTabs = (path: string) => {
-    tabs.value = tabs.value.filter(tab => tab.path === path || tab.affix)
+    tabs.value = tabs.value.filter(tab => tab.path === path || isFixedTab(tab))
     activeTabPath.value = path
+    ensureActiveTab(path)
   }
 
   const closeAllTabs = () => {
-    // Keep only affix tabs
-    tabs.value = tabs.value.filter(tab => tab.affix)
-    if (tabs.value.length > 0) {
-      activeTabPath.value = tabs.value[0].path
-    }
+    tabs.value = tabs.value.filter(tab => isFixedTab(tab))
+    ensureActiveTab()
   }
 
   const closeLeftTabs = (path: string) => {
     const index = tabs.value.findIndex(tab => tab.path === path)
     if (index === -1) return
 
-    tabs.value = tabs.value.filter((tab, i) => i >= index || tab.affix)
+    tabs.value = tabs.value.filter((tab, i) => i >= index || isFixedTab(tab))
+    ensureActiveTab(path)
   }
 
   const closeRightTabs = (path: string) => {
     const index = tabs.value.findIndex(tab => tab.path === path)
     if (index === -1) return
 
-    tabs.value = tabs.value.filter((tab, i) => i <= index || tab.affix)
+    tabs.value = tabs.value.filter((tab, i) => i <= index || isFixedTab(tab))
+    ensureActiveTab(path)
+  }
+
+  const togglePinTab = (path: string) => {
+    const tab = tabs.value.find(item => item.path === path)
+    if (!tab || tab.affix) return
+
+    tab.pinned = !tab.pinned
+    updateTabClosable(tab)
   }
 
   const setActiveTab = (path: string) => {
@@ -133,9 +171,11 @@ export const useTabsStore = defineStore('tabs', () => {
             id: basePath + route.path,
             name: routeName,
             title: routeTitle,
+            icon: route.meta?.icon ? String(route.meta.icon) : undefined,
             path: basePath + route.path,
             fullPath: basePath + route.path,
             closable: false,
+            pinned: false,
             affix: true
           })
         }
@@ -164,6 +204,7 @@ export const useTabsStore = defineStore('tabs', () => {
     closeAllTabs,
     closeLeftTabs,
     closeRightTabs,
+    togglePinTab,
     setActiveTab,
     refreshTab,
     initAffixTabs

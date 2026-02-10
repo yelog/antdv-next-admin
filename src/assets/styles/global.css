@@ -316,7 +316,7 @@ ul, ol {
 
 .page-container {
   padding: var(--spacing-lg);
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - 88px);
 }
 
 .page-header {

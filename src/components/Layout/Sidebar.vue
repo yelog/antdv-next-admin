@@ -198,7 +198,7 @@ watch(
     align-items: center;
     justify-content: center;
     gap: var(--spacing-sm);
-    height: 64px;
+    height: 50px;
     padding: 0 var(--spacing-md);
     border-bottom: 1px solid var(--color-border-secondary);
 

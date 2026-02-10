@@ -63,10 +63,13 @@ export default {
     tabs: {
       refresh: '刷新当前',
       close: '关闭当前',
+      pin: '固定当前',
+      unpin: '取消固定',
       closeOthers: '关闭其他',
       closeAll: '关闭所有',
       closeLeft: '关闭左侧',
-      closeRight: '关闭右侧'
+      closeRight: '关闭右侧',
+      moreActions: '更多标签操作'
     }
   },
 

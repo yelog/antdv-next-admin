@@ -6,11 +6,15 @@ export interface Tab {
   name: string
   // i18n message key or plain title text for display
   title?: string
+  // Route meta icon key for tab display
+  icon?: string
   path: string
   fullPath: string
   query?: Record<string, any>
   params?: Record<string, any>
   closable: boolean
+  // User pinned tab (cannot be closed by batch close actions)
+  pinned?: boolean
   affix?: boolean
 }
 

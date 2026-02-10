@@ -63,10 +63,13 @@ export default {
     tabs: {
       refresh: 'Refresh',
       close: 'Close',
+      pin: 'Pin',
+      unpin: 'Unpin',
       closeOthers: 'Close Others',
       closeAll: 'Close All',
       closeLeft: 'Close Left',
-      closeRight: 'Close Right'
+      closeRight: 'Close Right',
+      moreActions: 'More Tab Actions'
     }
   },
 

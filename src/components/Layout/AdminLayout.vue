@@ -111,7 +111,9 @@ onMounted(() => {
       padding: 0 var(--spacing-lg);
       background: var(--color-bg-container);
       box-shadow: var(--shadow-1);
-      height: 64px;
+      box-sizing: border-box;
+      height: 50px;
+      border-bottom: 1px solid var(--color-border-secondary);
 
       .header-left {
         display: flex;
@@ -149,7 +151,7 @@ onMounted(() => {
 
   .page-content {
     padding: 24px;
-    min-height: calc(100vh - 120px);
+    min-height: calc(100vh - 88px);
     background: var(--color-bg-layout);
   }
 

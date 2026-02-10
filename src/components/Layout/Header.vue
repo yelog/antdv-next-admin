@@ -43,7 +43,7 @@
       </a-tooltip>
 
       <!-- Divider -->
-      <a-divider type="vertical" style="height: 24px; margin: 0 4px;" />
+      <a-divider type="vertical" style="height: 20px; margin: 0 4px;" />
 
       <!-- User Avatar Dropdown -->
       <AvatarDropdown />
@@ -101,10 +101,12 @@ const openSettings = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  box-sizing: border-box;
+  padding: 0 20px;
   background: var(--color-bg-container);
   box-shadow: var(--shadow-1);
-  height: 64px;
+  height: 50px;
+  line-height: 50px;
   border-bottom: 1px solid var(--color-border-secondary);
 
   .header-left {
@@ -113,9 +115,9 @@ const openSettings = () => {
     gap: var(--spacing-md);
 
     .collapse-btn {
-      font-size: 18px;
-      width: 40px;
-      height: 40px;
+      font-size: 16px;
+      width: 32px;
+      height: 32px;
       border-radius: var(--radius-base);
       color: var(--color-text-secondary);
       transition: all var(--duration-base) var(--ease-out);
@@ -133,9 +135,9 @@ const openSettings = () => {
     gap: 0;
 
     .header-action {
-      font-size: 18px;
-      width: 36px;
-      height: 36px;
+      font-size: 16px;
+      width: 32px;
+      height: 32px;
       padding: 0 !important;
       border-radius: 8px;
       color: var(--color-text-secondary);
@@ -149,9 +151,9 @@ const openSettings = () => {
 
     // 确保所有子组件的按钮也应用相同样式
     :deep(.header-action) {
-      font-size: 18px;
-      width: 36px;
-      height: 36px;
+      font-size: 16px;
+      width: 32px;
+      height: 32px;
       padding: 0 !important;
       border-radius: 8px;
       color: var(--color-text-secondary);
