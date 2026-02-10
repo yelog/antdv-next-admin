@@ -968,6 +968,10 @@ defineExpose({
     }
 
     &.main-fill-mode {
+      :deep(.ant-table.ant-table-bordered > .ant-table-container) {
+        border-bottom: 1px solid var(--color-border-secondary);
+      }
+
       :deep(.ant-table-wrapper),
       :deep(.ant-spin-nested-loading),
       :deep(.ant-spin-container),
@@ -1008,7 +1012,6 @@ defineExpose({
   }
 
   :deep(.ant-table-thead > tr > th) {
-    background: linear-gradient(180deg, rgba(24, 119, 255, 0.08), rgba(24, 119, 255, 0.02));
     color: var(--color-text-secondary);
     font-size: 12px;
     font-weight: var(--font-weight-semibold);
