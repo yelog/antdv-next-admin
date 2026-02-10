@@ -5,8 +5,8 @@ import type { ApiResponse } from '@/types/api'
 /**
  * Get permission list
  */
-export function getPermissionList(): Promise<ApiResponse<Permission[]>> {
-  return request.get('/permissions')
+export function getPermissionList(params?: Record<string, any>): Promise<ApiResponse<Permission[]>> {
+  return request.get('/permissions', { params })
 }
 
 /**
