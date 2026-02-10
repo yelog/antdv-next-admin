@@ -17,6 +17,8 @@ export default {
     operate: '操作',
     more: '更多',
     back: '返回',
+    expand: '展开',
+    collapse: '收起',
     ok: '确定',
     close: '关闭',
     yes: '是',
@@ -27,6 +29,8 @@ export default {
     error: '操作失败',
     warning: '警告',
     info: '提示',
+    copySuccess: '复制成功',
+    copyFailed: '复制失败',
     actions: '操作',
     status: '状态',
     createTime: '创建时间',
@@ -60,6 +64,10 @@ export default {
     noNotifications: '暂无通知',
     searchPlaceholder: '搜索菜单...',
     noSearchResults: '未找到匹配的菜单',
+    languages: {
+      zhCN: '简体中文',
+      enUS: 'English'
+    },
     tabs: {
       refresh: '刷新当前',
       close: '关闭当前',
@@ -215,6 +223,25 @@ export default {
     validateFailed: '验证失败'
   },
 
+  proForm: {
+    enterPlaceholder: '请输入{label}',
+    selectPlaceholder: '请选择{label}',
+    uploadFile: '上传文件'
+  },
+
+  proTable: {
+    total: '共 {total} 条',
+    density: '表格密度',
+    checkAll: '全部勾选',
+    toggleIndex: '序列列勾选',
+    fixLeft: '左固定',
+    fixRight: '右固定',
+    densityLarge: '宽松',
+    densityMiddle: '默认',
+    densitySmall: '紧凑',
+    loadDataFailed: '加载数据失败'
+  },
+
   profile: {
     title: '个人中心',
     basicInfo: '基本信息',
@@ -242,11 +269,17 @@ export default {
     required: '此项为必填项',
     email: '请输入有效的邮箱地址',
     phone: '请输入有效的手机号',
+    idCard: '请输入有效的身份证号',
     url: '请输入有效的URL',
     minLength: '长度不能少于 {min} 个字符',
     maxLength: '长度不能超过 {max} 个字符',
+    lengthRange: '长度必须在 {min}-{max} 之间',
+    numberRange: '数值必须在 {min}-{max} 之间',
     min: '值不能小于 {min}',
     max: '值不能大于 {max}',
-    pattern: '格式不正确'
+    pattern: '格式不正确',
+    usernamePattern: '用户名只能包含字母、数字和下划线',
+    passwordPattern: '密码至少8位，包含字母和数字',
+    confirmPassword: '两次输入的密码不一致'
   }
 }

@@ -41,6 +41,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { $t } from '@/locales'
 import type { ProFormItem, ProFormLayout, ProFormGrid } from '@/types/pro'
 import FormItemRender from './FormItemRender.vue'
 
@@ -80,7 +81,10 @@ const formRules = computed(() => {
       rules[item.name] = item.rules
     } else if (item.required) {
       rules[item.name] = [
-        { required: true, message: `请输入${item.label}` }
+        {
+          required: true,
+          message: $t('proForm.enterPlaceholder', { label: String(item.label ?? '') })
+        }
       ]
     }
   })

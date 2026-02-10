@@ -65,6 +65,7 @@ import { message } from 'antdv-next'
 import dayjs from 'dayjs'
 import type { ValueType } from '@/types/pro'
 import { copyToClipboard } from '@/utils/helpers'
+import { $t } from '@/locales'
 
 interface Props {
   value: any
@@ -102,9 +103,9 @@ const handleCopy = async () => {
   if (props.copyable && props.value) {
     const success = await copyToClipboard(String(props.value))
     if (success) {
-      message.success('复制成功')
+      message.success($t('common.copySuccess'))
     } else {
-      message.error('复制失败')
+      message.error($t('common.copyFailed'))
     }
   }
 }

@@ -9,17 +9,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { GlobalOutlined } from '@antdv-next/icons'
-import i18n, { setLocale } from '@/locales'
+import i18n, { setLocale, $t } from '@/locales'
 
 const currentLocale = computed(() => String(i18n.global.locale.value))
-const localeOptions = [
-  { label: '简体中文', value: 'zh-CN' },
-  { label: 'English', value: 'en-US' }
-]
+const localeOptions = computed(() => ([
+  { label: $t('layout.languages.zhCN'), value: 'zh-CN' },
+  { label: $t('layout.languages.enUS'), value: 'en-US' }
+]))
 
 const handleLanguageChange = ({ key }: { key: string | number }) => {
   const nextLocale = String(key)
-  if (!localeOptions.some(item => item.value === nextLocale)) {
+  if (!localeOptions.value.some(item => item.value === nextLocale)) {
     return
   }
   if (nextLocale === currentLocale.value) {
@@ -29,7 +29,7 @@ const handleLanguageChange = ({ key }: { key: string | number }) => {
 }
 
 const menuProps = computed(() => ({
-  items: localeOptions.map(item => ({
+  items: localeOptions.value.map(item => ({
     key: item.value,
     label: item.label
   })),

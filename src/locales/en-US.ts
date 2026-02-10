@@ -17,6 +17,8 @@ export default {
     operate: 'Operate',
     more: 'More',
     back: 'Back',
+    expand: 'Expand',
+    collapse: 'Collapse',
     ok: 'OK',
     close: 'Close',
     yes: 'Yes',
@@ -27,6 +29,8 @@ export default {
     error: 'Error',
     warning: 'Warning',
     info: 'Info',
+    copySuccess: 'Copied successfully',
+    copyFailed: 'Copy failed',
     actions: 'Actions',
     status: 'Status',
     createTime: 'Create Time',
@@ -60,6 +64,10 @@ export default {
     noNotifications: 'No Notifications',
     searchPlaceholder: 'Search menu...',
     noSearchResults: 'No matching menu found',
+    languages: {
+      zhCN: 'Simplified Chinese',
+      enUS: 'English'
+    },
     tabs: {
       refresh: 'Refresh',
       close: 'Close',
@@ -215,6 +223,25 @@ export default {
     validateFailed: 'Validation failed'
   },
 
+  proForm: {
+    enterPlaceholder: 'Please enter {label}',
+    selectPlaceholder: 'Please select {label}',
+    uploadFile: 'Upload File'
+  },
+
+  proTable: {
+    total: 'Total {total} items',
+    density: 'Table Density',
+    checkAll: 'Select All',
+    toggleIndex: 'Toggle Index Column',
+    fixLeft: 'Pin Left',
+    fixRight: 'Pin Right',
+    densityLarge: 'Spacious',
+    densityMiddle: 'Default',
+    densitySmall: 'Compact',
+    loadDataFailed: 'Failed to load data'
+  },
+
   profile: {
     title: 'Profile',
     basicInfo: 'Basic Information',
@@ -242,11 +269,17 @@ export default {
     required: 'This field is required',
     email: 'Please enter a valid email address',
     phone: 'Please enter a valid phone number',
+    idCard: 'Please enter a valid ID card number',
     url: 'Please enter a valid URL',
     minLength: 'Minimum length is {min} characters',
     maxLength: 'Maximum length is {max} characters',
+    lengthRange: 'Length must be between {min} and {max}',
+    numberRange: 'Value must be between {min} and {max}',
     min: 'Minimum value is {min}',
     max: 'Maximum value is {max}',
-    pattern: 'Invalid format'
+    pattern: 'Invalid format',
+    usernamePattern: 'Username can only contain letters, numbers and underscores',
+    passwordPattern: 'Password must be at least 8 characters and include letters and numbers',
+    confirmPassword: 'The two passwords do not match'
   }
 }

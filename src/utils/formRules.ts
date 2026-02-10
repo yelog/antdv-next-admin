@@ -1,12 +1,13 @@
 /**
  * Common form validation rules
  */
+import { $t } from '@/locales'
 
 export const commonRules = {
   /**
    * Required field
    */
-  required: (message = '此项为必填项') => ({
+  required: (message = $t('validation.required')) => ({
     required: true,
     message
   }),
@@ -14,7 +15,7 @@ export const commonRules = {
   /**
    * Email validation
    */
-  email: (message = '请输入有效的邮箱地址') => ({
+  email: (message = $t('validation.email')) => ({
     type: 'email' as const,
     message
   }),
@@ -22,7 +23,7 @@ export const commonRules = {
   /**
    * Phone number validation (Chinese)
    */
-  phone: (message = '请输入有效的手机号') => ({
+  phone: (message = $t('validation.phone')) => ({
     pattern: /^1[3-9]\d{9}$/,
     message
   }),
@@ -30,7 +31,7 @@ export const commonRules = {
   /**
    * ID card validation (Chinese)
    */
-  idCard: (message = '请输入有效的身份证号') => ({
+  idCard: (message = $t('validation.idCard')) => ({
     pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
     message
   }),
@@ -38,7 +39,7 @@ export const commonRules = {
   /**
    * URL validation
    */
-  url: (message = '请输入有效的URL') => ({
+  url: (message = $t('validation.url')) => ({
     type: 'url' as const,
     message
   }),
@@ -49,7 +50,7 @@ export const commonRules = {
   length: (min: number, max: number, message?: string) => ({
     min,
     max,
-    message: message || `长度必须在${min}-${max}之间`
+    message: message || $t('validation.lengthRange', { min, max })
   }),
 
   /**
@@ -59,7 +60,7 @@ export const commonRules = {
     type: 'number' as const,
     min,
     max,
-    message: message || `数值必须在${min}-${max}之间`
+    message: message || $t('validation.numberRange', { min, max })
   }),
 
   /**
@@ -80,7 +81,7 @@ export const commonRules = {
   /**
    * Username validation
    */
-  username: (message = '用户名只能包含字母、数字和下划线') => ({
+  username: (message = $t('validation.usernamePattern')) => ({
     pattern: /^[a-zA-Z0-9_]+$/,
     message
   }),
@@ -88,7 +89,7 @@ export const commonRules = {
   /**
    * Password strength validation
    */
-  password: (message = '密码至少8位，包含字母和数字') => ({
+  password: (message = $t('validation.passwordPattern')) => ({
     pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
     message
   }),
@@ -96,7 +97,7 @@ export const commonRules = {
   /**
    * Confirm password validation
    */
-  confirmPassword: (getFieldValue: (field: string) => any, message = '两次输入的密码不一致') => ({
+  confirmPassword: (getFieldValue: (field: string) => any, message = $t('validation.confirmPassword')) => ({
     validator: (_: any, value: any) => {
       if (!value || getFieldValue('password') === value) {
         return Promise.resolve()

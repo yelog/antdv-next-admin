@@ -4,7 +4,7 @@
     <a-input
       v-if="item.type === 'input'"
       v-model:value="modelValue"
-      :placeholder="item.placeholder || `请输入${item.label}`"
+      :placeholder="resolveInputPlaceholder()"
       v-bind="item.props"
       @update:value="handleChange"
     />
@@ -13,7 +13,7 @@
     <a-input-password
       v-else-if="item.type === 'password'"
       v-model:value="modelValue"
-      :placeholder="item.placeholder || `请输入${item.label}`"
+      :placeholder="resolveInputPlaceholder()"
       v-bind="item.props"
       @update:value="handleChange"
     />
@@ -22,7 +22,7 @@
     <a-textarea
       v-else-if="item.type === 'textarea'"
       v-model:value="modelValue"
-      :placeholder="item.placeholder || `请输入${item.label}`"
+      :placeholder="resolveInputPlaceholder()"
       :rows="4"
       v-bind="item.props"
       @update:value="handleChange"
@@ -32,7 +32,7 @@
     <a-input-number
       v-else-if="item.type === 'number'"
       v-model:value="modelValue"
-      :placeholder="item.placeholder || `请输入${item.label}`"
+      :placeholder="resolveInputPlaceholder()"
       style="width: 100%"
       v-bind="item.props"
       @update:value="handleChange"
@@ -42,7 +42,7 @@
     <a-select
       v-else-if="item.type === 'select'"
       v-model:value="modelValue"
-      :placeholder="item.placeholder || `请选择${item.label}`"
+      :placeholder="resolveSelectPlaceholder()"
       :options="item.options"
       v-bind="item.props"
       @update:value="handleChange"
@@ -78,7 +78,7 @@
     <a-date-picker
       v-else-if="item.type === 'datePicker'"
       v-model:value="modelValue"
-      :placeholder="item.placeholder || `请选择${item.label}`"
+      :placeholder="resolveSelectPlaceholder()"
       style="width: 100%"
       v-bind="item.props"
       @update:value="handleChange"
@@ -88,7 +88,7 @@
     <a-time-picker
       v-else-if="item.type === 'timePicker'"
       v-model:value="modelValue"
-      :placeholder="item.placeholder || `请选择${item.label}`"
+      :placeholder="resolveSelectPlaceholder()"
       style="width: 100%"
       v-bind="item.props"
       @update:value="handleChange"
@@ -112,7 +112,7 @@
     >
       <a-button>
         <UploadOutlined />
-        {{ item.placeholder || '上传文件' }}
+        {{ item.placeholder || $t('proForm.uploadFile') }}
       </a-button>
     </a-upload>
 
@@ -136,7 +136,7 @@
     <a-cascader
       v-else-if="item.type === 'cascader'"
       v-model:value="modelValue"
-      :placeholder="item.placeholder || `请选择${item.label}`"
+      :placeholder="resolveSelectPlaceholder()"
       :options="item.options"
       style="width: 100%"
       v-bind="item.props"
@@ -147,7 +147,7 @@
     <a-tree-select
       v-else-if="item.type === 'treeSelect'"
       v-model:value="modelValue"
-      :placeholder="item.placeholder || `请选择${item.label}`"
+      :placeholder="resolveSelectPlaceholder()"
       :tree-data="item.options"
       style="width: 100%"
       v-bind="item.props"
@@ -166,7 +166,7 @@
     <a-input
       v-else
       v-model:value="modelValue"
-      :placeholder="item.placeholder || `请输入${item.label}`"
+      :placeholder="resolveInputPlaceholder()"
       v-bind="item.props"
       @update:value="handleChange"
     />
@@ -176,6 +176,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { UploadOutlined } from '@antdv-next/icons'
+import { $t } from '@/locales'
 import type { ProFormItem } from '@/types/pro'
 
 interface Props {
@@ -206,5 +207,17 @@ watch(
 const handleChange = (value: any) => {
   emit('update:value', value)
   emit('change', value)
+}
+
+const resolveLabel = () => {
+  return String(props.item.label ?? '')
+}
+
+const resolveInputPlaceholder = () => {
+  return props.item.placeholder || $t('proForm.enterPlaceholder', { label: resolveLabel() })
+}
+
+const resolveSelectPlaceholder = () => {
+  return props.item.placeholder || $t('proForm.selectPlaceholder', { label: resolveLabel() })
 }
 </script>

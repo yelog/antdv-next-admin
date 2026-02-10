@@ -23,14 +23,14 @@
               <a-input
                 v-if="col.searchType === 'input'"
                 v-model:value="searchForm[col.dataIndex]"
-                :placeholder="`请输入${col.title}`"
+                :placeholder="buildEnterPlaceholder(col.title)"
                 v-bind="col.searchProps"
               />
 
               <a-select
                 v-else-if="col.searchType === 'select'"
                 v-model:value="searchForm[col.dataIndex]"
-                :placeholder="`请选择${col.title}`"
+                :placeholder="buildSelectPlaceholder(col.title)"
                 :options="col.searchOptions"
                 v-bind="col.searchProps"
               />
@@ -38,7 +38,7 @@
               <a-date-picker
                 v-else-if="col.searchType === 'datePicker'"
                 v-model:value="searchForm[col.dataIndex]"
-                :placeholder="`请选择${col.title}`"
+                :placeholder="buildSelectPlaceholder(col.title)"
                 style="width: 100%"
                 v-bind="col.searchProps"
               />
@@ -56,17 +56,17 @@
             <a-form-item :wrapper-col="{ span: 24 }" class="search-actions-item">
               <a-space wrap :size="[8, 8]" class="search-actions-space">
                 <a-button type="primary" @click="handleSearch">
-                  <SearchOutlined /> 查询
+                  <SearchOutlined /> {{ $t('common.search') }}
                 </a-button>
                 <a-button @click="handleReset">
-                  <ReloadOutlined /> 重置
+                  <ReloadOutlined /> {{ $t('common.reset') }}
                 </a-button>
                 <a-button
                   v-if="searchColumns.length > 3"
                   type="link"
                   @click="searchCollapsed = !searchCollapsed"
                 >
-                  {{ searchCollapsed ? '展开' : '收起' }}
+                  {{ searchCollapsed ? $t('common.expand') : $t('common.collapse') }}
                   <DownOutlined :class="{ 'rotate-180': !searchCollapsed }" />
                 </a-button>
               </a-space>
@@ -107,7 +107,7 @@
             <div class="toolbar-right">
               <slot name="toolbar-actions"></slot>
               <a-space :size="4">
-                <a-tooltip v-if="showRefreshAction" title="刷新">
+                <a-tooltip v-if="showRefreshAction" :title="$t('common.refresh')">
                   <a-button type="text" class="toolbar-icon-btn" @click="handleRefresh">
                     <ReloadOutlined />
                   </a-button>
@@ -119,7 +119,7 @@
                   :menu="densityMenuProps"
                   :trigger="['click']"
                 >
-                  <a-tooltip title="表格密度">
+                  <a-tooltip :title="$t('proTable.density')">
                     <a-button type="text" class="toolbar-icon-btn">
                       <ColumnHeightOutlined />
                     </a-button>
@@ -135,13 +135,13 @@
                     <div class="column-setting-dropdown" @click.stop>
                       <div class="setting-actions">
                         <a-button size="small" type="link" @click.stop="handleToggleAllColumns">
-                          全部勾选
+                          {{ $t('proTable.checkAll') }}
                         </a-button>
                         <a-button size="small" type="link" @click.stop="toggleIndexColumn">
-                          序列列勾选
+                          {{ $t('proTable.toggleIndex') }}
                         </a-button>
                         <a-button size="small" type="link" @click.stop="handleResetColumns">
-                          重置
+                          {{ $t('common.reset') }}
                         </a-button>
                       </div>
 
@@ -167,7 +167,7 @@
                             </a-checkbox>
                           </div>
                           <div class="setting-item-right">
-                            <a-tooltip title="左固定">
+                            <a-tooltip :title="$t('proTable.fixLeft')">
                               <a-button
                                 type="text"
                                 size="small"
@@ -178,7 +178,7 @@
                                 <VerticalLeftOutlined />
                               </a-button>
                             </a-tooltip>
-                            <a-tooltip title="右固定">
+                            <a-tooltip :title="$t('proTable.fixRight')">
                               <a-button
                                 type="text"
                                 size="small"
@@ -256,6 +256,7 @@ import {
 import { message, Modal } from 'antdv-next'
 import ValueTypeRender from './ValueTypeRender.vue'
 import { appDefaultSettings } from '@/settings'
+import { $t } from '@/locales'
 import type {
   ProTableColumn,
   ProTableToolbar,
@@ -304,7 +305,7 @@ const props = withDefaults(defineProps<Props>(), {
   pagination: () => ({
     showSizeChanger: true,
     showQuickJumper: true,
-    showTotal: (total: number) => `共 ${total} 条`
+    showTotal: (value: number) => $t('proTable.total', { total: value })
   })
 })
 
@@ -445,7 +446,7 @@ const paginationConfig = computed(() => {
   return {
     showSizeChanger: true,
     showQuickJumper: true,
-    showTotal: (value: number) => `共 ${value} 条`,
+    showTotal: (value: number) => $t('proTable.total', { total: value }),
     ...pagination,
     current: currentPage.value,
     pageSize: pageSize.value,
@@ -504,17 +505,17 @@ const densityMenuProps = computed(() => ({
   items: [
     {
       key: 'large',
-      label: '宽松',
+      label: $t('proTable.densityLarge'),
       icon: tableSize.value === 'large' ? h(CheckOutlined) : undefined
     },
     {
       key: 'middle',
-      label: '默认',
+      label: $t('proTable.densityMiddle'),
       icon: tableSize.value === 'middle' ? h(CheckOutlined) : undefined
     },
     {
       key: 'small',
-      label: '紧凑',
+      label: $t('proTable.densitySmall'),
       icon: tableSize.value === 'small' ? h(CheckOutlined) : undefined
     }
   ],
@@ -624,6 +625,18 @@ const handleDrop = (targetKey: string) => {
   scheduleMeasureTable()
 }
 
+const normalizeFieldLabel = (label: unknown) => {
+  return String(label ?? '')
+}
+
+const buildEnterPlaceholder = (label: unknown) => {
+  return $t('proForm.enterPlaceholder', { label: normalizeFieldLabel(label) })
+}
+
+const buildSelectPlaceholder = (label: unknown) => {
+  return $t('proForm.selectPlaceholder', { label: normalizeFieldLabel(label) })
+}
+
 const loadData = async () => {
   loading.value = true
   try {
@@ -644,7 +657,7 @@ const loadData = async () => {
       scheduleMeasureTable()
     }
   } catch (error: any) {
-    message.error(error.message || '加载数据失败')
+    message.error(error.message || $t('proTable.loadDataFailed'))
   } finally {
     loading.value = false
   }
@@ -679,7 +692,7 @@ const handleTableChange = (pagination: any) => {
 const handleAction = async (action: ProTableAction, record: any) => {
   if (action.confirm) {
     Modal.confirm({
-      title: '确认',
+      title: $t('common.confirm'),
       content: action.confirm,
       onOk: async () => {
         await action.onClick?.(record)

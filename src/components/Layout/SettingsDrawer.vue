@@ -91,13 +91,13 @@ import type { PageAnimation, PrimaryColor } from '@/types/layout'
 const visible = ref(false)
 const settingsStore = useSettingsStore()
 
-const PRESET_COLORS: Array<{ name: string; value: PrimaryColor; hex: string }> = [
-  { name: '拂晓蓝', value: 'blue', hex: '#1890ff' },
-  { name: '极光绿', value: 'green', hex: '#52c41a' },
-  { name: '酱紫', value: 'purple', hex: '#722ed1' },
-  { name: '薄暮红', value: 'red', hex: '#f5222d' },
-  { name: '日暮橙', value: 'orange', hex: '#fa8c16' },
-  { name: '明青', value: 'cyan', hex: '#13c2c2' }
+const PRESET_COLORS: Array<{ value: PrimaryColor; hex: string }> = [
+  { value: 'blue', hex: '#1890ff' },
+  { value: 'green', hex: '#52c41a' },
+  { value: 'purple', hex: '#722ed1' },
+  { value: 'red', hex: '#f5222d' },
+  { value: 'orange', hex: '#fa8c16' },
+  { value: 'cyan', hex: '#13c2c2' }
 ]
 
 const pageAnimationOptions = computed(() => [

@@ -149,7 +149,7 @@ const openSettings = () => {
       }
     }
 
-    // 确保所有子组件的按钮也应用相同样式
+    // Ensure buttons in nested components follow the same style.
     :deep(.header-action) {
       font-size: 16px;
       width: 32px;
