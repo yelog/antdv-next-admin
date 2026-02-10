@@ -76,110 +76,6 @@
       </a-form>
     </div>
 
-    <!-- Toolbar -->
-    <div v-if="toolbar" ref="toolbarRef" class="pro-table-toolbar">
-      <div class="toolbar-left">
-        <span v-if="toolbar.title" class="toolbar-title">{{ toolbar.title }}</span>
-        <span v-if="toolbar.subTitle" class="toolbar-subtitle">{{ toolbar.subTitle }}</span>
-      </div>
-      <div class="toolbar-right">
-        <slot name="toolbar-actions"></slot>
-        <a-space :size="4">
-          <a-tooltip v-if="showRefreshAction" title="刷新">
-            <a-button type="text" class="toolbar-icon-btn" @click="handleRefresh">
-              <ReloadOutlined />
-            </a-button>
-          </a-tooltip>
-
-          <a-dropdown
-            v-if="showDensityAction"
-            placement="bottomRight"
-            :menu="densityMenuProps"
-            :trigger="['click']"
-          >
-            <a-tooltip title="表格密度">
-              <a-button type="text" class="toolbar-icon-btn">
-                <ColumnHeightOutlined />
-              </a-button>
-            </a-tooltip>
-          </a-dropdown>
-
-          <a-popover
-            v-if="showColumnSettingAction"
-            trigger="click"
-            placement="bottomRight"
-          >
-            <template #content>
-              <div class="column-setting-dropdown" @click.stop>
-                <div class="setting-actions">
-                  <a-button size="small" type="link" @click.stop="handleToggleAllColumns">
-                    全部勾选
-                  </a-button>
-                  <a-button size="small" type="link" @click.stop="toggleIndexColumn">
-                    序列列勾选
-                  </a-button>
-                  <a-button size="small" type="link" @click.stop="handleResetColumns">
-                    重置
-                  </a-button>
-                </div>
-
-                <div class="setting-list">
-                  <div
-                    v-for="state in columnStates"
-                    :key="state.key"
-                    class="setting-item"
-                    :class="{ dragging: draggingColumnKey === state.key }"
-                    draggable="true"
-                    @dragstart="handleDragStart(state.key)"
-                    @dragend="handleDragEnd"
-                    @dragover.prevent
-                    @drop.prevent="handleDrop(state.key)"
-                  >
-                    <div class="setting-item-left">
-                      <span class="drag-handle">::</span>
-                      <a-checkbox
-                        :checked="state.checked"
-                        @change="handleColumnCheckedChange(state.key, $event)"
-                      >
-                        {{ state.title }}
-                      </a-checkbox>
-                    </div>
-                    <div class="setting-item-right">
-                      <a-tooltip title="左固定">
-                        <a-button
-                          type="text"
-                          size="small"
-                          class="fixed-btn"
-                          :class="{ active: state.fixed === 'left' }"
-                          @click.stop="toggleColumnFixed(state.key, 'left')"
-                        >
-                          <VerticalLeftOutlined />
-                        </a-button>
-                      </a-tooltip>
-                      <a-tooltip title="右固定">
-                        <a-button
-                          type="text"
-                          size="small"
-                          class="fixed-btn"
-                          :class="{ active: state.fixed === 'right' }"
-                          @click.stop="toggleColumnFixed(state.key, 'right')"
-                        >
-                          <VerticalRightOutlined />
-                        </a-button>
-                      </a-tooltip>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </template>
-            <a-button type="text" class="toolbar-icon-btn">
-              <SettingOutlined />
-            </a-button>
-          </a-popover>
-        </a-space>
-      </div>
-    </div>
-
     <!-- Table -->
     <div
       ref="tableSectionRef"
@@ -199,6 +95,111 @@
         v-bind="$attrs"
         @change="handleTableChange"
       >
+        <template v-if="toolbar" #title>
+          <div ref="toolbarRef" class="pro-table-toolbar">
+            <div class="toolbar-left">
+              <span v-if="toolbar.title" class="toolbar-title">{{ toolbar.title }}</span>
+              <span v-if="toolbar.subTitle" class="toolbar-subtitle">{{ toolbar.subTitle }}</span>
+            </div>
+            <div class="toolbar-right">
+              <slot name="toolbar-actions"></slot>
+              <a-space :size="4">
+                <a-tooltip v-if="showRefreshAction" title="刷新">
+                  <a-button type="text" class="toolbar-icon-btn" @click="handleRefresh">
+                    <ReloadOutlined />
+                  </a-button>
+                </a-tooltip>
+
+                <a-dropdown
+                  v-if="showDensityAction"
+                  placement="bottomRight"
+                  :menu="densityMenuProps"
+                  :trigger="['click']"
+                >
+                  <a-tooltip title="表格密度">
+                    <a-button type="text" class="toolbar-icon-btn">
+                      <ColumnHeightOutlined />
+                    </a-button>
+                  </a-tooltip>
+                </a-dropdown>
+
+                <a-popover
+                  v-if="showColumnSettingAction"
+                  trigger="click"
+                  placement="bottomRight"
+                >
+                  <template #content>
+                    <div class="column-setting-dropdown" @click.stop>
+                      <div class="setting-actions">
+                        <a-button size="small" type="link" @click.stop="handleToggleAllColumns">
+                          全部勾选
+                        </a-button>
+                        <a-button size="small" type="link" @click.stop="toggleIndexColumn">
+                          序列列勾选
+                        </a-button>
+                        <a-button size="small" type="link" @click.stop="handleResetColumns">
+                          重置
+                        </a-button>
+                      </div>
+
+                      <div class="setting-list">
+                        <div
+                          v-for="state in columnStates"
+                          :key="state.key"
+                          class="setting-item"
+                          :class="{ dragging: draggingColumnKey === state.key }"
+                          draggable="true"
+                          @dragstart="handleDragStart(state.key)"
+                          @dragend="handleDragEnd"
+                          @dragover.prevent
+                          @drop.prevent="handleDrop(state.key)"
+                        >
+                          <div class="setting-item-left">
+                            <span class="drag-handle">::</span>
+                            <a-checkbox
+                              :checked="state.checked"
+                              @change="handleColumnCheckedChange(state.key, $event)"
+                            >
+                              {{ state.title }}
+                            </a-checkbox>
+                          </div>
+                          <div class="setting-item-right">
+                            <a-tooltip title="左固定">
+                              <a-button
+                                type="text"
+                                size="small"
+                                class="fixed-btn"
+                                :class="{ active: state.fixed === 'left' }"
+                                @click.stop="toggleColumnFixed(state.key, 'left')"
+                              >
+                                <VerticalLeftOutlined />
+                              </a-button>
+                            </a-tooltip>
+                            <a-tooltip title="右固定">
+                              <a-button
+                                type="text"
+                                size="small"
+                                class="fixed-btn"
+                                :class="{ active: state.fixed === 'right' }"
+                                @click.stop="toggleColumnFixed(state.key, 'right')"
+                              >
+                                <VerticalRightOutlined />
+                              </a-button>
+                            </a-tooltip>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                  <a-button type="text" class="toolbar-icon-btn">
+                    <SettingOutlined />
+                  </a-button>
+                </a-popover>
+              </a-space>
+            </div>
+          </div>
+        </template>
+
         <template #bodyCell="{ column, record, text, index }">
           <template v-if="column.dataIndex === '__index'">
             {{ getRowIndex(index) }}
@@ -716,13 +717,16 @@ const measureTableScroll = () => {
   const paginationEl = section.querySelector('.ant-pagination') as HTMLElement | null
   const paginationHeight = paginationEl ? getOuterHeight(paginationEl) : 0
 
+  const titleEl = section.querySelector('.ant-table-title') as HTMLElement | null
+  const titleHeight = titleEl ? getOuterHeight(titleEl) : 0
+
   const headerEl = section.querySelector('.ant-table-header') as HTMLElement | null
   const theadEl = section.querySelector('.ant-table-thead') as HTMLElement | null
   const headerHeight = headerEl
     ? headerEl.getBoundingClientRect().height
     : (theadEl?.getBoundingClientRect().height || getHeaderFallbackHeight())
 
-  const nextY = Math.max(120, Math.floor(sectionHeight - paginationHeight - headerHeight - 2))
+  const nextY = Math.max(120, Math.floor(sectionHeight - paginationHeight - titleHeight - headerHeight - 2))
   if (!tableScrollY.value || Math.abs(nextY - tableScrollY.value) > 1) {
     tableScrollY.value = nextY
   }
@@ -851,10 +855,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: var(--color-bg-container);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-secondary);
-  overflow: hidden;
+  background: transparent;
 
   .pro-table-toolbar {
     height: 32px;
@@ -911,6 +912,9 @@ defineExpose({
   .pro-table-search {
     padding: 8px 12px 0;
     margin-bottom: 15px;
+    background: var(--color-bg-container);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-secondary);
     flex-shrink: 0;
 
     .search-actions {
@@ -929,11 +933,19 @@ defineExpose({
     flex: 1;
     min-height: 0;
     padding: 8px;
+    background: var(--color-bg-container);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-secondary);
     overflow: hidden;
 
     &.main-scroll-mode {
       overflow: auto;
     }
+  }
+
+  :deep(.ant-table-title) {
+    padding: 0;
+    border-bottom: none;
   }
 
   :deep(.ant-table-container) {
