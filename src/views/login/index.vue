@@ -150,6 +150,9 @@ const handleSubmit = async () => {
   min-height: 100vh;
   background: var(--login-bg);
   font-family: var(--login-font-family);
+  transition:
+    background var(--duration-slower) var(--ease-in-out),
+    color var(--duration-base) var(--ease-out);
 
   .ambient {
     position: absolute;
@@ -158,6 +161,9 @@ const handleSubmit = async () => {
     filter: blur(8px);
     opacity: 0.85;
     animation: float 12s ease-in-out infinite;
+    transition:
+      background var(--duration-slower) var(--ease-in-out),
+      opacity var(--duration-base) var(--ease-out);
   }
 
   .ambient-left {
@@ -223,6 +229,10 @@ const handleSubmit = async () => {
     border-radius: 26px;
     box-shadow: var(--login-shadow);
     backdrop-filter: blur(14px) saturate(150%);
+    transition:
+      background var(--duration-slower) var(--ease-in-out),
+      border-color var(--duration-slower) var(--ease-in-out),
+      box-shadow var(--duration-slower) var(--ease-in-out);
 
     .login-header {
       text-align: center;
@@ -238,6 +248,9 @@ const handleSubmit = async () => {
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
         display: grid;
         place-items: center;
+        transition:
+          background var(--duration-slower) var(--ease-in-out),
+          border-color var(--duration-slower) var(--ease-in-out);
       }
 
       .logo {
@@ -377,6 +390,10 @@ const handleSubmit = async () => {
         border: 1px solid rgba(175, 203, 232, 0.56);
         border-radius: 999px;
         padding: 2px 10px;
+        transition:
+          color var(--duration-base) var(--ease-out),
+          background var(--duration-slower) var(--ease-in-out),
+          border-color var(--duration-slower) var(--ease-in-out);
       }
     }
   }
