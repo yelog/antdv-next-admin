@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { PrimaryColor, SidebarTheme, LayoutMode, PageAnimation } from '@/types/layout'
 
 const PAGE_ANIMATION_VALUES: PageAnimation[] = [
@@ -13,9 +13,21 @@ const PAGE_ANIMATION_VALUES: PageAnimation[] = [
   'none'
 ]
 
+const PRIMARY_COLOR_HEX_MAP: Record<PrimaryColor, string> = {
+  blue: '#1890ff',
+  green: '#52c41a',
+  purple: '#722ed1',
+  red: '#f5222d',
+  orange: '#fa8c16',
+  cyan: '#13c2c2'
+}
+
+const isPrimaryColor = (color: string): color is PrimaryColor => color in PRIMARY_COLOR_HEX_MAP
+
 export const useSettingsStore = defineStore('settings', () => {
   // State
   const primaryColor = ref<PrimaryColor>('blue')
+  const primaryColorHex = computed(() => PRIMARY_COLOR_HEX_MAP[primaryColor.value])
   const sidebarTheme = ref<SidebarTheme>('dark')
   const layoutMode = ref<LayoutMode>('vertical')
   const pageAnimation = ref<PageAnimation>('fade')
@@ -59,13 +71,13 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const initSettings = () => {
     // Restore from localStorage
-    const savedPrimaryColor = localStorage.getItem('app-primary-color') as PrimaryColor
+    const savedPrimaryColor = localStorage.getItem('app-primary-color')
     const savedSidebarTheme = localStorage.getItem('app-sidebar-theme') as SidebarTheme
     const savedLayoutMode = localStorage.getItem('app-layout-mode') as LayoutMode
     const savedPageAnimation = localStorage.getItem('app-page-animation') as PageAnimation
     const savedGrayMode = localStorage.getItem('app-gray-mode')
 
-    if (savedPrimaryColor) setPrimaryColor(savedPrimaryColor)
+    if (savedPrimaryColor && isPrimaryColor(savedPrimaryColor)) setPrimaryColor(savedPrimaryColor)
     if (savedSidebarTheme) setSidebarTheme(savedSidebarTheme)
     if (savedLayoutMode) setLayoutMode(savedLayoutMode)
     if (savedPageAnimation && PAGE_ANIMATION_VALUES.includes(savedPageAnimation)) {
@@ -77,6 +89,7 @@ export const useSettingsStore = defineStore('settings', () => {
   return {
     // State
     primaryColor,
+    primaryColorHex,
     sidebarTheme,
     layoutMode,
     pageAnimation,

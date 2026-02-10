@@ -86,13 +86,13 @@ import { CheckOutlined } from '@antdv-next/icons'
 import { useSettingsStore } from '@/stores/settings'
 import { Modal } from 'antdv-next'
 import { useI18n } from 'vue-i18n'
-import type { PageAnimation } from '@/types/layout'
+import type { PageAnimation, PrimaryColor } from '@/types/layout'
 
 const { t } = useI18n()
 const visible = ref(false)
 const settingsStore = useSettingsStore()
 
-const PRESET_COLORS = [
+const PRESET_COLORS: Array<{ name: string; value: PrimaryColor; hex: string }> = [
   { name: '拂晓蓝', value: 'blue', hex: '#1890ff' },
   { name: '极光绿', value: 'green', hex: '#52c41a' },
   { name: '酱紫', value: 'purple', hex: '#722ed1' },
