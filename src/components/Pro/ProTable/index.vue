@@ -921,6 +921,7 @@ defineExpose({
       display: flex;
       align-items: flex-end;
       justify-content: flex-end;
+      margin-left: auto;
     }
 
     .rotate-180 {
