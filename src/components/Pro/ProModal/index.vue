@@ -16,6 +16,10 @@
         :class="{ draggable: draggable && !isFullscreen }"
         @mousedown="handleTitleMouseDown"
       >
+        <div class="pro-modal-title-content">
+          <component :is="titleRenderComponent" />
+        </div>
+
         <div
           v-if="fullscreenable || showCloseButton"
           class="pro-modal-title-actions"
@@ -44,10 +48,6 @@
               <CloseOutlined />
             </button>
           </a-tooltip>
-        </div>
-
-        <div class="pro-modal-title-content">
-          <component :is="titleRenderComponent" />
         </div>
       </div>
     </template>
@@ -737,7 +737,7 @@ onBeforeUnmount(() => {
 .pro-modal-titlebar {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 10px;
   width: 100%;
   user-select: none;

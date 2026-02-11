@@ -370,7 +370,7 @@ export default {
     resizable: '边缘缩放',
     fullscreenable: '全屏按钮',
     modalTitle: '可拖拽 / 可缩放 ProModal',
-    hint: '左上角提供全屏与关闭按钮；可直接拖动标题栏移动弹窗；拖拽四边或四角调整大小。',
+    hint: '右上角提供全屏与关闭按钮；可直接拖动标题栏移动弹窗；拖拽四边或四角调整大小。',
     contentTitle: '功能演示内容',
     contentDescription: '为便于观察滚动与边界行为，以下内容刻意增加了较长列表。',
     formKeyword: '关键字',

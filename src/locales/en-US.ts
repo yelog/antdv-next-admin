@@ -370,7 +370,7 @@ export default {
     resizable: 'Edge Resize',
     fullscreenable: 'Fullscreen Button',
     modalTitle: 'Draggable / Resizable ProModal',
-    hint: 'Top-left actions provide fullscreen and close. Drag title to move. Drag edges/corners to resize.',
+    hint: 'Top-right actions provide fullscreen and close. Drag title to move. Drag edges/corners to resize.',
     contentTitle: 'Feature Demonstration',
     contentDescription: 'The following long list is used to demonstrate scrolling and viewport boundary behavior.',
     formKeyword: 'Keyword',
