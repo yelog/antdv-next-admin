@@ -1,9 +1,14 @@
 <template>
+  <div
+    v-if="showMobileMask"
+    class="sidebar-mask"
+    @click="closeMobileSidebar"
+  />
   <a-layout-sider
     v-model:collapsed="layoutStore.collapsed"
-    :class="['admin-sidebar', `theme-${effectiveSidebarTheme}`]"
+    :class="['admin-sidebar', `theme-${effectiveSidebarTheme}`, { mobile: layoutStore.isMobile }]"
     :width="layoutStore.sidebarWidth"
-    :collapsed-width="layoutStore.collapsedWidth"
+    :collapsed-width="siderCollapsedWidth"
     :trigger="null"
     collapsible
   >
@@ -75,6 +80,14 @@ const effectiveSidebarTheme = computed<SidebarTheme>(() => {
   return settingsStore.sidebarTheme
 })
 
+const siderCollapsedWidth = computed(() => {
+  return layoutStore.isMobile ? 0 : layoutStore.collapsedWidth
+})
+
+const showMobileMask = computed(() => {
+  return layoutStore.isMobile && !layoutStore.collapsed
+})
+
 const antMenuItems = computed<MenuProps['items']>(() => {
   const convert = (menus: MenuItemType[]): NonNullable<MenuProps['items']> => {
     return menus.map(menu => {
@@ -131,9 +144,16 @@ const syncMenuState = () => {
   openKeys.value = findMenuOpenKeys(menuItems.value, route.path)
 }
 
+const closeMobileSidebar = () => {
+  if (layoutStore.isMobile && !layoutStore.collapsed) {
+    layoutStore.setSidebarCollapsed(true)
+  }
+}
+
 const handleMenuClick = ({ key }: { key: string | number }) => {
   if (typeof key === 'string' && key.startsWith('/')) {
     router.push(key)
+    closeMobileSidebar()
   }
 }
 
@@ -147,6 +167,13 @@ watch(
 </script>
 
 <style scoped lang="scss">
+.sidebar-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.36);
+  z-index: 99;
+}
+
 .admin-sidebar {
   position: fixed;
   left: 0;
@@ -158,6 +185,10 @@ watch(
   box-shadow: var(--shadow-2);
   z-index: 100;
   transition: all var(--duration-slow) var(--ease-out);
+
+  &.mobile {
+    z-index: 110;
+  }
 
   &.theme-light {
     background: #ffffff;
