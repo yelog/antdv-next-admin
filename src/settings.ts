@@ -5,6 +5,7 @@ export interface ProTableDefaultSettings {
   size: ProTableDensity
   height: ProTableHeight
   resizable: boolean
+  columnResizable: boolean
   ellipsis: boolean
   bordered: boolean
   fixedHeader: boolean
@@ -34,6 +35,7 @@ export const appDefaultSettings: AppDefaultSettings = {
     size: 'smal',
     height: 'auto',
     resizable: true,
+    columnResizable: true,
     ellipsis: true,
     bordered: true,
     fixedHeader: true

@@ -87,6 +87,7 @@
       }"
     >
       <a-table
+        :components="tableComponents"
         :columns="tableColumns"
         :data-source="dataSource"
         :loading="loading"
@@ -243,7 +244,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, h } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, h, defineComponent } from 'vue'
+import type { PropType } from 'vue'
 import {
   ReloadOutlined,
   SettingOutlined,
@@ -278,6 +280,7 @@ interface Props {
   size?: ProTableDensity
   height?: ProTableHeight
   resizable?: boolean
+  columnResizable?: boolean
   ellipsis?: boolean
   bordered?: boolean
   fixedHeader?: boolean
@@ -293,13 +296,99 @@ interface ColumnState {
   column: ProTableColumn
 }
 
+interface ResizeInfo {
+  size: {
+    width: number
+  }
+}
+
+interface ResizableTitleProps {
+  width?: number
+  resizable?: boolean
+  onResize?: (event: MouseEvent, info: ResizeInfo) => void
+}
+
 type TableSize = 'large' | 'middle' | 'small'
+
+const MIN_COLUMN_WIDTH = 40
+
+const ResizableTitle = defineComponent({
+  name: 'ResizableTitle',
+  inheritAttrs: false,
+  props: {
+    width: Number,
+    resizable: Boolean,
+    onResize: Function as PropType<ResizableTitleProps['onResize']>
+  },
+  setup(props, { slots, attrs }) {
+    const dragging = ref(false)
+    let startX = 0
+    let startWidth = 0
+
+    const onMouseMove = (event: MouseEvent) => {
+      if (!dragging.value || !props.onResize) {
+        return
+      }
+      const nextWidth = Math.max(startWidth + event.clientX - startX, MIN_COLUMN_WIDTH)
+      props.onResize(event, { size: { width: nextWidth } })
+    }
+
+    const onMouseUp = () => {
+      dragging.value = false
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    }
+
+    const onMouseDown = (event: MouseEvent) => {
+      if (!props.onResize || !props.resizable) {
+        return
+      }
+      event.preventDefault()
+      event.stopPropagation()
+      dragging.value = true
+      startX = event.clientX
+      startWidth = props.width
+        || (event.currentTarget as HTMLElement)?.parentElement?.getBoundingClientRect().width
+        || 0
+      document.addEventListener('mousemove', onMouseMove)
+      document.addEventListener('mouseup', onMouseUp)
+    }
+
+    onBeforeUnmount(() => {
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    })
+
+    return () => {
+      const width = props.width
+      if (width == null || !props.resizable || !props.onResize) {
+        return h('th', attrs, slots.default?.())
+      }
+
+      return h(
+        'th',
+        {
+          ...attrs,
+          class: ['pro-table-resizable-title', attrs.class]
+        },
+        [
+          slots.default?.(),
+          h('span', {
+            class: 'pro-table-resizable-handle',
+            onMousedown: onMouseDown
+          })
+        ]
+      )
+    }
+  }
+})
 
 const props = withDefaults(defineProps<Props>(), {
   rowKey: 'id',
   size: appDefaultSettings.proTable.size,
   height: appDefaultSettings.proTable.height,
   resizable: appDefaultSettings.proTable.resizable,
+  columnResizable: appDefaultSettings.proTable.columnResizable,
   ellipsis: appDefaultSettings.proTable.ellipsis,
   bordered: appDefaultSettings.proTable.bordered,
   fixedHeader: appDefaultSettings.proTable.fixedHeader,
@@ -352,6 +441,17 @@ const defaultShowIndexColumn = ref(true)
 const columnStates = ref<ColumnState[]>([])
 const defaultColumnStates = ref<ColumnState[]>([])
 const draggingColumnKey = ref('')
+const tableComponents = computed(() => {
+  if (!effectiveColumnResizable.value) {
+    return undefined
+  }
+
+  return {
+    header: {
+      cell: ResizableTitle
+    }
+  }
+})
 
 // Computed
 const toolbarActions = computed(() => props.toolbar?.actions || [])
@@ -377,6 +477,10 @@ const showDensityAction = computed(() => {
 
 const effectiveResizable = computed(() => {
   return props.resizable ?? appDefaultSettings.proTable.resizable
+})
+
+const effectiveColumnResizable = computed(() => {
+  return props.columnResizable ?? appDefaultSettings.proTable.columnResizable
 })
 
 const effectiveEllipsis = computed(() => {
@@ -480,7 +584,8 @@ const displayColumns = computed<ProTableColumn[]>(() => {
       width: 64,
       align: 'center',
       fixed: 'left',
-      ellipsis: false
+      ellipsis: false,
+      resizable: false
     },
     ...columns
   ]
@@ -516,6 +621,21 @@ const parseColumnWidth = (width: unknown): number | null => {
   return null
 }
 
+const handleColumnWidthResize = (key: string) => {
+  return (_event: MouseEvent, { size }: ResizeInfo) => {
+    const item = columnStates.value.find(state => state.key === key)
+    if (!item) {
+      return
+    }
+
+    item.column = {
+      ...item.column,
+      width: Math.max(MIN_COLUMN_WIDTH, Math.floor(size.width))
+    }
+    scheduleMeasureTable()
+  }
+}
+
 const columnTotalWidth = computed(() => {
   return displayColumns.value.reduce((sum, column) => {
     const width = parseColumnWidth((column as ProTableColumn).width)
@@ -542,15 +662,36 @@ const shouldUseHorizontalScroll = computed(() => {
   return columnTotalWidth.value > tableViewportWidth.value + 1
 })
 
-const tableColumns = computed<ProTableColumn[]>(() => {
-  if (shouldUseHorizontalScroll.value) {
-    return displayColumns.value
-  }
+const tableColumns = computed(() => {
+  const sourceColumns = shouldUseHorizontalScroll.value
+    ? displayColumns.value
+    : displayColumns.value.map(column => ({
+      ...column,
+      fixed: undefined
+    }))
 
-  return displayColumns.value.map(column => ({
-    ...column,
-    fixed: undefined
-  }))
+  return sourceColumns.map((column, index) => {
+    const key = resolveColumnKey(column, index)
+    const width = parseColumnWidth(column.width)
+    const canResize = Boolean(
+      effectiveColumnResizable.value &&
+      (column.resizable ?? effectiveResizable.value) &&
+      width != null
+    )
+
+    if (!canResize) {
+      return column
+    }
+
+    return {
+      ...column,
+      onHeaderCell: () => ({
+        width: width ?? undefined,
+        resizable: true,
+        onResize: handleColumnWidthResize(key)
+      })
+    }
+  })
 })
 
 const tableScroll = computed(() => {
@@ -1140,6 +1281,21 @@ defineExpose({
     font-size: 12px;
     font-weight: var(--font-weight-bold);
     border-bottom: 1px solid var(--color-border);
+  }
+
+  :deep(.pro-table-resizable-title) {
+    position: relative;
+  }
+
+  :deep(.pro-table-resizable-handle) {
+    position: absolute;
+    top: 0;
+    right: -4px;
+    width: 8px;
+    height: 100%;
+    cursor: col-resize;
+    user-select: none;
+    touch-action: none;
   }
 
   :deep(.ant-table-cell-fix-right-first::after) {
