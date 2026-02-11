@@ -1287,6 +1287,13 @@ defineExpose({
     position: relative;
   }
 
+  :deep(.pro-table-resizable-title.ant-table-cell-fix-start),
+  :deep(.pro-table-resizable-title.ant-table-cell-fix-end),
+  :deep(.pro-table-resizable-title.ant-table-cell-fix-left),
+  :deep(.pro-table-resizable-title.ant-table-cell-fix-right) {
+    position: sticky !important;
+  }
+
   :deep(.pro-table-resizable-handle) {
     position: absolute;
     top: 0;
