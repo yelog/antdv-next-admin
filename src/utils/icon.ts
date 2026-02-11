@@ -1,29 +1,24 @@
 import type { Component } from 'vue'
-import {
-  AppstoreOutlined,
-  DashboardOutlined,
-  FormOutlined,
-  SafetyOutlined,
-  SettingOutlined,
-  TableOutlined,
-  TeamOutlined,
-  UserOutlined
-} from '@antdv-next/icons'
+import * as AntdvIcons from '@antdv-next/icons'
 
-const iconMap: Record<string, Component> = {
-  DashboardOutlined,
-  SettingOutlined,
-  UserOutlined,
-  TeamOutlined,
-  SafetyOutlined,
-  AppstoreOutlined,
-  TableOutlined,
-  FormOutlined
+const iconMap = AntdvIcons as unknown as Record<string, Component>
+
+function normalizeIconName(name: string): string {
+  const trimmed = name.trim()
+  if (trimmed.startsWith('antdv-next:')) {
+    return trimmed.slice('antdv-next:'.length)
+  }
+  if (trimmed.startsWith('antd:')) {
+    return trimmed.slice('antd:'.length)
+  }
+  return trimmed
 }
 
 export function resolveIcon(name?: string): Component | undefined {
   if (!name) {
     return undefined
   }
-  return iconMap[name]
+
+  const iconName = normalizeIconName(name)
+  return iconMap[iconName]
 }

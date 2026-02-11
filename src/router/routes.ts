@@ -207,6 +207,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
             component: () => import('@/views/examples/exception/403.vue'),
             meta: {
               title: 'menu.exception403',
+              icon: 'StopOutlined',
               requiresAuth: true
             }
           },
@@ -216,6 +217,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
             component: () => import('@/views/examples/exception/404.vue'),
             meta: {
               title: 'menu.exception404',
+              icon: 'FileUnknownOutlined',
               requiresAuth: true
             }
           },
@@ -225,6 +227,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
             component: () => import('@/views/examples/exception/500.vue'),
             meta: {
               title: 'menu.exception500',
+              icon: 'BugOutlined',
               requiresAuth: true
             }
           }
