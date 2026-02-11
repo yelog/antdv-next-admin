@@ -16,16 +16,15 @@
         :class="{ draggable: draggable && !isFullscreen }"
         @mousedown="handleTitleMouseDown"
       >
-        <div class="pro-modal-title-content">
-          <component :is="titleRenderComponent" />
-        </div>
-
         <div
-          v-if="fullscreenable"
+          v-if="fullscreenable || showCloseButton"
           class="pro-modal-title-actions"
           @mousedown.stop
         >
-          <a-tooltip :title="isFullscreen ? $t('layout.exitFullscreen') : $t('layout.fullscreen')">
+          <a-tooltip
+            v-if="fullscreenable"
+            :title="isFullscreen ? $t('layout.exitFullscreen') : $t('layout.fullscreen')"
+          >
             <button
               type="button"
               class="pro-modal-action-btn"
@@ -34,6 +33,21 @@
               <component :is="isFullscreen ? FullscreenExitOutlined : FullscreenOutlined" />
             </button>
           </a-tooltip>
+
+          <a-tooltip v-if="showCloseButton" :title="$t('common.close')">
+            <button
+              type="button"
+              class="pro-modal-action-btn"
+              :disabled="isCloseButtonDisabled"
+              @click.stop="handleCloseClick"
+            >
+              <CloseOutlined />
+            </button>
+          </a-tooltip>
+        </div>
+
+        <div class="pro-modal-title-content">
+          <component :is="titleRenderComponent" />
         </div>
       </div>
     </template>
@@ -79,7 +93,7 @@ import {
 } from 'vue'
 import type { CSSProperties, VNodeChild } from 'vue'
 import type { ModalProps } from 'antdv-next'
-import { FullscreenOutlined, FullscreenExitOutlined } from '@antdv-next/icons'
+import { CloseOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@antdv-next/icons'
 import { $t } from '@/locales'
 
 interface ProModalProps extends ModalProps {
@@ -158,6 +172,23 @@ let isDocumentListening = false
 let bodyUserSelectCache = ''
 
 const isOpen = computed(() => Boolean(props.open))
+const showCloseButton = computed(() => props.closable !== false)
+const isCloseButtonDisabled = computed(() => {
+  return typeof props.closable === 'object' && Boolean(props.closable.disabled)
+})
+
+const resolvedGetContainer = computed<ModalProps['getContainer']>(() => {
+  if (props.getContainer !== undefined) {
+    return props.getContainer
+  }
+
+  return () => {
+    if (typeof document === 'undefined') {
+      return false
+    }
+    return document.body
+  }
+})
 
 const titleRenderComponent = defineComponent({
   name: 'ProModalTitleRender',
@@ -198,6 +229,8 @@ const modalPassThroughProps = computed<ModalProps>(() => {
   delete next.title
   delete next.width
   delete next.styles
+  delete next.closable
+  delete next.getContainer
   return next as ModalProps
 })
 
@@ -239,7 +272,9 @@ const mergedModalStyle = computed(() => {
 const mergedModalBindings = computed(() => {
   return {
     ...modalPassThroughProps.value,
-    ...forwardedAttrs.value
+    ...forwardedAttrs.value,
+    closable: false,
+    getContainer: resolvedGetContainer.value
   }
 })
 
@@ -638,6 +673,19 @@ const handleCancel = (event: MouseEvent) => {
   emit('cancel', event)
 }
 
+const handleCloseClick = (event: MouseEvent) => {
+  if (!showCloseButton.value || isCloseButtonDisabled.value) {
+    return
+  }
+
+  if (typeof props.closable === 'object') {
+    props.closable.onClose?.()
+  }
+
+  emit('cancel', event)
+  emit('update:open', false)
+}
+
 const handleUpdateOpen = (open: boolean) => {
   emit('update:open', open)
 }
@@ -689,7 +737,7 @@ onBeforeUnmount(() => {
 .pro-modal-titlebar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px;
   width: 100%;
   user-select: none;
@@ -710,6 +758,8 @@ onBeforeUnmount(() => {
 .pro-modal-title-actions {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .pro-modal-action-btn {
@@ -727,6 +777,11 @@ onBeforeUnmount(() => {
   &:hover {
     background: rgba(0, 0, 0, 0.06);
     color: var(--color-text-primary);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 }
 

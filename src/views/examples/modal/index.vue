@@ -39,6 +39,17 @@
           <span>{{ $t('exampleModal.fullscreenable') }}</span>
           <a-switch v-model:checked="fullscreenable" />
         </div>
+
+        <div class="config-item">
+          <span>{{ $t('exampleModal.dataCount') }}</span>
+          <a-input-number
+            v-model:value="dataCount"
+            :min="1"
+            :max="300"
+            :step="10"
+            style="width: 140px"
+          />
+        </div>
       </div>
     </div>
 
@@ -105,9 +116,10 @@ const modalWidth = ref(760)
 const draggable = ref(true)
 const resizable = ref(true)
 const fullscreenable = ref(true)
+const dataCount = ref(24)
 
 const mockRows = computed(() => {
-  return Array.from({ length: 24 }, (_, index) => index + 1)
+  return Array.from({ length: dataCount.value }, (_, index) => index + 1)
 })
 
 const openDefaultModal = () => {
