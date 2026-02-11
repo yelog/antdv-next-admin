@@ -295,6 +295,10 @@ const getTabIcon = (tab: Tab) => {
         display: none;
       }
 
+      .ant-tabs-tab .anticon:not(:last-child) {
+        margin-right: 0;
+      }
+
       .ant-tabs-tab {
         border: 1px solid transparent !important;
         background: var(--color-bg-layout);
