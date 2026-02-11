@@ -5,6 +5,7 @@ import App from './App.vue'
 import router from './router'
 import i18n from './locales'
 import { setupDirectives } from './directives'
+import { registerDefaultComponentProps } from './components/Global/defaultComponentProps'
 
 // Import global styles
 import 'antdv-next/dist/reset.css'
@@ -19,6 +20,7 @@ app.use(createPinia())
 app.use(AntdvNext)
 app.use(router)
 app.use(i18n)
+registerDefaultComponentProps(app)
 
 // Register custom directives
 setupDirectives(app)

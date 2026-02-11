@@ -1,5 +1,11 @@
 <template>
-  <a-config-provider :theme="antdThemeConfig" :input="inputConfig">
+  <a-config-provider
+    :theme="antdThemeConfig"
+    :input="inputConfig"
+    :select="selectConfig"
+    :date-picker="datePickerConfig"
+    :range-picker="datePickerConfig"
+  >
     <router-view />
   </a-config-provider>
 </template>
@@ -22,6 +28,8 @@ const antdThemeConfig = computed<ThemeConfig>(() => ({
 }))
 
 const inputConfig = computed(() => appDefaultSettings.input)
+const selectConfig = computed(() => appDefaultSettings.select as any)
+const datePickerConfig = computed(() => appDefaultSettings.datePicker as any)
 
 onMounted(() => {
   // Initialize theme and settings from localStorage

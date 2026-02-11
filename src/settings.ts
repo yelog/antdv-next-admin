@@ -14,9 +14,19 @@ export interface InputDefaultSettings {
   allowClear: boolean
 }
 
+export interface SelectDefaultSettings {
+  allowClear: boolean
+}
+
+export interface DatePickerDefaultSettings {
+  allowClear: boolean
+}
+
 export interface AppDefaultSettings {
   proTable: ProTableDefaultSettings
   input: InputDefaultSettings
+  select: SelectDefaultSettings
+  datePicker: DatePickerDefaultSettings
 }
 
 export const appDefaultSettings: AppDefaultSettings = {
@@ -29,6 +39,12 @@ export const appDefaultSettings: AppDefaultSettings = {
     fixedHeader: true
   },
   input: {
+    allowClear: true
+  },
+  select: {
+    allowClear: true
+  },
+  datePicker: {
     allowClear: true
   }
 }
