@@ -1,5 +1,5 @@
 <template>
-  <a-watermark v-bind="watermarkStore.watermarkProps">
+  <a-watermark v-bind="watermarkStore.watermarkProps" class="global-watermark">
   <a-layout class="admin-layout" :class="[settingsStore.layoutMode, { mobile: layoutStore.isMobile }]">
     <!-- Vertical Layout -->
     <template v-if="settingsStore.layoutMode === 'vertical'">
@@ -546,6 +546,16 @@ watch(
     .layout-main {
       margin-left: 0 !important;
     }
+  }
+}
+
+// Global watermark overlay - must cover fixed elements like Sidebar
+.global-watermark {
+  :deep(> div:last-child) {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+    pointer-events: none !important;
   }
 }
 </style>
