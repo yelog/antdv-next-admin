@@ -45,6 +45,7 @@ export default {
     permission: '菜单管理',
     examples: '示例页面',
     table: '表格示例',
+    icon: '图标示例',
     form: '表单示例',
     watermark: '水印示例',
     exception: '异常页面',
@@ -304,6 +305,26 @@ export default {
       music: '音乐',
       travel: '旅游'
     }
+  },
+
+  exampleIcon: {
+    title: '图标演示',
+    subtitle: '统一展示 Icon 组件与 IconPicker 的完整用法',
+    capabilities: '支持：本地 SVG、antdv-next 图标、Iconify（离线库 + 在线搜索）',
+    renderTitle: '三种渲染模式',
+    renderSubtitle: '同一个 Icon 组件，通过不同前缀渲染不同图标来源',
+    pickerTitle: 'IconPicker 使用示例',
+    pickerSubtitle: '支持分类筛选、关键字过滤与在线图标搜索（输入 2 个以上字符触发）',
+    modelLabel: '图标值',
+    previewLabel: '实时预览',
+    copy: '复制值',
+    copySuccess: '图标值已复制',
+    copyEmpty: '请先选择图标',
+    copyFailed: '复制失败，请手动复制',
+    reset: '重置为默认',
+    modeSvg: 'SVG Sprite',
+    modeAntdv: 'antdv-next',
+    modeIconify: 'Iconify'
   },
 
   exampleWatermark: {

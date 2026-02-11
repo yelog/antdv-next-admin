@@ -45,6 +45,7 @@ export default {
     permission: 'Menu Management',
     examples: 'Examples',
     table: 'Table Example',
+    icon: 'Icon Example',
     form: 'Form Example',
     watermark: 'Watermark',
     exception: 'Exception',
@@ -304,6 +305,26 @@ export default {
       music: 'Music',
       travel: 'Travel'
     }
+  },
+
+  exampleIcon: {
+    title: 'Icon Showcase',
+    subtitle: 'Unified demo for Icon component and IconPicker',
+    capabilities: 'Supports: local SVG, antdv-next icons, Iconify (offline sets + online search)',
+    renderTitle: 'Three Render Modes',
+    renderSubtitle: 'One Icon component with different prefixes for different icon sources',
+    pickerTitle: 'IconPicker Demo',
+    pickerSubtitle: 'Supports category filtering, keyword search, and online icon search (triggered by 2+ chars)',
+    modelLabel: 'Icon Value',
+    previewLabel: 'Live Preview',
+    copy: 'Copy Value',
+    copySuccess: 'Icon value copied',
+    copyEmpty: 'Please choose an icon first',
+    copyFailed: 'Copy failed, please copy manually',
+    reset: 'Reset Default',
+    modeSvg: 'SVG Sprite',
+    modeAntdv: 'antdv-next',
+    modeIconify: 'Iconify'
   },
 
   exampleWatermark: {

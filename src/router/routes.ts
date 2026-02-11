@@ -161,6 +161,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'icon',
+        name: 'ExamplesIcon',
+        component: () => import('@/views/examples/icon/index.vue'),
+        meta: {
+          title: 'menu.icon',
+          icon: 'SmileOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'form',
         name: 'ExamplesForm',
         component: () => import('@/views/examples/form/index.vue'),
