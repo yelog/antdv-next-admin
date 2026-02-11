@@ -46,6 +46,7 @@ export default {
     examples: 'Examples',
     table: 'Table Example',
     form: 'Form Example',
+    watermark: 'Watermark',
     profile: 'Profile'
   },
 
@@ -299,6 +300,20 @@ export default {
       music: 'Music',
       travel: 'Travel'
     }
+  },
+
+  exampleWatermark: {
+    title: 'Watermark Example',
+    description: 'Global watermark feature - configure and preview watermark effects in real time',
+    enableGlobal: 'Enable Global Watermark',
+    content: 'Watermark Text',
+    fontSize: 'Font Size',
+    rotate: 'Rotation',
+    opacity: 'Opacity',
+    gapX: 'Horizontal Gap',
+    gapY: 'Vertical Gap',
+    preview: 'Local Preview',
+    previewText: 'This area is for previewing the watermark effect'
   },
 
   proForm: {

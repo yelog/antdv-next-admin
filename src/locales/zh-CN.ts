@@ -46,6 +46,7 @@ export default {
     examples: '示例页面',
     table: '表格示例',
     form: '表单示例',
+    watermark: '水印示例',
     profile: '个人中心'
   },
 
@@ -299,6 +300,20 @@ export default {
       music: '音乐',
       travel: '旅游'
     }
+  },
+
+  exampleWatermark: {
+    title: '水印示例',
+    description: '全局水印功能 - 可在此配置并即时预览水印效果',
+    enableGlobal: '启用全局水印',
+    content: '水印文字',
+    fontSize: '字体大小',
+    rotate: '旋转角度',
+    opacity: '透明度',
+    gapX: '水平间距',
+    gapY: '垂直间距',
+    preview: '本地预览',
+    previewText: '此区域用于预览水印效果'
   },
 
   proForm: {

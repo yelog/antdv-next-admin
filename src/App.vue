@@ -15,10 +15,12 @@ import { computed, onMounted } from 'vue'
 import { theme as antdTheme, type ThemeConfig } from 'antdv-next'
 import { useThemeStore } from './stores/theme'
 import { useSettingsStore } from './stores/settings'
+import { useWatermarkStore } from './stores/watermark'
 import { appDefaultSettings } from './settings'
 
 const themeStore = useThemeStore()
 const settingsStore = useSettingsStore()
+const watermarkStore = useWatermarkStore()
 
 const antdThemeConfig = computed<ThemeConfig>(() => ({
   algorithm: themeStore.isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
@@ -35,6 +37,7 @@ onMounted(() => {
   // Initialize theme and settings from localStorage
   themeStore.initTheme()
   settingsStore.initSettings()
+  watermarkStore.initWatermark()
 })
 </script>
 

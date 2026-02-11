@@ -1,4 +1,5 @@
 <template>
+  <a-watermark v-bind="watermarkStore.watermarkProps">
   <a-layout class="admin-layout" :class="[settingsStore.layoutMode, { mobile: layoutStore.isMobile }]">
     <!-- Vertical Layout -->
     <template v-if="settingsStore.layoutMode === 'vertical'">
@@ -96,6 +97,7 @@
       </a-layout>
     </template>
   </a-layout>
+  </a-watermark>
 </template>
 
 <script setup lang="ts">
@@ -107,6 +109,7 @@ import { useLayoutStore } from '@/stores/layout'
 import { useSettingsStore } from '@/stores/settings'
 import { useTabsStore } from '@/stores/tabs'
 import { usePermissionStore } from '@/stores/permission'
+import { useWatermarkStore } from '@/stores/watermark'
 import { basicRoutes } from '@/router/routes'
 import { routesToMenuTree } from '@/router/utils'
 import type { MenuItem as MenuItemType } from '@/types/router'
@@ -124,6 +127,7 @@ const layoutStore = useLayoutStore()
 const settingsStore = useSettingsStore()
 const tabsStore = useTabsStore()
 const permissionStore = usePermissionStore()
+const watermarkStore = useWatermarkStore()
 
 const menuAreaRef = ref<HTMLElement>()
 const measureMenuWrapRef = ref<HTMLElement>()

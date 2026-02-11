@@ -169,6 +169,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           icon: 'FormOutlined',
           requiresAuth: true
         }
+      },
+      {
+        path: 'watermark',
+        name: 'ExamplesWatermark',
+        component: () => import('@/views/examples/watermark/index.vue'),
+        meta: {
+          title: 'menu.watermark',
+          icon: 'HighlightOutlined',
+          requiresAuth: true
+        }
       }
     ]
   }
