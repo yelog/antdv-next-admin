@@ -305,6 +305,8 @@ interface ResizeInfo {
 interface ResizableTitleProps {
   width?: number
   resizable?: boolean
+  onResizeStart?: (event: MouseEvent, width: number) => void
+  onResizeEnd?: (event: MouseEvent) => void
   onResize?: (event: MouseEvent, info: ResizeInfo) => void
 }
 
@@ -318,6 +320,8 @@ const ResizableTitle = defineComponent({
   props: {
     width: Number,
     resizable: Boolean,
+    onResizeStart: Function as PropType<ResizableTitleProps['onResizeStart']>,
+    onResizeEnd: Function as PropType<ResizableTitleProps['onResizeEnd']>,
     onResize: Function as PropType<ResizableTitleProps['onResize']>
   },
   setup(props, { slots, attrs }) {
@@ -333,7 +337,10 @@ const ResizableTitle = defineComponent({
       props.onResize(event, { size: { width: nextWidth } })
     }
 
-    const onMouseUp = () => {
+    const onMouseUp = (event: MouseEvent) => {
+      if (dragging.value) {
+        props.onResizeEnd?.(event)
+      }
       dragging.value = false
       document.removeEventListener('mousemove', onMouseMove)
       document.removeEventListener('mouseup', onMouseUp)
@@ -345,11 +352,12 @@ const ResizableTitle = defineComponent({
       }
       event.preventDefault()
       event.stopPropagation()
-      dragging.value = true
-      startX = event.clientX
       startWidth = props.width
         || (event.currentTarget as HTMLElement)?.parentElement?.getBoundingClientRect().width
         || 0
+      props.onResizeStart?.(event, startWidth)
+      dragging.value = true
+      startX = event.clientX
       document.addEventListener('mousemove', onMouseMove)
       document.addEventListener('mouseup', onMouseUp)
     }
@@ -361,15 +369,20 @@ const ResizableTitle = defineComponent({
 
     return () => {
       const width = props.width
-      if (width == null || !props.resizable || !props.onResize) {
+      if (!props.resizable || !props.onResize) {
         return h('th', attrs, slots.default?.())
       }
+
+      const style = width == null
+        ? attrs.style
+        : { ...(attrs.style as Record<string, any>), width: `${width}px` }
 
       return h(
         'th',
         {
           ...attrs,
-          class: ['pro-table-resizable-title', attrs.class]
+          class: ['pro-table-resizable-title', attrs.class],
+          style
         },
         [
           slots.default?.(),
@@ -441,6 +454,9 @@ const defaultShowIndexColumn = ref(true)
 const columnStates = ref<ColumnState[]>([])
 const defaultColumnStates = ref<ColumnState[]>([])
 const draggingColumnKey = ref('')
+const isResizingColumn = ref(false)
+const resizingColumnKey = ref<string | null>(null)
+const widthsPreparedForCurrentDrag = ref(false)
 const tableComponents = computed(() => {
   if (!effectiveColumnResizable.value) {
     return undefined
@@ -621,18 +637,115 @@ const parseColumnWidth = (width: unknown): number | null => {
   return null
 }
 
-const handleColumnWidthResize = (key: string) => {
-  return (_event: MouseEvent, { size }: ResizeInfo) => {
-    const item = columnStates.value.find(state => state.key === key)
-    if (!item) {
+const collectVisibleHeaderWidths = () => {
+  const section = tableSectionRef.value
+  const widthMap = new Map<string, number>()
+  if (!section) {
+    return widthMap
+  }
+
+  const headerCells = section.querySelectorAll(
+    '.ant-table-header thead th[data-pro-table-col-key]'
+  ) as NodeListOf<HTMLElement>
+
+  headerCells.forEach((cell) => {
+    const key = cell.getAttribute('data-pro-table-col-key')
+    if (!key) {
       return
     }
+
+    const width = Math.max(MIN_COLUMN_WIDTH, Math.floor(cell.getBoundingClientRect().width))
+    if (!Number.isFinite(width) || width <= 0) {
+      return
+    }
+
+    const prev = widthMap.get(key)
+    if (prev == null || width > prev) {
+      widthMap.set(key, width)
+    }
+  })
+
+  return widthMap
+}
+
+const ensureColumnWidthsBeforeResize = (activeKey: string, activeWidth: number) => {
+  const measuredWidths = collectVisibleHeaderWidths()
+  const activeMeasuredWidth = parseColumnWidth(activeWidth)
+  let changed = false
+
+  const nextStates = columnStates.value.map((state) => {
+    const currentWidth = parseColumnWidth(state.column.width)
+    if (currentWidth != null) {
+      return state
+    }
+
+    const measuredWidth = state.key === activeKey
+      ? (activeMeasuredWidth ?? measuredWidths.get(state.key))
+      : measuredWidths.get(state.key)
+
+    if (measuredWidth == null) {
+      return state
+    }
+
+    changed = true
+    return {
+      ...state,
+      column: {
+        ...state.column,
+        width: Math.max(MIN_COLUMN_WIDTH, Math.floor(measuredWidth))
+      }
+    }
+  })
+
+  if (changed) {
+    columnStates.value = nextStates
+    scheduleMeasureTable()
+  }
+}
+
+const handleColumnWidthResizeStart = (key: string) => {
+  return (_event: MouseEvent, width: number) => {
+    isResizingColumn.value = true
+    resizingColumnKey.value = key
+    widthsPreparedForCurrentDrag.value = false
+    if (!Number.isFinite(width) || width <= 0) {
+      return
+    }
+  }
+}
+
+const handleColumnWidthResizeEnd = (key: string) => {
+  return (_event: MouseEvent) => {
+    if (resizingColumnKey.value && resizingColumnKey.value !== key) {
+      return
+    }
+    isResizingColumn.value = false
+    resizingColumnKey.value = null
+    widthsPreparedForCurrentDrag.value = false
+    scheduleMeasureTable()
+  }
+}
+
+const handleColumnWidthResize = (key: string) => {
+  return (_event: MouseEvent, { size }: ResizeInfo) => {
+    if (!isResizingColumn.value) {
+      isResizingColumn.value = true
+      resizingColumnKey.value = key
+      widthsPreparedForCurrentDrag.value = false
+    }
+
+    if (!widthsPreparedForCurrentDrag.value) {
+      ensureColumnWidthsBeforeResize(key, size.width)
+      widthsPreparedForCurrentDrag.value = true
+    }
+
+    const item = columnStates.value.find(state => state.key === key)
+    if (!item) return
 
     item.column = {
       ...item.column,
       width: Math.max(MIN_COLUMN_WIDTH, Math.floor(size.width))
     }
-    scheduleMeasureTable()
   }
 }
 
@@ -675,21 +788,35 @@ const tableColumns = computed(() => {
     const width = parseColumnWidth(column.width)
     const canResize = Boolean(
       effectiveColumnResizable.value &&
-      (column.resizable ?? effectiveResizable.value) &&
-      width != null
+      (column.resizable ?? effectiveResizable.value)
     )
 
-    if (!canResize) {
-      return column
-    }
+    const originalOnHeaderCell = (column as Record<string, any>).onHeaderCell
 
     return {
       ...column,
-      onHeaderCell: () => ({
-        width: width ?? undefined,
-        resizable: true,
-        onResize: handleColumnWidthResize(key)
-      })
+      onHeaderCell: (headerColumn: any) => {
+        const originalCell = typeof originalOnHeaderCell === 'function'
+          ? (originalOnHeaderCell(headerColumn) ?? {})
+          : {}
+        const mergedCell: Record<string, any> = {
+          ...originalCell,
+          'data-pro-table-col-key': key
+        }
+
+        if (width != null) {
+          mergedCell.width = width
+        }
+
+        if (canResize) {
+          mergedCell.resizable = true
+          mergedCell.onResizeStart = handleColumnWidthResizeStart(key)
+          mergedCell.onResize = handleColumnWidthResize(key)
+          mergedCell.onResizeEnd = handleColumnWidthResizeEnd(key)
+        }
+
+        return mergedCell
+      }
     }
   })
 })
@@ -1089,6 +1216,9 @@ watch(
 watch(
   [searchCollapsed, dataSource, total, currentPage, pageSize, displayColumns],
   () => {
+    if (isResizingColumn.value) {
+      return
+    }
     scheduleMeasureTable()
   },
   { deep: true }
