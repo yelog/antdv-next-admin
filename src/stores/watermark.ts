@@ -20,10 +20,8 @@ export const useWatermarkStore = defineStore('watermark', () => {
       gap: gap.value,
       rotate: rotate.value,
       font: {
-        fontSize: fontSize.value
-      },
-      style: {
-        opacity: opacity.value
+        fontSize: fontSize.value,
+        color: `rgba(0, 0, 0, ${opacity.value})`
       }
     }
   })
