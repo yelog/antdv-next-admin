@@ -27,7 +27,8 @@
     </template>
 
     <template #content>
-      <div class="ip-wrap">
+      <a-form-item-rest>
+        <div class="ip-wrap">
         <div class="ip-row1">
           <a-input
             ref="searchRef"
@@ -37,7 +38,7 @@
             class="ip-search"
           >
             <template #prefix>
-              <IconView icon="antdv-next:SearchOutlined" :size="14" />
+              <IconView icon="ant-design:search-outlined" color="#999" />
             </template>
           </a-input>
         </div>
@@ -54,11 +55,6 @@
         </div>
 
         <div class="ip-grid-container">
-          <div v-if="showOnlineState" class="ip-online-state">
-            <span v-if="onlineLoading">在线图标加载中...</span>
-            <span v-else-if="onlineError">{{ onlineError }}</span>
-          </div>
-
           <div v-if="pageItems.length === 0" class="ip-empty">
             <a-empty description="No icons" />
           </div>
@@ -105,13 +101,14 @@
             class="ip-pagination"
           />
         </div>
-      </div>
+        </div>
+      </a-form-item-rest>
     </template>
   </a-popover>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, h, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import * as AntdvIcons from '@antdv-next/icons'
 import ri from '@iconify-json/ri/icons.json'
 import mdi from '@iconify-json/mdi/icons.json'
@@ -173,7 +170,7 @@ const inputValue = computed<string>({
 
 const inputName = `iconpicker_${Math.random().toString(36).slice(2)}`
 const placeholder = computed(() => props.placeholder)
-const searchPlaceholder = '搜索图标（可输入 iconify 关键词）'
+const searchPlaceholder = '搜索图标名称...'
 
 const category = ref<Category>('all')
 const keyword = ref('')
@@ -276,7 +273,7 @@ const shouldSearchOnline = computed(() => {
   if (query.length < 2) {
     return false
   }
-  return category.value === 'online' || category.value === 'all'
+  return category.value === 'all'
 })
 
 const resetOnlineState = () => {
@@ -389,8 +386,6 @@ const listByCategory = computed<string[]>(() => {
       return antdvAll.value
     case 'svg':
       return svgAll.value
-    case 'online':
-      return onlineIcons.value
     default:
       return keyword.value.trim().length >= 2
         ? dedupe([...allOfflineIcons.value, ...onlineIcons.value])
@@ -418,19 +413,37 @@ const pageItems = computed(() => {
 
 const allCount = computed(() => allOfflineIcons.value.length)
 
-const categoryOptions = computed(() => [
-  { value: 'all', label: `全部 ${allCount.value}` },
-  { value: 'ri', label: `RI ${riAll.value.length}` },
-  { value: 'mdi', label: `MDI ${mdiAll.value.length}` },
-  { value: 'ion', label: `ION ${ionAll.value.length}` },
-  { value: 'antdv-next', label: `Antdv ${antdvAll.value.length}` },
-  { value: 'svg', label: `SVG ${svgAll.value.length}` },
-  { value: 'online', label: `在线 ${onlineIcons.value.length}` }
-])
+const categoryBadgeConfig: Record<string, { name: string; dotColor: string }> = {
+  all: { name: 'ALL', dotColor: '#64748b' },
+  ri: { name: 'RI', dotColor: '#3b82f6' },
+  mdi: { name: 'MDI', dotColor: '#10b981' },
+  ion: { name: 'ION', dotColor: '#8b5cf6' },
+  'antdv-next': { name: 'Ant', dotColor: '#ef4444' },
+  svg: { name: 'SVG', dotColor: '#f59e0b' }
+}
 
-const showOnlineState = computed(() => {
-  return category.value === 'online' && (onlineLoading.value || Boolean(onlineError.value))
-})
+const renderCategoryLabel = (key: string, count: number) => {
+  const config = categoryBadgeConfig[key]
+  return h('div', { class: 'ip-seg-item' }, [
+    h('div', { class: 'ip-seg-line1' }, [
+      h('span', {
+        class: 'ip-seg-dot',
+        style: { backgroundColor: config.dotColor }
+      }),
+      h('span', { class: 'ip-seg-name' }, config.name)
+    ]),
+    h('div', { class: 'ip-seg-line2' }, String(count))
+  ])
+}
+
+const categoryOptions = computed(() => [
+  { value: 'all', label: renderCategoryLabel('all', allCount.value) },
+  { value: 'ri', label: renderCategoryLabel('ri', riAll.value.length) },
+  { value: 'mdi', label: renderCategoryLabel('mdi', mdiAll.value.length) },
+  { value: 'ion', label: renderCategoryLabel('ion', ionAll.value.length) },
+  { value: 'antdv-next', label: renderCategoryLabel('antdv-next', antdvAll.value.length) },
+  { value: 'svg', label: renderCategoryLabel('svg', svgAll.value.length) }
+])
 
 const effectiveValue = computed(() => boundValue.value)
 
@@ -455,7 +468,6 @@ const detectCategoryByIcon = (iconName: string): Category => {
   if (iconName.startsWith('ion:')) return 'ion'
   if (iconName.startsWith('svg:')) return 'svg'
   if (iconName.startsWith('antdv-next:') || iconName.startsWith('antd:')) return 'antdv-next'
-  if (iconName.includes(':')) return 'online'
   return 'all'
 }
 
@@ -501,50 +513,87 @@ watch([category, keyword], () => {
 </script>
 
 <style scoped lang="scss">
+/* 主容器 */
 .ip-wrap {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   color: #333;
 }
 
+/* 分类栏样式 */
 .ip-seg {
-  padding: 3px;
+  padding: 2px;
   border-radius: 6px;
   background-color: #f5f5f5;
 
+  /* 强制调整内部 Ant Design 样式 */
   :deep(.ant-segmented-item-label) {
-    min-height: 30px;
-    padding: 2px 6px !important;
+    min-height: unset;
+    padding: 4px 6px !important;
     overflow: hidden;
     font-size: 11px !important;
+    line-height: 1.2;
     text-overflow: ellipsis;
+  }
+
+  :deep(.ip-seg-item) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    gap: 2px;
+  }
+
+  /* 第一行：点 + 名称 */
+  :deep(.ip-seg-line1) {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  :deep(.ip-seg-dot) {
+    flex-shrink: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+  }
+
+  /* 第二行：数量 */
+  :deep(.ip-seg-line2) {
+    margin-top: 0;
+    color: #999;
+    font-size: 10px;
     white-space: nowrap;
   }
 }
 
+/* 网格容器背景 */
 .ip-grid-container {
   border: 1px solid #f0f0f0;
   border-radius: 8px;
   background-color: #fafafa;
 }
 
-.ip-online-state {
-  padding: 8px 12px 0;
-  color: #666;
-  font-size: 12px;
-}
-
+/* 图标网格防遮挡 */
 .ip-grid {
   display: grid;
   position: relative;
   grid-auto-rows: 40px;
   grid-template-columns: repeat(6, 1fr);
   height: 305px;
+
+  /* 关键修改：增加内边距，防止 hover 上浮时被 overflow 切掉 */
   padding: 12px;
   overflow: hidden auto;
   gap: 8px;
 
+  /* 滚动条样式 */
   &::-webkit-scrollbar {
     width: 5px;
   }
@@ -559,13 +608,17 @@ watch([category, keyword], () => {
   }
 }
 
+/* 空状态 */
 .ip-empty {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 280px;
+  color: #999;
 }
 
+/* 图标卡片 */
 .ip-item {
   display: flex;
   position: relative;
@@ -575,6 +628,8 @@ watch([category, keyword], () => {
   height: 100%;
   margin: 0;
   padding: 0;
+
+  /* 关键：防止底部色条超出圆角 */
   overflow: hidden;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid #eee;
@@ -583,18 +638,21 @@ watch([category, keyword], () => {
   box-shadow: 0 1px 2px rgb(0 0 0 / 2%);
   cursor: pointer;
 
+  /* 悬停效果 */
   &:hover {
     z-index: 10;
     transform: translateY(-2px);
     border-color: var(--hover-color, #1677ff);
     box-shadow: 0 4px 10px rgb(0 0 0 / 8%);
 
+    /* hover 时色条变粗 */
     .ip-item-bar {
       height: 4px;
       opacity: 1;
     }
   }
 
+  /* 选中状态 */
   &.selected {
     z-index: 5;
     border-color: #1677ff;
@@ -604,17 +662,23 @@ watch([category, keyword], () => {
   }
 }
 
+/* 底部色彩条 - 修复版 */
 .ip-item-bar {
   position: absolute;
   right: 0;
   bottom: 0;
   left: 0;
+
+  /* 默认显示 2px 的高度，确保颜色可见 */
   height: 2px;
   transition: all 0.2s;
+
+  /* 稍微透明一点，不抢眼，但能看清颜色 */
   opacity: 0.7;
   background-color: var(--hover-color, #ccc);
 }
 
+/* 底部栏 */
 .ip-footer {
   display: flex;
   align-items: center;
@@ -624,8 +688,13 @@ watch([category, keyword], () => {
 .ip-total {
   color: #888;
   font-size: 12px;
+
+  b {
+    color: #333;
+  }
 }
 
+/* 深度选择器修改分页样式，使其更紧凑 */
 .ip-pagination :deep(.ant-pagination-item),
 .ip-pagination :deep(.ant-pagination-prev),
 .ip-pagination :deep(.ant-pagination-next) {
@@ -634,6 +703,7 @@ watch([category, keyword], () => {
   line-height: 22px;
 }
 
+/* Tooltip 内容 */
 .ip-tooltip-content {
   display: flex;
   flex-direction: column;
@@ -653,5 +723,18 @@ watch([category, keyword], () => {
   padding: 0 4px;
   font-size: 10px;
   line-height: 16px;
+}
+</style>
+
+<style lang="scss">
+/* 全局样式，确保弹出框内层撑满外层宽度 */
+.icon-picker-overlay {
+  .ant-popover-inner {
+    width: 100%;
+  }
+
+  .ant-popover-inner-content {
+    padding: 12px;
+  }
 }
 </style>
