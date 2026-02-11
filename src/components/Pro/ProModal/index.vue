@@ -2,6 +2,7 @@
   <a-modal
     v-bind="mergedModalBindings"
     :open="isOpen"
+    :styles="mergedSemanticStyles"
     :wrap-class-name="mergedWrapClassName"
     :style="mergedModalStyle"
     :title="null"
@@ -195,6 +196,8 @@ const modalPassThroughProps = computed<ModalProps>(() => {
   delete next.open
   delete next.wrapClassName
   delete next.title
+  delete next.width
+  delete next.styles
   return next as ModalProps
 })
 
@@ -237,6 +240,26 @@ const mergedModalBindings = computed(() => {
   return {
     ...modalPassThroughProps.value,
     ...forwardedAttrs.value
+  }
+})
+
+const mergedSemanticStyles = computed<ModalProps['styles']>(() => {
+  const inputStyles = props.styles || {}
+  return {
+    ...inputStyles,
+    container: {
+      ...inputStyles.container,
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      minHeight: 0
+    },
+    body: {
+      ...inputStyles.body,
+      flex: 1,
+      minHeight: 0,
+      overflow: 'auto'
+    }
   }
 })
 
