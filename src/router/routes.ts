@@ -179,6 +179,46 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           icon: 'HighlightOutlined',
           requiresAuth: true
         }
+      },
+      {
+        path: 'exception',
+        name: 'ExamplesException',
+        redirect: '/examples/exception/403',
+        component: () => import('@/components/RouteView.vue'),
+        meta: {
+          title: 'menu.exception',
+          icon: 'WarningOutlined',
+          requiresAuth: true
+        },
+        children: [
+          {
+            path: '403',
+            name: 'ExamplesException403',
+            component: () => import('@/views/examples/exception/403.vue'),
+            meta: {
+              title: 'menu.exception403',
+              requiresAuth: true
+            }
+          },
+          {
+            path: '404',
+            name: 'ExamplesException404',
+            component: () => import('@/views/examples/exception/404.vue'),
+            meta: {
+              title: 'menu.exception404',
+              requiresAuth: true
+            }
+          },
+          {
+            path: '500',
+            name: 'ExamplesException500',
+            component: () => import('@/views/examples/exception/500.vue'),
+            meta: {
+              title: 'menu.exception500',
+              requiresAuth: true
+            }
+          }
+        ]
       }
     ]
   }

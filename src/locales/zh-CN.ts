@@ -47,6 +47,10 @@ export default {
     table: '表格示例',
     form: '表单示例',
     watermark: '水印示例',
+    exception: '异常页面',
+    exception403: '403',
+    exception404: '404',
+    exception500: '500',
     profile: '个人中心'
   },
 
@@ -314,6 +318,15 @@ export default {
     gapY: '垂直间距',
     preview: '本地预览',
     previewText: '此区域用于预览水印效果'
+  },
+
+  exampleException: {
+    '403title': '403',
+    '403description': '抱歉，您没有权限访问此页面',
+    '404title': '404',
+    '404description': '抱歉，您访问的页面不存在',
+    '500title': '500',
+    '500description': '抱歉，服务器出现错误'
   },
 
   proForm: {

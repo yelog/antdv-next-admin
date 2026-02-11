@@ -47,6 +47,10 @@ export default {
     table: 'Table Example',
     form: 'Form Example',
     watermark: 'Watermark',
+    exception: 'Exception',
+    exception403: '403',
+    exception404: '404',
+    exception500: '500',
     profile: 'Profile'
   },
 
@@ -314,6 +318,15 @@ export default {
     gapY: 'Vertical Gap',
     preview: 'Local Preview',
     previewText: 'This area is for previewing the watermark effect'
+  },
+
+  exampleException: {
+    '403title': '403',
+    '403description': 'Sorry, you do not have permission to access this page',
+    '404title': '404',
+    '404description': 'Sorry, the page you visited does not exist',
+    '500title': '500',
+    '500description': 'Sorry, the server is reporting an error'
   },
 
   proForm: {
