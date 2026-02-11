@@ -47,6 +47,7 @@ export default {
     table: '表格示例',
     icon: '图标示例',
     form: '表单示例',
+    modal: '弹窗示例',
     watermark: '水印示例',
     exception: '异常页面',
     exception403: '403',
@@ -356,6 +357,27 @@ export default {
     gapY: '垂直间距',
     preview: '本地预览',
     previewText: '此区域用于预览水印效果'
+  },
+
+  exampleModal: {
+    title: 'ProModal 示例',
+    description: '基于 antdv-next Modal 的增强封装，支持拖拽、全屏、边缘缩放与边界约束。',
+    openDefault: '打开默认弹窗',
+    openWide: '打开宽版弹窗',
+    width: '弹窗宽度',
+    draggable: '标题栏拖拽',
+    resizable: '边缘缩放',
+    fullscreenable: '全屏按钮',
+    modalTitle: '可拖拽 / 可缩放 ProModal',
+    hint: '可直接拖动标题栏移动弹窗；拖拽四边或四角调整大小；右上标题按钮可全屏/还原。',
+    contentTitle: '功能演示内容',
+    contentDescription: '为便于观察滚动与边界行为，以下内容刻意增加了较长列表。',
+    formKeyword: '关键字',
+    formKeywordPlaceholder: '请输入关键字',
+    formRemark: '备注',
+    formRemarkPlaceholder: '请输入备注信息',
+    rowText: '演示数据行 #{index}',
+    confirmSuccess: '确认操作成功'
   },
 
   exampleException: {

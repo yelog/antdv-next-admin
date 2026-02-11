@@ -181,6 +181,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'modal',
+        name: 'ExamplesModal',
+        component: () => import('@/views/examples/modal/index.vue'),
+        meta: {
+          title: 'menu.modal',
+          icon: 'ExpandOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'watermark',
         name: 'ExamplesWatermark',
         component: () => import('@/views/examples/watermark/index.vue'),

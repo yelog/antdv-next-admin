@@ -47,6 +47,7 @@ export default {
     table: 'Table Example',
     icon: 'Icon Example',
     form: 'Form Example',
+    modal: 'Modal Example',
     watermark: 'Watermark',
     exception: 'Exception',
     exception403: '403',
@@ -356,6 +357,27 @@ export default {
     gapY: 'Vertical Gap',
     preview: 'Local Preview',
     previewText: 'This area is for previewing the watermark effect'
+  },
+
+  exampleModal: {
+    title: 'ProModal Demo',
+    description: 'An enhanced wrapper around antdv-next Modal with drag, fullscreen, edge resize and viewport constraints.',
+    openDefault: 'Open Default Modal',
+    openWide: 'Open Wide Modal',
+    width: 'Modal Width',
+    draggable: 'Drag Title',
+    resizable: 'Edge Resize',
+    fullscreenable: 'Fullscreen Button',
+    modalTitle: 'Draggable / Resizable ProModal',
+    hint: 'Drag the title bar to move. Drag edges/corners to resize. Use the title action button to toggle fullscreen.',
+    contentTitle: 'Feature Demonstration',
+    contentDescription: 'The following long list is used to demonstrate scrolling and viewport boundary behavior.',
+    formKeyword: 'Keyword',
+    formKeywordPlaceholder: 'Please enter keyword',
+    formRemark: 'Remark',
+    formRemarkPlaceholder: 'Please enter remark',
+    rowText: 'Demo data row #{index}',
+    confirmSuccess: 'Confirmed successfully'
   },
 
   exampleException: {
