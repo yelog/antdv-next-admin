@@ -23,50 +23,51 @@
       <!-- 自定义筛选图标 -->
       <template #filterIcon="{ filtered, column }">
         <SearchOutlined v-if="column.dataIndex === 'username'" :style="{ color: filtered ? '#1677ff' : undefined }" />
+        <FilterFilled v-else :style="{ color: filtered ? '#1677ff' : undefined }" />
       </template>
 
       <!-- 自定义筛选下拉框（用于用户名搜索） -->
       <template #filterDropdown="{ column, setSelectedKeys, selectedKeys, confirm, clearFilters, close }">
-        <div v-if="column.dataIndex === 'username'" style="padding: 8px" @keydown.stop>
+        <div v-if="column.dataIndex === 'username'" class="username-filter-panel" @keydown.stop>
           <a-input
             ref="searchInput"
+            class="username-filter-input"
+            allow-clear
             :placeholder="`搜索${column.title}`"
-            :value="selectedKeys[0]"
-            style="width: 188px; margin-bottom: 8px; display: block"
-            @update:value="value => setSelectedKeys(value ? [value] : [])"
-            @keydown.enter="handleSearch(selectedKeys, confirm, 'username')"
+            :value="String(selectedKeys[0] || '')"
+            @update:value="handleFilterKeywordChange($event, setSelectedKeys)"
+            @keydown.enter="handleSearch(selectedKeys as string[], confirm, 'username')"
           />
-          <a-space>
-            <a-button
-              type="primary"
-              size="small"
-              style="width: 90px"
-              @click="handleSearch(selectedKeys, confirm, 'username')"
-            >
-              {{ $t('common.search') }}
-            </a-button>
-            <a-button
-              size="small"
-              style="width: 90px"
-              @click="handleReset(clearFilters)"
-            >
-              {{ $t('common.reset') }}
-            </a-button>
-            <a-button
-              type="link"
-              size="small"
-              @click="() => { confirm({ closeDropdown: false }); searchText = selectedKeys[0] || ''; searchedColumn = 'username' }"
-            >
-              筛选
-            </a-button>
-            <a-button
-              type="link"
-              size="small"
-              @click="close?.()"
-            >
-              关闭
-            </a-button>
-          </a-space>
+          <div class="username-filter-actions">
+            <a-space class="username-filter-main-actions" :size="8">
+              <a-button
+                type="primary"
+                class="username-filter-btn"
+                @click="handleSearch(selectedKeys as string[], confirm, 'username')"
+              >
+                {{ $t('common.search') }}
+              </a-button>
+              <a-button class="username-filter-btn" @click="handleReset(clearFilters)">
+                {{ $t('common.reset') }}
+              </a-button>
+            </a-space>
+            <a-space class="username-filter-link-actions" :size="2">
+              <a-button
+                type="link"
+                size="small"
+                @click="() => { confirm({ closeDropdown: false }); searchText = String(selectedKeys[0] || ''); searchedColumn = 'username' }"
+              >
+                筛选
+              </a-button>
+              <a-button
+                type="link"
+                size="small"
+                @click="close?.()"
+              >
+                关闭
+              </a-button>
+            </a-space>
+          </div>
         </div>
       </template>
 
@@ -83,7 +84,7 @@
         <template v-else-if="column.dataIndex === 'status'">
           <a-switch
             :checked="record.status === 'active'"
-            @change="(checked) => handleStatusChange(record, checked)"
+            @change="handleStatusChange(record, $event as boolean)"
           >
             <template #checkedChildren>{{ $t('user.active') }}</template>
             <template #unCheckedChildren>{{ $t('user.inactive') }}</template>
@@ -111,7 +112,7 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, h } from 'vue'
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@antdv-next/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, FilterFilled } from '@antdv-next/icons'
 import { message } from 'antdv-next'
 import { $t } from '@/locales'
 import ProTable from '@/components/Pro/ProTable/index.vue'
@@ -129,21 +130,50 @@ const searchInput = ref()
 const searchText = ref('')
 const searchedColumn = ref('')
 
-// 高亮搜索文本
-const highlightText = (text: string, keyword: string) => {
-  if (!keyword) {
-    return text
+const splitKeywords = (keyword: string) => {
+  return keyword
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+}
+
+const includesKeywords = (text: string, keyword: string) => {
+  const keywords = splitKeywords(keyword)
+  if (!keywords.length) {
+    return true
   }
   const lowerText = text.toLowerCase()
-  const lowerKey = keyword.toLowerCase()
-  const index = lowerText.indexOf(lowerKey)
-  if (index === -1) {
+  return keywords.every(item => lowerText.includes(item))
+}
+
+const escapeRegExp = (value: string) => {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+// 高亮搜索关键字
+const highlightText = (text: string, keyword: string) => {
+  const keywords = splitKeywords(keyword)
+  if (!keywords.length) {
     return text
   }
-  const before = text.slice(0, index)
-  const match = text.slice(index, index + keyword.length)
-  const after = text.slice(index + keyword.length)
-  return [before, h('mark', { class: 'table-highlight' }, match), after]
+
+  const pattern = keywords.map(escapeRegExp).join('|')
+  if (!pattern) {
+    return text
+  }
+
+  const segments = text.split(new RegExp(`(${pattern})`, 'ig'))
+  if (segments.length <= 1) {
+    return text
+  }
+
+  return segments.map((part, index) => {
+    const matched = keywords.includes(part.toLowerCase())
+    return matched
+      ? h('mark', { class: 'table-highlight', key: `mark-${index}` }, part)
+      : part
+  })
 }
 
 // Table columns configuration
@@ -165,7 +195,7 @@ const columns = computed<ProTableColumn[]>(() => [
       }
     },
     onFilter: (value: any, record: any) => {
-      return record.username.toLowerCase().includes(String(value).toLowerCase())
+      return includesKeywords(String(record.username || ''), String(value || ''))
     }
   },
   {
@@ -319,10 +349,17 @@ const fetchData = async (params: any) => {
   }
 }
 
-const handleSearch = (selectedKeys: any[], confirm: any, dataIndex: string) => {
+const handleSearch = (selectedKeys: string[], confirm: any, dataIndex: string) => {
   confirm()
-  searchText.value = selectedKeys[0] || ''
+  searchText.value = String(selectedKeys[0] || '')
   searchedColumn.value = dataIndex
+}
+
+const handleFilterKeywordChange = (
+  value: string,
+  setSelectedKeys: (keys: string[]) => void
+) => {
+  setSelectedKeys(value ? [String(value)] : [])
 }
 
 const handleReset = (clearFilters?: () => void) => {
@@ -387,6 +424,59 @@ const handleSubmit = async () => {
   &:hover {
     box-shadow: 0 8px 18px rgba(24, 119, 255, 0.36);
     transform: translateY(-1px);
+  }
+}
+
+.username-filter-panel {
+  width: 320px;
+  max-width: calc(100vw - 64px);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.username-filter-input {
+  width: 100%;
+}
+
+.username-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.username-filter-main-actions {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.username-filter-link-actions {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.username-filter-btn {
+  min-width: 88px;
+}
+
+@media (max-width: 640px) {
+  .username-filter-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .username-filter-main-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .username-filter-link-actions {
+    margin-left: 0;
+    justify-content: flex-end;
   }
 }
 

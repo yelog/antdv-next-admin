@@ -213,6 +213,14 @@
           </div>
         </template>
 
+        <template v-if="$slots.filterIcon" #filterIcon="slotProps">
+          <slot name="filterIcon" v-bind="slotProps" />
+        </template>
+
+        <template v-if="$slots.filterDropdown" #filterDropdown="slotProps">
+          <slot name="filterDropdown" v-bind="slotProps" />
+        </template>
+
         <template #bodyCell="{ column, record, text, index }">
           <template v-if="column.dataIndex === '__index'">
             {{ getRowIndex(index) }}
