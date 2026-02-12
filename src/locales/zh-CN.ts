@@ -404,7 +404,7 @@ export default {
     total: '共 {total} 条',
     density: '表格密度',
     checkAll: '全部勾选',
-    toggleIndex: '序列列勾选',
+    indexColumn: '序号列',
     fixLeft: '左固定',
     fixRight: '右固定',
     densityLarge: '宽松',

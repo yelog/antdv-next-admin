@@ -403,7 +403,7 @@ export default {
     total: 'Total {total} items',
     density: 'Table Density',
     checkAll: 'Select All',
-    toggleIndex: 'Toggle Index Column',
+    indexColumn: 'Index Column',
     fixLeft: 'Pin Left',
     fixRight: 'Pin Right',
     densityLarge: 'Spacious',

@@ -139,15 +139,23 @@
                         <a-button size="small" type="link" @click.stop="handleToggleAllColumns">
                           {{ $t('proTable.checkAll') }}
                         </a-button>
-                        <a-button size="small" type="link" @click.stop="toggleIndexColumn">
-                          {{ $t('proTable.toggleIndex') }}
-                        </a-button>
-                        <a-button size="small" type="link" @click.stop="handleResetColumns">
+                        <a-button size="small" type="link" class="reset-btn" @click.stop="handleResetColumns">
                           {{ $t('common.reset') }}
                         </a-button>
                       </div>
 
                       <div class="setting-list">
+                        <div class="setting-item index-column-item">
+                          <div class="setting-item-left">
+                            <span class="drag-handle" style="opacity: 0; pointer-events: none;">::</span>
+                            <a-checkbox
+                              :checked="showIndexColumn"
+                              @change="toggleIndexColumn"
+                            >
+                              {{ $t('proTable.indexColumn') }}
+                            </a-checkbox>
+                          </div>
+                        </div>
                         <div
                           v-for="state in columnStates"
                           :key="state.key"
@@ -1471,6 +1479,10 @@ defineExpose({
     gap: 4px;
     padding: 6px 8px;
     border-bottom: 1px solid var(--color-border-secondary);
+
+    .reset-btn {
+      margin-left: auto;
+    }
   }
 
   .setting-list {
@@ -1494,6 +1506,13 @@ defineExpose({
 
     &.dragging {
       opacity: 0.55;
+    }
+
+    &.index-column-item {
+      cursor: default;
+      border-bottom: 1px solid var(--color-border-secondary);
+      margin-bottom: 4px;
+      padding-bottom: 8px;
     }
   }
 
