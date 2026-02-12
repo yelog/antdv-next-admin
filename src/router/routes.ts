@@ -269,6 +269,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'master-detail',
+        name: 'ExamplesMasterDetail',
+        component: () => import('@/views/examples/scaffold/master-detail/index.vue'),
+        meta: {
+          title: 'menu.masterDetail',
+          icon: 'ProfileOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'external',
         name: 'ExamplesExternal',
         redirect: '/examples/external/iframe/typescript',

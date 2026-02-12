@@ -57,6 +57,7 @@ export default {
     proTableAdvanced: 'ProTable Advanced',
     complexForm: 'Complex Form',
     uploadSystem: 'Upload System',
+    masterDetail: 'Master Detail',
     exception: 'Exception',
     exception403: '403',
     exception404: '404',

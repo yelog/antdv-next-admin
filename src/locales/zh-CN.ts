@@ -58,6 +58,7 @@ export default {
     proTableAdvanced: 'ProTable 高阶',
     complexForm: '复杂表单',
     uploadSystem: '上传体系',
+    masterDetail: '列表-详情',
     exception: '异常页面',
     exception403: '403',
     exception404: '404',
