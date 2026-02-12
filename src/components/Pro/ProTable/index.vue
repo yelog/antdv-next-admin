@@ -62,7 +62,7 @@
                   <ReloadOutlined /> {{ $t('common.reset') }}
                 </a-button>
                 <a-button
-                  v-if="searchColumns.length > 3"
+                  v-if="showSearchCollapseToggle"
                   type="link"
                   @click="searchCollapsed = !searchCollapsed"
                 >
@@ -459,6 +459,7 @@ const tableSize = ref<TableSize>(normalizeDensity(props.size))
 const tableScrollY = ref<number>()
 const shouldUseVerticalScroll = ref(false)
 const tableViewportWidth = ref(0)
+const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1200)
 
 const showIndexColumn = ref(true)
 const defaultShowIndexColumn = ref(true)
@@ -559,9 +560,42 @@ const searchLabelWidth = computed(() => {
   return props.search?.labelWidth || 6
 })
 
+const searchColumnsPerRow = computed(() => {
+  if (viewportWidth.value >= 992) {
+    return 3
+  }
+  if (viewportWidth.value >= 576) {
+    return 2
+  }
+  return 1
+})
+
+const collapsedSearchRows = computed(() => {
+  if (props.search === false) return 1
+  const rows = Number(props.search?.collapsedRows ?? 1)
+  if (!Number.isFinite(rows)) return 1
+  return Math.max(1, Math.floor(rows))
+})
+
+const shouldReserveSearchActionSlot = computed(() => {
+  return collapsedSearchRows.value === 1 || collapsedSearchRows.value > 2
+})
+
+const collapsedSearchFieldLimit = computed(() => {
+  const totalSlots = collapsedSearchRows.value * searchColumnsPerRow.value
+  if (shouldReserveSearchActionSlot.value) {
+    return Math.max(1, totalSlots - 1)
+  }
+  return Math.max(1, totalSlots)
+})
+
+const showSearchCollapseToggle = computed(() => {
+  return searchColumns.value.length > collapsedSearchFieldLimit.value
+})
+
 const visibleSearchColumns = computed(() => {
-  if (searchCollapsed.value && searchColumns.value.length > 3) {
-    return searchColumns.value.slice(0, 3)
+  if (searchCollapsed.value && showSearchCollapseToggle.value) {
+    return searchColumns.value.slice(0, collapsedSearchFieldLimit.value)
   }
   return searchColumns.value
 })
@@ -1121,6 +1155,9 @@ const measureTableScroll = () => {
 
 let rafId = 0
 let resizeObserver: ResizeObserver | null = null
+const handleWindowResize = () => {
+  viewportWidth.value = window.innerWidth
+}
 
 const scheduleMeasureTable = () => {
   if (rafId) {
@@ -1136,6 +1173,9 @@ const scheduleMeasureTable = () => {
 
 // Lifecycle
 onMounted(() => {
+  handleWindowResize()
+  window.addEventListener('resize', handleWindowResize)
+
   initializeColumnStates()
   measureTableScroll()
   loadData()
@@ -1155,6 +1195,8 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleWindowResize)
+
   if (rafId) {
     cancelAnimationFrame(rafId)
     rafId = 0
@@ -1311,7 +1353,7 @@ defineExpose({
 
     .search-actions {
       display: flex;
-      align-items: flex-end;
+      align-items: flex-start;
       justify-content: flex-end;
       margin-left: auto;
       min-width: 0;

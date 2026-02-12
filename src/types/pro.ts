@@ -81,6 +81,7 @@ export interface ProTableToolbar {
 export interface ProTableSearch {
   labelWidth?: number
   defaultCollapsed?: boolean
+  collapsedRows?: number
   collapseRender?: boolean
 }
 
