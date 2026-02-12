@@ -54,6 +54,7 @@ export default {
     modal: '弹窗示例',
     watermark: '水印示例',
     requestAuth: '请求鉴权闭环',
+    rbacFlow: 'RBAC 全链路',
     exception: '异常页面',
     exception403: '403',
     exception404: '404',

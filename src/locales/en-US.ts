@@ -53,6 +53,7 @@ export default {
     modal: 'Modal Example',
     watermark: 'Watermark',
     requestAuth: 'Request/Auth Flow',
+    rbacFlow: 'RBAC Flow',
     exception: 'Exception',
     exception403: '403',
     exception404: '404',

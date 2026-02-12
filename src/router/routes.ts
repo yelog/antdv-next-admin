@@ -229,6 +229,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'rbac-flow',
+        name: 'ExamplesRbacFlow',
+        component: () => import('@/views/examples/scaffold/rbac/index.vue'),
+        meta: {
+          title: 'menu.rbacFlow',
+          icon: 'SafetyCertificateOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'external',
         name: 'ExamplesExternal',
         redirect: '/examples/external/iframe/typescript',
