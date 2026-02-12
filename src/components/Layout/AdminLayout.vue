@@ -18,7 +18,7 @@
         <TabBar />
 
         <!-- Page Content -->
-        <a-layout-content class="page-content">
+        <a-layout-content class="page-content" :class="{ 'is-iframe-page': isIframePage }">
           <div class="page-scroll">
             <router-view v-slot="{ Component }">
               <transition :name="settingsStore.pageAnimation" mode="out-in">
@@ -82,7 +82,7 @@
           <TabBar />
 
           <!-- Page Content -->
-          <div class="page-content">
+          <div class="page-content" :class="{ 'is-iframe-page': isIframePage }">
             <div class="page-scroll">
               <router-view v-slot="{ Component }">
                 <transition :name="settingsStore.pageAnimation" mode="out-in">
@@ -138,6 +138,10 @@ let resizeObserver: ResizeObserver | null = null
 let rafId = 0
 
 const cachedTabs = computed(() => tabsStore.cachedTabs)
+
+const isIframePage = computed(() => {
+  return route.path.includes('/iframe/')
+})
 
 const fallbackMenuItems = computed(() => {
   const basicChildren = basicRoutes.flatMap(item => item.children || [])
@@ -556,6 +560,14 @@ watch(
     box-sizing: border-box;
     padding: 16px;
     background: var(--color-bg-layout);
+
+    &.is-iframe-page {
+      padding: 0;
+
+      .page-scroll {
+        overflow: hidden;
+      }
+    }
   }
 
   .page-scroll {
