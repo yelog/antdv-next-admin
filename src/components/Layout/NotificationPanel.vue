@@ -1,11 +1,11 @@
 <template>
-  <a-dropdown :trigger="['click']">
-    <a-badge :count="notificationStore.unreadCount" :offset="[-5, 5]">
+  <a-popover trigger="click" placement="bottomRight" :arrow="false">
+    <a-badge :dot="notificationStore.unreadCount > 0" :offset="[-5, 5]">
       <a-button type="text" class="header-action">
         <BellOutlined />
       </a-button>
     </a-badge>
-    <template #overlay>
+    <template #content>
       <div class="notification-panel">
         <div class="panel-header">
           <span class="title">{{ $t('layout.notifications') }}</span>
@@ -40,7 +40,7 @@
         </div>
       </div>
     </template>
-  </a-dropdown>
+  </a-popover>
 </template>
 
 <script setup lang="ts">

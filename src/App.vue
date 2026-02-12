@@ -16,11 +16,13 @@ import { theme as antdTheme, type ThemeConfig } from 'antdv-next'
 import { useThemeStore } from './stores/theme'
 import { useSettingsStore } from './stores/settings'
 import { useWatermarkStore } from './stores/watermark'
+import { useNotificationStore } from './stores/notification'
 import { appDefaultSettings } from './settings'
 
 const themeStore = useThemeStore()
 const settingsStore = useSettingsStore()
 const watermarkStore = useWatermarkStore()
+const notificationStore = useNotificationStore()
 
 const antdThemeConfig = computed<ThemeConfig>(() => ({
   algorithm: themeStore.isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
@@ -39,6 +41,7 @@ onMounted(() => {
   themeStore.initTheme()
   settingsStore.initSettings()
   watermarkStore.initWatermark()
+  notificationStore.initNotifications()
 })
 </script>
 
