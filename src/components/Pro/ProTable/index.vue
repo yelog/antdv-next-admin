@@ -252,7 +252,6 @@ import {
   SearchOutlined,
   DownOutlined,
   ColumnHeightOutlined,
-  CheckOutlined,
   VerticalLeftOutlined,
   VerticalRightOutlined
 } from '@antdv-next/icons'
@@ -843,20 +842,18 @@ const densityMenuProps = computed(() => ({
   items: [
     {
       key: 'large',
-      label: $t('proTable.densityLarge'),
-      icon: tableSize.value === 'large' ? h(CheckOutlined) : undefined
+      label: $t('proTable.densityLarge')
     },
     {
       key: 'middle',
-      label: $t('proTable.densityMiddle'),
-      icon: tableSize.value === 'middle' ? h(CheckOutlined) : undefined
+      label: $t('proTable.densityMiddle')
     },
     {
       key: 'small',
-      label: $t('proTable.densitySmall'),
-      icon: tableSize.value === 'small' ? h(CheckOutlined) : undefined
+      label: $t('proTable.densitySmall')
     }
   ],
+  selectedKeys: [tableSize.value],
   onClick: ({ key }: { key: string | number }) => {
     tableSize.value = normalizeDensity(String(key) as ProTableDensity)
     scheduleMeasureTable()
@@ -1539,5 +1536,11 @@ defineExpose({
       border-radius: 4px;
     }
   }
+}
+
+// Density dropdown menu selected item style
+:deep(.ant-dropdown-menu .ant-menu-item-selected) {
+  background: var(--color-primary-1);
+  color: var(--color-primary);
 }
 </style>
