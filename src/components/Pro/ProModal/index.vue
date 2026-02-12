@@ -129,6 +129,7 @@ type ResizeState = {
 const EDGE_SIZE = 8
 const DEFAULT_WIDTH = 520
 const DEFAULT_HEIGHT = 320
+const FULLSCREEN_TRANSITION_DURATION = 300
 
 const props = withDefaults(defineProps<ProModalProps>(), {
   draggable: true,
@@ -173,6 +174,7 @@ const resizeState = ref<ResizeState | null>(null)
 let boundModalElement: HTMLElement | null = null
 let isDocumentListening = false
 let bodyUserSelectCache = ''
+let fullscreenAnimationTimer: number | undefined
 
 const isOpen = computed(() => Boolean(props.open))
 const showCloseButton = computed(() => props.closable !== false)
@@ -263,7 +265,6 @@ const managedModalStyle = computed<CSSProperties>(() => {
   }
 
   const style: CSSProperties = {
-    width: `${rect.width}px`,
     maxWidth: `${viewport.width}px`,
     paddingBottom: '0'
   }
@@ -284,9 +285,14 @@ const mergedModalStyle = computed(() => {
 })
 
 const mergedModalBindings = computed(() => {
+  const controlledWidth = isOpen.value && rectReady.value
+    ? rect.width
+    : props.width
+
   return {
     ...modalPassThroughProps.value,
     ...forwardedAttrs.value,
+    width: controlledWidth,
     closable: false,
     getContainer: resolvedGetContainer.value
   }
@@ -320,6 +326,39 @@ const updateViewport = () => {
 const getModalElement = () => {
   return document.querySelector(`.${instanceWrapClassName} .ant-modal`) as HTMLElement | null
 }
+
+const clearFullscreenAnimationTimer = () => {
+  if (fullscreenAnimationTimer === undefined) {
+    return
+  }
+
+  window.clearTimeout(fullscreenAnimationTimer)
+  fullscreenAnimationTimer = undefined
+}
+
+const getFullscreenTransitionDuration = () => {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return FULLSCREEN_TRANSITION_DURATION
+  }
+
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : FULLSCREEN_TRANSITION_DURATION
+}
+
+const scheduleFullscreenAnimationEnd = (callback: () => void) => {
+  clearFullscreenAnimationTimer()
+  fullscreenAnimationTimer = window.setTimeout(() => {
+    callback()
+    isAnimating.value = false
+    fullscreenAnimationTimer = undefined
+  }, getFullscreenTransitionDuration())
+}
+
+const getFullscreenRect = (): ModalRect => ({
+  left: 0,
+  top: 0,
+  width: viewport.width,
+  height: viewport.height
+})
 
 const cloneRect = (target: ModalRect): ModalRect => ({
   left: target.left,
@@ -676,63 +715,33 @@ const toggleFullscreen = async () => {
   element.getBoundingClientRect()
 
   if (!isFullscreen.value) {
-    // === Enter Fullscreen ===
     restoreRect.value = cloneRect(rect)
     isAnimating.value = true
 
-    // Use requestAnimationFrame to ensure the browser has registered the transition property
-    // (via isAnimating=true) before we change the dimensions
     requestAnimationFrame(() => {
-      Object.assign(rect, {
-        left: 0,
-        top: 0,
-        width: viewport.width,
-        height: viewport.height
+      Object.assign(rect, getFullscreenRect())
+      scheduleFullscreenAnimationEnd(() => {
+        isFullscreen.value = true
       })
     })
 
-    // Only set isFullscreen after animation finishes
-    // This prevents the CSS class .pro-modal-fullscreen from overriding styles during animation
-    setTimeout(() => {
-      isFullscreen.value = true
-      isAnimating.value = false
-    }, 300)
-  } else {
-    // === Exit Fullscreen ===
-    // 1. Remove fullscreen class immediately
-    isFullscreen.value = false
-    isAnimating.value = true
-
-    // 2. Reset rect to current viewport dimensions (visual fullscreen)
-    // to prevent jumping before the transition starts
-    Object.assign(rect, {
-      left: 0,
-      top: 0,
-      width: viewport.width,
-      height: viewport.height
-    })
-
-    await nextTick()
-
-    // 3. Force reflow to apply the "start" state of the animation
-    // eslint-disable-next-line no-unused-expressions
-    element.getBoundingClientRect()
-
-    // 4. Set target state (original dimensions)
-    requestAnimationFrame(() => {
-      const targetRect = restoreRect.value || {
-        left: (viewport.width - DEFAULT_WIDTH) / 2,
-        top: (viewport.height - DEFAULT_HEIGHT) / 2,
-        width: DEFAULT_WIDTH,
-        height: DEFAULT_HEIGHT
-      }
-      Object.assign(rect, clampRect(targetRect))
-
-      setTimeout(() => {
-        isAnimating.value = false
-      }, 300)
-    })
+    return
   }
+
+  isAnimating.value = true
+  const targetRect = restoreRect.value || {
+    left: (viewport.width - DEFAULT_WIDTH) / 2,
+    top: (viewport.height - DEFAULT_HEIGHT) / 2,
+    width: DEFAULT_WIDTH,
+    height: DEFAULT_HEIGHT
+  }
+
+  requestAnimationFrame(() => {
+    Object.assign(rect, clampRect(targetRect))
+    scheduleFullscreenAnimationEnd(() => {
+      isFullscreen.value = false
+    })
+  })
 }
 
 const handleWindowResize = () => {
@@ -742,13 +751,8 @@ const handleWindowResize = () => {
     return
   }
 
-  if (isFullscreen.value) {
-    Object.assign(rect, {
-      left: 0,
-      top: 0,
-      width: viewport.width,
-      height: viewport.height
-    })
+  if (isFullscreen.value && !isAnimating.value) {
+    Object.assign(rect, getFullscreenRect())
     return
   }
 
@@ -784,6 +788,8 @@ watch(
   isOpen,
   (open) => {
     if (open) {
+      clearFullscreenAnimationTimer()
+      isAnimating.value = false
       isFullscreen.value = false
       restoreRect.value = null
       isMoved.value = false
@@ -791,6 +797,8 @@ watch(
       return
     }
 
+    clearFullscreenAnimationTimer()
+    isAnimating.value = false
     dragState.value = null
     resizeState.value = null
     rectReady.value = false
@@ -818,6 +826,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  clearFullscreenAnimationTimer()
   stopDocumentListen()
   unbindModalResizeEvents()
   window.removeEventListener('resize', handleWindowResize)
@@ -877,6 +886,9 @@ onBeforeUnmount(() => {
 }
 
 .pro-modal-wrap {
+  --pro-modal-fullscreen-duration: 0.3s;
+  --pro-modal-fullscreen-ease: var(--ease-in-out);
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -917,24 +929,21 @@ onBeforeUnmount(() => {
 }
 
 .pro-modal-animating .ant-modal {
-  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transition-property: top, left, width, height;
+  transition-duration: var(--pro-modal-fullscreen-duration);
+  transition-timing-function: var(--pro-modal-fullscreen-ease);
   max-width: none !important;
   max-height: none !important;
 }
 
 .pro-modal-fullscreen .ant-modal {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-  top: 0 !important;
-  left: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
 }
 
-.pro-modal-fullscreen .ant-modal-content {
-  height: 100vh !important;
-  max-height: 100vh !important;
+@media (prefers-reduced-motion: reduce) {
+  .pro-modal-animating .ant-modal {
+    transition-duration: 0s !important;
+  }
 }
 </style>
