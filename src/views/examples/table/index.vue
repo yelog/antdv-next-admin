@@ -61,10 +61,11 @@
         <template v-if="column.dataIndex === 'status'">
           <a-switch
             :checked="record.status === 'active'"
-            :checked-children="$t('user.active')"
-            :un-checked-children="$t('user.inactive')"
             @change="(checked) => handleStatusChange(record, checked)"
-          />
+          >
+            <template #checkedChildren>{{ $t('user.active') }}</template>
+            <template #unCheckedChildren>{{ $t('user.inactive') }}</template>
+          </a-switch>
         </template>
       </template>
     </ProTable>
