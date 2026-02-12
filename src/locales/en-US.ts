@@ -59,6 +59,7 @@ export default {
     uploadSystem: 'Upload System',
     masterDetail: 'Master Detail',
     stateCache: 'State & Cache',
+    observability: 'Observability',
     exception: 'Exception',
     exception403: '403',
     exception404: '404',

@@ -289,6 +289,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'observability',
+        name: 'ExamplesObservability',
+        component: () => import('@/views/examples/scaffold/observability/index.vue'),
+        meta: {
+          title: 'menu.observability',
+          icon: 'LineChartOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'external',
         name: 'ExamplesExternal',
         redirect: '/examples/external/iframe/typescript',
