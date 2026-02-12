@@ -357,6 +357,7 @@ const getTabIcon = (tab: Tab) => {
     }
   }
 
+  // Dark mode specific overrides moved to global style block below to ensure priority
   .tab-actions {
     display: flex;
     align-items: center;
@@ -398,6 +399,27 @@ const getTabIcon = (tab: Tab) => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+}
+</style>
+
+<style lang="scss">
+// Global style overrides for dark mode
+// Using non-scoped style to ensure we can target Ant Design internals reliably
+html.dark .tab-bar .ant-tabs-tab.ant-tabs-tab-active {
+  background: rgba(22, 119, 255, 0.25) !important;
+  border-color: transparent !important;
+
+  .ant-tabs-tab-btn {
+    color: #ffffff !important;
+  }
+
+  .ant-tabs-tab-remove {
+    color: rgba(255, 255, 255, 0.65) !important;
+
+    &:hover {
+      color: #ffffff !important;
+    }
   }
 }
 </style>

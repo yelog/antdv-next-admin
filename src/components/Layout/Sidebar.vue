@@ -73,10 +73,8 @@ const menuItems = computed(() => {
 })
 
 const effectiveSidebarTheme = computed<SidebarTheme>(() => {
-  // In global dark mode, force dark sidebar to keep readable contrast.
-  if (themeStore.isDark) {
-    return 'dark'
-  }
+  // Allow user to override sidebar theme even in global dark mode
+  // If the user explicitly selects 'light' sidebar, respect that choice
   return settingsStore.sidebarTheme
 })
 
@@ -240,18 +238,18 @@ watch(
   }
 
   &.theme-light {
-    background: #ffffff;
+    background: var(--color-bg-container);
 
     :deep(.ant-menu) {
-      background: #ffffff;
-      color: rgba(0, 0, 0, 0.85);
+      background: var(--color-bg-container);
+      color: var(--color-text-primary);
     }
 
     .sidebar-logo {
-      border-bottom-color: #f0f0f0;
+      border-bottom-color: var(--color-border-secondary);
 
       .logo-title {
-        color: rgba(0, 0, 0, 0.88);
+        color: var(--color-text-primary);
       }
     }
   }
