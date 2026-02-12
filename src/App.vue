@@ -25,7 +25,8 @@ const watermarkStore = useWatermarkStore()
 const antdThemeConfig = computed<ThemeConfig>(() => ({
   algorithm: themeStore.isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
   token: {
-    colorPrimary: settingsStore.primaryColorHex
+    colorPrimary: settingsStore.primaryColorHex,
+    colorLink: settingsStore.primaryColorHex
   }
 }))
 
