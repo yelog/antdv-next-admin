@@ -573,8 +573,6 @@ watch(
     background: var(--color-bg-layout);
 
     &.is-iframe-page {
-      padding: 0;
-
       .page-scroll {
         overflow: hidden;
       }
