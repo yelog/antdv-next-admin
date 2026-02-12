@@ -191,6 +191,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'captcha',
+        name: 'ExamplesCaptcha',
+        component: () => import('@/views/examples/captcha/index.vue'),
+        meta: {
+          title: 'menu.captcha',
+          icon: 'SafetyCertificateOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'watermark',
         name: 'ExamplesWatermark',
         component: () => import('@/views/examples/watermark/index.vue'),
