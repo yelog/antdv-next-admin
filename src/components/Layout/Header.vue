@@ -17,12 +17,15 @@
     </div>
 
     <div class="header-right">
-      <!-- Global Search -->
-      <a-tooltip :title="$t('layout.searchPlaceholder')">
-        <a-button type="text" class="header-action" @click="openGlobalSearch">
-          <SearchOutlined />
-        </a-button>
-      </a-tooltip>
+      <!-- Global Search Trigger -->
+      <div class="search-trigger" @click="openGlobalSearch">
+        <SearchOutlined class="search-icon" />
+        <span class="search-text">{{ $t('common.search') }}</span>
+        <div class="search-key">
+          <span class="search-key-text">{{ isMac ? '⌘' : 'Ctrl' }}</span>
+          <span class="search-key-k">K</span>
+        </div>
+      </div>
 
       <!-- Fullscreen Toggle -->
       <FullscreenToggle />
@@ -59,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -89,6 +92,7 @@ withDefaults(defineProps<Props>(), {
 const layoutStore = useLayoutStore()
 const globalSearchRef = ref()
 const settingsDrawerRef = ref()
+const isMac = ref(false)
 
 const openGlobalSearch = () => {
   globalSearchRef.value?.open()
@@ -97,6 +101,23 @@ const openGlobalSearch = () => {
 const openSettings = () => {
   settingsDrawerRef.value?.open()
 }
+
+const handleKeydown = (e: KeyboardEvent) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault()
+    openGlobalSearch()
+  }
+}
+
+onMounted(() => {
+  // Simple check for Mac
+  isMac.value = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <style scoped lang="scss">
@@ -136,6 +157,60 @@ const openSettings = () => {
     display: flex;
     align-items: center;
     gap: 0;
+
+    .search-trigger {
+      display: flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 6px 0 10px;
+      margin-right: 12px;
+      background: var(--color-bg-layout);
+      border: 1px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--color-text-secondary);
+
+      &:hover {
+        background: var(--color-bg-container);
+        border-color: var(--color-primary);
+        color: var(--color-text-primary);
+
+        .search-key {
+          border-color: var(--color-primary-3);
+          color: var(--color-primary);
+          background: var(--color-primary-1);
+        }
+      }
+
+      .search-icon {
+        font-size: 14px;
+        margin-right: 8px;
+      }
+
+      .search-text {
+        font-size: 13px;
+        margin-right: 12px;
+        line-height: 1;
+        opacity: 0.8;
+      }
+
+      .search-key {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        height: 20px;
+        padding: 0 6px;
+        background: var(--color-bg-container);
+        border: 1px solid var(--color-border-secondary);
+        border-radius: 4px;
+        font-size: 12px;
+        color: var(--color-text-tertiary);
+        line-height: 18px;
+        font-family: var(--font-family-code);
+        transition: all 0.2s;
+      }
+    }
 
     .header-action {
       font-size: 16px;
