@@ -259,6 +259,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'upload-system',
+        name: 'ExamplesUploadSystem',
+        component: () => import('@/views/examples/scaffold/upload-system/index.vue'),
+        meta: {
+          title: 'menu.uploadSystem',
+          icon: 'CloudUploadOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'external',
         name: 'ExamplesExternal',
         redirect: '/examples/external/iframe/typescript',
