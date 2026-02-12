@@ -125,3 +125,33 @@ export async function deleteUser(id: string): Promise<ApiResponse<null>> {
   mockUsers.splice(idx, 1)
   return ok(null, 'User deleted successfully')
 }
+
+/**
+ * Change password
+ */
+export interface ChangePasswordParams {
+  oldPassword: string
+  newPassword: string
+}
+
+export async function changePassword(params: ChangePasswordParams): Promise<ApiResponse<null>> {
+  if (!isMock) return request.post('/users/change-password', params)
+
+  // Mock implementation
+  const { oldPassword, newPassword } = params
+  
+  // Simple validation
+  if (!oldPassword || !newPassword) {
+    return { code: 400, message: 'Password cannot be empty', data: null, success: false }
+  }
+  
+  if (oldPassword !== '123456') {
+    return { code: 400, message: 'Current password is incorrect', data: null, success: false }
+  }
+  
+  if (newPassword.length < 6) {
+    return { code: 400, message: 'Password must be at least 6 characters', data: null, success: false }
+  }
+  
+  return ok(null, 'Password changed successfully')
+}
