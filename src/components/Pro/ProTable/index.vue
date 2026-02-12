@@ -237,6 +237,10 @@
             </a-space>
           </template>
 
+          <template v-else-if="$slots.bodyCell">
+            <slot name="bodyCell" :column="column" :record="record" :text="text" :index="index" />
+          </template>
+
           <template v-else-if="column.valueType">
             <ValueTypeRender
               :value="text"
