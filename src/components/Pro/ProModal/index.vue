@@ -163,6 +163,7 @@ const rect = reactive<ModalRect>({
 
 const rectReady = ref(false)
 const isFullscreen = ref(false)
+const isAnimating = ref(false)
 // Track if the modal has been moved/resized by user
 const isMoved = ref(false)
 const restoreRect = ref<ModalRect | null>(null)
@@ -241,7 +242,8 @@ const mergedWrapClassName = computed(() => {
     props.wrapClassName,
     'pro-modal-wrap',
     instanceWrapClassName,
-    isFullscreen.value ? 'pro-modal-fullscreen' : ''
+    isFullscreen.value ? 'pro-modal-fullscreen' : '',
+    isAnimating.value ? 'pro-modal-animating' : ''
   ]
     .filter(Boolean)
     .join(' ')
@@ -629,7 +631,7 @@ const unbindModalResizeEvents = () => {
 }
 
 const handleTitleMouseDown = (event: MouseEvent) => {
-  if (!props.draggable || isFullscreen.value || event.button !== 0) {
+  if (!props.draggable || isFullscreen.value || isAnimating.value || event.button !== 0) {
     return
   }
 
@@ -654,26 +656,83 @@ const handleTitleMouseDown = (event: MouseEvent) => {
   startDocumentListen()
 }
 
-const toggleFullscreen = () => {
-  if (!rectReady.value) {
+const toggleFullscreen = async () => {
+  if (!rectReady.value || isAnimating.value) {
     return
   }
 
+  // Ensure isMoved is true so style bindings (top/left/width/height) are active
+  if (!isMoved.value) {
+    syncRectFromDom()
+    isMoved.value = true
+    await nextTick()
+  }
+
+  const element = getModalElement()
+  if (!element) return
+
+  // Force reflow to ensure current state is captured
+  // eslint-disable-next-line no-unused-expressions
+  element.getBoundingClientRect()
+
   if (!isFullscreen.value) {
+    // === Enter Fullscreen ===
     restoreRect.value = cloneRect(rect)
+    isAnimating.value = true
+
+    // Use requestAnimationFrame to ensure the browser has registered the transition property
+    // (via isAnimating=true) before we change the dimensions
+    requestAnimationFrame(() => {
+      Object.assign(rect, {
+        left: 0,
+        top: 0,
+        width: viewport.width,
+        height: viewport.height
+      })
+    })
+
+    // Only set isFullscreen after animation finishes
+    // This prevents the CSS class .pro-modal-fullscreen from overriding styles during animation
+    setTimeout(() => {
+      isFullscreen.value = true
+      isAnimating.value = false
+    }, 300)
+  } else {
+    // === Exit Fullscreen ===
+    // 1. Remove fullscreen class immediately
+    isFullscreen.value = false
+    isAnimating.value = true
+
+    // 2. Reset rect to current viewport dimensions (visual fullscreen)
+    // to prevent jumping before the transition starts
     Object.assign(rect, {
       left: 0,
       top: 0,
       width: viewport.width,
       height: viewport.height
     })
-    isFullscreen.value = true
-    return
-  }
 
-  const targetRect = restoreRect.value || cloneRect(rect)
-  Object.assign(rect, clampRect(targetRect))
-  isFullscreen.value = false
+    await nextTick()
+
+    // 3. Force reflow to apply the "start" state of the animation
+    // eslint-disable-next-line no-unused-expressions
+    element.getBoundingClientRect()
+
+    // 4. Set target state (original dimensions)
+    requestAnimationFrame(() => {
+      const targetRect = restoreRect.value || {
+        left: (viewport.width - DEFAULT_WIDTH) / 2,
+        top: (viewport.height - DEFAULT_HEIGHT) / 2,
+        width: DEFAULT_WIDTH,
+        height: DEFAULT_HEIGHT
+      }
+      Object.assign(rect, clampRect(targetRect))
+
+      setTimeout(() => {
+        isAnimating.value = false
+      }, 300)
+    })
+  }
 }
 
 const handleWindowResize = () => {
@@ -855,6 +914,12 @@ onBeforeUnmount(() => {
 
 .pro-modal-wrap .ant-modal-footer {
   flex-shrink: 0;
+}
+
+.pro-modal-animating .ant-modal {
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  max-width: none !important;
+  max-height: none !important;
 }
 
 .pro-modal-fullscreen .ant-modal {
