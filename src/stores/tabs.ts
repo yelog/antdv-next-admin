@@ -2,11 +2,13 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Tab } from '@/types/layout'
 import type { RouteLocationNormalized } from 'vue-router'
+import router from '@/router'
 
 export const useTabsStore = defineStore('tabs', () => {
   // State
   const tabs = ref<Tab[]>([])
   const activeTabPath = ref<string>('')
+  const refreshingRoutes = ref<string[]>([])
 
   const isFixedTab = (tab: Tab) => Boolean(tab.affix || tab.pinned)
   const updateTabClosable = (tab: Tab) => {
@@ -45,7 +47,7 @@ export const useTabsStore = defineStore('tabs', () => {
   // Getters
   const cachedTabs = computed(() => {
     return tabs.value
-      .filter(tab => tab.name)
+      .filter(tab => tab.name && !refreshingRoutes.value.includes(tab.name))
       .map(tab => tab.name)
   })
 
@@ -159,16 +161,25 @@ export const useTabsStore = defineStore('tabs', () => {
     activeTabPath.value = path
   }
 
-  const refreshTab = (path: string) => {
+  const refreshTab = async (path: string) => {
     const tab = tabs.value.find(t => t.path === path)
-    if (tab) {
-      // Remove from cache temporarily
-      const index = tabs.value.indexOf(tab)
-      tabs.value.splice(index, 1)
-      // Add it back
+    if (tab && tab.name) {
+      // 1. Remove from cache to force component destruction
+      refreshingRoutes.value.push(tab.name)
+
+      // 2. Navigate to redirect page
+      // This will unmount the current component and mount the Redirect component
+      await router.replace('/redirect' + path)
+
+      // 3. Restore cache state
+      // The Redirect component will immediately navigate back to the original path.
+      // We use a small delay to ensure the unmount/remount cycle completes.
       setTimeout(() => {
-        tabs.value.splice(index, 0, tab)
-      }, 0)
+        const index = refreshingRoutes.value.indexOf(tab.name)
+        if (index > -1) {
+          refreshingRoutes.value.splice(index, 1)
+        }
+      }, 300)
     }
   }
 

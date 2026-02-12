@@ -61,6 +61,14 @@ export const basicRoutes: AppRouteRecordRaw[] = [
     },
     children: [
       {
+        path: '/redirect/:path(.*)',
+        name: 'Redirect',
+        component: () => import('@/views/redirect/index.vue'),
+        meta: {
+          hidden: true
+        }
+      },
+      {
         path: 'dashboard',
         name: 'Dashboard',
         component: () => import('@/views/dashboard/index.vue'),
