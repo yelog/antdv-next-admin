@@ -1404,7 +1404,6 @@ defineExpose({
   :deep(.ant-table-thead > tr > th) {
     /* ProTable header style: use default background */
     color: var(--color-text-primary);
-    font-size: 12px;
     font-weight: var(--font-weight-bold);
     border-bottom: 1px solid var(--color-border);
   }
