@@ -34,7 +34,10 @@ export default {
     actions: 'Actions',
     status: 'Status',
     createTime: 'Create Time',
-    updateTime: 'Update Time'
+    updateTime: 'Update Time',
+    menu: 'Menu',
+    navigate: 'Navigate',
+    select: 'Select'
   },
 
   menu: {

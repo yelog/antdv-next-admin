@@ -18,7 +18,6 @@
 
           <div v-if="searchResults.length > 0 || searchQuery" class="search-body">
             <div v-if="searchResults.length > 0" class="search-results">
-              <div class="search-group-title">{{ $t('common.menu') || 'Menu' }}</div>
               <div
                 v-for="(result, index) in searchResults"
                 :key="result.path"
@@ -74,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   SearchOutlined,
@@ -165,7 +164,6 @@ const handleSearch = () => {
   searchResults.value = searchSource.value.filter(
     item =>
       item.title.toLowerCase().includes(query) ||
-      item.rawTitle.toLowerCase().includes(query) ||
       item.path.toLowerCase().includes(query)
   ).slice(0, 20)
   activeIndex.value = 0
@@ -177,6 +175,12 @@ const handleResultClick = (result: SearchItem) => {
 }
 
 const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape') {
+    e.preventDefault()
+    close()
+    return
+  }
+
   if (searchResults.value.length === 0) return
 
   switch (e.key) {
@@ -214,14 +218,26 @@ const open = () => {
   nextTick(() => {
     searchInputRef.value?.focus()
   })
+  window.addEventListener('keydown', handleGlobalKeydown)
 }
 
 const close = () => {
   visible.value = false
+  window.removeEventListener('keydown', handleGlobalKeydown)
+}
+
+const handleGlobalKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape') {
+    close()
+  }
 }
 
 watch(searchQuery, () => {
   handleSearch()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleGlobalKeydown)
 })
 
 defineExpose({ open, close })

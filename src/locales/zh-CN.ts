@@ -34,7 +34,10 @@ export default {
     actions: '操作',
     status: '状态',
     createTime: '创建时间',
-    updateTime: '更新时间'
+    updateTime: '更新时间',
+    menu: '菜单',
+    navigate: '切换',
+    select: '选择'
   },
 
   menu: {
