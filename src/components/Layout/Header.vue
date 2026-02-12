@@ -18,7 +18,10 @@
 
     <div class="header-right">
       <!-- Global Search Trigger -->
-      <div class="search-trigger" @click="openGlobalSearch">
+      <a-button type="text" class="header-action search-btn" @click="openGlobalSearch">
+        <SearchOutlined />
+      </a-button>
+      <div class="search-trigger desktop-only" @click="openGlobalSearch">
         <SearchOutlined class="search-icon" />
         <span class="search-text">{{ $t('common.search') }}</span>
         <div class="search-key">
@@ -27,27 +30,37 @@
         </div>
       </div>
 
-      <!-- Fullscreen Toggle -->
-      <FullscreenToggle />
+      <!-- Desktop: Show all actions -->
+      <template v-if="!layoutStore.isMobile">
+        <!-- Fullscreen Toggle -->
+        <FullscreenToggle />
 
-      <!-- Notifications -->
-      <NotificationPanel />
+        <!-- Notifications -->
+        <NotificationPanel />
 
-      <!-- Theme Toggle -->
-      <ThemeToggle />
+        <!-- Theme Toggle -->
+        <ThemeToggle />
 
-      <!-- Language Switch -->
-      <LanguageSwitch />
+        <!-- Language Switch -->
+        <LanguageSwitch />
 
-      <!-- Settings -->
-      <a-tooltip :title="$t('settings.title')">
-        <a-button type="text" class="header-action" @click="openSettings">
-          <SettingOutlined />
+        <!-- Settings -->
+        <a-tooltip :title="$t('settings.title')">
+          <a-button type="text" class="header-action" @click="openSettings">
+            <SettingOutlined />
+          </a-button>
+        </a-tooltip>
+
+        <!-- Divider -->
+        <a-divider type="vertical" style="height: 20px; margin: 0 4px;" />
+      </template>
+
+      <!-- Mobile: More menu (three dots) -->
+      <a-dropdown v-else :trigger="['click']" placement="bottomRight" :menu="moreMenuProps">
+        <a-button type="text" class="header-action">
+          <MoreOutlined />
         </a-button>
-      </a-tooltip>
-
-      <!-- Divider -->
-      <a-divider type="vertical" style="height: 20px; margin: 0 4px;" />
+      </a-dropdown>
 
       <!-- User Avatar Dropdown -->
       <AvatarDropdown />
@@ -62,14 +75,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, h } from 'vue'
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SearchOutlined,
-  SettingOutlined
+  SettingOutlined,
+  MoreOutlined,
+  FullscreenOutlined,
+  BellOutlined,
+  BulbOutlined,
+  GlobalOutlined
 } from '@antdv-next/icons'
 import { useLayoutStore } from '@/stores/layout'
+import { useThemeStore } from '@/stores/theme'
+import { $t, setLocale } from '@/locales'
 import Breadcrumb from './Breadcrumb.vue'
 import FullscreenToggle from './FullscreenToggle.vue'
 import NotificationPanel from './NotificationPanel.vue'
@@ -90,6 +110,7 @@ withDefaults(defineProps<Props>(), {
 })
 
 const layoutStore = useLayoutStore()
+const themeStore = useThemeStore()
 const globalSearchRef = ref()
 const settingsDrawerRef = ref()
 const isMac = ref(false)
@@ -101,6 +122,98 @@ const openGlobalSearch = () => {
 const openSettings = () => {
   settingsDrawerRef.value?.open()
 }
+
+const toggleFullscreen = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen()
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen()
+    }
+  }
+}
+
+const handleMoreMenuClick = ({ key }: { key: string }) => {
+  switch (key) {
+    case 'fullscreen':
+      toggleFullscreen()
+      break
+    case 'theme-light':
+      themeStore.setThemeMode('light')
+      break
+    case 'theme-dark':
+      themeStore.setThemeMode('dark')
+      break
+    case 'theme-auto':
+      themeStore.setThemeMode('auto')
+      break
+    case 'lang-zh':
+      setLocale('zh-CN')
+      break
+    case 'lang-en':
+      setLocale('en-US')
+      break
+    case 'settings':
+      openSettings()
+      break
+  }
+}
+
+const moreMenuProps = computed(() => ({
+  items: [
+    {
+      key: 'fullscreen',
+      label: $t('layout.fullscreen'),
+      icon: h(FullscreenOutlined)
+    },
+    {
+      type: 'divider'
+    },
+    {
+      key: 'theme',
+      label: $t('layout.theme'),
+      icon: h(BulbOutlined),
+      children: [
+        {
+          key: 'theme-light',
+          label: $t('layout.themeLight')
+        },
+        {
+          key: 'theme-dark',
+          label: $t('layout.themeDark')
+        },
+        {
+          key: 'theme-auto',
+          label: $t('layout.themeAuto')
+        }
+      ]
+    },
+    {
+      key: 'language',
+      label: $t('layout.language'),
+      icon: h(GlobalOutlined),
+      children: [
+        {
+          key: 'lang-zh',
+          label: $t('layout.languages.zhCN')
+        },
+        {
+          key: 'lang-en',
+          label: $t('layout.languages.enUS')
+        }
+      ]
+    },
+    {
+      type: 'divider'
+    },
+    {
+      key: 'settings',
+      label: $t('settings.title'),
+      icon: h(SettingOutlined)
+    }
+  ],
+  onClick: handleMoreMenuClick
+}))
 
 const handleKeydown = (e: KeyboardEvent) => {
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -157,6 +270,10 @@ onBeforeUnmount(() => {
     display: flex;
     align-items: center;
     gap: 0;
+
+    .search-btn {
+      display: none;
+    }
 
     .search-trigger {
       display: flex;
@@ -245,6 +362,19 @@ onBeforeUnmount(() => {
 
   :deep(.ant-divider-vertical) {
     border-inline-start-color: var(--color-border-secondary);
+  }
+
+  // Mobile styles
+  @media (max-width: 768px) {
+    .header-right {
+      .search-btn {
+        display: flex;
+      }
+
+      .desktop-only {
+        display: none;
+      }
+    }
   }
 }
 </style>

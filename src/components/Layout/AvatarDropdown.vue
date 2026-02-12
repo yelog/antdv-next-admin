@@ -4,8 +4,8 @@
       <a-avatar :src="authStore.user?.avatar" :size="32">
         {{ authStore.user?.username?.charAt(0).toUpperCase() }}
       </a-avatar>
-      <span class="username">{{ authStore.user?.realName || authStore.user?.username }}</span>
-      <DownOutlined class="dropdown-icon" />
+      <span class="username desktop-only">{{ authStore.user?.realName || authStore.user?.username }}</span>
+      <DownOutlined class="dropdown-icon desktop-only" />
     </div>
   </a-dropdown>
 </template>
@@ -87,6 +87,15 @@ const menuProps = computed(() => ({
   .dropdown-icon {
     font-size: 12px;
     color: var(--color-text-tertiary);
+  }
+
+  // Mobile styles
+  @media (max-width: 768px) {
+    padding: 0;
+
+    .desktop-only {
+      display: none;
+    }
   }
 }
 </style>
