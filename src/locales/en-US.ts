@@ -52,6 +52,7 @@ export default {
     form: 'Form Example',
     modal: 'Modal Example',
     watermark: 'Watermark',
+    requestAuth: 'Request/Auth Flow',
     exception: 'Exception',
     exception403: '403',
     exception404: '404',

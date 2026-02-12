@@ -219,6 +219,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'request-auth',
+        name: 'ExamplesRequestAuth',
+        component: () => import('@/views/examples/scaffold/request-auth/index.vue'),
+        meta: {
+          title: 'menu.requestAuth',
+          icon: 'SafetyOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'external',
         name: 'ExamplesExternal',
         redirect: '/examples/external/iframe/typescript',
