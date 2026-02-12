@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { generate } from '@ant-design/colors'
 import type { PrimaryColor, SidebarTheme, LayoutMode, PageAnimation } from '@/types/layout'
 
 const PAGE_ANIMATION_VALUES: PageAnimation[] = [
@@ -48,7 +49,19 @@ export const useSettingsStore = defineStore('settings', () => {
   const setCustomPrimaryColor = (hex: string) => {
     customPrimaryColor.value = hex
     document.documentElement.removeAttribute('data-primary-color')
+
+    // Generate color scales from the custom color
+    const colors = generate(hex)
+
+    // Set base color
+    document.documentElement.style.setProperty('--color-primary', hex)
     document.documentElement.style.setProperty('--ant-primary-color', hex)
+
+    // Set color scales (1-10)
+    colors.forEach((color, index) => {
+      document.documentElement.style.setProperty(`--color-primary-${index + 1}`, color)
+    })
+
     localStorage.setItem('app-custom-primary-color', hex)
   }
 

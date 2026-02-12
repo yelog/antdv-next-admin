@@ -11,6 +11,7 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@ant-design/colors": "^8.0.1",
     "@antdv-next/icons": "^1.0.0",
     "@iconify-json/ion": "^1.2.6",
     "@iconify-json/mdi": "^1.2.3",
