@@ -1405,8 +1405,7 @@ defineExpose({
   }
 
   :deep(.ant-table-thead > tr > th) {
-    /* ProTable header style: black + bold */
-    background: linear-gradient(180deg, rgba(24, 119, 255, 0.08), rgba(24, 119, 255, 0.02));
+    /* ProTable header style: use default background */
     color: var(--color-text-primary);
     font-size: 12px;
     font-weight: var(--font-weight-bold);
