@@ -27,6 +27,16 @@ html.theme-transition *::after {
   transition-timing-function: var(--ease-in-out);
 }
 
+/* 确保表格元素在 View Transition 期间不会创建独立的层叠上下文 */
+html.theme-view-transition .ant-table-wrapper,
+html.theme-view-transition .ant-table,
+html.theme-view-transition .ant-table-container,
+html.theme-view-transition .ant-table-content,
+html.theme-view-transition .ant-table-sticky-holder {
+  contain: none !important;
+  isolation: auto !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html.theme-transition,
   html.theme-transition *,
