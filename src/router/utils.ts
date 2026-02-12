@@ -82,7 +82,9 @@ export function routesToMenuTree(routes: AppRouteRecordRaw[], basePath = ''): Me
         id: route.name as string || route.path,
         label: route.meta?.title || route.name as string,
         icon: route.meta?.icon,
-        path: fullPath,
+        // Allow routes to render as external links in the sidebar menu.
+        // Sidebar click handler will open these in a new browser tab.
+        path: (route.meta as any)?.externalLink || fullPath,
         badge: route.meta?.badge,
         requiredPermissions: route.meta?.requiredPermissions,
         requiredRoles: route.meta?.requiredRoles,

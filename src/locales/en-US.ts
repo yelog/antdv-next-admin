@@ -448,5 +448,17 @@ export default {
     usernamePattern: 'Username can only contain letters, numbers and underscores',
     passwordPattern: 'Password must be at least 8 characters and include letters and numbers',
     confirmPassword: 'The two passwords do not match'
-  }
+  },
+
+  'menu.external': 'External Pages',
+  'menu.externalIframe': 'IFrame',
+  'menu.externalLink': 'External Links',
+  'menu.externalTypescript': 'TypeScript',
+  'menu.externalAntdvNext': 'Antdv Next',
+  'menu.externalVite': 'Vite',
+  'menu.externalVue': 'Vue.js',
+  'external.link.openedTitle': 'Opened in a new tab',
+  'external.link.openedSubTitle': 'If the browser blocked the popup, click the button below to open again.',
+  'external.link.openVite': 'Open Vite',
+  'external.link.openVue': 'Open Vue',
 }

@@ -201,6 +201,87 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'external',
+        name: 'ExamplesExternal',
+        redirect: '/examples/external/iframe/typescript',
+        component: () => import('@/components/RouteView.vue'),
+        meta: {
+          title: 'menu.external',
+          icon: 'LinkOutlined',
+          requiresAuth: true
+        },
+        children: [
+          {
+            path: 'iframe',
+            name: 'ExamplesExternalIframe',
+            redirect: '/examples/external/iframe/typescript',
+            component: () => import('@/components/RouteView.vue'),
+            meta: {
+              title: 'menu.externalIframe',
+              icon: 'AppstoreAddOutlined',
+              requiresAuth: true
+            },
+            children: [
+              {
+                path: 'typescript',
+                name: 'ExamplesExternalIframeTypescript',
+                component: () => import('@/views/examples/external/iframe/typescript.vue'),
+                meta: {
+                  title: 'menu.externalTypescript',
+                  icon: 'CodeOutlined',
+                  requiresAuth: true
+                }
+              },
+              {
+                path: 'antdv-next',
+                name: 'ExamplesExternalIframeAntdvNext',
+                component: () => import('@/views/examples/external/iframe/antdv-next.vue'),
+                meta: {
+                  title: 'menu.externalAntdvNext',
+                  icon: 'AntDesignOutlined',
+                  requiresAuth: true
+                }
+              }
+            ]
+          },
+          {
+            path: 'link',
+            name: 'ExamplesExternalLink',
+            component: () => import('@/components/RouteView.vue'),
+            meta: {
+              title: 'menu.externalLink',
+              icon: 'LinkOutlined',
+              requiresAuth: true
+            },
+            children: [
+              {
+                path: 'vite',
+                name: 'ExamplesExternalLinkVite',
+                component: () => import('@/views/examples/external/link/vite.vue'),
+                meta: {
+                  title: 'menu.externalVite',
+                  icon: 'ThunderboltOutlined',
+                  requiresAuth: true,
+                  externalLink: 'https://vite.dev'
+                }
+              },
+              {
+                path: 'vue',
+                name: 'ExamplesExternalLinkVue',
+                component: () => import('@/views/examples/external/link/vue.vue'),
+                meta: {
+                  title: 'menu.externalVue',
+                  icon: 'CoffeeOutlined',
+                  requiresAuth: true,
+                  externalLink: 'https://vuejs.org'
+                }
+              }
+            ]
+          }
+        ]
+      },
+
+      {
         path: 'exception',
         name: 'ExamplesException',
         redirect: '/examples/exception/403',

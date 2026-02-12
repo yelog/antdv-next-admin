@@ -448,5 +448,17 @@ export default {
     usernamePattern: '用户名只能包含字母、数字和下划线',
     passwordPattern: '密码至少8位，包含字母和数字',
     confirmPassword: '两次输入的密码不一致'
-  }
+  },
+
+  'menu.external': '外部页面',
+  'menu.externalIframe': '内嵌',
+  'menu.externalLink': '外链',
+  'menu.externalTypescript': 'TypeScript',
+  'menu.externalAntdvNext': 'Antdv Next',
+  'menu.externalVite': 'Vite',
+  'menu.externalVue': 'Vue.js',
+  'external.link.openedTitle': '已在新标签页打开',
+  'external.link.openedSubTitle': '如果浏览器拦截了弹窗，请点击下方按钮再次打开。',
+  'external.link.openVite': '打开 Vite 官网',
+  'external.link.openVue': '打开 Vue 官网',
 }

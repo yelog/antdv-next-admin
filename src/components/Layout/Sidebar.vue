@@ -151,7 +151,17 @@ const closeMobileSidebar = () => {
 }
 
 const handleMenuClick = ({ key }: { key: string | number }) => {
-  if (typeof key === 'string' && key.startsWith('/')) {
+  if (typeof key !== 'string') return
+
+  // External links: open in a new tab
+  if (key.startsWith('http://') || key.startsWith('https://')) {
+    window.open(key, '_blank', 'noopener,noreferrer')
+    closeMobileSidebar()
+    return
+  }
+
+  // Internal routes
+  if (key.startsWith('/')) {
     router.push(key)
     closeMobileSidebar()
   }
