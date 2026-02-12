@@ -112,6 +112,20 @@
   --z-index-modal: 1060;
   --z-index-drawer: 1070;
   --z-index-notification: 1080;
+
+  /* ========== Primary Colors (Default: Blue) ========== */
+  /* Provide defaults so styles work even before JS sets data-primary-color */
+  --color-primary-1: #e6f7ff;
+  --color-primary-2: #bae7ff;
+  --color-primary-3: #91d5ff;
+  --color-primary-4: #69c0ff;
+  --color-primary-5: #40a9ff;
+  --color-primary-6: #1890ff;
+  --color-primary-7: #096dd9;
+  --color-primary-8: #0050b3;
+  --color-primary-9: #003a8c;
+  --color-primary-10: #002766;
+  --color-primary: var(--color-primary-6);
 }
 
 /* ========== Primary Color Themes ========== */
