@@ -718,6 +718,9 @@ const handleColumnWidthResizeStart = (key: string) => {
     if (!Number.isFinite(width) || width <= 0) {
       return
     }
+    // 在拖拽开始时就准备好所有列的宽度，避免在鼠标移动时进行 DOM 查询
+    ensureColumnWidthsBeforeResize(key, width)
+    widthsPreparedForCurrentDrag.value = true
   }
 }
 
@@ -739,11 +742,6 @@ const handleColumnWidthResize = (key: string) => {
       isResizingColumn.value = true
       resizingColumnKey.value = key
       widthsPreparedForCurrentDrag.value = false
-    }
-
-    if (!widthsPreparedForCurrentDrag.value) {
-      ensureColumnWidthsBeforeResize(key, size.width)
-      widthsPreparedForCurrentDrag.value = true
     }
 
     const item = columnStates.value.find(state => state.key === key)
