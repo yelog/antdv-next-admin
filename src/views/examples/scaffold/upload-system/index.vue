@@ -11,6 +11,7 @@
       </a-space>
 
       <a-upload-dragger
+        class="upload-system-dragger"
         v-model:file-list="fileList"
         name="file"
         multiple
@@ -216,6 +217,26 @@ const handlePreview = async (file: UploadFileItem) => {
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+:deep(.upload-system-dragger.ant-upload-wrapper .ant-upload-drag) {
+  height: 220px;
+  min-height: 220px;
+  background: var(--color-bg-layout);
+}
+
+:deep(.upload-system-dragger.ant-upload-wrapper .ant-upload-drag .ant-upload) {
+  height: 100%;
+  padding: 16px;
+  background: transparent;
+}
+
+:deep(.upload-system-dragger.ant-upload-wrapper .ant-upload-drag .ant-upload-btn) {
+  background: transparent;
+}
+
+:deep(.upload-system-dragger.ant-upload-wrapper .ant-upload-list) {
+  margin-top: 10px;
 }
 
 .preview-image {
