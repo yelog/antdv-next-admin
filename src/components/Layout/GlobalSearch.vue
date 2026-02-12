@@ -1,42 +1,88 @@
 <template>
-  <a-modal
-    v-model:open="visible"
-    :title="$t('layout.searchPlaceholder')"
-    :footer="null"
-    width="600px"
-  >
-    <a-input
-      v-model:value="searchQuery"
-      :placeholder="$t('layout.searchPlaceholder')"
-      size="large"
-    >
-      <template #prefix>
-        <SearchOutlined />
-      </template>
-    </a-input>
+  <Teleport to="body">
+    <Transition name="search-modal">
+      <div v-if="visible" class="global-search-overlay" @click="close">
+        <div class="global-search-content" @click.stop>
+          <div class="search-input-wrapper">
+            <SearchOutlined class="search-icon" />
+            <input
+              ref="searchInputRef"
+              v-model="searchQuery"
+              type="text"
+              class="search-input"
+              :placeholder="$t('layout.searchPlaceholder')"
+              @keydown="handleKeydown"
+            />
+            <span class="search-tag">ESC</span>
+          </div>
 
-    <div class="search-results">
-      <template v-if="searchResults.length > 0">
-        <div
-          v-for="result in searchResults"
-          :key="result.path"
-          class="search-result-item"
-          @click="handleResultClick(result)"
-        >
-          <component :is="getIconComponent(result.icon)" v-if="result.icon" class="result-icon" />
-          <span class="result-title">{{ result.title }}</span>
-          <span class="result-path">{{ result.path }}</span>
+          <div v-if="searchResults.length > 0 || searchQuery" class="search-body">
+            <div v-if="searchResults.length > 0" class="search-results">
+              <div class="search-group-title">{{ $t('common.menu') || 'Menu' }}</div>
+              <div
+                v-for="(result, index) in searchResults"
+                :key="result.path"
+                class="search-item"
+                :class="{ active: index === activeIndex }"
+                @click="handleResultClick(result)"
+                @mouseenter="activeIndex = index"
+              >
+                <div class="item-icon">
+                  <component :is="getIconComponent(result.icon)" v-if="result.icon" />
+                  <FileOutlined v-else />
+                </div>
+                <div class="item-info">
+                  <span class="item-title">{{ result.title }}</span>
+                  <span class="item-path">{{ formatPath(result.path) }}</span>
+                </div>
+                <EnterOutlined class="item-enter" />
+              </div>
+            </div>
+            <div v-else class="search-empty">
+              <div class="empty-icon">
+                <SearchOutlined />
+              </div>
+              <p>{{ $t('layout.noSearchResults') }}</p>
+            </div>
+          </div>
+
+          <div class="search-footer">
+            <div class="footer-item">
+              <span class="key-badge">
+                <ArrowUpOutlined />
+              </span>
+              <span class="key-badge">
+                <ArrowDownOutlined />
+              </span>
+              <span class="footer-text">{{ $t('common.navigate') || 'Navigate' }}</span>
+            </div>
+            <div class="footer-item">
+              <span class="key-badge">
+                <EnterOutlined />
+              </span>
+              <span class="footer-text">{{ $t('common.select') || 'Select' }}</span>
+            </div>
+            <div class="footer-item">
+              <span class="key-badge">ESC</span>
+              <span class="footer-text">{{ $t('common.close') || 'Close' }}</span>
+            </div>
+          </div>
         </div>
-      </template>
-      <a-empty v-else-if="searchQuery" :description="$t('layout.noSearchResults')" />
-    </div>
-  </a-modal>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { SearchOutlined } from '@antdv-next/icons'
+import {
+  SearchOutlined,
+  FileOutlined,
+  EnterOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined
+} from '@antdv-next/icons'
 import { basicRoutes } from '@/router/routes'
 import { routesToMenuTree } from '@/router/utils'
 import { usePermissionStore } from '@/stores/permission'
@@ -56,6 +102,8 @@ const permissionStore = usePermissionStore()
 const visible = ref(false)
 const searchQuery = ref('')
 const searchResults = ref<SearchItem[]>([])
+const activeIndex = ref(0)
+const searchInputRef = ref<HTMLInputElement | null>(null)
 
 const fallbackMenus = computed<MenuItem[]>(() => {
   const basicChildren = basicRoutes.flatMap(route => route.children || [])
@@ -91,7 +139,7 @@ const searchSource = computed<SearchItem[]>(() => {
 
   traverse(menuSource.value)
 
-  // Deduplicate by path
+  // Deduplicate
   const uniqueByPath = new Map<string, SearchItem>()
   items.forEach(item => {
     if (!uniqueByPath.has(item.path)) {
@@ -102,6 +150,10 @@ const searchSource = computed<SearchItem[]>(() => {
 })
 
 const getIconComponent = (icon?: string) => resolveIcon(icon)
+
+const formatPath = (path: string) => {
+  return path.split('/').filter(Boolean).join(' > ')
+}
 
 const handleSearch = () => {
   if (!searchQuery.value) {
@@ -115,71 +167,269 @@ const handleSearch = () => {
       item.title.toLowerCase().includes(query) ||
       item.rawTitle.toLowerCase().includes(query) ||
       item.path.toLowerCase().includes(query)
-  ).slice(0, 10)
+  ).slice(0, 20)
+  activeIndex.value = 0
 }
 
 const handleResultClick = (result: SearchItem) => {
   router.push(result.path)
-  visible.value = false
-  searchQuery.value = ''
-  searchResults.value = []
+  close()
 }
 
-watch(visible, (val) => {
-  if (!val) {
-    searchQuery.value = ''
-    searchResults.value = []
-  }
-})
+const handleKeydown = (e: KeyboardEvent) => {
+  if (searchResults.value.length === 0) return
 
-watch(searchQuery, () => {
-  handleSearch()
-})
+  switch (e.key) {
+    case 'ArrowUp':
+      e.preventDefault()
+      activeIndex.value = activeIndex.value > 0 ? activeIndex.value - 1 : searchResults.value.length - 1
+      scrollActiveIntoView()
+      break
+    case 'ArrowDown':
+      e.preventDefault()
+      activeIndex.value = activeIndex.value < searchResults.value.length - 1 ? activeIndex.value + 1 : 0
+      scrollActiveIntoView()
+      break
+    case 'Enter':
+      e.preventDefault()
+      handleResultClick(searchResults.value[activeIndex.value])
+      break
+  }
+}
+
+const scrollActiveIntoView = () => {
+  nextTick(() => {
+    const activeEl = document.querySelector('.search-item.active')
+    if (activeEl) {
+      activeEl.scrollIntoView({ block: 'nearest' })
+    }
+  })
+}
 
 const open = () => {
   visible.value = true
+  searchQuery.value = ''
+  searchResults.value = []
+  activeIndex.value = 0
+  nextTick(() => {
+    searchInputRef.value?.focus()
+  })
 }
 
 const close = () => {
   visible.value = false
 }
 
+watch(searchQuery, () => {
+  handleSearch()
+})
+
 defineExpose({ open, close })
 </script>
 
 <style scoped lang="scss">
-.search-results {
-  margin-top: var(--spacing-md);
-  max-height: 400px;
-  overflow-y: auto;
+.global-search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14vh;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+}
 
-  .search-result-item {
+.global-search-content {
+  width: 100%;
+  max-width: 600px;
+  background-color: var(--color-bg-container);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border-secondary);
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 16px 16px 16px 20px;
+  border-bottom: 1px solid var(--color-border-secondary);
+
+  .search-icon {
+    font-size: 20px;
+    color: var(--color-text-tertiary);
+    margin-right: 12px;
+  }
+
+  .search-input {
+    flex: 1;
+    font-size: 18px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--color-text-primary);
+    line-height: 1.5;
+
+    &::placeholder {
+      color: var(--color-text-quaternary);
+    }
+  }
+
+  .search-tag {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: var(--color-bg-layout);
+    border: 1px solid var(--color-border-secondary);
+    color: var(--color-text-tertiary);
+    font-size: 12px;
+    font-family: var(--font-family-code);
+  }
+}
+
+.search-body {
+  padding: 12px 0;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.search-group-title {
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin: 0 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  position: relative;
+
+  &.active {
+    background-color: var(--color-primary);
+    color: #fff;
+
+    .item-icon {
+      color: #fff;
+    }
+
+    .item-path {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .item-enter {
+      opacity: 1;
+      color: #fff;
+    }
+  }
+
+  .item-icon {
+    font-size: 18px;
+    color: var(--color-text-secondary);
+    margin-right: 12px;
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--radius-base);
-    cursor: pointer;
-    transition: background var(--duration-base) var(--ease-out);
+  }
 
-    &:hover {
-      background: var(--color-bg-layout);
-    }
+  .item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 
-    .result-icon {
-      font-size: 16px;
-      color: var(--color-text-secondary);
-    }
+  .item-title {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
 
-    .result-title {
-      flex: 1;
-      font-weight: var(--font-weight-medium);
-    }
+  .item-path {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-    .result-path {
-      font-size: var(--font-size-xs);
-      color: var(--color-text-tertiary);
-    }
+  .item-enter {
+    font-size: 14px;
+    color: var(--color-text-tertiary);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+}
+
+.search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  color: var(--color-text-tertiary);
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+}
+
+.search-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--color-border-secondary);
+  background-color: var(--color-bg-layout);
+}
+
+.footer-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+
+  .key-badge {
+    padding: 2px 4px;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg-container);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    font-family: var(--font-family-code);
+    font-size: 11px;
+  }
+}
+
+// Transitions
+.search-modal-enter-active,
+.search-modal-leave-active {
+  transition: opacity 0.2s ease;
+
+  .global-search-content {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+.search-modal-enter-from,
+.search-modal-leave-to {
+  opacity: 0;
+
+  .global-search-content {
+    transform: scale(0.95) translateY(10px);
   }
 }
 </style>
