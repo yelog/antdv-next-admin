@@ -54,6 +54,7 @@ export default {
     watermark: 'Watermark',
     requestAuth: 'Request/Auth Flow',
     rbacFlow: 'RBAC Flow',
+    proTableAdvanced: 'ProTable Advanced',
     exception: 'Exception',
     exception403: '403',
     exception404: '404',

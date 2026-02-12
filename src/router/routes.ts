@@ -239,6 +239,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'pro-table-advanced',
+        name: 'ExamplesProTableAdvanced',
+        component: () => import('@/views/examples/scaffold/pro-table-advanced/index.vue'),
+        meta: {
+          title: 'menu.proTableAdvanced',
+          icon: 'TableOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'external',
         name: 'ExamplesExternal',
         redirect: '/examples/external/iframe/typescript',
