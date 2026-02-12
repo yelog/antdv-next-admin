@@ -66,60 +66,17 @@
         </a-form-item>
       </a-form>
     </div>
-
-    <div class="card preview-card">
-      <h3>{{ $t('exampleWatermark.preview') }}</h3>
-      <a-watermark v-bind="previewProps" class="preview-area">
-        <div class="preview-content">
-          <p>{{ $t('exampleWatermark.previewText') }}</p>
-        </div>
-      </a-watermark>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useWatermarkStore } from '@/stores/watermark'
 
 const watermarkStore = useWatermarkStore()
-
-const previewProps = computed(() => ({
-  content: watermarkStore.content,
-  gap: watermarkStore.gap,
-  rotate: watermarkStore.rotate,
-  font: {
-    fontSize: watermarkStore.fontSize
-  },
-  style: {
-    opacity: watermarkStore.opacity
-  }
-}))
 </script>
 
 <style scoped lang="scss">
 .mb-lg {
   margin-bottom: var(--spacing-lg);
-}
-
-.preview-card {
-  margin-top: var(--spacing-lg);
-}
-
-.preview-area {
-  min-height: 300px;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: var(--border-radius);
-  overflow: hidden;
-}
-
-.preview-content {
-  padding: var(--spacing-xl);
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-tertiary);
-  font-size: var(--font-size-lg);
 }
 </style>
