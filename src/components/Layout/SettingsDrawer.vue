@@ -3,7 +3,7 @@
     v-model:open="visible"
     :title="$t('settings.title')"
     placement="right"
-    :width="320"
+    :size="320"
   >
     <div class="settings-drawer">
       <!-- Theme Color -->
