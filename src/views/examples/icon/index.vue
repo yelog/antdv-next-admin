@@ -378,9 +378,9 @@ const resetIconValue = () => {
 }
 
 .group-card {
-  border: 1px solid color-mix(in srgb, var(--group-color), #e9edf3 72%);
+  border: 1px solid color-mix(in srgb, var(--group-color), var(--color-border-secondary) 72%);
   border-radius: 12px;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--group-color), #fff 90%) 0%, #fff 55%);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--group-color), var(--color-bg-container) 90%) 0%, var(--color-bg-container) 55%);
   padding: 12px;
 }
 
@@ -413,9 +413,9 @@ const resetIconValue = () => {
   margin: 0;
   padding: 6px;
   transition: all var(--duration-base) var(--ease-out);
-  border: 1px solid #e6eaf0;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-bg-container);
   color: var(--color-text-secondary);
   cursor: pointer;
 
@@ -435,9 +435,9 @@ const resetIconValue = () => {
 
   &.active {
     border-color: var(--group-color);
-    background: color-mix(in srgb, var(--group-color), #fff 89%);
+    background: color-mix(in srgb, var(--group-color), var(--color-bg-container) 89%);
     color: var(--group-color);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--group-color), #fff 55%);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--group-color), var(--color-bg-container) 55%);
   }
 }
 
@@ -451,7 +451,7 @@ const resetIconValue = () => {
   padding: 14px;
   border: 1px solid var(--color-border-secondary);
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-bg-container);
 
   h4 {
     margin: 0 0 8px;
@@ -475,10 +475,10 @@ const resetIconValue = () => {
     margin: 0;
     padding: 10px;
     overflow: auto;
-    border: 1px solid #edf0f5;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 8px;
-    background: #f7f9fc;
-    color: #334155;
+    background: var(--color-bg-layout);
+    color: var(--color-text-secondary);
     font-size: 12px;
     line-height: 1.45;
   }
@@ -520,9 +520,9 @@ const resetIconValue = () => {
   gap: 10px;
   justify-content: center;
   padding: 14px;
-  border: 1px solid #dde4ee;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 10px;
-  background: #fff;
+  background: var(--color-bg-container);
 }
 
 .hero-icon-wrap {
@@ -557,9 +557,9 @@ const resetIconValue = () => {
   flex-direction: column;
   gap: 10px;
   padding: 12px;
-  border: 1px solid #dde4ee;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 10px;
-  background: #fff;
+  background: var(--color-bg-container);
 }
 
 .preview-field {
