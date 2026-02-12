@@ -26,7 +26,7 @@
       </template>
 
       <!-- 自定义筛选下拉框（用于用户名搜索） -->
-      <template #filterDropdown="{ column, setSelectedKeys, selectedKeys, confirm, clearFilters }">
+      <template #filterDropdown="{ column, setSelectedKeys, selectedKeys, confirm, clearFilters, close }">
         <div v-if="column.dataIndex === 'username'" style="padding: 8px" @keydown.stop>
           <a-input
             ref="searchInput"
@@ -43,22 +43,44 @@
               style="width: 90px"
               @click="handleSearch(selectedKeys, confirm, 'username')"
             >
-              搜索
+              {{ $t('common.search') }}
             </a-button>
             <a-button
               size="small"
               style="width: 90px"
               @click="handleReset(clearFilters)"
             >
-              重置
+              {{ $t('common.reset') }}
+            </a-button>
+            <a-button
+              type="link"
+              size="small"
+              @click="() => { confirm({ closeDropdown: false }); searchText = selectedKeys[0] || ''; searchedColumn = 'username' }"
+            >
+              筛选
+            </a-button>
+            <a-button
+              type="link"
+              size="small"
+              @click="close?.()"
+            >
+              关闭
             </a-button>
           </a-space>
         </div>
       </template>
 
-      <!-- 自定义单元格渲染（用于状态 Switch） -->
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.dataIndex === 'status'">
+      <!-- 自定义单元格渲染（用于状态 Switch 和用户名高亮） -->
+      <template #bodyCell="{ column, record, text }">
+        <template v-if="column.dataIndex === 'username'">
+          <template v-if="searchedColumn === 'username'">
+            <component :is="() => highlightText(text || '', searchText)" />
+          </template>
+          <template v-else>
+            {{ text }}
+          </template>
+        </template>
+        <template v-else-if="column.dataIndex === 'status'">
           <a-switch
             :checked="record.status === 'active'"
             @change="(checked) => handleStatusChange(record, checked)"
@@ -88,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, h } from 'vue'
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@antdv-next/icons'
 import { message } from 'antdv-next'
 import { $t } from '@/locales'
@@ -104,6 +126,25 @@ const editingId = ref<string | null>(null)
 const formRef = ref()
 const formData = ref({})
 const searchInput = ref()
+const searchText = ref('')
+const searchedColumn = ref('')
+
+// 高亮搜索文本
+const highlightText = (text: string, keyword: string) => {
+  if (!keyword) {
+    return text
+  }
+  const lowerText = text.toLowerCase()
+  const lowerKey = keyword.toLowerCase()
+  const index = lowerText.indexOf(lowerKey)
+  if (index === -1) {
+    return text
+  }
+  const before = text.slice(0, index)
+  const match = text.slice(index, index + keyword.length)
+  const after = text.slice(index + keyword.length)
+  return [before, h('mark', { class: 'table-highlight' }, match), after]
+}
 
 // Table columns configuration
 const columns = computed<ProTableColumn[]>(() => [
@@ -113,6 +154,16 @@ const columns = computed<ProTableColumn[]>(() => [
     width: 150,
     fixed: 'left',
     filterDropdown: () => null, // 使用自定义筛选下拉框
+    filterDropdownProps: {
+      onOpenChange(open: boolean) {
+        if (open) {
+          nextTick(() => {
+            searchInput.value?.focus?.()
+            searchInput.value?.select?.()
+          })
+        }
+      }
+    },
     onFilter: (value: any, record: any) => {
       return record.username.toLowerCase().includes(String(value).toLowerCase())
     }
@@ -270,13 +321,13 @@ const fetchData = async (params: any) => {
 
 const handleSearch = (selectedKeys: any[], confirm: any, dataIndex: string) => {
   confirm()
-  nextTick(() => {
-    searchInput.value?.blur()
-  })
+  searchText.value = selectedKeys[0] || ''
+  searchedColumn.value = dataIndex
 }
 
 const handleReset = (clearFilters?: () => void) => {
   clearFilters?.()
+  searchText.value = ''
 }
 
 const handleStatusChange = async (record: any, checked: boolean) => {
@@ -337,5 +388,10 @@ const handleSubmit = async () => {
     box-shadow: 0 8px 18px rgba(24, 119, 255, 0.36);
     transform: translateY(-1px);
   }
+}
+
+:deep(.table-highlight) {
+  background: #ffc069;
+  padding: 0;
 }
 </style>
