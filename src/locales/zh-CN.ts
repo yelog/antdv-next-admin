@@ -56,6 +56,7 @@ export default {
     requestAuth: '请求鉴权闭环',
     rbacFlow: 'RBAC 全链路',
     proTableAdvanced: 'ProTable 高阶',
+    complexForm: '复杂表单',
     exception: '异常页面',
     exception403: '403',
     exception404: '404',

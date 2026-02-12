@@ -55,6 +55,7 @@ export default {
     requestAuth: 'Request/Auth Flow',
     rbacFlow: 'RBAC Flow',
     proTableAdvanced: 'ProTable Advanced',
+    complexForm: 'Complex Form',
     exception: 'Exception',
     exception403: '403',
     exception404: '404',

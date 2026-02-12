@@ -249,6 +249,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'complex-form',
+        name: 'ExamplesComplexForm',
+        component: () => import('@/views/examples/scaffold/complex-form/index.vue'),
+        meta: {
+          title: 'menu.complexForm',
+          icon: 'FormOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'external',
         name: 'ExamplesExternal',
         redirect: '/examples/external/iframe/typescript',
