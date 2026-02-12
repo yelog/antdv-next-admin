@@ -13,22 +13,29 @@
           <div
             v-for="color in PRESET_COLORS"
             :key="color.value"
-            :class="['color-item', { active: settingsStore.primaryColor === color.value }]"
+            :class="['color-item', { active: settingsStore.primaryColor === color.value && !settingsStore.customPrimaryColor }]"
             :style="{ backgroundColor: color.hex }"
             @click="settingsStore.setPrimaryColor(color.value)"
           >
-            <CheckOutlined v-if="settingsStore.primaryColor === color.value" />
+            <CheckOutlined v-if="settingsStore.primaryColor === color.value && !settingsStore.customPrimaryColor" />
           </div>
+          <a-color-picker
+            v-model:value="customColor"
+            :presets="colorPresets"
+            @change="handleCustomColorChange"
+          >
+            <div :class="['color-item', 'color-picker-trigger', { active: !!settingsStore.customPrimaryColor }]">
+              <CheckOutlined v-if="settingsStore.customPrimaryColor" />
+              <span v-else class="picker-icon">+</span>
+            </div>
+          </a-color-picker>
         </div>
       </div>
 
       <!-- Sidebar Theme -->
       <div class="settings-section">
         <h4>{{ $t('settings.sidebarTheme') }}</h4>
-        <a-radio-group
-          v-model:value="settingsStore.sidebarTheme"
-          @change="handleSidebarThemeChange"
-        >
+        <a-radio-group v-model:value="settingsStore.sidebarTheme">
           <a-radio value="light">{{ $t('settings.light') }}</a-radio>
           <a-radio value="dark">{{ $t('settings.dark') }}</a-radio>
         </a-radio-group>
@@ -37,10 +44,7 @@
       <!-- Layout Mode -->
       <div class="settings-section">
         <h4>{{ $t('settings.layoutMode') }}</h4>
-        <a-radio-group
-          v-model:value="settingsStore.layoutMode"
-          @change="handleLayoutModeChange"
-        >
+        <a-radio-group v-model:value="settingsStore.layoutMode">
           <a-radio value="vertical">{{ $t('settings.vertical') }}</a-radio>
           <a-radio value="horizontal">{{ $t('settings.horizontal') }}</a-radio>
         </a-radio-group>
@@ -53,26 +57,19 @@
           v-model:value="settingsStore.pageAnimation"
           :options="pageAnimationOptions"
           style="width: 100%"
-          @change="handlePageAnimationChange"
         />
       </div>
 
       <!-- Gray Mode -->
       <div class="settings-section">
         <h4>{{ $t('settings.grayMode') }}</h4>
-        <a-switch
-          v-model:checked="settingsStore.grayMode"
-          @change="handleGrayModeChange"
-        />
+        <a-switch v-model:checked="settingsStore.grayMode" />
         <div class="hint">{{ $t('settings.grayModeHint') }}</div>
       </div>
 
       <!-- Actions -->
       <div class="settings-actions">
-        <a-button type="primary" block @click="visible = false">
-          {{ $t('common.confirm') }}
-        </a-button>
-        <a-button block @click="handleReset" style="margin-top: 8px">
+        <a-button block @click="handleReset">
           {{ $t('settings.reset') }}
         </a-button>
       </div>
@@ -81,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { CheckOutlined } from '@antdv-next/icons'
 import { useSettingsStore } from '@/stores/settings'
 import { Modal } from 'antdv-next'
@@ -90,6 +87,7 @@ import type { PageAnimation, PrimaryColor } from '@/types/layout'
 
 const visible = ref(false)
 const settingsStore = useSettingsStore()
+const customColor = ref(settingsStore.customPrimaryColor || '#1890ff')
 
 const PRESET_COLORS: Array<{ value: PrimaryColor; hex: string }> = [
   { value: 'blue', hex: '#1890ff' },
@@ -98,6 +96,13 @@ const PRESET_COLORS: Array<{ value: PrimaryColor; hex: string }> = [
   { value: 'red', hex: '#f5222d' },
   { value: 'orange', hex: '#fa8c16' },
   { value: 'cyan', hex: '#13c2c2' }
+]
+
+const colorPresets = [
+  {
+    label: 'Preset Colors',
+    colors: PRESET_COLORS.map(c => c.hex)
+  }
 ]
 
 const pageAnimationOptions = computed(() => [
@@ -111,27 +116,34 @@ const pageAnimationOptions = computed(() => [
   { label: $t('settings.none'), value: 'none' }
 ])
 
-const handleSidebarThemeChange = (e: any) => {
-  settingsStore.setSidebarTheme(e.target.value)
+const handleCustomColorChange = (value: any) => {
+  const hex = typeof value === 'string' ? value : value.toHexString()
+  settingsStore.setCustomPrimaryColor(hex)
 }
 
-const handleLayoutModeChange = (e: any) => {
-  settingsStore.setLayoutMode(e.target.value)
-}
+// Watch store changes and save to localStorage
+watch(() => settingsStore.sidebarTheme, (value) => {
+  settingsStore.setSidebarTheme(value)
+})
 
-const handlePageAnimationChange = (value: PageAnimation) => {
+watch(() => settingsStore.layoutMode, (value) => {
+  settingsStore.setLayoutMode(value)
+})
+
+watch(() => settingsStore.pageAnimation, (value) => {
   settingsStore.setPageAnimation(value)
-}
+})
 
-const handleGrayModeChange = (checked: boolean) => {
-  settingsStore.setGrayMode(checked)
-}
+watch(() => settingsStore.grayMode, (value) => {
+  settingsStore.setGrayMode(value)
+})
 
 const handleReset = () => {
   Modal.confirm({
     title: $t('settings.confirmReset'),
     onOk: () => {
       settingsStore.resetSettings()
+      customColor.value = '#1890ff'
     }
   })
 }
@@ -159,13 +171,13 @@ defineExpose({ open, close })
     }
 
     .color-picker {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      display: flex;
       gap: var(--spacing-sm);
+      flex-wrap: wrap;
 
       .color-item {
-        width: 100%;
-        aspect-ratio: 1;
+        width: 32px;
+        height: 32px;
         border-radius: var(--radius-base);
         cursor: pointer;
         display: flex;
@@ -173,6 +185,7 @@ defineExpose({ open, close })
         justify-content: center;
         transition: all var(--duration-slow) var(--ease-out);
         border: 2px solid transparent;
+        flex-shrink: 0;
 
         &:hover {
           transform: scale(1.1);
@@ -185,7 +198,22 @@ defineExpose({ open, close })
 
         .anticon {
           color: #fff;
+          font-size: 16px;
+        }
+      }
+
+      .color-picker-trigger {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+
+        .picker-icon {
+          color: #fff;
           font-size: 20px;
+          font-weight: bold;
+        }
+
+        &.active {
+          background: var(--ant-primary-color);
         }
       }
     }

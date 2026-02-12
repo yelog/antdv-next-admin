@@ -27,17 +27,29 @@ const isPrimaryColor = (color: string): color is PrimaryColor => color in PRIMAR
 export const useSettingsStore = defineStore('settings', () => {
   // State
   const primaryColor = ref<PrimaryColor>('blue')
-  const primaryColorHex = computed(() => PRIMARY_COLOR_HEX_MAP[primaryColor.value])
+  const customPrimaryColor = ref<string>('')
+  const primaryColorHex = computed(() => customPrimaryColor.value || PRIMARY_COLOR_HEX_MAP[primaryColor.value])
   const sidebarTheme = ref<SidebarTheme>('dark')
   const layoutMode = ref<LayoutMode>('vertical')
-  const pageAnimation = ref<PageAnimation>('fade')
+  const pageAnimation = ref<PageAnimation>('slide-left')
   const grayMode = ref(false)
 
   // Actions
   const setPrimaryColor = (color: PrimaryColor) => {
     primaryColor.value = color
+    customPrimaryColor.value = ''
+    const hex = PRIMARY_COLOR_HEX_MAP[color]
     document.documentElement.setAttribute('data-primary-color', color)
+    document.documentElement.style.setProperty('--ant-primary-color', hex)
     localStorage.setItem('app-primary-color', color)
+    localStorage.removeItem('app-custom-primary-color')
+  }
+
+  const setCustomPrimaryColor = (hex: string) => {
+    customPrimaryColor.value = hex
+    document.documentElement.removeAttribute('data-primary-color')
+    document.documentElement.style.setProperty('--ant-primary-color', hex)
+    localStorage.setItem('app-custom-primary-color', hex)
   }
 
   const setSidebarTheme = (theme: SidebarTheme) => {
@@ -65,19 +77,24 @@ export const useSettingsStore = defineStore('settings', () => {
     setPrimaryColor('blue')
     setSidebarTheme('dark')
     setLayoutMode('vertical')
-    setPageAnimation('fade')
+    setPageAnimation('slide-left')
     setGrayMode(false)
   }
 
   const initSettings = () => {
     // Restore from localStorage
     const savedPrimaryColor = localStorage.getItem('app-primary-color')
+    const savedCustomPrimaryColor = localStorage.getItem('app-custom-primary-color')
     const savedSidebarTheme = localStorage.getItem('app-sidebar-theme') as SidebarTheme
     const savedLayoutMode = localStorage.getItem('app-layout-mode') as LayoutMode
     const savedPageAnimation = localStorage.getItem('app-page-animation') as PageAnimation
     const savedGrayMode = localStorage.getItem('app-gray-mode')
 
-    if (savedPrimaryColor && isPrimaryColor(savedPrimaryColor)) setPrimaryColor(savedPrimaryColor)
+    if (savedCustomPrimaryColor) {
+      setCustomPrimaryColor(savedCustomPrimaryColor)
+    } else if (savedPrimaryColor && isPrimaryColor(savedPrimaryColor)) {
+      setPrimaryColor(savedPrimaryColor)
+    }
     if (savedSidebarTheme) setSidebarTheme(savedSidebarTheme)
     if (savedLayoutMode) setLayoutMode(savedLayoutMode)
     if (savedPageAnimation && PAGE_ANIMATION_VALUES.includes(savedPageAnimation)) {
@@ -89,6 +106,7 @@ export const useSettingsStore = defineStore('settings', () => {
   return {
     // State
     primaryColor,
+    customPrimaryColor,
     primaryColorHex,
     sidebarTheme,
     layoutMode,
@@ -96,6 +114,7 @@ export const useSettingsStore = defineStore('settings', () => {
     grayMode,
     // Actions
     setPrimaryColor,
+    setCustomPrimaryColor,
     setSidebarTheme,
     setLayoutMode,
     setPageAnimation,
