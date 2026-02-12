@@ -34,7 +34,7 @@
               class="pro-modal-action-btn"
               @click.stop="toggleFullscreen"
             >
-              <component :is="isFullscreen ? FullscreenExitOutlined : FullscreenOutlined" />
+              <component :is="isFullscreen ? FullscreenExitOutlined : FullscreenOutlined" :style="{ fontSize: '14px' }" />
             </button>
           </a-tooltip>
 
@@ -45,7 +45,7 @@
               :disabled="isCloseButtonDisabled"
               @click.stop="handleCloseClick"
             >
-              <CloseOutlined />
+              <CloseOutlined :style="{ fontSize: '14px' }" />
             </button>
           </a-tooltip>
         </div>
@@ -163,6 +163,8 @@ const rect = reactive<ModalRect>({
 
 const rectReady = ref(false)
 const isFullscreen = ref(false)
+// Track if the modal has been moved/resized by user
+const isMoved = ref(false)
 const restoreRect = ref<ModalRect | null>(null)
 const dragState = ref<DragState | null>(null)
 const resizeState = ref<ResizeState | null>(null)
@@ -235,7 +237,12 @@ const modalPassThroughProps = computed<ModalProps>(() => {
 })
 
 const mergedWrapClassName = computed(() => {
-  return [props.wrapClassName, 'pro-modal-wrap', instanceWrapClassName]
+  return [
+    props.wrapClassName,
+    'pro-modal-wrap',
+    instanceWrapClassName,
+    isFullscreen.value ? 'pro-modal-fullscreen' : ''
+  ]
     .filter(Boolean)
     .join(' ')
 })
@@ -253,16 +260,21 @@ const managedModalStyle = computed<CSSProperties>(() => {
     return {}
   }
 
-  return {
-    position: 'fixed',
-    margin: '0',
-    top: `${rect.top}px`,
-    left: `${rect.left}px`,
+  const style: CSSProperties = {
     width: `${rect.width}px`,
-    height: `${rect.height}px`,
     maxWidth: `${viewport.width}px`,
     paddingBottom: '0'
   }
+
+  if (isMoved.value) {
+    style.position = 'fixed'
+    style.margin = '0'
+    style.top = `${rect.top}px`
+    style.left = `${rect.left}px`
+    style.height = `${rect.height}px`
+  }
+
+  return style
 })
 
 const mergedModalStyle = computed(() => {
@@ -378,28 +390,39 @@ const syncRectFromDom = (resetPosition = false) => {
     bindModalResizeEvents(element)
   }
 
+  // Always update viewport dimensions first
+  updateViewport()
+
   const domRect = element.getBoundingClientRect()
-  const preferredWidth = parsePreferredWidth(props.width, domRect.width || DEFAULT_WIDTH)
 
+  // Initialize rect with current DOM position (which is handled by AntDV initially)
   const nextRect: ModalRect = {
-    left: rect.left,
-    top: rect.top,
-    width: preferredWidth,
-    height: domRect.height || rect.height || DEFAULT_HEIGHT
+    left: domRect.left,
+    top: domRect.top,
+    width: domRect.width || DEFAULT_WIDTH,
+    height: domRect.height || DEFAULT_HEIGHT
   }
 
-  if (resetPosition || !rectReady.value) {
-    nextRect.left = Math.max((viewport.width - nextRect.width) / 2, 0)
-    nextRect.top = Math.max((viewport.height - nextRect.height) / 2, 0)
+  // Only if we need to force reset (e.g. on manual reset), we calculate center
+  // Otherwise we trust AntDV's initial positioning
+  if (resetPosition && !rectReady.value) {
+    // We just read the position from DOM, no need to recalculate center manually
+    // This avoids the scrollbar-width shift issue because AntDV handles it correctly
   }
 
-  Object.assign(rect, clampRect(nextRect))
+  Object.assign(rect, nextRect)
   rectReady.value = true
   return true
 }
 
 const ensureRectReady = async (resetPosition = false) => {
+  // Wait for Vue to render the modal into DOM
   await nextTick()
+
+  // Give a small buffer for AntDV's transition/positioning to apply
+  if (resetPosition) {
+     await new Promise(resolve => setTimeout(resolve, 50))
+  }
 
   let retryCount = 0
   const trySync = () => {
@@ -572,6 +595,10 @@ const handleModalMouseDown = (event: MouseEvent) => {
   event.preventDefault()
   event.stopPropagation()
 
+  // Ensure we start from the current visual position (which might be CSS-positioned)
+  syncRectFromDom()
+  isMoved.value = true
+
   resizeState.value = {
     direction,
     startX: event.clientX,
@@ -613,6 +640,10 @@ const handleTitleMouseDown = (event: MouseEvent) => {
 
   event.preventDefault()
   event.stopPropagation()
+
+  // Ensure we start from the current visual position and switch to manual mode
+  syncRectFromDom()
+  isMoved.value = true
 
   dragState.value = {
     startX: event.clientX,
@@ -696,6 +727,7 @@ watch(
     if (open) {
       isFullscreen.value = false
       restoreRect.value = null
+      isMoved.value = false
       ensureRectReady(true)
       return
     }
@@ -733,7 +765,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .pro-modal-titlebar {
   display: flex;
   align-items: center;
@@ -785,28 +817,59 @@ onBeforeUnmount(() => {
   }
 }
 
-:deep(.pro-modal-wrap .ant-modal) {
-  max-width: none;
-}
-
-:deep(.pro-modal-wrap .ant-modal-content) {
+.pro-modal-wrap {
   display: flex;
-  flex-direction: column;
-  height: 100%;
-  max-height: 100%;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  .ant-modal {
+    top: 0;
+    padding-bottom: 0;
+    margin: 0;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 2 * min(100px, 10vh));
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ant-modal-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    max-height: 100%;
+    overflow: hidden;
+  }
 }
 
-:deep(.pro-modal-wrap .ant-modal-header) {
+.pro-modal-wrap .ant-modal-header {
   flex-shrink: 0;
 }
 
-:deep(.pro-modal-wrap .ant-modal-body) {
+.pro-modal-wrap .ant-modal-body {
   flex: 1;
   min-height: 0;
   overflow: auto;
 }
 
-:deep(.pro-modal-wrap .ant-modal-footer) {
+.pro-modal-wrap .ant-modal-footer {
   flex-shrink: 0;
+}
+
+.pro-modal-fullscreen .ant-modal {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  top: 0 !important;
+  left: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.pro-modal-fullscreen .ant-modal-content {
+  height: 100vh !important;
+  max-height: 100vh !important;
 }
 </style>
