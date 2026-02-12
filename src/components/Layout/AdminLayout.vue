@@ -197,7 +197,37 @@ const dropdownOverflowMenuItems = computed<HorizontalMenuItems>(() => {
   return convertHorizontalMenus(menuItems.value, false)
 })
 
-const horizontalSelectedKeys = computed(() => [route.path])
+function isExternalLinkPath(path: string): boolean {
+  return path.startsWith('http://') || path.startsWith('https://')
+}
+
+function findMenuByPath(menus: MenuItemType[], targetPath: string): MenuItemType | null {
+  for (const item of menus) {
+    if ((item.path || item.id) === targetPath) {
+      return item
+    }
+
+    if (item.children && item.children.length > 0) {
+      const found = findMenuByPath(item.children, targetPath)
+      if (found) {
+        return found
+      }
+    }
+  }
+
+  return null
+}
+
+const horizontalSelectedKeys = computed(() => {
+  const currentMenuItem = findMenuByPath(menuItems.value, route.path)
+  
+  // Don't set selected state if current menu item is an external link
+  if (currentMenuItem && currentMenuItem.path && isExternalLinkPath(currentMenuItem.path)) {
+    return []
+  }
+  
+  return [route.path]
+})
 const normalizedVisibleMenuCount = computed(() => {
   return Math.max(0, Math.min(visibleMenuCount.value, horizontalMenuItems.value.length))
 })

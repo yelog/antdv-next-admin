@@ -139,8 +139,38 @@ function findMenuOpenKeys(
   return []
 }
 
+function isExternalLinkPath(path: string): boolean {
+  return path.startsWith('http://') || path.startsWith('https://')
+}
+
+function findMenuByPath(menus: MenuItemType[], targetPath: string): MenuItemType | null {
+  for (const item of menus) {
+    if ((item.path || item.id) === targetPath) {
+      return item
+    }
+
+    if (item.children && item.children.length > 0) {
+      const found = findMenuByPath(item.children, targetPath)
+      if (found) {
+        return found
+      }
+    }
+  }
+
+  return null
+}
+
 const syncMenuState = () => {
-  selectedKeys.value = [route.path]
+  // Find the menu item for current route
+  const currentMenuItem = findMenuByPath(menuItems.value, route.path)
+  
+  // Don't set selected state if current menu item is an external link
+  if (currentMenuItem && currentMenuItem.path && isExternalLinkPath(currentMenuItem.path)) {
+    selectedKeys.value = []
+  } else {
+    selectedKeys.value = [route.path]
+  }
+  
   openKeys.value = findMenuOpenKeys(menuItems.value, route.path)
 }
 
