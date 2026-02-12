@@ -60,6 +60,7 @@ export default {
     masterDetail: 'Master Detail',
     stateCache: 'State & Cache',
     observability: 'Observability',
+    testing: 'Testing',
     exception: 'Exception',
     exception403: '403',
     exception404: '404',

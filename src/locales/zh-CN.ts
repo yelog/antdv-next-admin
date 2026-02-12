@@ -61,6 +61,7 @@ export default {
     masterDetail: '列表-详情',
     stateCache: '状态与缓存',
     observability: '可观测性与异常',
+    testing: '测试示例',
     exception: '异常页面',
     exception403: '403',
     exception404: '404',

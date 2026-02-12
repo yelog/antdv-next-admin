@@ -299,6 +299,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'testing',
+        name: 'ExamplesTesting',
+        component: () => import('@/views/examples/scaffold/testing/index.vue'),
+        meta: {
+          title: 'menu.testing',
+          icon: 'CheckCircleOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'external',
         name: 'ExamplesExternal',
         redirect: '/examples/external/iframe/typescript',
