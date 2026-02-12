@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, h } from 'vue'
+import { ref, computed, watch, h, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { MenuProps } from 'antdv-next'
 import { useLayoutStore } from '@/stores/layout'
@@ -185,8 +185,17 @@ const handleMenuClick = ({ key }: { key: string | number }) => {
 
   // External links: open in a new tab
   if (key.startsWith('http://') || key.startsWith('https://')) {
+    // Save current selected state before opening external link
+    const currentSelected = [...selectedKeys.value]
+    
     window.open(key, '_blank', 'noopener,noreferrer')
     closeMobileSidebar()
+    
+    // Restore selected state after Menu component updates
+    // This prevents the external link menu item from being shown as selected
+    nextTick(() => {
+      selectedKeys.value = currentSelected
+    })
     return
   }
 

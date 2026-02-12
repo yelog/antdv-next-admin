@@ -245,7 +245,18 @@ const overflowHorizontalMenuItems = computed<HorizontalMenuItems>(() => {
 })
 
 const handleHorizontalMenuClick = ({ key }: { key: string | number }) => {
-  if (typeof key === 'string' && key.startsWith('/')) {
+  if (typeof key !== 'string') return
+
+  // External links: open in a new tab
+  // No need to change selectedKeys as horizontalSelectedKeys is a computed property
+  // based on route.path, which won't change when opening external links
+  if (key.startsWith('http://') || key.startsWith('https://')) {
+    window.open(key, '_blank', 'noopener,noreferrer')
+    return
+  }
+
+  // Internal routes
+  if (key.startsWith('/')) {
     router.push(key)
   }
 }
