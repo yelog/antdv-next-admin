@@ -5,25 +5,10 @@
         v-model:activeKey="activeKey"
         type="editable-card"
         :hide-add="true"
+        :items="tabItems"
         @edit="handleEdit"
         @change="handleChange"
-      >
-        <a-tab-pane
-          v-for="tab in tabsStore.tabs"
-          :key="tab.path"
-          :closable="tab.closable"
-        >
-          <template #tab>
-            <a-dropdown :trigger="['contextmenu']" :menu="getContextMenuProps(tab)">
-              <span class="tab-label">
-                <component :is="getTabIcon(tab)" v-if="getTabIcon(tab)" class="tab-menu-icon" />
-                <span class="tab-text">{{ getTabLabel(tab) }}</span>
-                <PushpinFilled v-if="isTabFixed(tab)" class="tab-pin-icon" />
-              </span>
-            </a-dropdown>
-          </template>
-        </a-tab-pane>
-      </a-tabs>
+      />
     </div>
     <div class="tab-actions">
       <a-dropdown placement="bottomRight" :menu="activeTabMenuProps" :trigger="['click']">
@@ -49,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h } from 'vue'
+import { computed, h, resolveComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ReloadOutlined,
@@ -97,6 +82,29 @@ const activeKey = computed({
 
 const currentTab = computed(() => {
   return tabsStore.activeTab || tabsStore.tabs[0]
+})
+
+const tabItems = computed(() => {
+  return tabsStore.tabs.map(tab => ({
+    key: tab.path,
+    closable: tab.closable,
+    label: h('span', { class: 'tab-label-wrapper' }, [
+      h(
+        resolveComponent('a-dropdown'),
+        {
+          trigger: ['contextmenu'],
+          menu: getContextMenuProps(tab)
+        },
+        {
+          default: () => h('span', { class: 'tab-label' }, [
+            getTabIcon(tab) ? h(getTabIcon(tab), { class: 'tab-menu-icon' }) : null,
+            h('span', { class: 'tab-text' }, getTabLabel(tab)),
+            isTabFixed(tab) ? h(PushpinFilled, { class: 'tab-pin-icon' }) : null
+          ])
+        }
+      )
+    ])
+  }))
 })
 
 const isTabFixed = (tab: Tab) => Boolean(tab.affix || tab.pinned)
