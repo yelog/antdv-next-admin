@@ -58,6 +58,7 @@ export default {
     complexForm: 'Complex Form',
     uploadSystem: 'Upload System',
     masterDetail: 'Master Detail',
+    stateCache: 'State & Cache',
     exception: 'Exception',
     exception403: '403',
     exception404: '404',

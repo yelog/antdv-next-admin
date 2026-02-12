@@ -279,6 +279,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'state-cache',
+        name: 'ExamplesStateCache',
+        component: () => import('@/views/examples/scaffold/state-cache/index.vue'),
+        meta: {
+          title: 'menu.stateCache',
+          icon: 'DatabaseOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'external',
         name: 'ExamplesExternal',
         redirect: '/examples/external/iframe/typescript',
