@@ -16,10 +16,10 @@
         <a-form-item
           :name="item.name"
           :label="item.label"
-          :required="item.required"
           :tooltip="item.tooltip"
           :dependencies="item.dependencies"
           :value-prop-name="item.valuePropName || 'value'"
+          :class="{ 'form-item-required': item.required }"
         >
           <FormItemRender
             v-model:value="formData[item.name]"
@@ -165,6 +165,18 @@ defineExpose({
 
 <style scoped lang="scss">
 .pro-form {
+  .form-item-required {
+    :deep(.ant-form-item-label > label::before) {
+      display: inline-block;
+      margin-right: 4px;
+      color: #ff4d4f;
+      font-size: 14px;
+      font-family: SimSun, sans-serif;
+      line-height: 1;
+      content: '*';
+    }
+  }
+
   .form-footer {
     margin-top: var(--spacing-lg);
     padding-top: var(--spacing-lg);
