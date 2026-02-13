@@ -154,6 +154,17 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           requiresAuth: true,
           requiredPermissions: ['system.permission.view']
         }
+      },
+      {
+        path: 'dict',
+        name: 'SystemDict',
+        component: () => import('@/views/system/dict/index.vue'),
+        meta: {
+          title: 'menu.dict',
+          icon: 'BookOutlined',
+          requiresAuth: true,
+          requiredPermissions: ['system.dict.view']
+        }
       }
     ]
   },

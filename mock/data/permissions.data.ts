@@ -195,6 +195,60 @@ export const mockPermissions: Permission[] = [
             visible: true
           }
         ]
+      },
+      {
+        id: '34',
+        name: 'Dictionary Management',
+        code: 'system.dict.view',
+        description: 'Dictionary management menu',
+        resource: '/system/dict',
+        action: 'view',
+        type: 'menu',
+        parentId: '10',
+        path: '/system/dict',
+        component: 'system/dict/index',
+        icon: 'BookOutlined',
+        sort: 4,
+        status: 'active',
+        visible: true,
+        children: [
+          {
+            id: '35',
+            name: 'Create Dictionary',
+            code: 'system.dict.create',
+            description: 'Can create dictionary',
+            resource: 'system.dict',
+            action: 'create',
+            type: 'button',
+            parentId: '34',
+            status: 'active',
+            visible: true
+          },
+          {
+            id: '36',
+            name: 'Edit Dictionary',
+            code: 'system.dict.edit',
+            description: 'Can edit dictionary',
+            resource: 'system.dict',
+            action: 'edit',
+            type: 'button',
+            parentId: '34',
+            status: 'active',
+            visible: true
+          },
+          {
+            id: '37',
+            name: 'Delete Dictionary',
+            code: 'system.dict.delete',
+            description: 'Can delete dictionary',
+            resource: 'system.dict',
+            action: 'delete',
+            type: 'button',
+            parentId: '34',
+            status: 'active',
+            visible: true
+          }
+        ]
       }
     ]
   },

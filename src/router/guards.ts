@@ -2,6 +2,7 @@ import type { Router } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { usePermissionStore } from '@/stores/permission'
 import { useTabsStore } from '@/stores/tabs'
+import { useDictStore } from '@/stores/dict'
 import { isLoggedIn } from '@/utils/auth'
 import { resolveLocaleText } from '@/utils/i18n'
 import { basicRoutes } from './routes'
@@ -15,6 +16,7 @@ export function setupRouterGuards(router: Router) {
     const authStore = useAuthStore()
     const permissionStore = usePermissionStore()
     const tabsStore = useTabsStore()
+    const dictStore = useDictStore()
 
     const generateDynamicRoutes = async () => {
       if (permissionStore.isRoutesGenerated) return
@@ -35,6 +37,9 @@ export function setupRouterGuards(router: Router) {
         }
         router.addRoute(route)
       })
+
+      // 加载字典数据
+      dictStore.loadDictData()
     }
 
     const initAffixTabsIfNeeded = () => {
