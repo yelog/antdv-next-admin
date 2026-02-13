@@ -409,7 +409,7 @@ onMounted(async () => {
   await fetchRoleOptions()
 })
 
-// 导出用户数据
+// export user data
 const handleExport = async () => {
   try {
     const response = await getUserList({ current: 1, pageSize: 9999 })
@@ -434,7 +434,7 @@ const handleExport = async () => {
   }
 }
 
-// 导入用户数据
+// import user data
 const handleImport = async (file: File) => {
   try {
     const rows = await parseCSV(file)
@@ -443,9 +443,9 @@ const handleImport = async (file: File) => {
       return false
     }
     const header = rows[0]
-    const usernameIdx = header.findIndex(h => h.includes('用户名'))
-    const realNameIdx = header.findIndex(h => h.includes('姓名'))
-    const emailIdx = header.findIndex(h => h.includes('邮箱'))
+    const usernameIdx = header.findIndex(h => h.includes('Username') || h.includes('username'))
+    const realNameIdx = header.findIndex(h => h.includes('Name') || h.includes('name'))
+    const emailIdx = header.findIndex(h => h.includes('Email') || h.includes('email'))
 
     if (usernameIdx === -1 || realNameIdx === -1 || emailIdx === -1) {
       message.error($t('user.importFormatError'))

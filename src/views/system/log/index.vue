@@ -90,7 +90,7 @@ const actionColorMap: Record<string, string> = {
   other: 'default'
 }
 
-// 操作日志列
+// operation log columns
 const operationColumns = computed<ProTableColumn[]>(() => [
   {
     title: t('log.operationUser'),
@@ -108,13 +108,13 @@ const operationColumns = computed<ProTableColumn[]>(() => [
     search: true,
     searchType: 'select',
     searchOptions: [
-      { label: t('log.modules.userManagement'), value: '用户管理' },
-      { label: t('log.modules.roleManagement'), value: '角色管理' },
-      { label: t('log.modules.menuManagement'), value: '菜单管理' },
-      { label: t('log.modules.dictionary'), value: '数据字典' },
-      { label: t('log.modules.systemLogin'), value: '系统登录' },
-      { label: t('log.modules.profile'), value: '个人中心' },
-      { label: t('log.modules.dashboard'), value: '数据看板' }
+      { label: t('log.modules.userManagement'), value: 'userManagement' },
+      { label: t('log.modules.roleManagement'), value: 'roleManagement' },
+      { label: t('log.modules.menuManagement'), value: 'menuManagement' },
+      { label: t('log.modules.dictionary'), value: 'dictionary' },
+      { label: t('log.modules.systemLogin'), value: 'systemLogin' },
+      { label: t('log.modules.profile'), value: 'profile' },
+      { label: t('log.modules.dashboard'), value: 'dashboard' }
     ]
   },
   {
@@ -177,7 +177,7 @@ const operationColumns = computed<ProTableColumn[]>(() => [
   }
 ])
 
-// 登录日志列
+// login log columns
 const loginColumns = computed<ProTableColumn[]>(() => [
   {
     title: t('log.username'),

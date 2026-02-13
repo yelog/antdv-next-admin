@@ -2,7 +2,7 @@ import { defineMock } from 'vite-plugin-mock-dev-server'
 import { operationLogs, loginLogs } from '../data/log.data'
 
 export default defineMock([
-  // 操作日志列表
+  // operation log list
   {
     url: '/api/log/operation/list',
     method: 'GET',
@@ -42,7 +42,7 @@ export default defineMock([
     }
   },
 
-  // 登录日志列表
+  // login log list
   {
     url: '/api/log/login/list',
     method: 'GET',
@@ -79,23 +79,23 @@ export default defineMock([
     }
   },
 
-  // 清空操作日志
+  // clear operation log
   {
     url: '/api/log/operation/clear',
     method: 'DELETE',
     body: () => {
       operationLogs.length = 0
-      return { code: 200, message: '清空成功' }
+      return { code: 200, message: 'success' }
     }
   },
 
-  // 清空登录日志
+  // clear login log
   {
     url: '/api/log/login/clear',
     method: 'DELETE',
     body: () => {
       loginLogs.length = 0
-      return { code: 200, message: '清空成功' }
+      return { code: 200, message: 'success' }
     }
   }
 ])

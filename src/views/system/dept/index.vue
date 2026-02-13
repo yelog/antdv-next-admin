@@ -1,7 +1,7 @@
 <template>
   <div class="page-container">
     <div class="dept-container">
-      <!-- 左侧：部门树 -->
+      <!-- dept tree -->
       <div class="dept-tree">
         <div class="dept-tree-header">
           <h3>{{ t('dept.organizationStructure') }}</h3>
@@ -39,7 +39,7 @@
         </div>
       </div>
 
-      <!-- 右侧：部门详情 -->
+      <!-- dept detail -->
       <div class="dept-detail">
         <template v-if="selectedDept">
           <div class="dept-detail-header">
@@ -77,7 +77,7 @@
             <a-descriptions-item :label="t('dept.remark')" :span="2">{{ selectedDept.remark || '-' }}</a-descriptions-item>
           </a-descriptions>
 
-          <!-- 子部门列表 -->
+          <!-- child dept list -->
           <div class="dept-children">
             <ProTable
               :key="selectedDept.id"
@@ -112,7 +112,7 @@
       </div>
     </div>
 
-    <!-- 新增/编辑弹窗 -->
+    <!-- add/edit modal -->
     <a-modal
       v-model:open="modalVisible"
       :title="modalTitle"
@@ -193,7 +193,7 @@ const parentTreeData = computed(() => {
   return [{ ...root, children: treeData.value }]
 })
 
-// 弹窗
+// modal
 const modalVisible = ref(false)
 const modalTitle = computed(() => form.value.id ? t('dept.editDept') : t('dept.createDept'))
 const form = ref<Partial<Department>>({
@@ -242,7 +242,7 @@ const loadDeptTree = async () => {
     ])
     if (treeRes.code === 200) treeData.value = treeRes.data
     if (listRes.code === 200) flatList.value = listRes.data
-    // 默认选中第一个
+    // select first by default
     if (!selectedKeys.value.length && treeData.value.length) {
       selectedKeys.value = [treeData.value[0].id]
     }
@@ -326,7 +326,7 @@ const handleSubmit = async () => {
   }
 }
 
-// 初始化
+// init
 loadDeptTree()
 </script>
 
@@ -337,7 +337,7 @@ loadDeptTree()
   height: calc(100vh - 180px);
 }
 
-// 左侧：部门树
+// dept tree panel
 .dept-tree {
   width: 280px;
   flex-shrink: 0;
@@ -403,7 +403,7 @@ loadDeptTree()
   }
 }
 
-// 右侧：部门详情
+// dept detail panel
 .dept-detail {
   flex: 1;
   background: var(--color-bg-container);
@@ -452,7 +452,7 @@ loadDeptTree()
   }
 }
 
-// 状态标签
+// status tag
 .status-tag {
   display: inline-flex;
   align-items: center;

@@ -1,7 +1,7 @@
 <template>
   <div class="page-container">
     <div class="dict-container">
-      <!-- 左侧：字典类型列表 -->
+      <!-- dict type list -->
       <div class="dict-types">
         <div class="dict-types-header">
           <h3>{{ t('dict.dictType') }}</h3>
@@ -38,7 +38,7 @@
         </div>
       </div>
 
-      <!-- 右侧：字典数据列表 -->
+      <!-- dict data list -->
       <div class="dict-data">
         <ProTable
           v-if="selectedTypeCode"
@@ -80,7 +80,7 @@
       </div>
     </div>
 
-    <!-- 字典类型弹窗 -->
+    <!-- dict type modal -->
     <a-modal
       v-model:open="typeModalVisible"
       :title="typeModalTitle"
@@ -105,7 +105,7 @@
       </a-form>
     </a-modal>
 
-    <!-- 字典数据弹窗 -->
+    <!-- dict data modal -->
     <a-modal
       v-model:open="dataModalVisible"
       :title="dataModalTitle"
@@ -158,7 +158,7 @@ import { useDictStore } from '@/stores/dict'
 const { t } = useI18n()
 const dictStore = useDictStore()
 
-// 字典类型列表
+// dict type list
 const dictTypes = ref<DictType[]>([])
 const selectedTypeCode = ref<string>('')
 const selectedTypeName = computed(() => {
@@ -166,7 +166,7 @@ const selectedTypeName = computed(() => {
   return type?.name || ''
 })
 
-// 字典类型弹窗
+// dict type modal
 const typeModalVisible = ref(false)
 const typeModalTitle = computed(() => typeForm.value.id ? t('dict.editType') : t('dict.createType'))
 const typeForm = ref<Partial<DictType>>({
@@ -176,7 +176,7 @@ const typeForm = ref<Partial<DictType>>({
   status: 'enabled'
 })
 
-// 字典数据弹窗
+// dict data modal
 const dataModalVisible = ref(false)
 const dataModalTitle = computed(() => dataForm.value.id ? t('dict.editData') : t('dict.createData'))
 const dataForm = ref<Partial<DictData>>({
@@ -187,7 +187,7 @@ const dataForm = ref<Partial<DictData>>({
   remark: ''
 })
 
-// 表格列配置
+// table columns
 const columns: ProTableColumn[] = [
   {
     title: t('dict.dictLabel'),
@@ -224,7 +224,7 @@ const columns: ProTableColumn[] = [
   }
 ]
 
-// 加载字典类型列表
+// load dict type list
 const loadDictTypes = async () => {
   try {
     const response = await getDictTypes() as any
@@ -239,7 +239,7 @@ const loadDictTypes = async () => {
   }
 }
 
-// 加载字典数据列表
+// load dict data list
 const loadData = async (params: any) => {
   try {
     const response = await getDictDataList({
@@ -264,12 +264,12 @@ const loadData = async (params: any) => {
   }
 }
 
-// 选择字典类型
+// select dict type
 const handleSelectType = (type: DictType) => {
   selectedTypeCode.value = type.code
 }
 
-// 新增字典类型
+// add dict type
 const handleAddType = () => {
   typeForm.value = {
     name: '',
@@ -280,13 +280,13 @@ const handleAddType = () => {
   typeModalVisible.value = true
 }
 
-// 编辑字典类型
+// edit dict type
 const handleEditType = (type: DictType) => {
   typeForm.value = { ...type }
   typeModalVisible.value = true
 }
 
-// 删除字典类型
+// delete dict type
 const handleDeleteType = (type: DictType) => {
   Modal.confirm({
     title: t('dict.confirmDelete'),
@@ -308,7 +308,7 @@ const handleDeleteType = (type: DictType) => {
   })
 }
 
-// 提交字典类型
+// submit dict type
 const handleTypeSubmit = async () => {
   if (!typeForm.value.name || !typeForm.value.code) {
     message.warning(t('dict.requiredFields'))
@@ -336,7 +336,7 @@ const handleTypeSubmit = async () => {
   }
 }
 
-// 新增字典数据
+// add dict data
 const handleAdd = () => {
   dataForm.value = {
     typeCode: selectedTypeCode.value,
@@ -349,13 +349,13 @@ const handleAdd = () => {
   dataModalVisible.value = true
 }
 
-// 编辑字典数据
+// edit dict data
 const handleEdit = (record: DictData) => {
   dataForm.value = { ...record }
   dataModalVisible.value = true
 }
 
-// 删除字典数据
+// delete dict data
 const handleDelete = (record: DictData) => {
   Modal.confirm({
     title: t('dict.confirmDelete'),
@@ -365,7 +365,7 @@ const handleDelete = (record: DictData) => {
         const response = await deleteDictData(record.id) as any
         if (response.code === 200) {
           message.success(t('dict.deleteSuccess'))
-          // 刷新字典缓存
+          // refresh dict cache
           dictStore.refreshDictData()
         }
       } catch (error) {
@@ -375,7 +375,7 @@ const handleDelete = (record: DictData) => {
   })
 }
 
-// 提交字典数据
+// submit dict data
 const handleDataSubmit = async () => {
   if (!dataForm.value.label || !dataForm.value.value) {
     message.warning(t('dict.requiredFields'))
@@ -388,7 +388,7 @@ const handleDataSubmit = async () => {
       if (response.code === 200) {
         message.success(t('dict.updateSuccess'))
         dataModalVisible.value = false
-        // 刷新字典缓存
+        // refresh dict cache
         dictStore.refreshDictData()
       }
     } else {
@@ -396,7 +396,7 @@ const handleDataSubmit = async () => {
       if (response.code === 200) {
         message.success(t('dict.createSuccess'))
         dataModalVisible.value = false
-        // 刷新字典缓存
+        // refresh dict cache
         dictStore.refreshDictData()
       }
     }
@@ -405,7 +405,7 @@ const handleDataSubmit = async () => {
   }
 }
 
-// 初始化
+// init
 loadDictTypes()
 </script>
 
@@ -416,7 +416,7 @@ loadDictTypes()
   height: calc(100vh - 180px);
 }
 
-// 左侧：字典类型
+// dict types panel
 .dict-types {
   width: 260px;
   flex-shrink: 0;
@@ -449,7 +449,7 @@ loadDictTypes()
     margin: 0 -8px;
     padding: 0 8px;
 
-    // 自定义滚动条
+    // custom scrollbar
     &::-webkit-scrollbar {
       width: 4px;
     }
@@ -474,7 +474,7 @@ loadDictTypes()
       transition: all 0.2s ease;
       overflow: hidden;
 
-      // 左侧指示条
+      // left indicator
       &::before {
         content: '';
         position: absolute;
@@ -547,7 +547,7 @@ loadDictTypes()
   }
 }
 
-// 右侧：字典数据
+// dict data panel
 .dict-data {
   flex: 1;
   background: var(--color-bg-container);
@@ -557,7 +557,7 @@ loadDictTypes()
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   min-width: 0;
 
-  // 表头浅灰背景
+  // table header background
   :deep(.ant-table-thead > tr > th),
   :deep(.ant-table-thead > tr > td) {
     background: #fafafa;
@@ -571,7 +571,7 @@ loadDictTypes()
   }
 }
 
-// 状态标签
+// status tag
 .status-tag {
   display: inline-flex;
   align-items: center;

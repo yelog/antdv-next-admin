@@ -1,6 +1,6 @@
 import type { OperationLog, LoginLog } from '@/types/log'
 
-const modules = ['用户管理', '角色管理', '菜单管理', '数据字典', '系统登录', '个人中心', '数据看板']
+const modules = ['userManagement', 'roleManagement', 'menuManagement', 'dictionary', 'systemLogin', 'profile', 'dashboard']
 const actions: OperationLog['action'][] = ['login', 'logout', 'create', 'update', 'delete', 'export', 'other']
 const methods = ['GET', 'POST', 'PUT', 'DELETE']
 const browsers = ['Chrome 120', 'Firefox 121', 'Safari 17', 'Edge 120']
@@ -9,13 +9,13 @@ const ips = ['192.168.1.100', '192.168.1.101', '10.0.0.50', '172.16.0.88', '192.
 const usernames = ['admin', 'user', 'zhangsan', 'lisi', 'wangwu']
 
 const actionDescMap: Record<string, string[]> = {
-  login: ['登录系统'],
-  logout: ['退出系统'],
-  create: ['新增用户', '新增角色', '新增菜单', '新增字典类型', '新增字典数据'],
-  update: ['修改用户信息', '修改角色权限', '修改菜单配置', '修改字典数据', '修改个人资料', '重置用户密码'],
-  delete: ['删除用户', '删除角色', '删除菜单', '删除字典数据'],
-  export: ['导出用户列表', '导出角色列表', '导出操作日志'],
-  other: ['查看数据看板', '刷新缓存']
+  login: ['System login'],
+  logout: ['System logout'],
+  create: ['Create user', 'Create role', 'Create menu', 'Create dict type', 'Create dict data'],
+  update: ['Update user info', 'Update role permissions', 'Update menu config', 'Update dict data', 'Update profile', 'Reset user password'],
+  delete: ['Delete user', 'Delete role', 'Delete menu', 'Delete dict data'],
+  export: ['Export user list', 'Export role list', 'Export operation log'],
+  other: ['View dashboard', 'Refresh cache']
 }
 
 const actionUrlMap: Record<string, string[]> = {
@@ -41,7 +41,6 @@ function generateTime(daysAgo: number): string {
   return d.toISOString().replace('T', ' ').slice(0, 19)
 }
 
-// 生成操作日志
 export const operationLogs: OperationLog[] = []
 for (let i = 1; i <= 80; i++) {
   const action = randomItem(actions)
@@ -60,19 +59,18 @@ for (let i = 1; i <= 80; i++) {
     browser: randomItem(browsers),
     os: randomItem(osList),
     status: isFail ? 'fail' : 'success',
-    errorMsg: isFail ? '操作权限不足' : undefined,
+    errorMsg: isFail ? 'Insufficient permissions' : undefined,
     duration: Math.floor(Math.random() * 500) + 10,
     createTime: generateTime(Math.floor(i / 6))
   })
 }
 operationLogs.sort((a, b) => b.createTime.localeCompare(a.createTime))
 
-// 生成登录日志
 export const loginLogs: LoginLog[] = []
-const loginMessages = ['登录成功', '登录成功', '登录成功', '密码错误', '账号已锁定', '验证码错误']
+const loginMessages = ['Login successful', 'Login successful', 'Login successful', 'Wrong password', 'Account locked', 'Captcha error']
 for (let i = 1; i <= 50; i++) {
   const msg = randomItem(loginMessages)
-  const isSuccess = msg === '登录成功'
+  const isSuccess = msg === 'Login successful'
   loginLogs.push({
     id: String(i),
     username: randomItem(usernames),
