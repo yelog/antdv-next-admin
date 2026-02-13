@@ -209,8 +209,6 @@ const handleReset = () => {
 
 <style scoped lang="scss">
 .profile-page {
-  padding: 16px;
-
   .profile-card {
     .profile-header {
       text-align: center;
