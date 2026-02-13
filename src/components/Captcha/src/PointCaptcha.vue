@@ -10,8 +10,8 @@
       </div>
     </div>
     <div class="point-toolbar">
-      <div class="point-tip">请依次点击：<span class="highlight">{{ checkPoints.join(',') }}</span></div>
-      <a-button size="small" @click="reset">刷新</a-button>
+      <div class="point-tip">{{ $t('captcha.clickInOrder') }}<span class="highlight">{{ checkPoints.join(',') }}</span></div>
+      <a-button size="small" @click="reset">{{ $t('captcha.refresh') }}</a-button>
     </div>
   </div>
 </template>
