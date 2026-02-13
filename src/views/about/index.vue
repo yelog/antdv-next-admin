@@ -343,6 +343,7 @@ const features = [
 /* ===== Info Cards ===== */
 .info-card {
   height: 100%;
+  border: 1px solid var(--color-border-secondary);
 
   .card-title-row {
     display: flex;
@@ -450,14 +451,14 @@ const features = [
   padding: 13px 14px;
   border-radius: var(--radius-base);
   border: 1px solid var(--color-border-secondary);
-  background: var(--bg-color);
+  background: var(--color-bg-container);
   text-decoration: none;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 
   &:hover {
     border-color: var(--tech-color);
-    background: color-mix(in srgb, var(--tech-color) 4%, transparent);
+    background: color-mix(in srgb, var(--tech-color) 4%, var(--color-bg-container));
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   }
@@ -499,7 +500,7 @@ const features = [
   padding: 18px 16px;
   border-radius: var(--radius-base);
   border: 1px solid var(--color-border-secondary);
-  background: var(--bg-color);
+  background: var(--color-bg-container);
   height: 100%;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -544,6 +545,29 @@ const features = [
     font-size: 12px;
     color: var(--color-text-tertiary);
     line-height: 1.5;
+  }
+}
+
+/* ===== Dark Mode ===== */
+:root.dark {
+  .info-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .tech-item {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  .feature-card {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
   }
 }
 
