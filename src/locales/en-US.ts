@@ -571,13 +571,21 @@ export default {
     techStack: 'Tech Stack',
     features: 'Core Features',
     feature1: 'Vue 3 Composition API',
+    feature1Desc: 'Better logic reuse, code organization, and reactive performance',
     feature2: 'Full TypeScript Strict Mode',
+    feature2Desc: 'Complete type inference to catch errors at development time',
     feature3: 'Complete RBAC Permission System',
+    feature3Desc: 'Page, button, field, and API level access control out of the box',
     feature4: 'Dynamic Routes & Menu Generation',
+    feature4Desc: 'Auto-generate routes and sidebar menus based on user roles',
     feature5: 'i18n Multi-language Support',
+    feature5Desc: 'Built-in Chinese & English with easy locale extension',
     feature6: 'Light / Dark Theme Switching',
+    feature6Desc: '6 preset theme colors with auto system preference detection',
     feature7: 'ProTable / ProForm Components',
-    feature8: 'Mock Data Development Mode'
+    feature7Desc: 'Config-driven tables and forms covering common business scenarios',
+    feature8: 'Mock Data Development Mode',
+    feature8Desc: 'Built-in mock system for parallel frontend and backend development'
   },
 
   proForm: {

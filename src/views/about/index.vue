@@ -1,11 +1,19 @@
 <template>
   <div class="about-page">
-    <!-- Hero -->
+    <!-- Hero Banner -->
     <section class="hero">
       <div class="hero-bg" aria-hidden="true">
+        <div class="grid-overlay"></div>
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
+        <div class="code-symbols">
+          <span class="sym sym-1">&lt;/&gt;</span>
+          <span class="sym sym-2">{ }</span>
+          <span class="sym sym-3">( )</span>
+          <span class="sym sym-4">[ ]</span>
+          <span class="sym sym-5">=&gt;</span>
+        </div>
       </div>
       <div class="hero-content">
         <div class="hero-icon">
@@ -14,10 +22,9 @@
         <h1 class="hero-title">Antdv Next Admin</h1>
         <p class="hero-desc">{{ $t('about.description') }}</p>
         <div class="hero-badges">
-          <a-tag color="blue">Vue 3</a-tag>
-          <a-tag color="green">TypeScript</a-tag>
-          <a-tag color="orange">Vite</a-tag>
-          <a-tag color="purple">Ant Design Vue</a-tag>
+          <span class="hero-badge" v-for="b in heroBadges" :key="b.label" :style="{ '--badge-bg': b.bg }">
+            {{ b.label }}
+          </span>
         </div>
       </div>
     </section>
@@ -28,39 +35,45 @@
         <a-card :bordered="false" class="info-card">
           <template #title>
             <div class="card-title-row">
-              <ProfileOutlined class="card-icon" />
+              <span class="card-icon-wrap"><ProfileOutlined class="card-icon" /></span>
               <span>{{ $t('about.projectInfo') }}</span>
             </div>
           </template>
           <div class="info-list">
             <div class="info-row">
               <span class="info-label">{{ $t('about.projectName') }}</span>
-              <span class="info-value">Antdv Next Admin</span>
+              <span class="info-value fw-medium">Antdv Next Admin</span>
             </div>
             <div class="info-row">
               <span class="info-label">{{ $t('about.version') }}</span>
               <span class="info-value">
-                <a-tag color="blue">v{{ version }}</a-tag>
+                <a-tag color="blue" class="version-tag">v{{ version }}</a-tag>
               </span>
             </div>
             <div class="info-row">
               <span class="info-label">{{ $t('about.license') }}</span>
               <span class="info-value">
-                <a-tag color="green">MIT License</a-tag>
+                <a-tag color="green" class="version-tag">MIT License</a-tag>
               </span>
             </div>
             <div class="info-row">
               <span class="info-label">{{ $t('about.author') }}</span>
-              <span class="info-value">yelog</span>
+              <span class="info-value fw-medium">yelog</span>
             </div>
             <div class="info-row">
-              <span class="info-label">{{ $t('about.email') }}</span>
+              <span class="info-label">
+                <MailOutlined class="row-icon" />
+                {{ $t('about.email') }}
+              </span>
               <span class="info-value">
                 <a href="mailto:yelogeek@gmail.com" class="link">yelogeek@gmail.com</a>
               </span>
             </div>
             <div class="info-row">
-              <span class="info-label">GitHub</span>
+              <span class="info-label">
+                <GithubOutlined class="row-icon" />
+                GitHub
+              </span>
               <span class="info-value">
                 <a
                   href="https://github.com/yelog/antdv-next-admin"
@@ -68,8 +81,8 @@
                   rel="noopener noreferrer"
                   class="link"
                 >
-                  <GithubOutlined style="margin-right: 4px" />
                   yelog/antdv-next-admin
+                  <LinkOutlined class="link-arrow" />
                 </a>
               </span>
             </div>
@@ -82,7 +95,7 @@
         <a-card :bordered="false" class="info-card">
           <template #title>
             <div class="card-title-row">
-              <CodeOutlined class="card-icon" />
+              <span class="card-icon-wrap"><CodeOutlined class="card-icon" /></span>
               <span>{{ $t('about.techStack') }}</span>
             </div>
           </template>
@@ -94,8 +107,9 @@
               target="_blank"
               rel="noopener noreferrer"
               class="tech-item"
+              :style="{ '--tech-color': tech.color }"
             >
-              <div class="tech-dot" :style="{ background: tech.color }"></div>
+              <div class="tech-dot"></div>
               <div class="tech-info">
                 <span class="tech-name">{{ tech.name }}</span>
                 <span class="tech-version">{{ tech.version }}</span>
@@ -110,15 +124,20 @@
         <a-card :bordered="false" class="info-card">
           <template #title>
             <div class="card-title-row">
-              <BulbOutlined class="card-icon" />
+              <span class="card-icon-wrap"><BulbOutlined class="card-icon" /></span>
               <span>{{ $t('about.features') }}</span>
             </div>
           </template>
-          <a-row :gutter="[16, 12]">
-            <a-col v-for="feature in features" :key="feature" :xs="24" :sm="12" :md="8" :lg="6">
-              <div class="feature-item">
-                <CheckCircleOutlined class="feature-check" />
-                <span>{{ feature }}</span>
+          <a-row :gutter="[16, 16]">
+            <a-col v-for="f in features" :key="f.title" :xs="24" :sm="12" :lg="6">
+              <div class="feature-card" :style="{ '--feat-color': f.color }">
+                <div class="feature-icon-wrap">
+                  <component :is="f.icon" class="feature-icon" />
+                </div>
+                <div class="feature-text">
+                  <span class="feature-title">{{ f.title }}</span>
+                  <span class="feature-desc">{{ f.desc }}</span>
+                </div>
               </div>
             </a-col>
           </a-row>
@@ -135,11 +154,26 @@ import {
   CodeOutlined,
   BulbOutlined,
   GithubOutlined,
-  CheckCircleOutlined
+  MailOutlined,
+  LinkOutlined,
+  ApiOutlined,
+  SafetyOutlined,
+  ApartmentOutlined,
+  GlobalOutlined,
+  BgColorsOutlined,
+  TableOutlined,
+  CloudOutlined
 } from '@antdv-next/icons'
 import { $t } from '@/locales'
 
 const version = __APP_VERSION__
+
+const heroBadges = [
+  { label: 'Vue 3', bg: 'rgba(66, 184, 131, 0.25)' },
+  { label: 'TypeScript', bg: 'rgba(49, 120, 198, 0.25)' },
+  { label: 'Vite', bg: 'rgba(100, 108, 255, 0.25)' },
+  { label: 'Ant Design Vue', bg: 'rgba(255, 255, 255, 0.15)' },
+]
 
 const techList = [
   { name: 'Vue', version: '3.4', color: '#42b883', url: 'https://vuejs.org' },
@@ -157,14 +191,14 @@ const techList = [
 ]
 
 const features = [
-  $t('about.feature1'),
-  $t('about.feature2'),
-  $t('about.feature3'),
-  $t('about.feature4'),
-  $t('about.feature5'),
-  $t('about.feature6'),
-  $t('about.feature7'),
-  $t('about.feature8'),
+  { title: $t('about.feature1'), desc: $t('about.feature1Desc'), icon: ApiOutlined, color: '#42b883' },
+  { title: $t('about.feature2'), desc: $t('about.feature2Desc'), icon: SafetyOutlined, color: '#3178c6' },
+  { title: $t('about.feature3'), desc: $t('about.feature3Desc'), icon: SafetyOutlined, color: '#e43961' },
+  { title: $t('about.feature4'), desc: $t('about.feature4Desc'), icon: ApartmentOutlined, color: '#646cff' },
+  { title: $t('about.feature5'), desc: $t('about.feature5Desc'), icon: GlobalOutlined, color: '#1677ff' },
+  { title: $t('about.feature6'), desc: $t('about.feature6Desc'), icon: BgColorsOutlined, color: '#fa8c16' },
+  { title: $t('about.feature7'), desc: $t('about.feature7Desc'), icon: TableOutlined, color: '#13c2c2' },
+  { title: $t('about.feature8'), desc: $t('about.feature8Desc'), icon: CloudOutlined, color: '#722ed1' },
 ]
 </script>
 
@@ -174,15 +208,15 @@ const features = [
   margin: 0 auto;
 }
 
-/* Hero */
+/* ===== Hero Banner ===== */
 .hero {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  padding: 48px 32px;
+  padding: 56px 32px;
   margin-bottom: 16px;
   text-align: center;
-  background: linear-gradient(135deg, var(--color-primary) 0%, color-mix(in srgb, var(--color-primary) 70%, #000) 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, color-mix(in srgb, var(--color-primary) 65%, #000) 100%);
   color: #fff;
 }
 
@@ -191,32 +225,57 @@ const features = [
   inset: 0;
   pointer-events: none;
 
+  .grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
   .orb {
     position: absolute;
     border-radius: 50%;
-    opacity: 0.12;
-    background: #fff;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    filter: blur(2px);
   }
 
   .orb-1 {
-    width: 300px;
-    height: 300px;
-    top: -80px;
-    right: -60px;
+    width: 350px;
+    height: 350px;
+    top: -100px;
+    right: -80px;
   }
 
   .orb-2 {
-    width: 200px;
-    height: 200px;
-    bottom: -60px;
-    left: -40px;
+    width: 240px;
+    height: 240px;
+    bottom: -80px;
+    left: -60px;
   }
 
   .orb-3 {
-    width: 120px;
-    height: 120px;
-    top: 40%;
-    left: 60%;
+    width: 140px;
+    height: 140px;
+    top: 30%;
+    left: 55%;
+  }
+
+  .code-symbols {
+    .sym {
+      position: absolute;
+      font-family: var(--font-family-code);
+      color: rgba(255, 255, 255, 0.07);
+      font-weight: var(--font-weight-bold);
+      user-select: none;
+    }
+
+    .sym-1 { top: 18%; left: 8%;   font-size: 32px; transform: rotate(-12deg); }
+    .sym-2 { top: 25%; right: 12%; font-size: 28px; transform: rotate(8deg); }
+    .sym-3 { bottom: 20%; left: 15%;  font-size: 24px; transform: rotate(-6deg); }
+    .sym-4 { bottom: 28%; right: 8%;  font-size: 26px; transform: rotate(15deg); }
+    .sym-5 { top: 60%; left: 40%;  font-size: 22px; transform: rotate(-4deg); }
   }
 }
 
@@ -229,29 +288,30 @@ const features = [
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  font-size: 32px;
-  margin-bottom: 20px;
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 34px;
+  margin-bottom: 24px;
 }
 
 .hero-title {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: var(--font-weight-bold);
   margin: 0 0 12px;
   letter-spacing: -0.5px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 .hero-desc {
-  font-size: 16px;
-  opacity: 0.85;
-  margin: 0 0 20px;
-  max-width: 520px;
-  margin-inline: auto;
-  line-height: 1.6;
+  font-size: 15px;
+  opacity: 0.88;
+  margin: 0 auto 24px;
+  max-width: 500px;
+  line-height: 1.7;
 }
 
 .hero-badges {
@@ -259,94 +319,140 @@ const features = [
   justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
-
-  :deep(.ant-tag) {
-    margin: 0;
-    font-size: 13px;
-    padding: 2px 12px;
-    border: none;
-  }
 }
 
-/* Info Cards */
-.info-section {
-  margin-top: 0;
+.hero-badge {
+  display: inline-block;
+  padding: 3px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.3px;
+  background: var(--badge-bg);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+/* ===== Info Cards ===== */
 .info-card {
   height: 100%;
 
   .card-title-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-weight: var(--font-weight-semibold);
+  }
+
+  .card-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
 
     .card-icon {
-      font-size: 18px;
+      font-size: 16px;
       color: var(--color-primary);
     }
   }
 }
 
-/* Info List */
+/* ===== Project Info List ===== */
 .info-list {
   .info-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
+    padding: 11px 0;
     border-bottom: 1px solid var(--color-border-secondary);
+    gap: 24px;
 
     &:last-child {
       border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    &:first-child {
+      padding-top: 0;
     }
 
     .info-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       color: var(--color-text-secondary);
       font-size: 14px;
+      flex-shrink: 0;
+
+      .row-icon {
+        font-size: 14px;
+        opacity: 0.65;
+      }
     }
 
     .info-value {
       color: var(--color-text-primary);
       font-size: 14px;
       text-align: right;
+      min-width: 0;
+
+      &.fw-medium {
+        font-weight: var(--font-weight-medium);
+      }
     }
   }
 }
 
+.version-tag {
+  margin: 0;
+}
+
 .link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   color: var(--color-primary);
   text-decoration: none;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
 
   &:hover {
-    opacity: 0.8;
+    opacity: 0.75;
+    text-decoration: underline;
+  }
+
+  .link-arrow {
+    font-size: 11px;
+    opacity: 0.6;
   }
 }
 
-/* Tech Grid */
+/* ===== Tech Stack Grid ===== */
 .tech-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
   gap: 10px;
 }
 
 .tech-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 12px;
+  padding: 13px 14px;
   border-radius: var(--radius-base);
   border: 1px solid var(--color-border-secondary);
+  background: var(--bg-color);
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 
   &:hover {
-    border-color: var(--color-primary);
-    background: color-mix(in srgb, var(--color-primary) 4%, transparent);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-color: var(--tech-color);
+    background: color-mix(in srgb, var(--tech-color) 4%, transparent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   }
 
   .tech-dot {
@@ -354,11 +460,14 @@ const features = [
     height: 10px;
     border-radius: 50%;
     flex-shrink: 0;
+    background: var(--tech-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tech-color) 15%, transparent);
   }
 
   .tech-info {
     display: flex;
     flex-direction: column;
+    gap: 2px;
     min-width: 0;
   }
 
@@ -366,35 +475,75 @@ const features = [
     font-size: 13px;
     font-weight: var(--font-weight-medium);
     color: var(--color-text-primary);
-    line-height: 1.3;
+    line-height: 1.35;
   }
 
   .tech-version {
     font-size: 12px;
-    color: var(--color-text-tertiary);
+    color: var(--color-text-quaternary);
     line-height: 1.3;
   }
 }
 
-/* Features */
-.feature-item {
+/* ===== Feature Cards ===== */
+.feature-card {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--color-text-primary);
-  padding: 6px 0;
+  gap: 14px;
+  padding: 18px 16px;
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border-secondary);
+  background: var(--bg-color);
+  height: 100%;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 
-  .feature-check {
-    color: var(--color-primary);
-    font-size: 16px;
+  &:hover {
+    border-color: color-mix(in srgb, var(--feat-color) 40%, var(--color-border-secondary));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .feature-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--feat-color) 10%, transparent);
+
+    .feature-icon {
+      font-size: 20px;
+      color: var(--feat-color);
+    }
+  }
+
+  .feature-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .feature-title {
+    font-size: 14px;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    line-height: 1.4;
+  }
+
+  .feature-desc {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    line-height: 1.5;
   }
 }
 
+/* ===== Responsive ===== */
 @media (max-width: 576px) {
   .hero {
-    padding: 32px 20px;
+    padding: 36px 20px;
   }
 
   .hero-title {
@@ -405,8 +554,16 @@ const features = [
     font-size: 14px;
   }
 
+  .hero-bg .code-symbols {
+    display: none;
+  }
+
   .tech-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .feature-card {
+    padding: 14px 12px;
   }
 }
 </style>

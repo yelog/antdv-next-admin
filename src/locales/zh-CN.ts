@@ -572,13 +572,21 @@ export default {
     techStack: '技术栈',
     features: '核心特性',
     feature1: '基于 Vue 3 Composition API',
+    feature1Desc: '更好的逻辑复用、代码组织与响应式性能提升',
     feature2: 'TypeScript 全量严格类型',
+    feature2Desc: '完善的类型推导，开发阶段即消除潜在运行时错误',
     feature3: '完整的 RBAC 权限体系',
+    feature3Desc: '页面、按钮、字段、接口四维权限控制，开箱即用',
     feature4: '动态路由与菜单生成',
+    feature4Desc: '基于角色权限自动生成路由和侧边栏菜单',
     feature5: '国际化多语言支持',
+    feature5Desc: '内置中英文切换，轻松扩展更多语言包',
     feature6: '亮色 / 暗色主题切换',
+    feature6Desc: '6 种主题色预设，支持跟随系统自动切换',
     feature7: 'ProTable / ProForm 高阶组件',
-    feature8: 'Mock 数据开发模式'
+    feature7Desc: '配置驱动的表格与表单，覆盖常见业务场景',
+    feature8: 'Mock 数据开发模式',
+    feature8Desc: '内置完整 Mock 体系，前后端并行开发无阻塞'
   },
 
   proForm: {
