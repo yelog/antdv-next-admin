@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User, Role, Permission } from '@/types/auth'
+import avatarImg from '@/assets/images/avatar.png'
 
 const TOKEN_KEY = 'access_token'
 const REFRESH_TOKEN_KEY = 'refresh_token'
@@ -91,7 +92,7 @@ export const useAuthStore = defineStore('auth', () => {
         username: 'admin',
         email: 'admin@example.com',
         realName: 'Administrator',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
+        avatar: avatarImg,
         phone: '13800138000',
         gender: 'male',
         birthDate: '1990-01-01',
@@ -122,7 +123,7 @@ export const useAuthStore = defineStore('auth', () => {
         username: 'user',
         email: 'user@example.com',
         realName: 'Regular User',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user',
+        avatar: avatarImg,
         phone: '13800138001',
         gender: 'female',
         birthDate: '1995-05-15',
