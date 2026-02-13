@@ -84,6 +84,7 @@ export default {
     markAllRead: 'Mark All Read',
     clearAll: 'Clear All',
     noNotifications: 'No Notifications',
+    notificationsEmptyHint: 'After clearing, new notifications will appear here',
     searchPlaceholder: 'Search menu...',
     noSearchResults: 'No matching menu found',
     languages: {

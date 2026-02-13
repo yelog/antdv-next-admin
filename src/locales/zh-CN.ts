@@ -85,6 +85,7 @@ export default {
     markAllRead: '全部已读',
     clearAll: '清空所有',
     noNotifications: '暂无通知',
+    notificationsEmptyHint: '清空后，新的通知会显示在这里',
     searchPlaceholder: '搜索菜单...',
     noSearchResults: '未找到匹配的菜单',
     languages: {
