@@ -114,6 +114,7 @@ import ri from '@iconify-json/ri/icons.json'
 import mdi from '@iconify-json/mdi/icons.json'
 import ion from '@iconify-json/ion/icons.json'
 import IconView from '@/components/Icon/index.vue'
+import { $t } from '@/locales'
 
 type Category = 'all' | 'ri' | 'mdi' | 'ion' | 'antdv-next' | 'svg' | 'online'
 
@@ -133,7 +134,7 @@ interface IconsJson {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: '请选择图标',
+  placeholder: '',
   pageSize: 36,
   svgPrefix: 'icon-',
   onlineLimit: 120
@@ -169,8 +170,8 @@ const inputValue = computed<string>({
 })
 
 const inputName = `iconpicker_${Math.random().toString(36).slice(2)}`
-const placeholder = computed(() => props.placeholder)
-const searchPlaceholder = '搜索图标名称...'
+const placeholder = computed(() => props.placeholder || $t('iconPicker.selectIcon'))
+const searchPlaceholder = computed(() => $t('iconPicker.searchPlaceholder'))
 
 const category = ref<Category>('all')
 const keyword = ref('')
@@ -330,7 +331,7 @@ const fetchOnlineIcons = async (query: string) => {
     if (controller.signal.aborted) {
       return
     }
-    onlineError.value = error?.message ? `在线搜索失败：${error.message}` : '在线搜索失败'
+    onlineError.value = error?.message ? $t('iconPicker.onlineSearchFailedDetail', { message: error.message }) : $t('iconPicker.onlineSearchFailed')
     onlineIcons.value = []
   } finally {
     if (onlineAbortController.value === controller) {
