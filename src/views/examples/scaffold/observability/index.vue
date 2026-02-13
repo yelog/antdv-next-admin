@@ -1,38 +1,38 @@
 <template>
   <div class="page-container">
     <div class="card mb-lg">
-      <h2>可观测性与异常示例</h2>
-      <p class="text-secondary">统一处理加载态、空态、错误态，并对错误进行分级与记录，支持一键重试。</p>
+      <h2>{{ $t('examples.scaffold.observability.title') }}</h2>
+      <p class="text-secondary">{{ $t('examples.scaffold.observability.description') }}</p>
 
       <a-space wrap class="mt-sm">
-        <a-button type="primary" @click="runScenario('success')">模拟成功</a-button>
-        <a-button @click="runScenario('empty')">模拟空数据</a-button>
-        <a-button danger @click="runScenario('network')">模拟网络错误</a-button>
-        <a-button danger @click="runScenario('auth')">模拟鉴权错误</a-button>
-        <a-button danger @click="runScenario('business')">模拟业务错误</a-button>
+        <a-button type="primary" @click="runScenario('success')">{{ $t('examples.scaffold.observability.simulateSuccess') }}</a-button>
+        <a-button @click="runScenario('empty')">{{ $t('examples.scaffold.observability.simulateEmpty') }}</a-button>
+        <a-button danger @click="runScenario('network')">{{ $t('examples.scaffold.observability.simulateNetwork') }}</a-button>
+        <a-button danger @click="runScenario('auth')">{{ $t('examples.scaffold.observability.simulateAuth') }}</a-button>
+        <a-button danger @click="runScenario('business')">{{ $t('examples.scaffold.observability.simulateBusiness') }}</a-button>
       </a-space>
     </div>
 
     <div class="grid-two">
       <div class="card">
-        <div class="section-title">请求状态视图</div>
+        <div class="section-title">{{ $t('examples.scaffold.observability.requestStateTitle') }}</div>
 
         <template v-if="state === 'loading'">
           <a-skeleton active :paragraph="{ rows: 5 }" />
         </template>
 
         <template v-else-if="state === 'empty'">
-          <a-empty description="当前无可展示数据" />
+          <a-empty :description="$t('examples.scaffold.observability.emptyData')" />
         </template>
 
         <template v-else-if="state === 'error'">
           <a-result
             status="error"
-            title="请求失败"
+            :title="$t('examples.scaffold.observability.requestFailed')"
             :sub-title="errorMessage"
           >
             <template #extra>
-              <a-button type="primary" @click="retryLast">重试</a-button>
+              <a-button type="primary" @click="retryLast">{{ $t('examples.scaffold.observability.retryButton') }}</a-button>
             </template>
           </a-result>
         </template>
@@ -49,30 +49,30 @@
         </template>
 
         <template v-else>
-          <a-empty description="点击上方按钮开始模拟" />
+          <a-empty :description="$t('examples.scaffold.observability.clickToStart')" />
         </template>
       </div>
 
       <div class="card">
-        <div class="section-title">错误分类与事件日志</div>
+        <div class="section-title">{{ $t('examples.scaffold.observability.errorLogTitle') }}</div>
 
         <div class="error-stats">
           <div class="stat-item">
-            <span>网络错误</span>
+            <span>{{ $t('examples.scaffold.observability.networkError') }}</span>
             <strong>{{ errorStats.network }}</strong>
           </div>
           <div class="stat-item">
-            <span>鉴权错误</span>
+            <span>{{ $t('examples.scaffold.observability.authError') }}</span>
             <strong>{{ errorStats.auth }}</strong>
           </div>
           <div class="stat-item">
-            <span>业务错误</span>
+            <span>{{ $t('examples.scaffold.observability.businessError') }}</span>
             <strong>{{ errorStats.business }}</strong>
           </div>
         </div>
 
         <div class="event-list">
-          <div v-if="events.length === 0" class="event-empty">暂无事件</div>
+          <div v-if="events.length === 0" class="event-empty">{{ $t('examples.scaffold.observability.noEvents') }}</div>
           <div v-for="item in events" :key="item.id" class="event-item" :class="`is-${item.level}`">
             <span class="event-time">{{ item.time }}</span>
             <span class="event-text">{{ item.text }}</span>
@@ -85,6 +85,7 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+import { $t } from '@/locales'
 
 type Scenario = 'success' | 'empty' | 'network' | 'auth' | 'business'
 type State = 'idle' | 'loading' | 'success' | 'empty' | 'error'
@@ -137,11 +138,11 @@ const mockFetch = async (scenario: Scenario) => {
         data: []
       }
     case 'network':
-      throw new Error('NetworkError: 请求超时，请检查网络连接')
+      throw new Error($t('examples.scaffold.observability.errorNetwork'))
     case 'auth':
-      throw new Error('AuthError: token 过期，需要重新登录')
+      throw new Error($t('examples.scaffold.observability.errorAuth'))
     case 'business':
-      throw new Error('BusinessError: 规则配置冲突，无法计算')
+      throw new Error($t('examples.scaffold.observability.errorBusiness'))
     default:
       return {
         code: 200,
@@ -167,28 +168,28 @@ const runScenario = async (scenario: Scenario) => {
   records.value = []
   errorMessage.value = ''
 
-  pushEvent(`开始模拟场景：${scenario}`)
+  pushEvent($t('examples.scaffold.observability.eventStart', { scenario }))
 
   try {
     const result = await mockFetch(scenario)
 
     if (result.data.length === 0) {
       state.value = 'empty'
-      pushEvent('请求成功但返回空数据')
+      pushEvent($t('examples.scaffold.observability.eventEmpty'))
       return
     }
 
     state.value = 'success'
     records.value = result.data
-    pushEvent('请求成功并返回数据', 'success')
+    pushEvent($t('examples.scaffold.observability.eventSuccess'), 'success')
   } catch (error: any) {
     state.value = 'error'
-    errorMessage.value = error.message || '未知错误'
+    errorMessage.value = error.message || $t('examples.scaffold.observability.unknownError')
 
     const type = classifyError(errorMessage.value)
     errorStats[type] += 1
 
-    pushEvent(`请求失败（${type}）：${errorMessage.value}`, 'error')
+    pushEvent($t('examples.scaffold.observability.eventError', { type, message: errorMessage.value }), 'error')
   }
 }
 

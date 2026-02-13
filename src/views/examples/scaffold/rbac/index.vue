@@ -1,21 +1,21 @@
 <template>
   <div class="page-container">
     <div class="card mb-lg">
-      <h2>RBAC 全链路示例</h2>
+      <h2>{{ $t('examples.scaffold.rbac.title') }}</h2>
       <p class="text-secondary">
-        覆盖页面权限、按钮权限、字段权限、接口权限 4 个维度。可直接切换 admin / user 观察差异。
+        {{ $t('examples.scaffold.rbac.description') }}
       </p>
     </div>
 
     <div class="card mb-lg">
       <div class="top-row">
         <div>
-          <div class="title">当前会话</div>
-          <div class="meta">账号：{{ authStore.user?.username || '-' }} | 角色：{{ roleText }}</div>
+          <div class="title">{{ $t('examples.scaffold.rbac.currentSession') }}</div>
+          <div class="meta">{{ $t('examples.scaffold.rbac.accountInfo', { username: authStore.user?.username || '-', role: roleText }) }}</div>
         </div>
         <a-space>
-          <a-button type="primary" @click="switchAccount('admin')">切换为 admin</a-button>
-          <a-button @click="switchAccount('user')">切换为 user</a-button>
+          <a-button type="primary" @click="switchAccount('admin')">{{ $t('examples.scaffold.rbac.switchToAdmin') }}</a-button>
+          <a-button @click="switchAccount('user')">{{ $t('examples.scaffold.rbac.switchToUser') }}</a-button>
         </a-space>
       </div>
 
@@ -26,30 +26,30 @@
 
     <div class="grid-two">
       <div class="card">
-        <div class="title mb-sm">1. 页面权限判定</div>
+        <div class="title mb-sm">{{ $t('examples.scaffold.rbac.section1Title') }}</div>
         <div class="check-list">
           <div v-for="check in pageChecks" :key="check.title" class="check-item">
             <div class="check-title">{{ check.title }}</div>
             <a-tag :color="check.pass ? 'success' : 'error'">
-              {{ check.pass ? '通过' : '拒绝' }}
+              {{ check.pass ? $t('examples.scaffold.rbac.passed') : $t('examples.scaffold.rbac.denied') }}
             </a-tag>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <div class="title mb-sm">2. 按钮权限</div>
+        <div class="title mb-sm">{{ $t('examples.scaffold.rbac.section2Title') }}</div>
         <a-space wrap>
           <PermissionButton permission="system.user.create">
-            <a-button type="primary">新建用户</a-button>
+            <a-button type="primary">{{ $t('examples.scaffold.rbac.createUserButton') }}</a-button>
           </PermissionButton>
 
           <PermissionButton permission="system.user.edit">
-            <a-button>编辑用户</a-button>
+            <a-button>{{ $t('examples.scaffold.rbac.editUserButton') }}</a-button>
           </PermissionButton>
 
           <PermissionButton permission="system.user.delete">
-            <a-button danger>删除用户</a-button>
+            <a-button danger>{{ $t('examples.scaffold.rbac.deleteUserButton') }}</a-button>
           </PermissionButton>
         </a-space>
 
@@ -57,32 +57,32 @@
           class="mt-md"
           type="info"
           show-icon
-          message="提示：按钮是否渲染由 PermissionButton 控制"
+          :message="$t('examples.scaffold.rbac.buttonPermissionHint')"
         />
       </div>
 
       <div class="card">
-        <div class="title mb-sm">3. 字段权限（脱敏）</div>
+        <div class="title mb-sm">{{ $t('examples.scaffold.rbac.section3Title') }}</div>
         <div class="field-row">
-          <span>手机号：</span>
+          <span>{{ $t('examples.scaffold.rbac.phoneLabel') }}</span>
           <strong>{{ phoneText }}</strong>
         </div>
         <div class="field-row">
-          <span>邮箱：</span>
+          <span>{{ $t('examples.scaffold.rbac.emailLabel') }}</span>
           <strong>{{ emailText }}</strong>
         </div>
         <div class="field-row">
-          <span>真实姓名：</span>
+          <span>{{ $t('examples.scaffold.rbac.realNameLabel') }}</span>
           <strong>{{ authStore.user?.realName || '-' }}</strong>
         </div>
       </div>
 
       <div class="card">
-        <div class="title mb-sm">4. 接口权限失败兜底</div>
+        <div class="title mb-sm">{{ $t('examples.scaffold.rbac.section4Title') }}</div>
         <a-space wrap>
-          <a-button @click="callApiWithPermission('system.user.view', '查看用户列表')">调用查看接口</a-button>
-          <a-button @click="callApiWithPermission('system.user.export', '导出用户')">调用导出接口</a-button>
-          <a-button @click="callApiWithPermission('system.user.delete', '删除用户')">调用删除接口</a-button>
+          <a-button @click="callApiWithPermission('system.user.view', $t('examples.scaffold.rbac.viewUserAction'))">{{ $t('examples.scaffold.rbac.callViewApi') }}</a-button>
+          <a-button @click="callApiWithPermission('system.user.export', $t('examples.scaffold.rbac.exportUserAction'))">{{ $t('examples.scaffold.rbac.callExportApi') }}</a-button>
+          <a-button @click="callApiWithPermission('system.user.delete', $t('examples.scaffold.rbac.deleteUserAction'))">{{ $t('examples.scaffold.rbac.callDeleteApi') }}</a-button>
         </a-space>
 
         <a-alert
@@ -103,6 +103,7 @@ import { message } from 'antdv-next'
 import { useAuthStore } from '@/stores/auth'
 import { usePermission } from '@/composables/usePermission'
 import PermissionButton from '@/components/Permission/PermissionButton.vue'
+import { $t } from '@/locales'
 
 const authStore = useAuthStore()
 const { can, hasAnyRole } = usePermission()
@@ -123,21 +124,21 @@ const displayPermissions = computed(() => {
   if (permissions.length <= 8) {
     return permissions
   }
-  return [...permissions.slice(0, 8), `...共 ${permissions.length} 项`]
+  return [...permissions.slice(0, 8), $t('examples.scaffold.rbac.permissionTotal', { count: permissions.length })]
 })
 
 const pageChecks = computed(() => {
   return [
     {
-      title: '用户管理页访问（system.user.view）',
+      title: $t('examples.scaffold.rbac.checkUserManage'),
       pass: can('system.user.view')
     },
     {
-      title: '菜单管理页访问（system.permission.view）',
+      title: $t('examples.scaffold.rbac.checkMenuManage'),
       pass: can('system.permission.view')
     },
     {
-      title: '管理员角色访问（admin）',
+      title: $t('examples.scaffold.rbac.checkAdminRole'),
       pass: hasAnyRole(['admin'])
     }
   ]
@@ -173,9 +174,9 @@ const switchAccount = async (username: 'admin' | 'user') => {
   try {
     await authStore.login(username, '123456')
     apiResult.value = null
-    message.success(`已切换为 ${username}`)
+    message.success($t('examples.scaffold.rbac.switchSuccess', { username }))
   } catch (error: any) {
-    message.error(error?.message || '切换失败')
+    message.error(error?.message || $t('examples.scaffold.rbac.switchFailed'))
   }
 }
 
@@ -184,17 +185,17 @@ const callApiWithPermission = async (permission: string, actionName: string) => 
     await new Promise(resolve => setTimeout(resolve, 260))
 
     if (!can(permission)) {
-      throw new Error(`403: 缺少权限 ${permission}`)
+      throw new Error($t('examples.scaffold.rbac.missingPermission', { permission }))
     }
 
     apiResult.value = {
       type: 'success',
-      message: `${actionName} 成功`
+      message: $t('examples.scaffold.rbac.apiSuccess', { action: actionName })
     }
   } catch (error: any) {
     apiResult.value = {
       type: 'error',
-      message: `${actionName} 失败：${error.message || '无权限'}`
+      message: $t('examples.scaffold.rbac.apiFailed', { action: actionName, error: error.message || $t('examples.scaffold.rbac.noPermission') })
     }
   }
 }

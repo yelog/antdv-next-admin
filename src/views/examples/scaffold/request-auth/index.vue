@@ -1,9 +1,9 @@
 <template>
   <div class="page-container">
     <div class="card">
-      <h2>请求与鉴权闭环示例</h2>
+      <h2>{{ $t('examples.scaffold.requestAuth.title') }}</h2>
       <p class="mb-lg text-secondary">
-        演示并发请求触发 401 时的排队刷新机制，以及刷新失败后的重登兜底。
+        {{ $t('examples.scaffold.requestAuth.description') }}
       </p>
 
       <a-alert
@@ -11,42 +11,42 @@
         type="error"
         show-icon
         class="mb-lg"
-        message="刷新失败，已进入重登态"
-        description="后续请求会继续失败，点击“重置会话”后重新发起请求。"
+        :message="$t('examples.scaffold.requestAuth.refreshFailedAlert')"
+        :description="$t('examples.scaffold.requestAuth.refreshFailedDesc')"
       />
 
       <div class="status-grid mb-lg">
         <div class="status-item">
-          <span class="label">Access Token</span>
-          <code>{{ accessToken || '空' }}</code>
+          <span class="label">{{ $t('examples.scaffold.requestAuth.accessToken') }}</span>
+          <code>{{ accessToken || $t('examples.scaffold.requestAuth.empty') }}</code>
         </div>
         <div class="status-item">
-          <span class="label">Refresh Token</span>
-          <code>{{ refreshToken || '空' }}</code>
+          <span class="label">{{ $t('examples.scaffold.requestAuth.refreshToken') }}</span>
+          <code>{{ refreshToken || $t('examples.scaffold.requestAuth.empty') }}</code>
         </div>
         <div class="status-item">
-          <span class="label">刷新状态</span>
+          <span class="label">{{ $t('examples.scaffold.requestAuth.refreshStatus') }}</span>
           <a-tag :color="refreshing ? 'processing' : 'default'">
-            {{ refreshing ? '刷新中' : '空闲' }}
+            {{ refreshing ? $t('examples.scaffold.requestAuth.refreshing') : $t('examples.scaffold.requestAuth.idle') }}
           </a-tag>
         </div>
       </div>
 
       <a-space wrap :size="10" class="mb-lg">
-        <a-button type="primary" @click="handleSingleRequest">发起单请求</a-button>
-        <a-button @click="handleConcurrentRequest">并发 5 个请求</a-button>
-        <a-button @click="expireAccessToken">令 Token 过期</a-button>
-        <a-button danger @click="handleRefreshFailScenario">模拟刷新失败</a-button>
-        <a-button @click="resetSession">重置会话</a-button>
+        <a-button type="primary" @click="handleSingleRequest">{{ $t('examples.scaffold.requestAuth.singleRequest') }}</a-button>
+        <a-button @click="handleConcurrentRequest">{{ $t('examples.scaffold.requestAuth.concurrentRequest') }}</a-button>
+        <a-button @click="expireAccessToken">{{ $t('examples.scaffold.requestAuth.expireToken') }}</a-button>
+        <a-button danger @click="handleRefreshFailScenario">{{ $t('examples.scaffold.requestAuth.simulateRefreshFail') }}</a-button>
+        <a-button @click="resetSession">{{ $t('examples.scaffold.requestAuth.resetSession') }}</a-button>
       </a-space>
 
       <div class="log-toolbar">
-        <span class="text-secondary">事件日志（最近 80 条）</span>
-        <a-button size="small" @click="logs = []">清空日志</a-button>
+        <span class="text-secondary">{{ $t('examples.scaffold.requestAuth.logTitle') }}</span>
+        <a-button size="small" @click="logs = []">{{ $t('examples.scaffold.requestAuth.clearLog') }}</a-button>
       </div>
 
       <div class="log-list">
-        <div v-if="logs.length === 0" class="log-empty">暂无日志</div>
+        <div v-if="logs.length === 0" class="log-empty">{{ $t('examples.scaffold.requestAuth.noLogs') }}</div>
         <div v-for="item in logs" :key="item.id" class="log-item" :class="`is-${item.level}`">
           <span class="log-time">{{ item.time }}</span>
           <span class="log-text">{{ item.text }}</span>
@@ -59,6 +59,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { message } from 'antdv-next'
+import { $t } from '@/locales'
 
 type LogLevel = 'info' | 'success' | 'error'
 
@@ -105,13 +106,13 @@ const mockProtectedApi = async (apiName: string) => {
   if (!accessToken.value || accessToken.value.startsWith('expired')) {
     throw {
       status: 401,
-      message: `[${apiName}] token 已过期`
+      message: $t('examples.scaffold.requestAuth.tokenExpired', { apiName })
     } as RequestError
   }
 
   return {
     code: 200,
-    message: `[${apiName}] 请求成功`
+    message: $t('examples.scaffold.requestAuth.apiSuccess', { apiName })
   }
 }
 
@@ -122,7 +123,7 @@ const mockRefreshApi = async () => {
     failNextRefresh = false
     throw {
       status: 401,
-      message: 'refresh token 无效'
+      message: $t('examples.scaffold.requestAuth.refreshTokenInvalid')
     } as RequestError
   }
 
@@ -141,16 +142,16 @@ const ensureTokenRefreshed = async () => {
     refreshPromise = (async () => {
       try {
         refreshing.value = true
-        pushLog('触发刷新 token（仅首个 401 请求执行）')
+        pushLog($t('examples.scaffold.requestAuth.logRefreshStart'))
         const result = await mockRefreshApi()
         accessToken.value = result.data.token
         reloginRequired.value = false
-        pushLog('token 刷新成功，释放排队请求', 'success')
+        pushLog($t('examples.scaffold.requestAuth.logRefreshSuccess'), 'success')
         return result.data.token
       } catch (error: any) {
         accessToken.value = ''
         reloginRequired.value = true
-        pushLog(`token 刷新失败：${error.message}，进入重登态`, 'error')
+        pushLog($t('examples.scaffold.requestAuth.logRefreshFailed', { message: error.message }), 'error')
         throw error
       } finally {
         refreshing.value = false
@@ -158,7 +159,7 @@ const ensureTokenRefreshed = async () => {
       }
     })()
   } else {
-    pushLog('检测到刷新进行中，请求进入排队等待')
+    pushLog($t('examples.scaffold.requestAuth.logQueueWait'))
   }
 
   return refreshPromise
@@ -171,11 +172,11 @@ const requestWithAutoRefresh = async (apiName: string) => {
     return result
   } catch (error: any) {
     if (error.status !== 401) {
-      pushLog(`[${apiName}] 非 401 错误：${error.message}`, 'error')
+      pushLog($t('examples.scaffold.requestAuth.logNon401Error', { apiName, message: error.message }), 'error')
       throw error
     }
 
-    pushLog(`[${apiName}] 触发 401，准备刷新 token`, 'info')
+    pushLog($t('examples.scaffold.requestAuth.log401Detected', { apiName }), 'info')
 
     await ensureTokenRefreshed()
 
@@ -187,7 +188,7 @@ const requestWithAutoRefresh = async (apiName: string) => {
 
 const expireAccessToken = () => {
   accessToken.value = 'expired-token'
-  pushLog('手动将 access token 标记为过期')
+  pushLog($t('examples.scaffold.requestAuth.logTokenExpired'))
 }
 
 const resetSession = () => {
@@ -200,19 +201,19 @@ const resetSession = () => {
   refreshToken.value = session.refreshToken
   reloginRequired.value = false
   failNextRefresh = false
-  pushLog('会话已重置，可重新发起请求')
+  pushLog($t('examples.scaffold.requestAuth.logSessionReset'))
 }
 
 const handleSingleRequest = async () => {
   try {
     await requestWithAutoRefresh('single')
   } catch {
-    message.error('单请求执行失败')
+    message.error($t('examples.scaffold.requestAuth.singleRequestFailed'))
   }
 }
 
 const handleConcurrentRequest = async () => {
-  pushLog('开始并发 5 个请求，观察刷新排队行为')
+  pushLog($t('examples.scaffold.requestAuth.logConcurrentStart'))
 
   const results = await Promise.allSettled(
     Array.from({ length: 5 }, (_, index) => requestWithAutoRefresh(`parallel-${index + 1}`))
@@ -220,21 +221,21 @@ const handleConcurrentRequest = async () => {
 
   const failedCount = results.filter(item => item.status === 'rejected').length
   if (failedCount > 0) {
-    message.warning(`并发请求完成，失败 ${failedCount} 个`)
+    message.warning($t('examples.scaffold.requestAuth.concurrentPartialFail', { count: failedCount }))
   } else {
-    message.success('并发请求全部成功')
+    message.success($t('examples.scaffold.requestAuth.concurrentAllSuccess'))
   }
 }
 
 const handleRefreshFailScenario = async () => {
   expireAccessToken()
   failNextRefresh = true
-  pushLog('下一次刷新将被强制失败')
+  pushLog($t('examples.scaffold.requestAuth.logRefreshWillFail'))
 
   try {
     await requestWithAutoRefresh('refresh-fail-case')
   } catch {
-    message.error('刷新失败场景已触发')
+    message.error($t('examples.scaffold.requestAuth.refreshFailTriggered'))
   }
 }
 </script>
