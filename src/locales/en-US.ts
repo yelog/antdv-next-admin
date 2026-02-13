@@ -73,7 +73,8 @@ export default {
     exception403: '403',
     exception404: '404',
     exception500: '500',
-    profile: 'Profile'
+    profile: 'Profile',
+    about: 'About'
   },
 
   layout: {
@@ -557,6 +558,26 @@ export default {
   captcha: {
     clickInOrder: 'Click in order: ',
     refresh: 'Refresh'
+  },
+
+  about: {
+    description: 'A modern admin framework built on Vue 3 + TypeScript + Ant Design Vue. Production-ready, feature-rich, and easy to extend.',
+    projectInfo: 'Project Info',
+    projectName: 'Project Name',
+    version: 'Version',
+    license: 'License',
+    author: 'Author',
+    email: 'Email',
+    techStack: 'Tech Stack',
+    features: 'Core Features',
+    feature1: 'Vue 3 Composition API',
+    feature2: 'Full TypeScript Strict Mode',
+    feature3: 'Complete RBAC Permission System',
+    feature4: 'Dynamic Routes & Menu Generation',
+    feature5: 'i18n Multi-language Support',
+    feature6: 'Light / Dark Theme Switching',
+    feature7: 'ProTable / ProForm Components',
+    feature8: 'Mock Data Development Mode'
   },
 
   proForm: {

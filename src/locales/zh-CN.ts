@@ -74,7 +74,8 @@ export default {
     exception403: '403',
     exception404: '404',
     exception500: '500',
-    profile: '个人中心'
+    profile: '个人中心',
+    about: '关于'
   },
 
   layout: {
@@ -558,6 +559,26 @@ export default {
   captcha: {
     clickInOrder: '请依次点击：',
     refresh: '刷新'
+  },
+
+  about: {
+    description: '一个基于 Vue 3 + TypeScript + Ant Design Vue 的现代化后台管理框架，开箱即用、功能完备、易于扩展。',
+    projectInfo: '项目信息',
+    projectName: '项目名称',
+    version: '当前版本',
+    license: '开源协议',
+    author: '作者',
+    email: '邮箱',
+    techStack: '技术栈',
+    features: '核心特性',
+    feature1: '基于 Vue 3 Composition API',
+    feature2: 'TypeScript 全量严格类型',
+    feature3: '完整的 RBAC 权限体系',
+    feature4: '动态路由与菜单生成',
+    feature5: '国际化多语言支持',
+    feature6: '亮色 / 暗色主题切换',
+    feature7: 'ProTable / ProForm 高阶组件',
+    feature8: 'Mock 数据开发模式'
   },
 
   proForm: {

@@ -2,11 +2,15 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { mockDevServerPlugin } from 'vite-plugin-mock-dev-server'
 import { fileURLToPath, URL } from 'node:url'
+import pkg from './package.json'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   // 自定义域名部署配置 - 使用根路径
   base: '/',
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version)
+  },
   plugins: [
     vue(),
     mockDevServerPlugin({

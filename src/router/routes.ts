@@ -101,6 +101,17 @@ export const basicRoutes: AppRouteRecordRaw[] = [
           requiresAuth: true,
           hidden: true
         }
+      },
+      {
+        path: 'about',
+        name: 'About',
+        component: () => import('@/views/about/index.vue'),
+        meta: {
+          title: 'menu.about',
+          icon: 'InfoCircleOutlined',
+          requiresAuth: true,
+          order: 99
+        }
       }
     ]
   }
