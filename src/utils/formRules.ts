@@ -16,16 +16,27 @@ export const commonRules = {
    * Email validation
    */
   email: (message = $t('validation.email')) => ({
-    type: 'email' as const,
-    message
+    validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve()
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (emailRegex.test(value)) {
+        return Promise.resolve()
+      }
+      return Promise.reject(new Error(message))
+    }
   }),
 
   /**
    * Phone number validation (Chinese)
    */
   phone: (message = $t('validation.phone')) => ({
-    pattern: /^1[3-9]\d{9}$/,
-    message
+    validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve()
+      if (/^1[3-9]\d{9}$/.test(value)) {
+        return Promise.resolve()
+      }
+      return Promise.reject(new Error(message))
+    }
   }),
 
   /**
@@ -82,16 +93,26 @@ export const commonRules = {
    * Username validation
    */
   username: (message = $t('validation.usernamePattern')) => ({
-    pattern: /^[a-zA-Z0-9_]+$/,
-    message
+    validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve()
+      if (/^[a-zA-Z0-9_]+$/.test(value)) {
+        return Promise.resolve()
+      }
+      return Promise.reject(new Error(message))
+    }
   }),
 
   /**
    * Password strength validation
    */
   password: (message = $t('validation.passwordPattern')) => ({
-    pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
-    message
+    validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve()
+      if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value)) {
+        return Promise.resolve()
+      }
+      return Promise.reject(new Error(message))
+    }
   }),
 
   /**
