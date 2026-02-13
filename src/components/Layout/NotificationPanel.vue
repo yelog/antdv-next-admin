@@ -54,12 +54,12 @@
             >
               <div class="notification-icon" aria-hidden="true">
                 <component :is="getNotificationIcon(notification)" />
+                <span v-if="!notification.read" class="icon-unread-dot" />
               </div>
 
               <div class="notification-content">
                 <div class="notification-meta">
                   <div class="notification-title-row">
-                    <span v-if="!notification.read" class="unread-dot" />
                     <div class="notification-title">{{ notification.title }}</div>
                   </div>
                   <div class="notification-time">
@@ -67,6 +67,7 @@
                   </div>
                 </div>
                 <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-detail-hint">{{ $t('layout.viewDetails') }}</div>
               </div>
 
               <a-button
@@ -89,6 +90,13 @@
             <div class="empty-subtitle">{{ $t('layout.notificationsEmptyHint') }}</div>
           </div>
         </div>
+
+        <div class="panel-footer">
+          <a-button type="link" class="view-all-btn" @click="handleViewAll">
+            {{ $t('layout.viewAllNotifications') }}
+            <RightOutlined />
+          </a-button>
+        </div>
       </div>
     </template>
   </a-popover>
@@ -103,12 +111,14 @@ import {
   SafetyCertificateOutlined,
   CheckCircleOutlined,
   ExclamationCircleOutlined,
-  CloseOutlined
+  CloseOutlined,
+  RightOutlined
 } from '@antdv-next/icons'
 import { useNotificationStore } from '@/stores/notification'
 import type { Notification } from '@/types/layout'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import router from '@/router'
 
 dayjs.extend(relativeTime)
 
@@ -164,7 +174,7 @@ const getNotificationIcon = (notification: Notification) => {
 const handleNotificationClick = (notification: Notification) => {
   notificationStore.markAsRead(notification.id)
   if (notification.link) {
-    // Navigate to link
+    router.push(notification.link)
   }
 }
 
@@ -178,6 +188,10 @@ const handleMarkAllRead = () => {
 
 const handleClearAll = () => {
   notificationStore.clearAll()
+}
+
+const handleViewAll = () => {
+  router.push('/dashboard')
 }
 </script>
 
@@ -206,7 +220,7 @@ const handleClearAll = () => {
     .title {
       font-weight: var(--font-weight-semibold);
       font-size: 15px;
-      color: #1f2937;
+      color: var(--color-text-primary);
     }
 
     .unread-pill {
@@ -226,32 +240,67 @@ const handleClearAll = () => {
   }
 
   .panel-body {
-    max-height: 440px;
+    max-height: 404px;
     overflow-y: auto;
-    padding: 8px;
+    padding: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(15, 23, 42, 0.2) transparent;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(100, 116, 139, 0.28);
+    }
+
+    &:hover::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.4);
+    }
 
     .notification-item {
       display: flex;
       align-items: flex-start;
       gap: 12px;
-      padding: 14px 12px;
+      padding: 14px;
       border-radius: 10px;
       cursor: pointer;
       transition: background var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
 
+      & + .notification-item {
+        border-top: 1px solid var(--color-border-secondary);
+      }
+
       &:hover {
-        background: rgba(15, 23, 42, 0.04);
+        background: var(--color-bg-layout);
+      }
+
+      &.unread {
+        background: var(--color-primary-1);
       }
 
       .notification-icon {
-        flex: 0 0 30px;
-        width: 30px;
-        height: 30px;
-        border-radius: 999px;
+        position: relative;
+        flex: 0 0 27px;
+        width: 27px;
+        height: 27px;
+        border-radius: 9px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 15px;
+        font-size: 14px;
+      }
+
+      .icon-unread-dot {
+        position: absolute;
+        right: -2px;
+        top: -2px;
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: #ef4444;
+        box-shadow: 0 0 0 2px var(--color-bg-container);
       }
 
       .notification-content {
@@ -269,32 +318,23 @@ const handleClearAll = () => {
         .notification-title-row {
           display: flex;
           align-items: center;
-          gap: 6px;
           min-width: 0;
-        }
-
-        .unread-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 999px;
-          background: #ef4444;
-          flex: 0 0 8px;
         }
 
         .notification-title {
           font-size: 14px;
           line-height: 20px;
           font-weight: 600;
-          color: #1f2937;
+          color: var(--color-text-primary);
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
 
         .notification-message {
-          font-size: 13px;
-          line-height: 1.55;
-          color: #6b7280;
+          font-size: 12px;
+          line-height: 1.7;
+          color: var(--color-text-secondary);
           display: -webkit-box;
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
@@ -303,10 +343,20 @@ const handleClearAll = () => {
 
         .notification-time {
           flex: 0 0 auto;
-          font-size: 12px;
-          color: #9ca3af;
-          line-height: 20px;
+          font-size: 11px;
+          color: var(--color-text-tertiary);
+          line-height: 18px;
           white-space: nowrap;
+        }
+
+        .notification-detail-hint {
+          margin-top: 6px;
+          font-size: 12px;
+          line-height: 16px;
+          color: var(--color-primary-7);
+          opacity: 0;
+          transform: translateY(2px);
+          transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
         }
       }
 
@@ -321,12 +371,21 @@ const handleClearAll = () => {
 
         &:hover {
           color: var(--color-text-secondary);
-          background: rgba(15, 23, 42, 0.08);
+          background: var(--color-bg-layout);
         }
       }
 
       &:hover .notification-remove-btn {
         opacity: 1;
+      }
+
+      &:hover .notification-title {
+        color: var(--color-primary-7);
+      }
+
+      &:hover .notification-detail-hint {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
 
@@ -341,8 +400,8 @@ const handleClearAll = () => {
     }
 
     .tone-security .notification-icon {
-      color: #d97706;
-      background: rgba(217, 119, 6, 0.14);
+      color: #f97316;
+      background: rgba(249, 115, 22, 0.18);
     }
 
     .tone-task .notification-icon {
@@ -393,7 +452,7 @@ const handleClearAll = () => {
       .empty-title {
         font-size: 14px;
         line-height: 22px;
-        color: #374151;
+        color: var(--color-text-primary);
         font-weight: 600;
       }
 
@@ -401,7 +460,29 @@ const handleClearAll = () => {
         margin-top: 4px;
         font-size: 12px;
         line-height: 20px;
-        color: #9ca3af;
+        color: var(--color-text-tertiary);
+      }
+    }
+  }
+
+  .panel-footer {
+    padding: 10px 14px 12px;
+    border-top: 1px solid var(--color-border-secondary);
+    background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.02));
+
+    .view-all-btn {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 34px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--color-primary-7);
+
+      &:hover {
+        background: rgba(22, 119, 255, 0.08);
       }
     }
   }
@@ -413,7 +494,7 @@ const handleClearAll = () => {
   .ant-popover-inner {
     border-radius: 12px;
     border: 1px solid rgba(15, 23, 42, 0.06);
-    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 28px 72px rgba(15, 23, 42, 0.18), 0 6px 18px rgba(15, 23, 42, 0.08);
     overflow: hidden;
   }
 

@@ -85,6 +85,8 @@ export default {
     clearAll: 'Clear All',
     noNotifications: 'No Notifications',
     notificationsEmptyHint: 'After clearing, new notifications will appear here',
+    viewDetails: 'View details',
+    viewAllNotifications: 'View all notifications',
     searchPlaceholder: 'Search menu...',
     noSearchResults: 'No matching menu found',
     languages: {

@@ -86,6 +86,8 @@ export default {
     clearAll: '清空所有',
     noNotifications: '暂无通知',
     notificationsEmptyHint: '清空后，新的通知会显示在这里',
+    viewDetails: '查看详情',
+    viewAllNotifications: '查看全部通知',
     searchPlaceholder: '搜索菜单...',
     noSearchResults: '未找到匹配的菜单',
     languages: {
