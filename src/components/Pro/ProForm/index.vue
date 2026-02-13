@@ -77,15 +77,23 @@ const visibleFormItems = computed(() => {
 const formRules = computed(() => {
   const rules: Record<string, any> = {}
   props.formItems.forEach(item => {
+    const itemRules = []
+
+    // 如果字段标记为 required，自动添加 required 规则
+    if (item.required) {
+      itemRules.push({
+        required: true,
+        message: $t('proForm.enterPlaceholder', { label: String(item.label ?? '') })
+      })
+    }
+
+    // 添加自定义规则
     if (item.rules) {
-      rules[item.name] = item.rules
-    } else if (item.required) {
-      rules[item.name] = [
-        {
-          required: true,
-          message: $t('proForm.enterPlaceholder', { label: String(item.label ?? '') })
-        }
-      ]
+      itemRules.push(...(Array.isArray(item.rules) ? item.rules : [item.rules]))
+    }
+
+    if (itemRules.length > 0) {
+      rules[item.name] = itemRules
     }
   })
   return rules
