@@ -12,9 +12,23 @@
       row-key="id"
     >
       <template #toolbar-actions>
-        <a-button type="primary" class="create-user-btn" @click="handleCreate">
-          <PlusOutlined /> {{ $t('user.createUser') }}
-        </a-button>
+        <a-space>
+          <a-upload
+            :show-upload-list="false"
+            accept=".csv"
+            :before-upload="handleImport"
+          >
+            <a-button>
+              <UploadOutlined /> 导入
+            </a-button>
+          </a-upload>
+          <a-button @click="handleExport">
+            <DownloadOutlined /> 导出
+          </a-button>
+          <a-button type="primary" class="create-user-btn" @click="handleCreate">
+            <PlusOutlined /> {{ $t('user.createUser') }}
+          </a-button>
+        </a-space>
       </template>
     </ProTable>
 
@@ -40,7 +54,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { message, Modal } from 'antdv-next'
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, DownloadOutlined } from '@antdv-next/icons'
 import { $t } from '@/locales'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProForm from '@/components/Pro/ProForm/index.vue'
@@ -48,6 +62,7 @@ import { createUser, deleteUser, getUserList, updateUser } from '@/api/user'
 import { getRoleList } from '@/api/role'
 import type { Role, User } from '@/types/auth'
 import type { ProFormItem, ProTableColumn } from '@/types/pro'
+import { exportToCSV, parseCSV } from '@/utils/export'
 
 type UserFormValues = {
   username: string
@@ -393,6 +408,71 @@ const handleSubmit = async () => {
 onMounted(async () => {
   await fetchRoleOptions()
 })
+
+// 导出用户数据
+const handleExport = async () => {
+  try {
+    const response = await getUserList({ current: 1, pageSize: 9999 })
+    const list = response.data.list
+    exportToCSV(
+      [
+        { title: '用户名', dataIndex: 'username' },
+        { title: '姓名', dataIndex: 'realName' },
+        { title: '邮箱', dataIndex: 'email' },
+        { title: '手机号', dataIndex: 'phone' },
+        { title: '性别', dataIndex: 'gender', render: (v: string) => v === 'male' ? '男' : '女' },
+        { title: '状态', dataIndex: 'status', render: (v: string) => v === 'active' ? '正常' : '禁用' },
+        { title: '角色', dataIndex: 'roles', render: (_: any, r: any) => (r.roles || []).map((role: any) => role.name).join(', ') },
+        { title: '创建时间', dataIndex: 'createdAt' }
+      ],
+      list,
+      `用户列表_${new Date().toISOString().slice(0, 10)}`
+    )
+    message.success('导出成功')
+  } catch {
+    message.error('导出失败')
+  }
+}
+
+// 导入用户数据
+const handleImport = async (file: File) => {
+  try {
+    const rows = await parseCSV(file)
+    if (rows.length < 2) {
+      message.warning('文件为空或格式不正确')
+      return false
+    }
+    const header = rows[0]
+    const usernameIdx = header.findIndex(h => h.includes('用户名'))
+    const realNameIdx = header.findIndex(h => h.includes('姓名'))
+    const emailIdx = header.findIndex(h => h.includes('邮箱'))
+
+    if (usernameIdx === -1 || realNameIdx === -1 || emailIdx === -1) {
+      message.error('CSV 格式不正确，需包含"用户名"、"姓名"、"邮箱"列')
+      return false
+    }
+
+    let successCount = 0
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i]
+      if (!row[usernameIdx]) continue
+      try {
+        await createUser({
+          username: row[usernameIdx],
+          realName: row[realNameIdx] || '',
+          email: row[emailIdx] || '',
+          status: 'active'
+        })
+        successCount++
+      } catch { /* skip duplicates */ }
+    }
+    message.success(`成功导入 ${successCount} 条数据`)
+    refreshTable()
+  } catch {
+    message.error('导入失败，请检查文件格式')
+  }
+  return false
+}
 </script>
 
 <style scoped lang="scss">
