@@ -400,6 +400,24 @@ export default {
     }
   },
 
+  exampleEditor: {
+    title: 'Rich Text Editor Example',
+    description: 'A rich text editor based on Tiptap, supporting image upload, link insertion, formatting and more.',
+    basicUsage: 'Basic Usage',
+    placeholder: 'Enter content...',
+    disabledState: 'Disabled State',
+    customHeight: 'Custom Height',
+    contentPreview: 'Content Preview',
+    htmlOutput: 'HTML Output',
+    noContent: 'No content',
+    save: 'Save Content',
+    clear: 'Clear Content',
+    loadDemo: 'Load Demo',
+    savedMessage: 'Content saved',
+    clearedMessage: 'Content cleared',
+    demoLoadedMessage: 'Demo content loaded'
+  },
+
   exampleForm: {
     description: 'Advanced ProForm example demonstrating various form controls',
     age: 'Age',

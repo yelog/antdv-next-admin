@@ -401,6 +401,24 @@ export default {
     }
   },
 
+  exampleEditor: {
+    title: '富文本编辑器示例',
+    description: '基于 Tiptap 封装的富文本编辑器，支持图片上传、链接插入、格式化等功能。',
+    basicUsage: '基础用法',
+    placeholder: '请输入内容...',
+    disabledState: '禁用状态',
+    customHeight: '自定义高度',
+    contentPreview: '内容预览',
+    htmlOutput: 'HTML 输出',
+    noContent: '暂无内容',
+    save: '保存内容',
+    clear: '清空内容',
+    loadDemo: '加载示例',
+    savedMessage: '内容已保存',
+    clearedMessage: '内容已清空',
+    demoLoadedMessage: '示例内容已加载'
+  },
+
   exampleForm: {
     description: 'ProForm 高级表单示例 - 展示各种表单控件',
     age: '年龄',

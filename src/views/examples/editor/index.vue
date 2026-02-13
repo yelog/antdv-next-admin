@@ -1,44 +1,39 @@
 <template>
   <div class="page-container">
     <div class="card">
-      <h2>富文本编辑器示例</h2>
+      <h2>{{ t('exampleEditor.title') }}</h2>
       <p class="text-secondary mb-lg">
-        基于 <a href="https://tiptap.dev/" target="_blank" rel="noopener noreferrer">Tiptap</a> 封装的富文本编辑器，支持图片上传、链接插入、格式化等功能。
+        {{ t('exampleEditor.description') }}
       </p>
 
       <a-space direction="vertical" :size="16" style="width: 100%">
-        <!-- 基础用法 -->
         <div>
-          <h3>基础用法</h3>
-          <Editor v-model="content1" :height="300" placeholder="请输入内容..." />
+          <h3>{{ t('exampleEditor.basicUsage') }}</h3>
+          <Editor v-model="content1" :height="300" :placeholder="t('exampleEditor.placeholder')" />
         </div>
 
-        <!-- 禁用状态 -->
         <div>
-          <h3>禁用状态</h3>
+          <h3>{{ t('exampleEditor.disabledState') }}</h3>
           <Editor v-model="content2" :height="200" disabled />
         </div>
 
-        <!-- 自定义高度 -->
         <div>
-          <h3>自定义高度</h3>
+          <h3>{{ t('exampleEditor.customHeight') }}</h3>
           <Editor v-model="content3" :height="500" />
         </div>
 
-        <!-- 内容预览 -->
         <div>
-          <h3>内容预览</h3>
-          <a-card title="HTML 输出">
-            <pre class="html-preview">{{ content1 || '暂无内容' }}</pre>
+          <h3>{{ t('exampleEditor.contentPreview') }}</h3>
+          <a-card :title="t('exampleEditor.htmlOutput')">
+            <pre class="html-preview">{{ content1 || t('exampleEditor.noContent') }}</pre>
           </a-card>
         </div>
 
-        <!-- 操作按钮 -->
         <div>
           <a-space>
-            <a-button type="primary" @click="handleSave">保存内容</a-button>
-            <a-button @click="handleClear">清空内容</a-button>
-            <a-button @click="handleLoadDemo">加载示例</a-button>
+            <a-button type="primary" @click="handleSave">{{ t('exampleEditor.save') }}</a-button>
+            <a-button @click="handleClear">{{ t('exampleEditor.clear') }}</a-button>
+            <a-button @click="handleLoadDemo">{{ t('exampleEditor.loadDemo') }}</a-button>
           </a-space>
         </div>
       </a-space>
@@ -49,51 +44,54 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { message } from 'antdv-next'
+import { useI18n } from 'vue-i18n'
 import Editor from '@/components/Editor/index.vue'
 
-const content1 = ref('<p>这是一个基于 <strong>Tiptap</strong> 的富文本编辑器示例。</p>')
-const content2 = ref('<p>这是禁用状态的编辑器，无法编辑。</p>')
+const { t } = useI18n()
+
+const content1 = ref('<p>This is a rich text editor example based on <strong>Tiptap</strong>.</p>')
+const content2 = ref('<p>This editor is in disabled state and cannot be edited.</p>')
 const content3 = ref('')
 
 const handleSave = () => {
-  console.log('保存的内容:', content1.value)
-  message.success('内容已保存')
+  console.log('Saved content:', content1.value)
+  message.success(t('exampleEditor.savedMessage'))
 }
 
 const handleClear = () => {
   content1.value = ''
-  message.info('内容已清空')
+  message.info(t('exampleEditor.clearedMessage'))
 }
 
 const handleLoadDemo = () => {
   content1.value = `
-    <h1>欢迎使用 Tiptap 编辑器</h1>
-    <p>这是一个功能强大的富文本编辑器，支持以下特性：</p>
-    <h2>文本格式</h2>
+    <h1>Welcome to Tiptap Editor</h1>
+    <p>This is a powerful rich text editor with the following features:</p>
+    <h2>Text Formatting</h2>
     <ul>
-      <li><strong>粗体文本</strong></li>
-      <li><em>斜体文本</em></li>
-      <li><s>删除线文本</s></li>
-      <li><code>行内代码</code></li>
+      <li><strong>Bold text</strong></li>
+      <li><em>Italic text</em></li>
+      <li><s>Strikethrough text</s></li>
+      <li><code>Inline code</code></li>
     </ul>
-    <h2>列表</h2>
+    <h2>Lists</h2>
     <ol>
-      <li>有序列表项 1</li>
-      <li>有序列表项 2</li>
-      <li>有序列表项 3</li>
+      <li>Ordered list item 1</li>
+      <li>Ordered list item 2</li>
+      <li>Ordered list item 3</li>
     </ol>
-    <h2>引用</h2>
+    <h2>Blockquote</h2>
     <blockquote>
-      <p>这是一段引用文本，可以用来突出显示重要内容。</p>
+      <p>This is a blockquote, useful for highlighting important content.</p>
     </blockquote>
-    <h2>代码块</h2>
+    <h2>Code Block</h2>
     <pre><code>function hello() {
   console.log('Hello, Tiptap!')
 }</code></pre>
-    <h2>链接</h2>
-    <p>访问 <a href="https://tiptap.dev" target="_blank" rel="noopener noreferrer">Tiptap 官网</a> 了解更多信息。</p>
+    <h2>Links</h2>
+    <p>Visit the <a href="https://tiptap.dev" target="_blank" rel="noopener noreferrer">Tiptap website</a> for more information.</p>
   `
-  message.success('示例内容已加载')
+  message.success(t('exampleEditor.demoLoadedMessage'))
 }
 </script>
 
