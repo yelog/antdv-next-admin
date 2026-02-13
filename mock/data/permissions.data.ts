@@ -18,35 +18,89 @@ export const mockPermissions: Permission[] = [
     visible: true
   },
 
-  // System Menu
+  // Organization & Permissions Menu
   {
-    id: '10',
-    name: 'System Management',
-    code: 'system.menu',
-    description: 'System management root menu',
-    resource: '/system',
+    id: '60',
+    name: 'Organization & Permissions',
+    code: 'organization.menu',
+    description: 'Organization and permissions root menu',
+    resource: '/organization',
     action: '*',
     type: 'menu',
-    path: '/system',
+    path: '/organization',
     component: 'Layout',
-    icon: 'SettingOutlined',
+    icon: 'TeamOutlined',
     sort: 2,
     status: 'active',
     visible: true,
     children: [
       {
+        id: '50',
+        name: 'Department Management',
+        code: 'system.dept.view',
+        description: 'Department management menu',
+        resource: '/organization/dept',
+        action: 'view',
+        type: 'menu',
+        parentId: '60',
+        path: '/organization/dept',
+        component: 'system/dept/index',
+        icon: 'ApartmentOutlined',
+        sort: 1,
+        status: 'active',
+        visible: true,
+        children: [
+          {
+            id: '51',
+            name: 'Create Department',
+            code: 'system.dept.create',
+            description: 'Can create department',
+            resource: 'system.dept',
+            action: 'create',
+            type: 'button',
+            parentId: '50',
+            status: 'active',
+            visible: true
+          },
+          {
+            id: '52',
+            name: 'Edit Department',
+            code: 'system.dept.edit',
+            description: 'Can edit department',
+            resource: 'system.dept',
+            action: 'edit',
+            type: 'button',
+            parentId: '50',
+            status: 'active',
+            visible: true
+          },
+          {
+            id: '53',
+            name: 'Delete Department',
+            code: 'system.dept.delete',
+            description: 'Can delete department',
+            resource: 'system.dept',
+            action: 'delete',
+            type: 'button',
+            parentId: '50',
+            status: 'active',
+            visible: true
+          }
+        ]
+      },
+      {
         id: '11',
         name: 'User Management',
         code: 'system.user.view',
         description: 'User management menu',
-        resource: '/system/user',
+        resource: '/organization/user',
         action: 'view',
         type: 'menu',
-        parentId: '10',
-        path: '/system/user',
+        parentId: '60',
+        path: '/organization/user',
         component: 'system/user/index',
         icon: 'UserOutlined',
-        sort: 1,
+        sort: 2,
         status: 'active',
         visible: true,
         children: [
@@ -93,14 +147,14 @@ export const mockPermissions: Permission[] = [
         name: 'Role Management',
         code: 'system.role.view',
         description: 'Role management menu',
-        resource: '/system/role',
+        resource: '/organization/role',
         action: 'view',
         type: 'menu',
-        parentId: '10',
-        path: '/system/role',
+        parentId: '60',
+        path: '/organization/role',
         component: 'system/role/index',
         icon: 'TeamOutlined',
-        sort: 2,
+        sort: 3,
         status: 'active',
         visible: true,
         children: [
@@ -147,14 +201,14 @@ export const mockPermissions: Permission[] = [
         name: 'Menu Management',
         code: 'system.permission.view',
         description: 'Menu management menu',
-        resource: '/system/permission',
+        resource: '/organization/permission',
         action: 'view',
         type: 'menu',
-        parentId: '10',
-        path: '/system/permission',
+        parentId: '60',
+        path: '/organization/permission',
         component: 'system/permission/index',
         icon: 'SafetyOutlined',
-        sort: 3,
+        sort: 4,
         status: 'active',
         visible: true,
         children: [
@@ -195,145 +249,26 @@ export const mockPermissions: Permission[] = [
             visible: true
           }
         ]
-      },
-      {
-        id: '34',
-        name: 'Dictionary Management',
-        code: 'system.dict.view',
-        description: 'Dictionary management menu',
-        resource: '/system/dict',
-        action: 'view',
-        type: 'menu',
-        parentId: '10',
-        path: '/system/dict',
-        component: 'system/dict/index',
-        icon: 'BookOutlined',
-        sort: 4,
-        status: 'active',
-        visible: true,
-        children: [
-          {
-            id: '35',
-            name: 'Create Dictionary',
-            code: 'system.dict.create',
-            description: 'Can create dictionary',
-            resource: 'system.dict',
-            action: 'create',
-            type: 'button',
-            parentId: '34',
-            status: 'active',
-            visible: true
-          },
-          {
-            id: '36',
-            name: 'Edit Dictionary',
-            code: 'system.dict.edit',
-            description: 'Can edit dictionary',
-            resource: 'system.dict',
-            action: 'edit',
-            type: 'button',
-            parentId: '34',
-            status: 'active',
-            visible: true
-          },
-          {
-            id: '37',
-            name: 'Delete Dictionary',
-            code: 'system.dict.delete',
-            description: 'Can delete dictionary',
-            resource: 'system.dict',
-            action: 'delete',
-            type: 'button',
-            parentId: '34',
-            status: 'active',
-            visible: true
-          }
-        ]
-      },
-      {
-        id: '38',
-        name: 'System Log',
-        code: 'system.log.view',
-        description: 'System log menu',
-        resource: '/system/log',
-        action: 'view',
-        type: 'menu',
-        parentId: '10',
-        path: '/system/log',
-        component: 'system/log/index',
-        icon: 'FileTextOutlined',
-        sort: 5,
-        status: 'active',
-        visible: true,
-        children: [
-          {
-            id: '39',
-            name: 'Clear Log',
-            code: 'system.log.clear',
-            description: 'Can clear logs',
-            resource: 'system.log',
-            action: 'delete',
-            type: 'button',
-            parentId: '38',
-            status: 'active',
-            visible: true
-          }
-        ]
-      },
-      {
-        id: '50',
-        name: 'Department Management',
-        code: 'system.dept.view',
-        description: 'Department management menu',
-        resource: '/system/dept',
-        action: 'view',
-        type: 'menu',
-        parentId: '10',
-        path: '/system/dept',
-        component: 'system/dept/index',
-        icon: 'ApartmentOutlined',
-        sort: 6,
-        status: 'active',
-        visible: true,
-        children: [
-          {
-            id: '51',
-            name: 'Create Department',
-            code: 'system.dept.create',
-            description: 'Can create department',
-            resource: 'system.dept',
-            action: 'create',
-            type: 'button',
-            parentId: '50',
-            status: 'active',
-            visible: true
-          },
-          {
-            id: '52',
-            name: 'Edit Department',
-            code: 'system.dept.edit',
-            description: 'Can edit department',
-            resource: 'system.dept',
-            action: 'edit',
-            type: 'button',
-            parentId: '50',
-            status: 'active',
-            visible: true
-          },
-          {
-            id: '53',
-            name: 'Delete Department',
-            code: 'system.dept.delete',
-            description: 'Can delete department',
-            resource: 'system.dept',
-            action: 'delete',
-            type: 'button',
-            parentId: '50',
-            status: 'active',
-            visible: true
-          }
-        ]
-      },
+      }
+    ]
+  },
+
+  // System Management Menu
+  {
+    id: '10',
+    name: 'System Management',
+    code: 'system.menu',
+    description: 'System management root menu',
+    resource: '/system',
+    action: '*',
+    type: 'menu',
+    path: '/system',
+    component: 'Layout',
+    icon: 'SettingOutlined',
+    sort: 3,
+    status: 'active',
+    visible: true,
+    children: [
       {
         id: '54',
         name: 'System Config',
@@ -346,7 +281,7 @@ export const mockPermissions: Permission[] = [
         path: '/system/config',
         component: 'system/config/index',
         icon: 'ControlOutlined',
-        sort: 7,
+        sort: 1,
         status: 'active',
         visible: true,
         children: [
@@ -389,6 +324,60 @@ export const mockPermissions: Permission[] = [
         ]
       },
       {
+        id: '34',
+        name: 'Dictionary Management',
+        code: 'system.dict.view',
+        description: 'Dictionary management menu',
+        resource: '/system/dict',
+        action: 'view',
+        type: 'menu',
+        parentId: '10',
+        path: '/system/dict',
+        component: 'system/dict/index',
+        icon: 'BookOutlined',
+        sort: 2,
+        status: 'active',
+        visible: true,
+        children: [
+          {
+            id: '35',
+            name: 'Create Dictionary',
+            code: 'system.dict.create',
+            description: 'Can create dictionary',
+            resource: 'system.dict',
+            action: 'create',
+            type: 'button',
+            parentId: '34',
+            status: 'active',
+            visible: true
+          },
+          {
+            id: '36',
+            name: 'Edit Dictionary',
+            code: 'system.dict.edit',
+            description: 'Can edit dictionary',
+            resource: 'system.dict',
+            action: 'edit',
+            type: 'button',
+            parentId: '34',
+            status: 'active',
+            visible: true
+          },
+          {
+            id: '37',
+            name: 'Delete Dictionary',
+            code: 'system.dict.delete',
+            description: 'Can delete dictionary',
+            resource: 'system.dict',
+            action: 'delete',
+            type: 'button',
+            parentId: '34',
+            status: 'active',
+            visible: true
+          }
+        ]
+      },
+      {
         id: '58',
         name: 'File Management',
         code: 'system.file.view',
@@ -400,7 +389,7 @@ export const mockPermissions: Permission[] = [
         path: '/system/file',
         component: 'system/file/index',
         icon: 'FolderOutlined',
-        sort: 8,
+        sort: 3,
         status: 'active',
         visible: true,
         children: [
@@ -413,6 +402,36 @@ export const mockPermissions: Permission[] = [
             action: 'delete',
             type: 'button',
             parentId: '58',
+            status: 'active',
+            visible: true
+          }
+        ]
+      },
+      {
+        id: '38',
+        name: 'System Log',
+        code: 'system.log.view',
+        description: 'System log menu',
+        resource: '/system/log',
+        action: 'view',
+        type: 'menu',
+        parentId: '10',
+        path: '/system/log',
+        component: 'system/log/index',
+        icon: 'FileTextOutlined',
+        sort: 4,
+        status: 'active',
+        visible: true,
+        children: [
+          {
+            id: '39',
+            name: 'Clear Log',
+            code: 'system.log.clear',
+            description: 'Can clear logs',
+            resource: 'system.log',
+            action: 'delete',
+            type: 'button',
+            parentId: '38',
             status: 'active',
             visible: true
           }
@@ -433,7 +452,7 @@ export const mockPermissions: Permission[] = [
     path: '/examples',
     component: 'Layout',
     icon: 'AppstoreOutlined',
-    sort: 3,
+    sort: 4,
     status: 'active',
     visible: true,
     children: [

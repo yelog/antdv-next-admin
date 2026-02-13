@@ -27,18 +27,13 @@
           :columns="columns"
           :request="loadConfigList"
           :search="false"
-          :toolbar="{
-            title: selectedGroup,
-            actions: [
-              {
-                label: '新增配置',
-                type: 'primary',
-                icon: 'PlusOutlined',
-                onClick: handleAdd
-              }
-            ]
-          }"
+          :toolbar="{ title: selectedGroup }"
         >
+          <template #toolbar-actions>
+            <a-button type="primary" @click="handleAdd">
+              <PlusOutlined /> 新增配置
+            </a-button>
+          </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'value'">
               <template v-if="record.valueType === 'boolean'">
@@ -123,7 +118,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { message, Modal } from 'antdv-next'
-import { EditOutlined, DeleteOutlined } from '@antdv-next/icons'
+import { EditOutlined, DeleteOutlined, PlusOutlined } from '@antdv-next/icons'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import type { ProTableColumn } from '@/types/pro'
 import type { SysConfig } from '@/types/config'

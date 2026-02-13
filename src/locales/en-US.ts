@@ -42,6 +42,7 @@ export default {
 
   menu: {
     dashboard: 'Dashboard',
+    organization: 'Organization',
     system: 'System',
     user: 'User Management',
     role: 'Role Management',

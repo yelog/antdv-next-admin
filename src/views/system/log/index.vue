@@ -8,19 +8,13 @@
             :key="'operation-' + operationRefreshKey"
             :columns="operationColumns"
             :request="loadOperationLogs"
-            :toolbar="{
-              title: '操作日志',
-              actions: [
-                {
-                  label: '清空日志',
-                  type: 'default',
-                  danger: true,
-                  icon: 'DeleteOutlined',
-                  onClick: handleClearOperationLog
-                }
-              ]
-            }"
+            :toolbar="{ title: '操作日志' }"
           >
+            <template #toolbar-actions>
+              <a-button danger @click="handleClearOperationLog">
+                <DeleteOutlined /> 清空日志
+              </a-button>
+            </template>
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'action'">
                 <a-tag :color="actionColorMap[record.action] || 'default'">
@@ -48,19 +42,13 @@
             :key="'login-' + loginRefreshKey"
             :columns="loginColumns"
             :request="loadLoginLogs"
-            :toolbar="{
-              title: '登录日志',
-              actions: [
-                {
-                  label: '清空日志',
-                  type: 'default',
-                  danger: true,
-                  icon: 'DeleteOutlined',
-                  onClick: handleClearLoginLog
-                }
-              ]
-            }"
+            :toolbar="{ title: '登录日志' }"
           >
+            <template #toolbar-actions>
+              <a-button danger @click="handleClearLoginLog">
+                <DeleteOutlined /> 清空日志
+              </a-button>
+            </template>
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'status'">
                 <span class="status-tag" :class="record.status === 'success' ? 'status-success' : 'status-fail'">
@@ -79,6 +67,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { message, Modal } from 'antdv-next'
+import { DeleteOutlined } from '@antdv-next/icons'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import type { ProTableColumn } from '@/types/pro'
 import { getOperationLogList, getLoginLogList, clearOperationLog, clearLoginLog } from '@/api/log'

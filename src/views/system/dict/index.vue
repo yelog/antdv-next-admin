@@ -46,18 +46,13 @@
           :columns="columns"
           :request="loadData"
           :search="false"
-          :toolbar="{
-            title: `字典数据 - ${selectedTypeName}`,
-            actions: [
-              {
-                label: '新增数据',
-                type: 'primary',
-                icon: 'PlusOutlined',
-                onClick: handleAdd
-              }
-            ]
-          }"
+          :toolbar="{ title: `字典数据 - ${selectedTypeName}` }"
         >
+          <template #toolbar-actions>
+            <a-button type="primary" @click="handleAdd">
+              <PlusOutlined /> 新增数据
+            </a-button>
+          </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
               <span class="status-tag" :class="record.status === 'enabled' ? 'status-enabled' : 'status-disabled'">

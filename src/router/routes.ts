@@ -111,20 +111,31 @@ export const basicRoutes: AppRouteRecordRaw[] = [
  */
 export const asyncRoutes: AppRouteRecordRaw[] = [
   {
-    path: '/system',
-    name: 'System',
-    redirect: '/system/user',
+    path: '/organization',
+    name: 'Organization',
+    redirect: '/organization/dept',
     component: () => import('@/components/Layout/AdminLayout.vue'),
     meta: {
-      title: 'menu.system',
-      icon: 'SettingOutlined',
+      title: 'menu.organization',
+      icon: 'TeamOutlined',
       requiresAuth: true,
       order: 2
     },
     children: [
       {
+        path: 'dept',
+        name: 'OrganizationDept',
+        component: () => import('@/views/system/dept/index.vue'),
+        meta: {
+          title: 'menu.dept',
+          icon: 'ApartmentOutlined',
+          requiresAuth: true,
+          requiredPermissions: ['system.dept.view']
+        }
+      },
+      {
         path: 'user',
-        name: 'SystemUser',
+        name: 'OrganizationUser',
         component: () => import('@/views/system/user/index.vue'),
         meta: {
           title: 'menu.user',
@@ -135,7 +146,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
       },
       {
         path: 'role',
-        name: 'SystemRole',
+        name: 'OrganizationRole',
         component: () => import('@/views/system/role/index.vue'),
         meta: {
           title: 'menu.role',
@@ -146,13 +157,38 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
       },
       {
         path: 'permission',
-        name: 'SystemPermission',
+        name: 'OrganizationPermission',
         component: () => import('@/views/system/permission/index.vue'),
         meta: {
           title: 'menu.permission',
           icon: 'SafetyOutlined',
           requiresAuth: true,
           requiredPermissions: ['system.permission.view']
+        }
+      }
+    ]
+  },
+  {
+    path: '/system',
+    name: 'System',
+    redirect: '/system/config',
+    component: () => import('@/components/Layout/AdminLayout.vue'),
+    meta: {
+      title: 'menu.system',
+      icon: 'SettingOutlined',
+      requiresAuth: true,
+      order: 3
+    },
+    children: [
+      {
+        path: 'config',
+        name: 'SystemConfig',
+        component: () => import('@/views/system/config/index.vue'),
+        meta: {
+          title: 'menu.config',
+          icon: 'ControlOutlined',
+          requiresAuth: true,
+          requiredPermissions: ['system.config.view']
         }
       },
       {
@@ -167,39 +203,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
-        path: 'log',
-        name: 'SystemLog',
-        component: () => import('@/views/system/log/index.vue'),
-        meta: {
-          title: 'menu.log',
-          icon: 'FileTextOutlined',
-          requiresAuth: true,
-          requiredPermissions: ['system.log.view']
-        }
-      },
-      {
-        path: 'dept',
-        name: 'SystemDept',
-        component: () => import('@/views/system/dept/index.vue'),
-        meta: {
-          title: 'menu.dept',
-          icon: 'ApartmentOutlined',
-          requiresAuth: true,
-          requiredPermissions: ['system.dept.view']
-        }
-      },
-      {
-        path: 'config',
-        name: 'SystemConfig',
-        component: () => import('@/views/system/config/index.vue'),
-        meta: {
-          title: 'menu.config',
-          icon: 'ControlOutlined',
-          requiresAuth: true,
-          requiredPermissions: ['system.config.view']
-        }
-      },
-      {
         path: 'file',
         name: 'SystemFile',
         component: () => import('@/views/system/file/index.vue'),
@@ -208,6 +211,17 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           icon: 'FolderOutlined',
           requiresAuth: true,
           requiredPermissions: ['system.file.view']
+        }
+      },
+      {
+        path: 'log',
+        name: 'SystemLog',
+        component: () => import('@/views/system/log/index.vue'),
+        meta: {
+          title: 'menu.log',
+          icon: 'FileTextOutlined',
+          requiresAuth: true,
+          requiredPermissions: ['system.log.view']
         }
       }
     ]
@@ -221,7 +235,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
       title: 'menu.examples',
       icon: 'AppstoreOutlined',
       requiresAuth: true,
-      order: 3
+      order: 4
     },
     children: [
       {
