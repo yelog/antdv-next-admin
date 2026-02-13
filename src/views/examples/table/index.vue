@@ -34,6 +34,11 @@
             <template #unCheckedChildren>{{ $t('user.inactive') }}</template>
           </a-switch>
         </template>
+        <template v-else-if="column.dataIndex === 'gender'">
+          <a-tag :color="genderValueEnum[record.gender]?.color">
+            {{ genderValueEnum[record.gender]?.text || record.gender }}
+          </a-tag>
+        </template>
       </template>
     </ProTable>
 
@@ -70,6 +75,16 @@ const modalVisible = ref(false)
 const editingId = ref<string | null>(null)
 const formRef = ref()
 const formData = ref({})
+
+const genderOptions = computed(() => [
+  { label: $t('user.male'), value: 'male' },
+  { label: $t('user.female'), value: 'female' }
+])
+
+const genderValueEnum = computed<Record<string, { text: string; color?: string }>>(() => ({
+  male: { text: $t('user.male'), color: 'blue' },
+  female: { text: $t('user.female'), color: 'pink' }
+}))
 
 // Table columns configuration
 const columns = computed<ProTableColumn[]>(() => [
@@ -108,15 +123,16 @@ const columns = computed<ProTableColumn[]>(() => [
     dataIndex: 'gender',
     search: true,
     searchType: 'select',
-    searchOptions: [
-      { label: $t('user.male'), value: 'male' },
-      { label: $t('user.female'), value: 'female' }
-    ],
+    searchOptions: genderOptions.value,
+    headerFilter: {
+      type: 'select',
+      mode: 'server',
+      icon: 'filter',
+      multiple: true,
+      options: genderOptions.value
+    },
     valueType: 'tag',
-    valueEnum: {
-      male: { text: $t('user.male'), color: 'blue' },
-      female: { text: $t('user.female'), color: 'pink' }
-    }
+    valueEnum: genderValueEnum.value
   },
   {
     title: $t('common.status'),
@@ -203,10 +219,7 @@ const formItems = computed<ProFormItem[]>(() => [
     label: $t('user.gender'),
     type: 'radio',
     required: true,
-    options: [
-      { label: $t('user.male'), value: 'male' },
-      { label: $t('user.female'), value: 'female' }
-    ]
+    options: genderOptions.value
   },
   {
     name: 'status',

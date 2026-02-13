@@ -26,11 +26,19 @@ export async function getUserList(params: PageParams): Promise<ApiResponse<PageR
 
   const { mockUsers } = await import('../../mock/data/users.data')
 
-  const { current = 1, pageSize = 10, username, email, status } = (params || {}) as any
+  const { current = 1, pageSize = 10, username, email, status, gender } = (params || {}) as any
 
   let filtered = [...mockUsers]
   if (username) filtered = filtered.filter((u) => u.username?.toLowerCase().includes(String(username).toLowerCase()))
   if (email) filtered = filtered.filter((u) => u.email?.toLowerCase().includes(String(email).toLowerCase()))
+  if (gender) {
+    const genderValues = Array.isArray(gender)
+      ? gender.map(item => String(item))
+      : String(gender).split(',').map(item => item.trim()).filter(Boolean)
+    if (genderValues.length > 0) {
+      filtered = filtered.filter((u) => genderValues.includes(String(u.gender)))
+    }
+  }
   if (status) filtered = filtered.filter((u) => u.status === status)
 
   const cur = Number(current) || 1

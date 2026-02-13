@@ -8,7 +8,7 @@ export default defineMock([
     url: '/api/users',
     method: 'GET',
     body: (req) => {
-      const { current = 1, pageSize = 10, username, email, status } = req.query
+      const { current = 1, pageSize = 10, username, email, status, gender } = req.query
 
       // Filter users
       let filteredUsers = [...mockUsers]
@@ -27,6 +27,15 @@ export default defineMock([
 
       if (status) {
         filteredUsers = filteredUsers.filter(user => user.status === status)
+      }
+
+      if (gender) {
+        const genderValues = Array.isArray(gender)
+          ? gender.map(item => String(item))
+          : String(gender).split(',').map(item => item.trim()).filter(Boolean)
+        if (genderValues.length > 0) {
+          filteredUsers = filteredUsers.filter(user => genderValues.includes(String(user.gender)))
+        }
       }
 
       // Pagination
