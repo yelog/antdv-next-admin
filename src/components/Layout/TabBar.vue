@@ -34,9 +34,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, resolveComponent } from 'vue'
+import { computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { Dropdown } from 'antdv-next'
 import {
   ReloadOutlined,
   FullscreenOutlined,
@@ -91,13 +92,13 @@ const tabItems = computed(() => {
   
   return tabsStore.tabs.map(tab => ({
     key: tab.path,
-    closable: tab.closable,
-    label: h('span', { class: 'tab-label-wrapper', key: `${tab.path}-${currentLocale}` }, [
-      h(
-        resolveComponent('a-dropdown'),
-        {
-          trigger: ['contextmenu'],
-          menu: {
+      closable: tab.closable,
+      label: h('span', { class: 'tab-label-wrapper', key: `${tab.path}-${currentLocale}` }, [
+        h(
+          Dropdown,
+          {
+            trigger: ['contextmenu'],
+            menu: {
             items: getTabMenuItems(tab),
             onClick: ({ key }: { key: string | number }) => handleContextMenu({ key: String(key) }, tab)
           }
