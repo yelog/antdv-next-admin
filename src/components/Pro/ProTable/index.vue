@@ -230,22 +230,31 @@
         <template v-if="$slots.filterDropdown || hasBuiltInKeywordHeaderFilter" #filterDropdown="slotProps">
           <template v-if="isBuiltInKeywordFilterColumn(slotProps.column)">
             <div class="pro-table-keyword-filter-panel" @keydown.stop>
-              <a-input
-                class="pro-table-keyword-filter-input"
-                allow-clear
-                :placeholder="getBuiltInKeywordFilterPlaceholder(slotProps.column)"
-                :value="getBuiltInKeywordFilterValue(slotProps.selectedKeys)"
-                @update:value="handleBuiltInKeywordInput($event, slotProps.setSelectedKeys)"
-                @keydown.enter="handleBuiltInKeywordSearch(slotProps.confirm)"
-              />
-              <a-space :size="8" class="pro-table-keyword-filter-actions">
-                <a-button type="primary" @click="handleBuiltInKeywordSearch(slotProps.confirm)">
+              <div class="pro-table-keyword-filter-field">
+                <a-input
+                  class="pro-table-keyword-filter-input"
+                  allow-clear
+                  :placeholder="getBuiltInKeywordFilterPlaceholder(slotProps.column)"
+                  :value="getBuiltInKeywordFilterValue(slotProps.selectedKeys)"
+                  @update:value="handleBuiltInKeywordInput($event, slotProps.setSelectedKeys)"
+                  @keydown.enter="handleBuiltInKeywordSearch(slotProps.confirm)"
+                />
+              </div>
+              <div class="pro-table-keyword-filter-actions">
+                <a-button
+                  type="primary"
+                  class="pro-table-keyword-filter-btn"
+                  @click="handleBuiltInKeywordSearch(slotProps.confirm)"
+                >
                   {{ $t('common.search') }}
                 </a-button>
-                <a-button @click="handleBuiltInKeywordReset(slotProps.setSelectedKeys, slotProps.clearFilters, slotProps.confirm)">
+                <a-button
+                  class="pro-table-keyword-filter-btn"
+                  @click="handleBuiltInKeywordReset(slotProps.setSelectedKeys, slotProps.clearFilters, slotProps.confirm)"
+                >
                   {{ $t('common.reset') }}
                 </a-button>
-              </a-space>
+              </div>
             </div>
           </template>
           <slot v-else-if="$slots.filterDropdown" name="filterDropdown" v-bind="slotProps" />
@@ -1959,24 +1968,6 @@ defineExpose({
     }
   }
 
-  .pro-table-keyword-filter-panel {
-    width: 260px;
-    max-width: calc(100vw - 48px);
-    padding: 4px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .pro-table-keyword-filter-input {
-    width: 100%;
-  }
-
-  .pro-table-keyword-filter-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-  }
 }
 
 .column-setting-dropdown {
@@ -2075,5 +2066,61 @@ defineExpose({
 :deep(.ant-dropdown-menu .ant-menu-item-selected) {
   background: var(--color-primary-1);
   color: var(--color-primary);
+}
+</style>
+
+<style lang="scss">
+.pro-table-keyword-filter-panel {
+  width: 320px;
+  max-width: calc(100vw - 16px);
+  padding: 12px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--color-bg-container);
+}
+
+.pro-table-keyword-filter-field {
+  width: 100%;
+}
+
+.pro-table-keyword-filter-input {
+  width: 100%;
+}
+
+.pro-table-keyword-filter-input.ant-input,
+.pro-table-keyword-filter-input.ant-input-affix-wrapper {
+  border-radius: 8px;
+}
+
+.pro-table-keyword-filter-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pro-table-keyword-filter-actions .ant-btn,
+.pro-table-keyword-filter-btn {
+  width: 100%;
+  height: 36px;
+  margin: 0 !important;
+  border-radius: 8px;
+}
+
+.pro-table-keyword-filter-actions .ant-btn + .ant-btn {
+  margin-inline-start: 0 !important;
+}
+
+@media (max-width: 576px) {
+  .pro-table-keyword-filter-panel {
+    width: min(320px, calc(100vw - 12px));
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .pro-table-keyword-filter-actions {
+    gap: 8px;
+  }
 }
 </style>
