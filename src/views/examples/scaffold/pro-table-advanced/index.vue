@@ -10,14 +10,14 @@
     >
       <template #toolbar-actions>
         <a-space wrap>
-          <a-tag color="processing">已选 {{ selectedRowKeys.length }} 项</a-tag>
+          <a-tag color="processing">{{ $t('examples.scaffold.proTableAdvanced.selectedCount', { count: selectedRowKeys.length }) }}</a-tag>
           <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchSetStatus('inactive')">
-            批量禁用
+            {{ $t('examples.scaffold.proTableAdvanced.batchDisable') }}
           </a-button>
           <a-button danger :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
-            批量删除
+            {{ $t('examples.scaffold.proTableAdvanced.batchDelete') }}
           </a-button>
-          <a-button type="primary" @click="exportCsv">导出当前数据</a-button>
+          <a-button type="primary" @click="exportCsv">{{ $t('examples.scaffold.proTableAdvanced.export') }}</a-button>
         </a-space>
       </template>
 
@@ -25,8 +25,8 @@
         <template v-if="column.dataIndex === 'status'">
           <a-switch
             :checked="record.status === 'active'"
-            checked-children="启用"
-            un-checked-children="禁用"
+            :checked-children="$t('examples.scaffold.proTableAdvanced.statusActive')"
+            :un-checked-children="$t('examples.scaffold.proTableAdvanced.statusInactive')"
             @change="handleStatusSwitchChange(record.id, $event as boolean)"
           />
         </template>
@@ -74,35 +74,35 @@ const tableRows = ref<DemoRow[]>(createMockRows())
 const selectedRowKeys = ref<string[]>([])
 
 const toolbarConfig = computed(() => ({
-  title: 'ProTable 高阶示例',
-  subTitle: '服务端分页模拟 + 批量操作 + 行内编辑 + 导出',
+  title: $t('examples.scaffold.proTableAdvanced.title'),
+  subTitle: $t('examples.scaffold.proTableAdvanced.description'),
   actions: ['refresh', 'density', 'columnSetting'] as Array<'refresh' | 'density' | 'columnSetting'>
 }))
 
 const columns = computed<ProTableColumn[]>(() => [
   {
-    title: '用户名',
+    title: $t('examples.scaffold.proTableAdvanced.username'),
     dataIndex: 'username',
     search: true,
     searchType: 'input',
     width: 150
   },
   {
-    title: '姓名',
+    title: $t('examples.scaffold.proTableAdvanced.realName'),
     dataIndex: 'realName',
     search: true,
     searchType: 'input',
     width: 140
   },
   {
-    title: '邮箱',
+    title: $t('examples.scaffold.proTableAdvanced.email'),
     dataIndex: 'email',
     search: true,
     searchType: 'input',
     width: 220
   },
   {
-    title: '性别',
+    title: $t('examples.scaffold.proTableAdvanced.gender'),
     dataIndex: 'gender',
     search: true,
     searchType: 'select',
@@ -118,18 +118,18 @@ const columns = computed<ProTableColumn[]>(() => [
     width: 120
   },
   {
-    title: '状态',
+    title: $t('examples.scaffold.proTableAdvanced.status'),
     dataIndex: 'status',
     width: 140,
     search: true,
     searchType: 'select',
     searchOptions: [
-      { label: '启用', value: 'active' },
-      { label: '禁用', value: 'inactive' }
+      { label: $t('examples.scaffold.proTableAdvanced.statusActive'), value: 'active' },
+      { label: $t('examples.scaffold.proTableAdvanced.statusInactive'), value: 'inactive' }
     ]
   },
   {
-    title: '创建时间',
+    title: $t('examples.scaffold.proTableAdvanced.createdAt'),
     dataIndex: 'createdAt',
     valueType: 'dateTime',
     width: 190
@@ -144,18 +144,18 @@ const columns = computed<ProTableColumn[]>(() => [
         label: $t('common.edit'),
         icon: EditOutlined,
         onClick: (record) => {
-          message.info(`模拟编辑：${record.username}`)
+          message.info($t('examples.scaffold.proTableAdvanced.editSimulation', { username: record.username }))
         }
       },
       {
         label: $t('common.delete'),
         icon: DeleteOutlined,
         danger: true,
-        confirm: '确认删除该行吗？',
+        confirm: $t('examples.scaffold.proTableAdvanced.deleteConfirm'),
         onClick: (record) => {
           tableRows.value = tableRows.value.filter(item => item.id !== record.id)
           selectedRowKeys.value = selectedRowKeys.value.filter(id => id !== record.id)
-          message.success('删除成功')
+          message.success($t('examples.scaffold.proTableAdvanced.deleteSuccess'))
         }
       }
     ]
@@ -215,7 +215,10 @@ const handleStatusChange = (id: string, checked: boolean) => {
   }
 
   row.status = checked ? 'active' : 'inactive'
-  message.success(`已${checked ? '启用' : '禁用'} ${row.username}`)
+  message.success($t('examples.scaffold.proTableAdvanced.statusChangeSuccess', { 
+    status: checked ? $t('examples.scaffold.proTableAdvanced.statusActive') : $t('examples.scaffold.proTableAdvanced.statusInactive'), 
+    username: row.username 
+  }))
 }
 
 const handleStatusSwitchChange = (id: string, checked: boolean) => {
@@ -238,7 +241,7 @@ const handleBatchSetStatus = (status: DemoRow['status']) => {
     return item
   })
 
-  message.success(`已批量设置 ${selectedRowKeys.value.length} 项状态`)
+  message.success($t('examples.scaffold.proTableAdvanced.batchSetStatusSuccess', { count: selectedRowKeys.value.length }))
 }
 
 const handleBatchDelete = () => {
@@ -247,13 +250,13 @@ const handleBatchDelete = () => {
   }
 
   Modal.confirm({
-    title: '批量删除确认',
-    content: `确认删除已选的 ${selectedRowKeys.value.length} 条数据吗？`,
+    title: $t('examples.scaffold.proTableAdvanced.batchDeleteTitle'),
+    content: $t('examples.scaffold.proTableAdvanced.batchDeleteContent', { count: selectedRowKeys.value.length }),
     onOk: () => {
       const set = new Set(selectedRowKeys.value)
       tableRows.value = tableRows.value.filter(item => !set.has(item.id))
       selectedRowKeys.value = []
-      message.success('批量删除完成')
+      message.success($t('examples.scaffold.proTableAdvanced.batchDeleteSuccess'))
     }
   })
 }
@@ -282,6 +285,6 @@ const exportCsv = () => {
   link.click()
   URL.revokeObjectURL(url)
 
-  message.success('CSV 导出成功')
+  message.success($t('examples.scaffold.proTableAdvanced.exportSuccess'))
 }
 </script>

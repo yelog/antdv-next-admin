@@ -1,13 +1,13 @@
 <template>
   <div class="page-container">
     <div class="card">
-      <h2>上传体系示例</h2>
-      <p class="text-secondary mb-lg">拖拽上传 + 进度 + 失败重试 + 图片预览，便于直接迁移到业务页。</p>
+      <h2>{{ $t('examples.scaffold.uploadSystem.title') }}</h2>
+      <p class="text-secondary mb-lg">{{ $t('examples.scaffold.uploadSystem.description') }}</p>
 
       <a-space wrap class="mb-md">
-        <a-tag color="processing">上传中 {{ uploadingCount }}</a-tag>
-        <a-tag color="success">成功 {{ doneCount }}</a-tag>
-        <a-tag color="error">失败 {{ errorCount }}</a-tag>
+        <a-tag color="processing">{{ $t('examples.scaffold.uploadSystem.uploading') }} {{ uploadingCount }}</a-tag>
+        <a-tag color="success">{{ $t('examples.scaffold.uploadSystem.success') }} {{ doneCount }}</a-tag>
+        <a-tag color="error">{{ $t('examples.scaffold.uploadSystem.failed') }} {{ errorCount }}</a-tag>
       </a-space>
 
       <a-upload-dragger
@@ -22,16 +22,16 @@
         <p class="ant-upload-drag-icon">
           <InboxOutlined />
         </p>
-        <p class="ant-upload-text">点击或拖拽文件到此区域上传</p>
-        <p class="ant-upload-hint">支持图片与文档，上传过程会随机模拟失败，用于验证重试逻辑。</p>
+        <p class="ant-upload-text">{{ $t('examples.scaffold.uploadSystem.dragText') }}</p>
+        <p class="ant-upload-hint">{{ $t('examples.scaffold.uploadSystem.dragHint') }}</p>
       </a-upload-dragger>
 
       <div class="toolbar">
         <a-space>
-          <a-button :disabled="errorCount === 0" @click="retryFailed">重试失败项</a-button>
-          <a-button danger :disabled="fileList.length === 0" @click="clearAll">清空列表</a-button>
+          <a-button :disabled="errorCount === 0" @click="retryFailed">{{ $t('examples.scaffold.uploadSystem.retryButton') }}</a-button>
+          <a-button danger :disabled="fileList.length === 0" @click="clearAll">{{ $t('examples.scaffold.uploadSystem.clearButton') }}</a-button>
         </a-space>
-        <div class="text-secondary">失败率：{{ Math.round(failureRate * 100) }}%</div>
+        <div class="text-secondary">{{ $t('examples.scaffold.uploadSystem.failureRate') }}{{ Math.round(failureRate * 100) }}%</div>
       </div>
 
       <a-slider
@@ -57,6 +57,7 @@
 import { computed, ref } from 'vue'
 import { InboxOutlined } from '@antdv-next/icons'
 import { message } from 'antdv-next'
+import { $t } from '@/locales'
 
 type UploadFileItem = {
   uid: string
@@ -73,7 +74,7 @@ const failureRate = ref(0.25)
 
 const previewOpen = ref(false)
 const previewSrc = ref('')
-const previewTitle = ref('文件预览')
+const previewTitle = ref($t('examples.scaffold.uploadSystem.previewTitle'))
 
 const uploadingCount = computed(() => fileList.value.filter(item => item.status === 'uploading').length)
 const doneCount = computed(() => fileList.value.filter(item => item.status === 'done' || item.status === 'success').length)
@@ -127,7 +128,7 @@ const runUploadTask = (
 
     const failed = Math.random() < failureRate.value
     if (failed) {
-      const error = new Error('网络波动导致上传失败')
+      const error = new Error($t('examples.scaffold.uploadSystem.uploadFailedError'))
 
       markFileState(uid, (item) => {
         item.status = 'error'
@@ -160,11 +161,11 @@ const customRequest = (options: any) => {
     },
     onSuccess: (response) => {
       options.onSuccess?.(response)
-      message.success(`上传成功：${options.file.name}`)
+      message.success($t('examples.scaffold.uploadSystem.uploadSuccessMsg', { name: options.file.name }))
     },
     onError: (error) => {
       options.onError?.(error)
-      message.error(`上传失败：${options.file.name}`)
+      message.error($t('examples.scaffold.uploadSystem.uploadFailedMsg', { name: options.file.name }))
     }
   })
 }
@@ -179,7 +180,7 @@ const retryFailed = () => {
     runUploadTask(item.uid)
   })
 
-  message.info(`开始重试 ${failedFiles.length} 个失败文件`)
+  message.info($t('examples.scaffold.uploadSystem.retryMsg', { count: failedFiles.length }))
 }
 
 const clearAll = () => {
@@ -192,7 +193,7 @@ const handlePreview = async (file: UploadFileItem) => {
   } else if (file.originFileObj) {
     previewSrc.value = await getBase64(file.originFileObj)
   } else {
-    message.warning('该文件暂不支持预览')
+    message.warning($t('examples.scaffold.uploadSystem.previewNotSupported'))
     return
   }
 

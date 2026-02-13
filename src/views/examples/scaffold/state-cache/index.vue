@@ -1,22 +1,22 @@
 <template>
   <div class="page-container">
     <div class="card mb-lg">
-      <h2>状态与缓存示例</h2>
+      <h2>{{ $t('examples.scaffold.stateCache.title') }}</h2>
       <p class="text-secondary">
-        演示 Pinia 持久化（刷新恢复）和 keep-alive 页面局部缓存（切换不销毁）。
+        {{ $t('examples.scaffold.stateCache.description') }}
       </p>
     </div>
 
     <div class="card mb-lg">
-      <div class="section-title">1. Pinia 持久化状态</div>
+      <div class="section-title">{{ $t('examples.scaffold.stateCache.piniaSection') }}</div>
 
       <div class="form-grid">
         <div>
-          <label>关键字</label>
-          <a-input v-model:value="cacheStore.keyword" placeholder="输入后刷新页面仍保留" />
+          <label>{{ $t('examples.scaffold.stateCache.keywordLabel') }}</label>
+          <a-input v-model:value="cacheStore.keyword" :placeholder="$t('examples.scaffold.stateCache.keywordPlaceholder')" />
         </div>
         <div>
-          <label>计数器</label>
+          <label>{{ $t('examples.scaffold.stateCache.counterLabel') }}</label>
           <div class="counter-row">
             <a-button size="small" @click="cacheStore.counter--">-1</a-button>
             <a-input-number v-model:value="cacheStore.counter" :min="-9999" :max="9999" />
@@ -24,24 +24,24 @@
           </div>
         </div>
         <div class="full-row">
-          <label>备注</label>
-          <a-textarea v-model:value="cacheStore.notes" :rows="3" placeholder="支持多行，自动持久化" />
+          <label>{{ $t('examples.scaffold.stateCache.notesLabel') }}</label>
+          <a-textarea v-model:value="cacheStore.notes" :rows="3" :placeholder="$t('examples.scaffold.stateCache.notesPlaceholder')" />
         </div>
       </div>
 
       <a-space class="mt-md">
-        <a-button @click="cacheStore.reset">重置状态</a-button>
-        <a-button @click="pinCurrentTab">固定当前标签</a-button>
+        <a-button @click="cacheStore.reset">{{ $t('examples.scaffold.stateCache.resetButton') }}</a-button>
+        <a-button @click="pinCurrentTab">{{ $t('examples.scaffold.stateCache.pinTabButton') }}</a-button>
       </a-space>
 
-      <div class="persist-tip">最近持久化时间：{{ cacheStore.updatedAt }}</div>
+      <div class="persist-tip">{{ $t('examples.scaffold.stateCache.lastPersistTime') }}{{ cacheStore.updatedAt }}</div>
     </div>
 
     <div class="card">
-      <div class="section-title">2. keep-alive 局部缓存</div>
+      <div class="section-title">{{ $t('examples.scaffold.stateCache.keepAliveSection') }}</div>
       <a-radio-group v-model:value="activePanel" button-style="solid" class="mb-md">
-        <a-radio-button value="panelA">面板 A</a-radio-button>
-        <a-radio-button value="panelB">面板 B</a-radio-button>
+        <a-radio-button value="panelA">{{ $t('examples.scaffold.stateCache.panelA') }}</a-radio-button>
+        <a-radio-button value="panelB">{{ $t('examples.scaffold.stateCache.panelB') }}</a-radio-button>
       </a-radio-group>
 
       <keep-alive>
@@ -55,6 +55,7 @@
 import { computed, defineComponent, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { message } from 'antdv-next'
+import { $t } from '@/locales'
 import { useTabsStore } from '@/stores/tabs'
 import { useDemoStateCacheStore } from '@/stores/demoStateCache'
 
@@ -77,11 +78,11 @@ const PanelA = defineComponent({
   },
   template: `
     <div class="cache-panel">
-      <div class="panel-title">面板 A（切换面板后不会被销毁）</div>
-      <a-input v-model:value="localValue" placeholder="输入内容，切换到 B 再切回仍保留" />
+      <div class="panel-title">${$t('examples.scaffold.stateCache.panelADesc')}</div>
+      <a-input v-model:value="localValue" :placeholder="$t('examples.scaffold.stateCache.panelAInputPlaceholder')" />
       <a-space>
         <a-button size="small" @click="localCount--">-</a-button>
-        <span>局部计数：{{ localCount }}</span>
+        <span>${$t('examples.scaffold.stateCache.localCountLabel')}{{ localCount }}</span>
         <a-button size="small" @click="localCount++">+</a-button>
       </a-space>
     </div>
@@ -101,9 +102,9 @@ const PanelB = defineComponent({
   },
   template: `
     <div class="cache-panel">
-      <div class="panel-title">面板 B（也会被 keep-alive 缓存）</div>
+      <div class="panel-title">${$t('examples.scaffold.stateCache.panelBDesc')}</div>
       <a-switch v-model:checked="checked" checked-children="ON" un-checked-children="OFF" />
-      <a-textarea v-model:value="text" :rows="3" placeholder="输入内容后切换标签再回来仍保留" />
+      <a-textarea v-model:value="text" :rows="3" :placeholder="$t('examples.scaffold.stateCache.panelBTextPlaceholder')" />
     </div>
   `
 })
@@ -114,7 +115,7 @@ const activeComponent = computed(() => {
 
 const pinCurrentTab = () => {
   tabsStore.togglePinTab(route.path)
-  message.success('已切换当前标签固定状态')
+  message.success($t('examples.scaffold.stateCache.pinTabSuccess'))
 }
 </script>
 

@@ -1,32 +1,32 @@
 <template>
   <div class="page-container">
     <div class="card mb-lg">
-      <h2>测试示例</h2>
-      <p class="text-secondary">提供单测与 e2e 的推荐模板，直接复制即可用于新模块。</p>
+      <h2>{{ $t('examples.scaffold.testing.title') }}</h2>
+      <p class="text-secondary">{{ $t('examples.scaffold.testing.description') }}</p>
 
       <a-alert
         type="info"
         show-icon
-        message="当前仓库尚未安装 Vitest / Playwright 依赖，此页提供结构与样例。"
+        :message="$t('examples.scaffold.testing.alertMessage')"
       />
     </div>
 
     <div class="card mb-lg">
-      <div class="section-title">单元测试模板（Vitest）</div>
+      <div class="section-title">{{ $t('examples.scaffold.testing.unitTestTitle') }}</div>
       <pre class="code-block"><code>{{ unitCode }}</code></pre>
     </div>
 
     <div class="card mb-lg">
-      <div class="section-title">端到端测试模板（Playwright）</div>
+      <div class="section-title">{{ $t('examples.scaffold.testing.e2eTestTitle') }}</div>
       <pre class="code-block"><code>{{ e2eCode }}</code></pre>
     </div>
 
     <div class="card">
-      <div class="section-title">落地顺序建议</div>
+      <div class="section-title">{{ $t('examples.scaffold.testing.implementationTitle') }}</div>
       <a-steps direction="vertical" size="small">
-        <a-step title="先补单测" description="先覆盖核心函数、store 计算逻辑和边界条件。" />
-        <a-step title="再补 e2e" description="覆盖登录、搜索、列表操作等关键用户路径。" />
-        <a-step title="接入 CI" description="将 type-check + unit + e2e 串成流水线，合并前自动执行。" />
+        <a-step :title="$t('examples.scaffold.testing.step1Title')" :description="$t('examples.scaffold.testing.step1Description')" />
+        <a-step :title="$t('examples.scaffold.testing.step2Title')" :description="$t('examples.scaffold.testing.step2Description')" />
+        <a-step :title="$t('examples.scaffold.testing.step3Title')" :description="$t('examples.scaffold.testing.step3Description')" />
       </a-steps>
     </div>
   </div>

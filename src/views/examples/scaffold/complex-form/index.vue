@@ -1,13 +1,13 @@
 <template>
   <div class="page-container">
     <div class="card">
-      <h2>复杂表单示例</h2>
-      <p class="text-secondary mb-lg">步骤表单 + 动态策略项 + 异步校验 + 草稿保存 + 服务端字段错误映射。</p>
+      <h2>{{ $t('examples.scaffold.complexForm.title') }}</h2>
+      <p class="text-secondary mb-lg">{{ $t('examples.scaffold.complexForm.description') }}</p>
 
       <a-steps :current="currentStep" size="small" class="mb-lg">
-        <a-step title="基本信息" />
-        <a-step title="策略配置" />
-        <a-step title="发布设置" />
+        <a-step :title="$t('examples.scaffold.complexForm.step1Title')" />
+        <a-step :title="$t('examples.scaffold.complexForm.step2Title')" />
+        <a-step :title="$t('examples.scaffold.complexForm.step3Title')" />
       </a-steps>
 
       <a-form
@@ -18,21 +18,21 @@
       >
         <template v-if="currentStep === 0">
           <div class="grid-two">
-            <a-form-item label="项目名称" name="projectName">
-              <a-input v-model:value="formState.projectName" placeholder="请输入项目名称" />
+            <a-form-item :label="$t('examples.scaffold.complexForm.projectNameLabel')" name="projectName">
+              <a-input v-model:value="formState.projectName" :placeholder="$t('examples.scaffold.complexForm.projectNamePlaceholder')" />
             </a-form-item>
-            <a-form-item label="负责人" name="owner">
-              <a-input v-model:value="formState.owner" placeholder="请输入负责人" />
+            <a-form-item :label="$t('examples.scaffold.complexForm.ownerLabel')" name="owner">
+              <a-input v-model:value="formState.owner" :placeholder="$t('examples.scaffold.complexForm.ownerPlaceholder')" />
             </a-form-item>
-            <a-form-item label="场景" name="scene">
+            <a-form-item :label="$t('examples.scaffold.complexForm.sceneLabel')" name="scene">
               <a-select
                 v-model:value="formState.scene"
-                placeholder="请选择场景"
+                :placeholder="$t('examples.scaffold.complexForm.scenePlaceholder')"
                 :options="sceneOptions"
               />
             </a-form-item>
-            <a-form-item label="说明" name="description">
-              <a-textarea v-model:value="formState.description" :rows="3" placeholder="请输入补充说明" />
+            <a-form-item :label="$t('examples.scaffold.complexForm.descriptionLabel')" name="description">
+              <a-textarea v-model:value="formState.description" :rows="3" :placeholder="$t('examples.scaffold.complexForm.descriptionPlaceholder')" />
             </a-form-item>
           </div>
         </template>
@@ -40,15 +40,15 @@
         <template v-else-if="currentStep === 1">
           <div class="mb-md">
             <a-space>
-              <a-button type="dashed" @click="addRule">新增策略规则</a-button>
-              <a-tag>当前 {{ formState.rules.length }} 条</a-tag>
+              <a-button type="dashed" @click="addRule">{{ $t('examples.scaffold.complexForm.addRuleButton') }}</a-button>
+              <a-tag>{{ $t('examples.scaffold.complexForm.currentRulesCount', { count: formState.rules.length }) }}</a-tag>
             </a-space>
           </div>
 
           <div v-for="(rule, index) in formState.rules" :key="rule.id" class="rule-row">
             <a-input
               v-model:value="rule.metric"
-              placeholder="指标名，如 error_rate"
+              :placeholder="$t('examples.scaffold.complexForm.metricPlaceholder')"
             />
             <a-select
               v-model:value="rule.operator"
@@ -61,7 +61,7 @@
               :max="10000"
               style="width: 180px"
             />
-            <a-button danger @click="removeRule(index)">删除</a-button>
+            <a-button danger @click="removeRule(index)">{{ $t('examples.scaffold.complexForm.deleteButton') }}</a-button>
           </div>
 
           <a-alert
@@ -75,15 +75,15 @@
 
         <template v-else>
           <div class="grid-two">
-            <a-form-item label="发布方式" name="publishType">
+            <a-form-item :label="$t('examples.scaffold.complexForm.publishTypeLabel')" name="publishType">
               <a-radio-group v-model:value="formState.publishType">
-                <a-radio value="immediate">立即发布</a-radio>
-                <a-radio value="schedule">定时发布</a-radio>
+                <a-radio value="immediate">{{ $t('examples.scaffold.complexForm.publishImmediate') }}</a-radio>
+                <a-radio value="schedule">{{ $t('examples.scaffold.complexForm.publishSchedule') }}</a-radio>
               </a-radio-group>
             </a-form-item>
 
             <a-form-item
-              label="发布时间"
+              :label="$t('examples.scaffold.complexForm.publishTimeLabel')"
               name="publishTime"
               :rules="[
                 {
@@ -100,12 +100,12 @@
               />
             </a-form-item>
 
-            <a-form-item label="通知对象" name="notifyUsers" class="full-row">
+            <a-form-item :label="$t('examples.scaffold.complexForm.notifyUsersLabel')" name="notifyUsers" class="full-row">
               <a-select
                 v-model:value="formState.notifyUsers"
                 mode="tags"
                 :token-separators="[',']"
-                placeholder="输入用户名并回车"
+                :placeholder="$t('examples.scaffold.complexForm.notifyUsersPlaceholder')"
               />
             </a-form-item>
           </div>
@@ -114,11 +114,11 @@
 
       <div class="footer-actions">
         <a-space wrap>
-          <a-button :disabled="currentStep === 0" @click="prevStep">上一步</a-button>
-          <a-button v-if="currentStep < 2" type="primary" @click="nextStep">下一步</a-button>
-          <a-button v-else type="primary" @click="submitForm">提交</a-button>
-          <a-button @click="saveDraft">保存草稿</a-button>
-          <a-button @click="resetForm">重置</a-button>
+          <a-button :disabled="currentStep === 0" @click="prevStep">{{ $t('examples.scaffold.complexForm.prevButton') }}</a-button>
+          <a-button v-if="currentStep < 2" type="primary" @click="nextStep">{{ $t('examples.scaffold.complexForm.nextButton') }}</a-button>
+          <a-button v-else type="primary" @click="submitForm">{{ $t('examples.scaffold.complexForm.submitButton') }}</a-button>
+          <a-button @click="saveDraft">{{ $t('examples.scaffold.complexForm.saveDraftButton') }}</a-button>
+          <a-button @click="resetForm">{{ $t('examples.scaffold.complexForm.resetButton') }}</a-button>
         </a-space>
       </div>
     </div>
@@ -126,8 +126,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { message } from 'antdv-next'
+import { $t } from '@/locales'
 
 interface PolicyRule {
   id: string
@@ -171,11 +172,11 @@ const formState = reactive<FormState>({
   notifyUsers: []
 })
 
-const sceneOptions = [
-  { label: '用户增长', value: 'growth' },
-  { label: '风控预警', value: 'risk' },
-  { label: '稳定性监控', value: 'stability' }
-]
+const sceneOptions = computed(() => [
+  { label: $t('examples.scaffold.complexForm.sceneGrowth'), value: 'growth' },
+  { label: $t('examples.scaffold.complexForm.sceneRisk'), value: 'risk' },
+  { label: $t('examples.scaffold.complexForm.sceneStability'), value: 'stability' }
+])
 
 const operatorOptions = [
   { label: '>', value: '>' },
@@ -186,14 +187,14 @@ const operatorOptions = [
 
 const checkProjectNameUnique = async (_rule: any, value: string) => {
   if (!value) {
-    return Promise.reject(new Error('请输入项目名称'))
+    return Promise.reject(new Error($t('examples.scaffold.complexForm.projectNameRequired')))
   }
 
   await new Promise(resolve => setTimeout(resolve, 300))
 
   const reservedNames = ['default', 'admin', 'production']
   if (reservedNames.includes(value.trim().toLowerCase())) {
-    return Promise.reject(new Error('项目名称已存在，请更换'))
+    return Promise.reject(new Error($t('examples.scaffold.complexForm.projectNameExists')))
   }
 
   return Promise.resolve()
@@ -201,24 +202,24 @@ const checkProjectNameUnique = async (_rule: any, value: string) => {
 
 const rules = {
   projectName: [
-    { required: true, message: '请输入项目名称' },
+    { required: true, message: $t('examples.scaffold.complexForm.projectNameRequired') },
     { validator: checkProjectNameUnique, trigger: 'blur' }
   ],
-  owner: [{ required: true, message: '请输入负责人' }],
-  scene: [{ required: true, message: '请选择场景' }],
-  publishType: [{ required: true, message: '请选择发布方式' }]
+  owner: [{ required: true, message: $t('examples.scaffold.complexForm.ownerRequired') }],
+  scene: [{ required: true, message: $t('examples.scaffold.complexForm.sceneRequired') }],
+  publishType: [{ required: true, message: $t('examples.scaffold.complexForm.publishTypeRequired') }]
 }
 
 const validatePublishTime = async () => {
   if (formState.publishType === 'schedule' && !formState.publishTime) {
-    return Promise.reject(new Error('定时发布必须选择发布时间'))
+    return Promise.reject(new Error($t('examples.scaffold.complexForm.publishTimeRequired')))
   }
   return Promise.resolve()
 }
 
 const validateRuleList = () => {
   if (formState.rules.length === 0) {
-    ruleError.value = '请至少添加一条策略规则'
+    ruleError.value = $t('examples.scaffold.complexForm.ruleListEmpty')
     return false
   }
 
@@ -227,7 +228,7 @@ const validateRuleList = () => {
   })
 
   if (invalid) {
-    ruleError.value = '策略规则存在未填写项，请补充完整'
+    ruleError.value = $t('examples.scaffold.complexForm.ruleListIncomplete')
     return false
   }
 
@@ -268,7 +269,7 @@ const prevStep = () => {
 
 const saveDraft = () => {
   localStorage.setItem(DRAFT_KEY, JSON.stringify(formState))
-  message.success('草稿已保存')
+  message.success($t('examples.scaffold.complexForm.draftSaved'))
 }
 
 const loadDraft = () => {
@@ -313,16 +314,16 @@ const submitForm = async () => {
     formRef.value?.setFields?.([
       {
         name: ['projectName'],
-        errors: ['服务端校验失败：项目名称不能包含 fail']
+        errors: [$t('examples.scaffold.complexForm.serverValidationError')]
       }
     ])
-    message.error('提交失败，已映射服务端字段错误')
+    message.error($t('examples.scaffold.complexForm.submitFailed'))
     return
   }
 
   await new Promise(resolve => setTimeout(resolve, 600))
   localStorage.removeItem(DRAFT_KEY)
-  message.success('提交成功')
+  message.success($t('examples.scaffold.complexForm.submitSuccess'))
 }
 
 onMounted(() => {

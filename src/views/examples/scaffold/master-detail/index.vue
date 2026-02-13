@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
     <div class="card">
-      <h2>列表-详情示例</h2>
-      <p class="text-secondary mb-lg">模拟工单主从页：左侧列表选择，右侧 Drawer 展示详情与操作历史。</p>
+      <h2>{{ $t('examples.scaffold.masterDetail.title') }}</h2>
+      <p class="text-secondary mb-lg">{{ $t('examples.scaffold.masterDetail.description') }}</p>
 
       <a-table
         :columns="columns"
@@ -22,32 +22,32 @@
     <a-drawer
       v-model:open="drawerOpen"
       width="560"
-      title="工单详情"
+      :title="$t('examples.scaffold.masterDetail.drawerTitle')"
       :destroy-on-close="false"
     >
       <template v-if="activeRecord">
         <div class="detail-head">
           <div>
-            <div class="label">单号</div>
+            <div class="label">{{ $t('examples.scaffold.masterDetail.ticketNumber') }}</div>
             <strong>#{{ activeRecord.id }}</strong>
           </div>
           <a-tag :color="getStatusColor(activeRecord.status)">{{ getStatusText(activeRecord.status) }}</a-tag>
         </div>
 
         <a-descriptions :column="1" size="small" bordered class="mb-md">
-          <a-descriptions-item label="标题">{{ activeRecord.title }}</a-descriptions-item>
-          <a-descriptions-item label="负责人">{{ activeRecord.owner }}</a-descriptions-item>
-          <a-descriptions-item label="优先级">{{ activeRecord.priority }}</a-descriptions-item>
-          <a-descriptions-item label="创建时间">{{ activeRecord.createdAt }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('examples.scaffold.masterDetail.titleLabel')">{{ activeRecord.title }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('examples.scaffold.masterDetail.ownerLabel')">{{ activeRecord.owner }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('examples.scaffold.masterDetail.priorityLabel')">{{ activeRecord.priority }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('examples.scaffold.masterDetail.createdAtLabel')">{{ activeRecord.createdAt }}</a-descriptions-item>
         </a-descriptions>
 
         <a-tabs v-model:active-key="activeTab" size="small">
-          <a-tab-pane key="desc" tab="描述">
+          <a-tab-pane key="desc" :tab="$t('examples.scaffold.masterDetail.descTab')">
             <div class="tab-panel">
               {{ activeRecord.description }}
             </div>
           </a-tab-pane>
-          <a-tab-pane key="logs" tab="操作记录">
+          <a-tab-pane key="logs" :tab="$t('examples.scaffold.masterDetail.logsTab')">
             <a-timeline>
               <a-timeline-item v-for="log in activeRecord.logs" :key="log.time + log.action">
                 <strong>{{ log.action }}</strong>
@@ -62,7 +62,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { $t } from '@/locales'
 
 type TicketStatus = 'open' | 'processing' | 'closed'
 
@@ -81,11 +82,11 @@ interface TicketRecord {
   }>
 }
 
-const statusTextMap: Record<TicketStatus, string> = {
-  open: '待处理',
-  processing: '处理中',
-  closed: '已关闭'
-}
+const statusTextMap: Record<TicketStatus, string> = computed(() => ({
+  open: $t('examples.scaffold.masterDetail.statusOpen'),
+  processing: $t('examples.scaffold.masterDetail.statusProcessing'),
+  closed: $t('examples.scaffold.masterDetail.statusClosed')
+})).value
 
 const statusColorMap: Record<TicketStatus, string> = {
   open: 'blue',
@@ -99,21 +100,21 @@ const listData = ref<TicketRecord[]>(
 
     return {
       id: `T${String(i).padStart(4, '0')}`,
-      title: `订单风控告警 #${i}`,
-      owner: i % 2 === 0 ? '张工' : '李工',
+      title: $t('examples.scaffold.masterDetail.ticketTitle', { index: i }),
+      owner: i % 2 === 0 ? $t('examples.scaffold.masterDetail.ownerZhang') : $t('examples.scaffold.masterDetail.ownerLi'),
       priority: i % 5 === 0 ? 'P0' : i % 2 === 0 ? 'P1' : 'P2',
       status: i % 4 === 0 ? 'closed' : i % 3 === 0 ? 'processing' : 'open',
       createdAt: new Date(Date.now() - i * 3600 * 1000).toLocaleString(),
-      description: `这是第 ${i} 条工单的详细描述，包含背景信息、影响范围和建议处理动作。`,
+      description: $t('examples.scaffold.masterDetail.ticketDescription', { index: i }),
       logs: [
         {
-          action: '创建工单',
-          operator: '系统',
+          action: $t('examples.scaffold.masterDetail.actionCreate'),
+          operator: $t('examples.scaffold.masterDetail.operatorSystem'),
           time: new Date(Date.now() - i * 3600 * 1000).toLocaleString()
         },
         {
-          action: '分配负责人',
-          operator: '调度中心',
+          action: $t('examples.scaffold.masterDetail.actionAssign'),
+          operator: $t('examples.scaffold.masterDetail.operatorDispatch'),
           time: new Date(Date.now() - i * 1800 * 1000).toLocaleString()
         }
       ]
@@ -121,14 +122,14 @@ const listData = ref<TicketRecord[]>(
   })
 )
 
-const columns = [
-  { title: '单号', dataIndex: 'id', width: 120 },
-  { title: '标题', dataIndex: 'title', ellipsis: true },
-  { title: '负责人', dataIndex: 'owner', width: 120 },
-  { title: '优先级', dataIndex: 'priority', width: 100 },
-  { title: '状态', dataIndex: 'status', width: 120 },
-  { title: '创建时间', dataIndex: 'createdAt', width: 190 }
-]
+const columns = computed(() => [
+  { title: $t('examples.scaffold.masterDetail.colTicketNumber'), dataIndex: 'id', width: 120 },
+  { title: $t('examples.scaffold.masterDetail.colTitle'), dataIndex: 'title', ellipsis: true },
+  { title: $t('examples.scaffold.masterDetail.colOwner'), dataIndex: 'owner', width: 120 },
+  { title: $t('examples.scaffold.masterDetail.colPriority'), dataIndex: 'priority', width: 100 },
+  { title: $t('examples.scaffold.masterDetail.colStatus'), dataIndex: 'status', width: 120 },
+  { title: $t('examples.scaffold.masterDetail.colCreatedAt'), dataIndex: 'createdAt', width: 190 }
+])
 
 const drawerOpen = ref(false)
 const activeTab = ref('desc')
