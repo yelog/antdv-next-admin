@@ -401,6 +401,17 @@ export default {
     }
   },
 
+  exampleCaptcha: {
+    title: '验证码组件示例',
+    description: '封装了常见的几种前端验证码交互组件，支持自定义样式和回调。',
+    slider: '滑块验证 (Slider)',
+    rotate: '旋转验证 (Rotate)',
+    puzzle: '拼图验证 (Puzzle)',
+    point: '点选验证 (Point)',
+    success: '验证通过！',
+    fail: '验证失败，请重试'
+  },
+
   exampleEditor: {
     title: '富文本编辑器示例',
     description: '基于 Tiptap 封装的富文本编辑器，支持图片上传、链接插入、格式化等功能。',

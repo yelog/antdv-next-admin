@@ -1,28 +1,28 @@
 <template>
   <div class="page-container">
     <div class="card mb-md">
-      <h2 class="text-xl font-bold mb-sm">验证码组件示例</h2>
-      <p class="text-secondary">封装了常见的几种前端验证码交互组件，支持自定义样式和回调。</p>
+      <h2 class="text-xl font-bold mb-sm">{{ t('exampleCaptcha.title') }}</h2>
+      <p class="text-secondary">{{ t('exampleCaptcha.description') }}</p>
     </div>
 
     <a-row :gutter="[16, 16]">
       <a-col :span="24" :md="12" :lg="8">
-        <a-card title="滑块验证 (Slider)" hoverable>
+        <a-card :title="t('exampleCaptcha.slider')" hoverable>
           <SliderCaptcha @success="onSuccess" @fail="onFail" />
         </a-card>
       </a-col>
       <a-col :span="24" :md="12" :lg="8">
-        <a-card title="旋转验证 (Rotate)" hoverable>
+        <a-card :title="t('exampleCaptcha.rotate')" hoverable>
           <RotateCaptcha @success="onSuccess" @fail="onFail" />
         </a-card>
       </a-col>
       <a-col :span="24" :md="12" :lg="8">
-        <a-card title="拼图验证 (Puzzle)" hoverable>
+        <a-card :title="t('exampleCaptcha.puzzle')" hoverable>
           <PuzzleCaptcha @success="onSuccess" @fail="onFail" />
         </a-card>
       </a-col>
       <a-col :span="24" :md="12" :lg="8">
-        <a-card title="点选验证 (Point)" hoverable>
+        <a-card :title="t('exampleCaptcha.point')" hoverable>
           <PointCaptcha @success="onSuccess" @fail="onFail" />
         </a-card>
       </a-col>
@@ -32,14 +32,17 @@
 
 <script setup lang="ts">
 import { message } from 'antdv-next'
+import { useI18n } from 'vue-i18n'
 import { SliderCaptcha, RotateCaptcha, PuzzleCaptcha, PointCaptcha } from '@/components/Captcha'
 
+const { t } = useI18n()
+
 const onSuccess = () => {
-  message.success('验证通过！')
+  message.success(t('exampleCaptcha.success'))
 }
 
 const onFail = () => {
-  message.error('验证失败，请重试')
+  message.error(t('exampleCaptcha.fail'))
 }
 </script>
 

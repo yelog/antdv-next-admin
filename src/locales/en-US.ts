@@ -400,6 +400,17 @@ export default {
     }
   },
 
+  exampleCaptcha: {
+    title: 'Captcha Component Example',
+    description: 'Common frontend captcha interaction components with customizable styles and callbacks.',
+    slider: 'Slider Captcha',
+    rotate: 'Rotate Captcha',
+    puzzle: 'Puzzle Captcha',
+    point: 'Point Captcha',
+    success: 'Verification passed!',
+    fail: 'Verification failed, please retry'
+  },
+
   exampleEditor: {
     title: 'Rich Text Editor Example',
     description: 'A rich text editor based on Tiptap, supporting image upload, link insertion, formatting and more.',
