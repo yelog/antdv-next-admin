@@ -48,6 +48,7 @@ export default {
     permission: 'Menu Management',
     dict: 'Dictionary',
     log: 'System Log',
+    dept: 'Department',
     examples: 'Examples',
     table: 'Table Example',
     icon: 'Icon Example',

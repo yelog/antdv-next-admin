@@ -279,6 +279,60 @@ export const mockPermissions: Permission[] = [
             visible: true
           }
         ]
+      },
+      {
+        id: '50',
+        name: 'Department Management',
+        code: 'system.dept.view',
+        description: 'Department management menu',
+        resource: '/system/dept',
+        action: 'view',
+        type: 'menu',
+        parentId: '10',
+        path: '/system/dept',
+        component: 'system/dept/index',
+        icon: 'ApartmentOutlined',
+        sort: 6,
+        status: 'active',
+        visible: true,
+        children: [
+          {
+            id: '51',
+            name: 'Create Department',
+            code: 'system.dept.create',
+            description: 'Can create department',
+            resource: 'system.dept',
+            action: 'create',
+            type: 'button',
+            parentId: '50',
+            status: 'active',
+            visible: true
+          },
+          {
+            id: '52',
+            name: 'Edit Department',
+            code: 'system.dept.edit',
+            description: 'Can edit department',
+            resource: 'system.dept',
+            action: 'edit',
+            type: 'button',
+            parentId: '50',
+            status: 'active',
+            visible: true
+          },
+          {
+            id: '53',
+            name: 'Delete Department',
+            code: 'system.dept.delete',
+            description: 'Can delete department',
+            resource: 'system.dept',
+            action: 'delete',
+            type: 'button',
+            parentId: '50',
+            status: 'active',
+            visible: true
+          }
+        ]
       }
     ]
   },

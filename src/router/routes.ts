@@ -176,6 +176,17 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           requiresAuth: true,
           requiredPermissions: ['system.log.view']
         }
+      },
+      {
+        path: 'dept',
+        name: 'SystemDept',
+        component: () => import('@/views/system/dept/index.vue'),
+        meta: {
+          title: 'menu.dept',
+          icon: 'ApartmentOutlined',
+          requiresAuth: true,
+          requiredPermissions: ['system.dept.view']
+        }
       }
     ]
   },
