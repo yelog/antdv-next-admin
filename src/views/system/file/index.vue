@@ -5,7 +5,7 @@
       :columns="columns"
       :request="loadFileList"
       :toolbar="{
-        title: '文件管理',
+        title: t('file.title'),
         actions: []
       }"
     >
@@ -29,13 +29,13 @@
           {{ formatSize(record.size) }}
         </template>
         <template v-if="column.key === 'storage'">
-          <a-tag :color="storageColor[record.storage]">{{ storageLabel[record.storage] }}</a-tag>
+          <a-tag :color="storageColor[record.storage]">{{ t(`file.storageType.${record.storage}`) }}</a-tag>
         </template>
         <template v-if="column.key === 'action'">
           <a-space :size="4">
             <a-button type="link" size="small" danger @click="handleDelete(record)">
               <template #icon><DeleteOutlined /></template>
-              删除
+              {{ t('file.delete') }}
             </a-button>
           </a-space>
         </template>
@@ -45,8 +45,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { message, Modal } from 'antdv-next'
+import { useI18n } from 'vue-i18n'
 import {
   DeleteOutlined, FileImageOutlined, VideoCameraOutlined,
   FilePdfOutlined, FileExcelOutlined, FileWordOutlined,
@@ -57,9 +58,9 @@ import type { ProTableColumn } from '@/types/pro'
 import type { SysFile } from '@/types/file'
 import { getFileList, deleteFile } from '@/api/file'
 
+const { t } = useI18n()
 const refreshKey = ref(0)
 
-const storageLabel: Record<string, string> = { local: '本地', oss: 'OSS', cos: 'COS' }
 const storageColor: Record<string, string> = { local: 'default', oss: 'blue', cos: 'green' }
 
 const isImage = (ext: string) => ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext)
@@ -82,23 +83,23 @@ const formatSize = (bytes: number) => {
   return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB'
 }
 
-const columns: ProTableColumn[] = [
-  { title: '文件名', dataIndex: 'originalName', key: 'originalName', search: true, searchType: 'input', ellipsis: true },
-  { title: '扩展名', dataIndex: 'ext', key: 'ext', width: 90, search: true, searchType: 'select', searchOptions: [
-    { label: '图片(jpg)', value: 'jpg' }, { label: '图片(png)', value: 'png' },
-    { label: 'PDF', value: 'pdf' }, { label: 'Word', value: 'docx' },
-    { label: 'Excel', value: 'xlsx' }, { label: '压缩包', value: 'zip' },
-    { label: '视频', value: 'mp4' }, { label: '文本', value: 'txt' },
-    { label: 'PPT', value: 'pptx' }, { label: 'SVG', value: 'svg' }
+const columns = computed<ProTableColumn[]>(() => [
+  { title: t('file.fileName'), dataIndex: 'originalName', key: 'originalName', search: true, searchType: 'input', ellipsis: true },
+  { title: t('file.ext'), dataIndex: 'ext', key: 'ext', width: 90, search: true, searchType: 'select', searchOptions: [
+    { label: t('file.extType.imageJpg'), value: 'jpg' }, { label: t('file.extType.imagePng'), value: 'png' },
+    { label: t('file.extType.pdf'), value: 'pdf' }, { label: t('file.extType.word'), value: 'docx' },
+    { label: t('file.extType.excel'), value: 'xlsx' }, { label: t('file.extType.zip'), value: 'zip' },
+    { label: t('file.extType.video'), value: 'mp4' }, { label: t('file.extType.text'), value: 'txt' },
+    { label: t('file.extType.ppt'), value: 'pptx' }, { label: t('file.extType.svg'), value: 'svg' }
   ]},
-  { title: '文件大小', dataIndex: 'size', key: 'size', width: 120 },
-  { title: '存储方式', dataIndex: 'storage', key: 'storage', width: 100, search: true, searchType: 'select', searchOptions: [
-    { label: '本地', value: 'local' }, { label: 'OSS', value: 'oss' }, { label: 'COS', value: 'cos' }
+  { title: t('file.size'), dataIndex: 'size', key: 'size', width: 120 },
+  { title: t('file.storage'), dataIndex: 'storage', key: 'storage', width: 100, search: true, searchType: 'select', searchOptions: [
+    { label: t('file.storageType.local'), value: 'local' }, { label: t('file.storageType.oss'), value: 'oss' }, { label: t('file.storageType.cos'), value: 'cos' }
   ]},
-  { title: '上传者', dataIndex: 'uploader', key: 'uploader', width: 100 },
-  { title: '上传时间', dataIndex: 'createTime', key: 'createTime', width: 180 },
-  { title: '操作', key: 'action', width: 100, fixed: 'right' }
-]
+  { title: t('file.uploader'), dataIndex: 'uploader', key: 'uploader', width: 100 },
+  { title: t('file.uploadTime'), dataIndex: 'createTime', key: 'createTime', width: 180 },
+  { title: t('file.action'), key: 'action', width: 100, fixed: 'right' }
+])
 
 const loadFileList = async (params: any) => {
   try {
@@ -113,25 +114,25 @@ const loadFileList = async (params: any) => {
       return { data: response.data.list, total: response.data.total, success: true }
     }
   } catch (error) {
-    console.error('加载文件列表失败:', error)
+    console.error(t('file.loadFailed'), error)
   }
   return { data: [], total: 0, success: false }
 }
 
 const handleDelete = (record: SysFile) => {
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除文件"${record.originalName}"吗？`,
+    title: t('file.confirmDelete'),
+    content: t('file.confirmDeleteContent', { name: record.originalName }),
     onOk: async () => {
       try {
         const response = await deleteFile(record.id) as any
         if (response.code === 200) {
-          message.success('删除成功')
+          message.success(t('file.deleteSuccess'))
           refreshKey.value++
         } else {
-          message.error(response.message || '删除失败')
+          message.error(response.message || t('file.deleteFailed'))
         }
-      } catch { message.error('删除失败') }
+      } catch { message.error(t('file.deleteFailed')) }
     }
   })
 }
