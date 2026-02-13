@@ -187,6 +187,17 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           requiresAuth: true,
           requiredPermissions: ['system.dept.view']
         }
+      },
+      {
+        path: 'config',
+        name: 'SystemConfig',
+        component: () => import('@/views/system/config/index.vue'),
+        meta: {
+          title: 'menu.config',
+          icon: 'ControlOutlined',
+          requiresAuth: true,
+          requiredPermissions: ['system.config.view']
+        }
       }
     ]
   },

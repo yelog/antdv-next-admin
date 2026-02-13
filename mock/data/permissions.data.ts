@@ -333,6 +333,60 @@ export const mockPermissions: Permission[] = [
             visible: true
           }
         ]
+      },
+      {
+        id: '54',
+        name: 'System Config',
+        code: 'system.config.view',
+        description: 'System config menu',
+        resource: '/system/config',
+        action: 'view',
+        type: 'menu',
+        parentId: '10',
+        path: '/system/config',
+        component: 'system/config/index',
+        icon: 'ControlOutlined',
+        sort: 7,
+        status: 'active',
+        visible: true,
+        children: [
+          {
+            id: '55',
+            name: 'Create Config',
+            code: 'system.config.create',
+            description: 'Can create config',
+            resource: 'system.config',
+            action: 'create',
+            type: 'button',
+            parentId: '54',
+            status: 'active',
+            visible: true
+          },
+          {
+            id: '56',
+            name: 'Edit Config',
+            code: 'system.config.edit',
+            description: 'Can edit config',
+            resource: 'system.config',
+            action: 'edit',
+            type: 'button',
+            parentId: '54',
+            status: 'active',
+            visible: true
+          },
+          {
+            id: '57',
+            name: 'Delete Config',
+            code: 'system.config.delete',
+            description: 'Can delete config',
+            resource: 'system.config',
+            action: 'delete',
+            type: 'button',
+            parentId: '54',
+            status: 'active',
+            visible: true
+          }
+        ]
       }
     ]
   },

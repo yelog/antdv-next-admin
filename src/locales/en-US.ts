@@ -49,6 +49,7 @@ export default {
     dict: 'Dictionary',
     log: 'System Log',
     dept: 'Department',
+    config: 'System Config',
     examples: 'Examples',
     table: 'Table Example',
     icon: 'Icon Example',
