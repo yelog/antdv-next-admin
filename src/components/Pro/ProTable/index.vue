@@ -587,22 +587,18 @@ const getColumnCellValue = (record: any, column: ProTableColumn) => {
 const toolbarActions = computed(() => props.toolbar?.actions || [])
 
 const showRefreshAction = computed(() => {
-  if (!props.toolbar) return false
-  return toolbarActions.value.length === 0 || toolbarActions.value.includes('refresh')
+  if (!props.toolbar) return true
+  return !toolbarActions.value.includes('!refresh')
 })
 
 const showColumnSettingAction = computed(() => {
-  if (!props.toolbar) return false
-  return toolbarActions.value.length === 0 || toolbarActions.value.includes('columnSetting')
+  if (!props.toolbar) return true
+  return !toolbarActions.value.includes('!columnSetting')
 })
 
 const showDensityAction = computed(() => {
-  if (!props.toolbar) return false
-  return (
-    toolbarActions.value.length === 0 ||
-    toolbarActions.value.includes('density') ||
-    (showRefreshAction.value && showColumnSettingAction.value)
-  )
+  if (!props.toolbar) return true
+  return !toolbarActions.value.includes('!density')
 })
 
 const headerFilterEntries = computed(() => {

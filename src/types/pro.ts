@@ -124,7 +124,7 @@ export interface ProTableAction {
 export interface ProTableToolbar {
   title?: string
   subTitle?: string
-  actions?: Array<'refresh' | 'density' | 'export' | 'columnSetting'>
+  actions?: Array<'!refresh' | '!density' | '!columnSetting'>
 }
 
 export interface ProTableSearch {
