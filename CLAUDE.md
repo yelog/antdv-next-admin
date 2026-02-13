@@ -13,6 +13,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Full RBAC permission system with dynamic routes
 - Mock data system for development
 
+## Environment Requirements
+
+- Node.js >= 16
+- npm >= 8
+
 ## Common Commands
 
 ```bash
@@ -27,6 +32,8 @@ npm run preview          # Preview production build
 # Type Checking
 npm run type-check       # TypeScript type checking
 ```
+
+**Note**: This project currently has no test or lint scripts configured.
 
 ## Architecture
 
@@ -167,6 +174,14 @@ Themes use **CSS variables** defined in `src/assets/styles/variables.css`:
 - `en-US.ts` - English
 - Access via `$t('key')` in templates or `t('key')` from `useI18n()`
 - Helper: `src/utils/i18n.ts` - `resolveLocaleText()` for dynamic text resolution
+
+### Charts & Visualization
+
+**ECharts Integration**: The project includes `echarts` and `vue-echarts` for data visualization in the dashboard. Use the `<v-chart>` component from `vue-echarts` for rendering charts.
+
+### Keyboard Shortcuts
+
+- `Ctrl/Cmd + K` - Open global menu search
 
 ## Development Guidelines
 
