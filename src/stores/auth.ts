@@ -3,11 +3,13 @@ import { ref, computed } from 'vue'
 import type { User, Role, Permission } from '@/types/auth'
 
 const TOKEN_KEY = 'access_token'
+const REFRESH_TOKEN_KEY = 'refresh_token'
 const USER_KEY = 'user_info'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
   const token = ref<string | null>(localStorage.getItem(TOKEN_KEY))
+  const refreshTokenValue = ref<string | null>(localStorage.getItem(REFRESH_TOKEN_KEY))
   const user = ref<User | null>(null)
   const roles = ref<Role[]>([])
   const permissions = ref<Permission[]>([])
@@ -18,12 +20,21 @@ export const useAuthStore = defineStore('auth', () => {
   const userPermissions = computed(() => permissions.value.map(perm => perm.code))
 
   // Actions
-  const setToken = (newToken: string | null) => {
+  const setToken = (newToken: string | null, newRefreshToken?: string | null) => {
     token.value = newToken
     if (newToken) {
       localStorage.setItem(TOKEN_KEY, newToken)
     } else {
       localStorage.removeItem(TOKEN_KEY)
+    }
+
+    if (newRefreshToken !== undefined) {
+      refreshTokenValue.value = newRefreshToken
+      if (newRefreshToken) {
+        localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken)
+      } else {
+        localStorage.removeItem(REFRESH_TOKEN_KEY)
+      }
     }
   }
 
@@ -54,7 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
     const { login: loginApi, getUserInfo } = await import('@/api/auth')
 
     const loginResult = await loginApi({ username, password })
-    setToken(loginResult.data.token)
+    setToken(loginResult.data.token, loginResult.data.refreshToken)
 
     const userInfo = await getUserInfo()
     setUserInfo(userInfo.data)
@@ -68,8 +79,11 @@ export const useAuthStore = defineStore('auth', () => {
     if ((username === 'admin' || username === 'user') && password === '123456') {
       const isAdmin = username === 'admin'
 
-      // Set token
-      setToken(`demo-token-${isAdmin ? '1' : '2'}-${Date.now()}`)
+      // Set token with refresh token
+      setToken(
+        `demo-token-${isAdmin ? '1' : '2'}-${Date.now()}`,
+        `demo-refresh-token-${isAdmin ? '1' : '2'}-${Date.now()}`
+      )
 
       // Set user info
       const userInfo: User = isAdmin ? {
@@ -143,13 +157,38 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const logout = () => {
-    setToken(null)
+    setToken(null, null)
     setUserInfo(null)
   }
 
-  const refreshToken = async (): Promise<void> => {
-    // This will be replaced with actual API call
-    throw new Error('Refresh token API not implemented yet')
+  const refreshToken = async (): Promise<string> => {
+    // Check if using demo mode
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+    const isDemoMode = import.meta.env.VITE_USE_MOCK === 'true' || apiBaseUrl === '/api'
+
+    if (isDemoMode) {
+      // Demo mode: Simulate token refresh
+      await new Promise(resolve => setTimeout(resolve, 700))
+
+      if (!refreshTokenValue.value) {
+        throw new Error('No refresh token available')
+      }
+
+      const newToken = `demo-token-refreshed-${Date.now()}`
+      setToken(newToken, refreshTokenValue.value)
+      return newToken
+    }
+
+    // Production mode: Call real API
+    const { refreshToken: refreshTokenApi } = await import('@/api/auth')
+
+    if (!refreshTokenValue.value) {
+      throw new Error('No refresh token available')
+    }
+
+    const result = await refreshTokenApi(refreshTokenValue.value)
+    setToken(result.data.token, result.data.refreshToken)
+    return result.data.token
   }
 
   const hasRole = (role: string): boolean => {
@@ -193,6 +232,7 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     // State
     token,
+    refreshTokenValue,
     user,
     roles,
     permissions,

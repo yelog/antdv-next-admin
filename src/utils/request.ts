@@ -1,6 +1,10 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
+
+// Token refresh state
+let isRefreshing = false
+let refreshPromise: Promise<string> | null = null
 
 // Create axios instance
 const service: AxiosInstance = axios.create({
@@ -38,10 +42,8 @@ service.interceptors.response.use(
     if (res.code !== undefined && res.code !== 200) {
       // Handle specific error codes
       if (res.code === 401) {
-        // Unauthorized - redirect to login
-        const authStore = useAuthStore()
-        authStore.logout()
-        router.push('/login')
+        // Will be handled in error interceptor
+        return Promise.reject(new Error(res.message || 'Unauthorized'))
       } else if (res.code === 403) {
         // Forbidden - no permission
         console.error('No permission:', res.message)
@@ -52,19 +54,51 @@ service.interceptors.response.use(
 
     return res
   },
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+
+    // Handle 401 errors with token refresh
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      originalRequest._retry = true
+
+      try {
+        // Ensure only one refresh request is made
+        if (!refreshPromise) {
+          isRefreshing = true
+          const authStore = useAuthStore()
+
+          refreshPromise = authStore.refreshToken().finally(() => {
+            isRefreshing = false
+            refreshPromise = null
+          })
+        }
+
+        // Wait for token refresh to complete
+        const newToken = await refreshPromise
+
+        // Update the original request with new token
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`
+        }
+
+        // Retry the original request
+        return service(originalRequest)
+      } catch (refreshError) {
+        // Refresh failed - logout and redirect to login
+        const authStore = useAuthStore()
+        authStore.logout()
+        router.push('/login')
+        return Promise.reject(refreshError)
+      }
+    }
+
+    // Handle other errors
     console.error('Response error:', error)
 
     if (error.response) {
       const { status } = error.response
 
       switch (status) {
-        case 401:
-          // Unauthorized - redirect to login
-          const authStore = useAuthStore()
-          authStore.logout()
-          router.push('/login')
-          break
         case 403:
           // Forbidden
           console.error('Access forbidden')
