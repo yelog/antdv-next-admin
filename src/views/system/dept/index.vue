@@ -78,14 +78,16 @@
           </a-descriptions>
 
           <!-- 子部门列表 -->
-          <div v-if="childDepts.length" class="dept-children">
-            <h4>下级部门 ({{ childDepts.length }})</h4>
-            <a-table
+          <div class="dept-children">
+            <ProTable
+              :key="selectedDept.id"
               :columns="childColumns"
-              :data-source="childDepts"
+              :request="loadChildDepts"
+              :search="false"
               :pagination="false"
-              size="middle"
-              row-key="id"
+              :toolbar="{
+                title: `下级部门 (${childDepts.length})`
+              }"
             >
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'status'">
@@ -101,7 +103,7 @@
                   </a-space>
                 </template>
               </template>
-            </a-table>
+            </ProTable>
           </div>
         </template>
         <div v-else class="dept-detail-empty">
@@ -161,6 +163,8 @@
 import { ref, computed } from 'vue'
 import { message, Modal } from 'antdv-next'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
+import ProTable from '@/components/Pro/ProTable/index.vue'
+import type { ProTableColumn } from '@/types/pro'
 import type { Department } from '@/types/dept'
 import { getDeptTree, getDeptList, createDept, updateDept, deleteDept } from '@/api/dept'
 
@@ -200,7 +204,7 @@ const form = ref<Partial<Department>>({
   remark: ''
 })
 
-const childColumns = [
+const childColumns: ProTableColumn[] = [
   { title: '部门名称', dataIndex: 'name', key: 'name' },
   { title: '负责人', dataIndex: 'leader', key: 'leader', width: 100 },
   { title: '排序', dataIndex: 'sort', key: 'sort', width: 70 },
@@ -215,6 +219,14 @@ const getParentName = (parentId: string | null) => {
 
 const selectDept = (id: string) => {
   selectedKeys.value = [id]
+}
+
+const loadChildDepts = async () => {
+  return {
+    data: childDepts.value,
+    total: childDepts.value.length,
+    success: true
+  }
 }
 
 const loadDeptTree = async () => {
@@ -424,13 +436,6 @@ loadDeptTree()
   }
 
   .dept-children {
-    h4 {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: var(--color-text);
-    }
-
     :deep(.ant-table-thead > tr > th) {
       background: #fafafa;
     }
