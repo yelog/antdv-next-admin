@@ -310,6 +310,7 @@ const features = [
   margin: 0 0 12px;
   letter-spacing: -0.5px;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  color: #fff;
 }
 
 .hero-desc {

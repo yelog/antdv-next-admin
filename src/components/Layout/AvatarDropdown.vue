@@ -16,6 +16,7 @@ import { useRouter } from 'vue-router'
 import {
   DownOutlined,
   UserOutlined,
+  GithubOutlined,
   LogoutOutlined
 } from '@antdv-next/icons'
 import { useAuthStore } from '@/stores/auth'
@@ -29,6 +30,9 @@ const handleMenuClick = ({ key }: { key: string }) => {
   switch (key) {
     case 'profile':
       router.push('/profile')
+      break
+    case 'github':
+      window.open('https://github.com/yelog/antdv-next-admin', '_blank')
       break
     case 'logout':
       Modal.confirm({
@@ -51,6 +55,11 @@ const menuProps = computed(() => ({
       key: 'profile',
       label: $t('layout.profile'),
       icon: h(UserOutlined)
+    },
+    {
+      key: 'github',
+      label: 'GitHub',
+      icon: h(GithubOutlined)
     },
     {
       type: 'divider'
