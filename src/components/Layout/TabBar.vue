@@ -36,6 +36,7 @@
 <script setup lang="ts">
 import { computed, h, resolveComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import {
   ReloadOutlined,
   FullscreenOutlined,
@@ -54,11 +55,10 @@ import { useLayoutStore } from '@/stores/layout'
 import type { Tab } from '@/types/layout'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
-import { $t } from '@/locales'
-import i18n from '@/locales'
 
 const route = useRoute()
 const router = useRouter()
+const { t, locale } = useI18n()
 const tabsStore = useTabsStore()
 const layoutStore = useLayoutStore()
 
@@ -85,29 +85,32 @@ const currentTab = computed(() => {
   return tabsStore.activeTab || tabsStore.tabs[0]
 })
 
-// Track current locale to make tabItems reactive to language changes
-const currentLocale = computed(() => i18n.global.locale.value)
-
 const tabItems = computed(() => {
-  // Access currentLocale to establish reactivity dependency on locale changes
-  void currentLocale.value
+  // Access locale to establish reactivity dependency on language changes
+  const currentLocale = locale.value
   
   return tabsStore.tabs.map(tab => ({
     key: tab.path,
     closable: tab.closable,
-    label: h('span', { class: 'tab-label-wrapper' }, [
+    label: h('span', { class: 'tab-label-wrapper', key: `${tab.path}-${currentLocale}` }, [
       h(
         resolveComponent('a-dropdown'),
         {
           trigger: ['contextmenu'],
-          menu: getContextMenuProps(tab)
+          menu: {
+            items: getTabMenuItems(tab),
+            onClick: ({ key }: { key: string | number }) => handleContextMenu({ key: String(key) }, tab)
+          }
         },
         {
-          default: () => h('span', { class: 'tab-label' }, [
-            getTabIcon(tab) ? h(getTabIcon(tab), { class: 'tab-menu-icon' }) : null,
-            h('span', { class: 'tab-text' }, getTabLabel(tab)),
-            isTabFixed(tab) ? h(PushpinFilled, { class: 'tab-pin-icon' }) : null
-          ])
+          default: () => {
+            const icon = getTabIcon(tab)
+            return h('span', { class: 'tab-label' }, [
+              icon ? h(icon, { class: 'tab-menu-icon' }) : null,
+              h('span', { class: 'tab-text' }, getTabLabel(tab)),
+              isTabFixed(tab) ? h(PushpinFilled, { class: 'tab-pin-icon' }) : null
+            ])
+          }
         }
       )
     ])
@@ -148,52 +151,55 @@ const hasClosableTabs = computed(() => {
   return tabsStore.tabs.some(tab => tab.closable)
 })
 
-const getTabMenuItems = (tab: Tab) => [
-  {
-    key: 'close',
-    icon: h(CloseOutlined),
-    label: $t('layout.tabs.close'),
-    disabled: !tab.closable
-  },
-  {
-    key: 'pin',
-    icon: h(tab.pinned ? PushpinFilled : PushpinOutlined),
-    label: tab.pinned ? $t('layout.tabs.unpin') : $t('layout.tabs.pin'),
-    disabled: Boolean(tab.affix)
-  },
-  {
-    key: 'refresh',
-    icon: h(ReloadOutlined),
-    label: $t('layout.tabs.refresh')
-  },
-  {
-    type: 'divider'
-  },
-  {
-    key: 'closeLeft',
-    icon: h(VerticalLeftOutlined),
-    label: $t('layout.tabs.closeLeft'),
-    disabled: !hasClosableLeftTabs(tab)
-  },
-  {
-    key: 'closeRight',
-    icon: h(VerticalRightOutlined),
-    label: $t('layout.tabs.closeRight'),
-    disabled: !hasClosableRightTabs(tab)
-  },
-  {
-    key: 'closeOthers',
-    icon: h(CloseCircleOutlined),
-    label: $t('layout.tabs.closeOthers'),
-    disabled: !hasClosableOtherTabs(tab)
-  },
-  {
-    key: 'closeAll',
-    icon: h(CloseSquareOutlined),
-    label: $t('layout.tabs.closeAll'),
-    disabled: !hasClosableTabs.value
-  }
-]
+const getTabMenuItems = (tab: Tab) => {
+  // Call t() function to get reactive translations
+  return [
+    {
+      key: 'close',
+      icon: h(CloseOutlined),
+      label: t('layout.tabs.close'),
+      disabled: !tab.closable
+    },
+    {
+      key: 'pin',
+      icon: h(tab.pinned ? PushpinFilled : PushpinOutlined),
+      label: tab.pinned ? t('layout.tabs.unpin') : t('layout.tabs.pin'),
+      disabled: Boolean(tab.affix)
+    },
+    {
+      key: 'refresh',
+      icon: h(ReloadOutlined),
+      label: t('layout.tabs.refresh')
+    },
+    {
+      type: 'divider'
+    },
+    {
+      key: 'closeLeft',
+      icon: h(VerticalLeftOutlined),
+      label: t('layout.tabs.closeLeft'),
+      disabled: !hasClosableLeftTabs(tab)
+    },
+    {
+      key: 'closeRight',
+      icon: h(VerticalRightOutlined),
+      label: t('layout.tabs.closeRight'),
+      disabled: !hasClosableRightTabs(tab)
+    },
+    {
+      key: 'closeOthers',
+      icon: h(CloseCircleOutlined),
+      label: t('layout.tabs.closeOthers'),
+      disabled: !hasClosableOtherTabs(tab)
+    },
+    {
+      key: 'closeAll',
+      icon: h(CloseSquareOutlined),
+      label: t('layout.tabs.closeAll'),
+      disabled: !hasClosableTabs.value
+    }
+  ]
+}
 
 const syncRouteWithActiveTab = () => {
   const active = tabsStore.tabs.find(tab => tab.path === tabsStore.activeTabPath) || tabsStore.tabs[0]
@@ -241,14 +247,12 @@ const handleContextMenu = (e: { key: string }, tab: Tab) => {
   }
 }
 
-const getContextMenuProps = (tab: Tab) => ({
-  items: getTabMenuItems(tab),
-  onClick: ({ key }: { key: string | number }) => handleContextMenu({ key: String(key) }, tab)
-})
 
 const activeTabMenuProps = computed(() => {
-  // Access currentLocale to establish reactivity dependency on locale changes
-  void currentLocale.value
+  // Access locale to establish reactivity dependency on language changes
+  const currentLocale = locale.value
+  void currentLocale // Ensure reactivity
+  
   const tab = currentTab.value
   return {
     items: tab ? getTabMenuItems(tab) : [],
