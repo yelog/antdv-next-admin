@@ -50,6 +50,7 @@ export default {
     log: 'System Log',
     dept: 'Department',
     config: 'System Config',
+    file: 'File Management',
     examples: 'Examples',
     table: 'Table Example',
     icon: 'Icon Example',

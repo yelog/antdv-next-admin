@@ -198,6 +198,17 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           requiresAuth: true,
           requiredPermissions: ['system.config.view']
         }
+      },
+      {
+        path: 'file',
+        name: 'SystemFile',
+        component: () => import('@/views/system/file/index.vue'),
+        meta: {
+          title: 'menu.file',
+          icon: 'FolderOutlined',
+          requiresAuth: true,
+          requiredPermissions: ['system.file.view']
+        }
       }
     ]
   },

@@ -387,6 +387,36 @@ export const mockPermissions: Permission[] = [
             visible: true
           }
         ]
+      },
+      {
+        id: '58',
+        name: 'File Management',
+        code: 'system.file.view',
+        description: 'File management menu',
+        resource: '/system/file',
+        action: 'view',
+        type: 'menu',
+        parentId: '10',
+        path: '/system/file',
+        component: 'system/file/index',
+        icon: 'FolderOutlined',
+        sort: 8,
+        status: 'active',
+        visible: true,
+        children: [
+          {
+            id: '59',
+            name: 'Delete File',
+            code: 'system.file.delete',
+            description: 'Can delete file',
+            resource: 'system.file',
+            action: 'delete',
+            type: 'button',
+            parentId: '58',
+            status: 'active',
+            visible: true
+          }
+        ]
       }
     ]
   },
