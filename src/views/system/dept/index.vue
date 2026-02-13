@@ -4,16 +4,16 @@
       <!-- 左侧：部门树 -->
       <div class="dept-tree">
         <div class="dept-tree-header">
-          <h3>组织架构</h3>
+          <h3>{{ t('dept.organizationStructure') }}</h3>
           <a-button type="primary" size="small" @click="handleAdd(null)">
             <template #icon><PlusOutlined /></template>
-            新增
+            {{ t('common.add') }}
           </a-button>
         </div>
         <div class="dept-tree-search">
           <a-input-search
             v-model:value="searchText"
-            placeholder="搜索部门"
+            :placeholder="t('dept.searchDept')"
             allow-clear
             @search="loadDeptTree"
           />
@@ -31,11 +31,11 @@
             <template #title="{ name, status }">
               <div class="tree-node">
                 <span class="tree-node-name">{{ name }}</span>
-                <span v-if="status === 'disabled'" class="tree-node-badge">停用</span>
+                <span v-if="status === 'disabled'" class="tree-node-badge">{{ t('dept.disabled') }}</span>
               </div>
             </template>
           </a-tree>
-          <a-empty v-else :image="null" description="暂无数据" />
+          <a-empty v-else :image="null" :description="t('common.noData')" />
         </div>
       </div>
 
@@ -47,34 +47,34 @@
               <h3>{{ selectedDept.name }}</h3>
               <span class="status-tag" :class="selectedDept.status === 'enabled' ? 'status-enabled' : 'status-disabled'">
                 <span class="status-dot" />
-                {{ selectedDept.status === 'enabled' ? '正常' : '停用' }}
+                {{ selectedDept.status === 'enabled' ? t('dept.enabled') : t('dept.disabled') }}
               </span>
             </div>
             <a-space>
               <a-button type="primary" size="small" @click="handleAdd(selectedDept.id)">
                 <template #icon><PlusOutlined /></template>
-                新增子部门
+                {{ t('dept.addChildDept') }}
               </a-button>
               <a-button size="small" @click="handleEdit(selectedDept)">
                 <template #icon><EditOutlined /></template>
-                编辑
+                {{ t('common.edit') }}
               </a-button>
               <a-button size="small" danger @click="handleDelete(selectedDept)">
                 <template #icon><DeleteOutlined /></template>
-                删除
+                {{ t('common.delete') }}
               </a-button>
             </a-space>
           </div>
           <a-descriptions :column="2" bordered size="middle" class="dept-descriptions">
-            <a-descriptions-item label="部门名称">{{ selectedDept.name }}</a-descriptions-item>
-            <a-descriptions-item label="上级部门">{{ getParentName(selectedDept.parentId) }}</a-descriptions-item>
-            <a-descriptions-item label="负责人">{{ selectedDept.leader || '-' }}</a-descriptions-item>
-            <a-descriptions-item label="联系电话">{{ selectedDept.phone || '-' }}</a-descriptions-item>
-            <a-descriptions-item label="邮箱">{{ selectedDept.email || '-' }}</a-descriptions-item>
-            <a-descriptions-item label="排序">{{ selectedDept.sort }}</a-descriptions-item>
-            <a-descriptions-item label="创建时间">{{ selectedDept.createTime }}</a-descriptions-item>
-            <a-descriptions-item label="更新时间">{{ selectedDept.updateTime }}</a-descriptions-item>
-            <a-descriptions-item label="备注" :span="2">{{ selectedDept.remark || '-' }}</a-descriptions-item>
+            <a-descriptions-item :label="t('dept.deptName')">{{ selectedDept.name }}</a-descriptions-item>
+            <a-descriptions-item :label="t('dept.parentDept')">{{ getParentName(selectedDept.parentId) }}</a-descriptions-item>
+            <a-descriptions-item :label="t('dept.leader')">{{ selectedDept.leader || '-' }}</a-descriptions-item>
+            <a-descriptions-item :label="t('dept.phone')">{{ selectedDept.phone || '-' }}</a-descriptions-item>
+            <a-descriptions-item :label="t('dept.email')">{{ selectedDept.email || '-' }}</a-descriptions-item>
+            <a-descriptions-item :label="t('dept.sort')">{{ selectedDept.sort }}</a-descriptions-item>
+            <a-descriptions-item :label="t('dept.createTime')">{{ selectedDept.createTime }}</a-descriptions-item>
+            <a-descriptions-item :label="t('dept.updateTime')">{{ selectedDept.updateTime }}</a-descriptions-item>
+            <a-descriptions-item :label="t('dept.remark')" :span="2">{{ selectedDept.remark || '-' }}</a-descriptions-item>
           </a-descriptions>
 
           <!-- 子部门列表 -->
@@ -86,20 +86,20 @@
               :search="false"
               :pagination="false"
               :toolbar="{
-                title: `下级部门 (${childDepts.length})`
+                title: `${t('dept.childDepts')} (${childDepts.length})`
               }"
             >
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'status'">
                   <span class="status-tag" :class="record.status === 'enabled' ? 'status-enabled' : 'status-disabled'">
                     <span class="status-dot" />
-                    {{ record.status === 'enabled' ? '正常' : '停用' }}
+                    {{ record.status === 'enabled' ? t('dept.enabled') : t('dept.disabled') }}
                   </span>
                 </template>
                 <template v-if="column.key === 'action'">
                   <a-space :size="4">
-                    <a-button type="link" size="small" @click="selectDept(record.id)">查看</a-button>
-                    <a-button type="link" size="small" @click="handleEdit(record)">编辑</a-button>
+                    <a-button type="link" size="small" @click="selectDept(record.id)">{{ t('common.view') }}</a-button>
+                    <a-button type="link" size="small" @click="handleEdit(record)">{{ t('common.edit') }}</a-button>
                   </a-space>
                 </template>
               </template>
@@ -107,7 +107,7 @@
           </div>
         </template>
         <div v-else class="dept-detail-empty">
-          <a-empty description="请选择左侧部门节点" />
+          <a-empty :description="t('dept.selectDeptNode')" />
         </div>
       </div>
     </div>
@@ -120,39 +120,39 @@
       :width="520"
     >
       <a-form :model="form" :label-col="{ span: 6 }" style="margin-top: 16px">
-        <a-form-item label="上级部门">
+        <a-form-item :label="t('dept.parentDept')">
           <a-tree-select
             v-model:value="form.parentId"
             :tree-data="parentTreeData"
             :field-names="{ label: 'name', value: 'id', children: 'children' }"
-            placeholder="无（顶级部门）"
+            :placeholder="t('dept.noneTopLevelDept')"
             allow-clear
             tree-default-expand-all
           />
         </a-form-item>
-        <a-form-item label="部门名称" required>
-          <a-input v-model:value="form.name" placeholder="请输入部门名称" />
+        <a-form-item :label="t('dept.deptName')" required>
+          <a-input v-model:value="form.name" :placeholder="t('dept.pleaseEnterDeptName')" />
         </a-form-item>
-        <a-form-item label="负责人">
-          <a-input v-model:value="form.leader" placeholder="请输入负责人" />
+        <a-form-item :label="t('dept.leader')">
+          <a-input v-model:value="form.leader" :placeholder="t('dept.pleaseEnterLeader')" />
         </a-form-item>
-        <a-form-item label="联系电话">
-          <a-input v-model:value="form.phone" placeholder="请输入联系电话" />
+        <a-form-item :label="t('dept.phone')">
+          <a-input v-model:value="form.phone" :placeholder="t('dept.pleaseEnterPhone')" />
         </a-form-item>
-        <a-form-item label="邮箱">
-          <a-input v-model:value="form.email" placeholder="请输入邮箱" />
+        <a-form-item :label="t('dept.email')">
+          <a-input v-model:value="form.email" :placeholder="t('dept.pleaseEnterEmail')" />
         </a-form-item>
-        <a-form-item label="排序">
+        <a-form-item :label="t('dept.sort')">
           <a-input-number v-model:value="form.sort" :min="0" style="width: 100%" />
         </a-form-item>
-        <a-form-item label="状态">
+        <a-form-item :label="t('dept.status')">
           <a-radio-group v-model:value="form.status">
-            <a-radio value="enabled">正常</a-radio>
-            <a-radio value="disabled">停用</a-radio>
+            <a-radio value="enabled">{{ t('dept.enabled') }}</a-radio>
+            <a-radio value="disabled">{{ t('dept.disabled') }}</a-radio>
           </a-radio-group>
         </a-form-item>
-        <a-form-item label="备注">
-          <a-textarea v-model:value="form.remark" placeholder="请输入备注" :rows="3" />
+        <a-form-item :label="t('dept.remark')">
+          <a-textarea v-model:value="form.remark" :placeholder="t('dept.pleaseEnterRemark')" :rows="3" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -163,10 +163,13 @@
 import { ref, computed } from 'vue'
 import { message, Modal } from 'antdv-next'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
+import { useI18n } from 'vue-i18n'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import type { ProTableColumn } from '@/types/pro'
 import type { Department } from '@/types/dept'
 import { getDeptTree, getDeptList, createDept, updateDept, deleteDept } from '@/api/dept'
+
+const { t } = useI18n()
 
 const searchText = ref('')
 const treeData = ref<Department[]>([])
@@ -186,13 +189,13 @@ const childDepts = computed(() => {
 })
 
 const parentTreeData = computed(() => {
-  const root: Department = { id: '', name: '无（顶级部门）', parentId: null, sort: 0, status: 'enabled', createTime: '', updateTime: '' }
+  const root: Department = { id: '', name: t('dept.noneTopLevelDept'), parentId: null, sort: 0, status: 'enabled', createTime: '', updateTime: '' }
   return [{ ...root, children: treeData.value }]
 })
 
 // 弹窗
 const modalVisible = ref(false)
-const modalTitle = computed(() => form.value.id ? '编辑部门' : '新增部门')
+const modalTitle = computed(() => form.value.id ? t('dept.editDept') : t('dept.createDept'))
 const form = ref<Partial<Department>>({
   name: '',
   parentId: null,
@@ -204,16 +207,16 @@ const form = ref<Partial<Department>>({
   remark: ''
 })
 
-const childColumns: ProTableColumn[] = [
-  { title: '部门名称', dataIndex: 'name', key: 'name' },
-  { title: '负责人', dataIndex: 'leader', key: 'leader', width: 100 },
-  { title: '排序', dataIndex: 'sort', key: 'sort', width: 70 },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 80 },
-  { title: '操作', key: 'action', width: 120 }
-]
+const childColumns = computed<ProTableColumn[]>(() => [
+  { title: t('dept.deptName'), dataIndex: 'name', key: 'name' },
+  { title: t('dept.leader'), dataIndex: 'leader', key: 'leader', width: 100 },
+  { title: t('dept.sort'), dataIndex: 'sort', key: 'sort', width: 70 },
+  { title: t('dept.status'), dataIndex: 'status', key: 'status', width: 80 },
+  { title: t('common.actions'), key: 'action', width: 120 }
+])
 
 const getParentName = (parentId: string | null) => {
-  if (!parentId) return '无（顶级）'
+  if (!parentId) return t('dept.noneTopLevel')
   return flatList.value.find(d => d.id === parentId)?.name || '-'
 }
 
@@ -244,7 +247,7 @@ const loadDeptTree = async () => {
       selectedKeys.value = [treeData.value[0].id]
     }
   } catch (error) {
-    console.error('加载部门数据失败:', error)
+    console.error(t('dept.loadDataFailed'), error)
   }
 }
 
@@ -274,24 +277,24 @@ const handleEdit = (dept: Department) => {
 const handleDelete = (dept: Department) => {
   const hasChildren = flatList.value.some(d => d.parentId === dept.id)
   if (hasChildren) {
-    message.warning('该部门下存在子部门，请先删除子部门')
+    message.warning(t('dept.hasChildrenWarning'))
     return
   }
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除部门"${dept.name}"吗？`,
+    title: t('dept.confirmDelete'),
+    content: t('dept.confirmDeleteContent', { name: dept.name }),
     onOk: async () => {
       try {
         const response = await deleteDept(dept.id) as any
         if (response.code === 200) {
-          message.success('删除成功')
+          message.success(t('dept.deleteSuccess'))
           selectedKeys.value = []
           loadDeptTree()
         } else {
-          message.error(response.message || '删除失败')
+          message.error(response.message || t('dept.deleteFailed'))
         }
       } catch (error) {
-        message.error('删除失败')
+        message.error(t('dept.deleteFailed'))
       }
     }
   })
@@ -299,27 +302,27 @@ const handleDelete = (dept: Department) => {
 
 const handleSubmit = async () => {
   if (!form.value.name) {
-    message.warning('请输入部门名称')
+    message.warning(t('dept.pleaseEnterDeptName'))
     return
   }
   try {
     if (form.value.id) {
       const response = await updateDept(form.value.id, form.value) as any
       if (response.code === 200) {
-        message.success('更新成功')
+        message.success(t('dept.updateSuccess'))
         modalVisible.value = false
         loadDeptTree()
       }
     } else {
       const response = await createDept(form.value) as any
       if (response.code === 200) {
-        message.success('创建成功')
+        message.success(t('dept.createSuccess'))
         modalVisible.value = false
         loadDeptTree()
       }
     }
   } catch (error) {
-    message.error('操作失败')
+    message.error(t('dept.operateFailed'))
   }
 }
 
