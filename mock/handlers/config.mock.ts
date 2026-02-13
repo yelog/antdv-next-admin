@@ -29,7 +29,7 @@ export default defineMock([
       const item = sysConfigs.find(c => c.key === req.params.key)
       return item
         ? { code: 200, message: 'success', data: item }
-        : { code: 404, message: '配置不存在' }
+        : { code: 404, message: 'Config not found' }
     }
   },
 
@@ -38,7 +38,7 @@ export default defineMock([
     method: 'POST',
     body: (req) => {
       const exists = sysConfigs.find(c => c.key === req.body.key)
-      if (exists) return { code: 400, message: '配置键已存在' }
+      if (exists) return { code: 400, message: 'Config key already exists' }
       const newConfig: SysConfig = {
         id: String(Date.now()),
         ...req.body,
@@ -47,7 +47,7 @@ export default defineMock([
         updateTime: new Date().toISOString().replace('T', ' ').slice(0, 19)
       }
       sysConfigs.push(newConfig)
-      return { code: 200, message: '创建成功', data: newConfig }
+      return { code: 200, message: 'success', data: newConfig }
     }
   },
 
@@ -58,9 +58,9 @@ export default defineMock([
       const index = sysConfigs.findIndex(item => item.id === req.params.id)
       if (index !== -1) {
         sysConfigs[index] = { ...sysConfigs[index], ...req.body, updateTime: new Date().toISOString().replace('T', ' ').slice(0, 19) }
-        return { code: 200, message: '更新成功', data: sysConfigs[index] }
+        return { code: 200, message: 'success', data: sysConfigs[index] }
       }
-      return { code: 404, message: '配置不存在' }
+      return { code: 404, message: 'Config not found' }
     }
   },
 
@@ -69,10 +69,10 @@ export default defineMock([
     method: 'DELETE',
     body: (req) => {
       const index = sysConfigs.findIndex(item => item.id === req.params.id)
-      if (index === -1) return { code: 404, message: '配置不存在' }
-      if (sysConfigs[index].builtIn) return { code: 400, message: '内置配置不可删除' }
+      if (index === -1) return { code: 404, message: 'Config not found' }
+      if (sysConfigs[index].builtIn) return { code: 400, message: 'Built-in config cannot be deleted' }
       sysConfigs.splice(index, 1)
-      return { code: 200, message: '删除成功' }
+      return { code: 200, message: 'success' }
     }
   }
 ])

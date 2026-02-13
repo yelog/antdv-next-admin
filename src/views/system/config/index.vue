@@ -1,10 +1,10 @@
 <template>
   <div class="page-container">
     <div class="config-container">
-      <!-- 左侧：分组导航 -->
+      <!-- groups nav -->
       <div class="config-groups">
         <div class="config-groups-header">
-          <h3>配置分组</h3>
+          <h3>{{ $t('config.configGroups') }}</h3>
         </div>
         <div class="config-groups-list">
           <div
@@ -14,31 +14,31 @@
             :class="{ active: selectedGroup === group }"
             @click="selectedGroup = group"
           >
-            <span class="group-name">{{ group }}</span>
+            <span class="group-name">{{ $t(`config.groups.${group}`) }}</span>
             <span class="group-count">{{ getGroupCount(group) }}</span>
           </div>
         </div>
       </div>
 
-      <!-- 右侧：配置列表 -->
+      <!-- config list -->
       <div class="config-data">
         <ProTable
           :key="selectedGroup + refreshKey"
           :columns="columns"
           :request="loadConfigList"
           :search="false"
-          :toolbar="{ title: selectedGroup }"
+          :toolbar="{ title: $t(`config.groups.${selectedGroup}`) }"
         >
           <template #toolbar-actions>
             <a-button type="primary" @click="handleAdd">
-              <PlusOutlined /> 新增配置
+              <PlusOutlined /> {{ $t('config.createConfig') }}
             </a-button>
           </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'value'">
               <template v-if="record.valueType === 'boolean'">
                 <a-tag :color="record.value === 'true' ? 'green' : 'default'">
-                  {{ record.value === 'true' ? '是' : '否' }}
+                  {{ record.value === 'true' ? $t('common.yes') : $t('common.no') }}
                 </a-tag>
               </template>
               <template v-else>
@@ -46,18 +46,18 @@
               </template>
             </template>
             <template v-if="column.key === 'valueType'">
-              <a-tag>{{ valueTypeLabel[record.valueType] || record.valueType }}</a-tag>
+              <a-tag>{{ $t(`config.valueTypes.${record.valueType}`) || record.valueType }}</a-tag>
             </template>
             <template v-if="column.key === 'builtIn'">
               <a-tag :color="record.builtIn ? 'blue' : 'default'">
-                {{ record.builtIn ? '内置' : '自定义' }}
+                {{ record.builtIn ? $t('config.builtInTypes.builtIn') : $t('config.builtInTypes.custom') }}
               </a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <a-space :size="4">
                 <a-button type="link" size="small" @click="handleEdit(record)">
                   <template #icon><EditOutlined /></template>
-                  编辑
+                  {{ $t('common.edit') }}
                 </a-button>
                 <a-button
                   v-if="!record.builtIn"
@@ -67,7 +67,7 @@
                   @click="handleDelete(record)"
                 >
                   <template #icon><DeleteOutlined /></template>
-                  删除
+                  {{ $t('common.delete') }}
                 </a-button>
               </a-space>
             </template>
@@ -76,39 +76,39 @@
       </div>
     </div>
 
-    <!-- 新增/编辑弹窗 -->
+    <!-- add/edit modal -->
     <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit" :width="520">
       <a-form :model="form" :label-col="{ span: 6 }" style="margin-top: 16px">
-        <a-form-item label="配置名称" required>
-          <a-input v-model:value="form.name" placeholder="请输入配置名称" />
+        <a-form-item :label="$t('config.configName')" required>
+          <a-input v-model:value="form.name" :placeholder="$t('config.placeholders.configName')" />
         </a-form-item>
-        <a-form-item label="配置键" required>
-          <a-input v-model:value="form.key" placeholder="如 site.name" :disabled="!!form.id" />
+        <a-form-item :label="$t('config.configKey')" required>
+          <a-input v-model:value="form.key" :placeholder="$t('config.placeholders.configKey')" :disabled="!!form.id" />
         </a-form-item>
-        <a-form-item label="配置值" required>
+        <a-form-item :label="$t('config.configValue')" required>
           <a-switch v-if="form.valueType === 'boolean'" v-model:checked="boolValue" />
           <a-input-number v-else-if="form.valueType === 'number'" v-model:value="form.value" style="width: 100%" />
-          <a-textarea v-else-if="form.valueType === 'json'" v-model:value="form.value" :rows="4" placeholder="JSON 格式" />
-          <a-input v-else v-model:value="form.value" placeholder="请输入配置值" />
+          <a-textarea v-else-if="form.valueType === 'json'" v-model:value="form.value" :rows="4" :placeholder="$t('config.placeholders.jsonFormat')" />
+          <a-input v-else v-model:value="form.value" :placeholder="$t('config.placeholders.configValue')" />
         </a-form-item>
-        <a-form-item label="值类型">
+        <a-form-item :label="$t('config.valueType')">
           <a-select v-model:value="form.valueType" :disabled="!!form.id">
-            <a-select-option value="string">字符串</a-select-option>
-            <a-select-option value="number">数字</a-select-option>
-            <a-select-option value="boolean">布尔值</a-select-option>
-            <a-select-option value="json">JSON</a-select-option>
+            <a-select-option value="string">{{ $t('config.valueTypes.string') }}</a-select-option>
+            <a-select-option value="number">{{ $t('config.valueTypes.number') }}</a-select-option>
+            <a-select-option value="boolean">{{ $t('config.valueTypes.boolean') }}</a-select-option>
+            <a-select-option value="json">{{ $t('config.valueTypes.json') }}</a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item label="分组">
+        <a-form-item :label="$t('config.group')">
           <a-select v-model:value="form.group" allow-clear>
-            <a-select-option v-for="g in groups" :key="g" :value="g">{{ g }}</a-select-option>
+            <a-select-option v-for="g in groups" :key="g" :value="g">{{ $t(`config.groups.${g}`) }}</a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item label="排序">
+        <a-form-item :label="$t('config.sort')">
           <a-input-number v-model:value="form.sort" :min="0" style="width: 100%" />
         </a-form-item>
-        <a-form-item label="描述">
-          <a-textarea v-model:value="form.description" placeholder="请输入描述" :rows="2" />
+        <a-form-item :label="$t('config.description')">
+          <a-textarea v-model:value="form.description" :placeholder="$t('config.placeholders.description')" :rows="2" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -119,30 +119,26 @@
 import { ref, computed } from 'vue'
 import { message, Modal } from 'antdv-next'
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@antdv-next/icons'
+import { useI18n } from 'vue-i18n'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import type { ProTableColumn } from '@/types/pro'
 import type { SysConfig } from '@/types/config'
 import { getConfigList, createConfig, updateConfig, deleteConfig } from '@/api/config'
 
-const groups = ref<string[]>(['基础配置', '安全配置', '上传配置', '通知配置'])
-const selectedGroup = ref('基础配置')
+const { t } = useI18n()
+
+const groups = ref<string[]>(['basic', 'security', 'upload', 'notification'])
+const selectedGroup = ref('basic')
 const allConfigs = ref<SysConfig[]>([])
 const refreshKey = ref(0)
 
-const valueTypeLabel: Record<string, string> = {
-  string: '字符串',
-  number: '数字',
-  boolean: '布尔值',
-  json: 'JSON'
-}
-
 const getGroupCount = (group: string) => allConfigs.value.filter(c => c.group === group).length
 
-// 弹窗
+// modal
 const modalVisible = ref(false)
-const modalTitle = computed(() => form.value.id ? '编辑配置' : '新增配置')
+const modalTitle = computed(() => form.value.id ? t('config.editConfig') : t('config.createConfig'))
 const form = ref<Partial<SysConfig>>({
-  name: '', key: '', value: '', valueType: 'string', group: '基础配置', sort: 0, description: ''
+  name: '', key: '', value: '', valueType: 'string', group: 'basic', sort: 0, description: ''
 })
 const boolValue = computed({
   get: () => form.value.value === 'true',
@@ -150,13 +146,13 @@ const boolValue = computed({
 })
 
 const columns: ProTableColumn[] = [
-  { title: '配置名称', dataIndex: 'name', key: 'name', width: 160 },
-  { title: '配置键', dataIndex: 'key', key: 'key', width: 200 },
-  { title: '配置值', dataIndex: 'value', key: 'value', ellipsis: true },
-  { title: '类型', dataIndex: 'valueType', key: 'valueType', width: 90 },
-  { title: '来源', dataIndex: 'builtIn', key: 'builtIn', width: 90 },
-  { title: '描述', dataIndex: 'description', key: 'description', ellipsis: true },
-  { title: '操作', key: 'action', width: 150, fixed: 'right' }
+  { title: computed(() => t('config.configName')), dataIndex: 'name', key: 'name', width: 160 },
+  { title: computed(() => t('config.configKey')), dataIndex: 'key', key: 'key', width: 200 },
+  { title: computed(() => t('config.configValue')), dataIndex: 'value', key: 'value', ellipsis: true },
+  { title: computed(() => t('config.valueType')), dataIndex: 'valueType', key: 'valueType', width: 90 },
+  { title: computed(() => t('config.builtIn')), dataIndex: 'builtIn', key: 'builtIn', width: 90 },
+  { title: computed(() => t('config.description')), dataIndex: 'description', key: 'description', ellipsis: true },
+  { title: computed(() => t('common.actions')), key: 'action', width: 150, fixed: 'right' }
 ]
 
 const loadConfigList = async (params: any) => {
@@ -170,12 +166,12 @@ const loadConfigList = async (params: any) => {
       return { data: response.data.list, total: response.data.total, success: true }
     }
   } catch (error) {
-    console.error('加载配置失败:', error)
+    console.error(t('config.loadConfigFailed'), error)
   }
   return { data: [], total: 0, success: false }
 }
 
-// 加载全部配置用于分组计数
+// load all configs for group count
 const loadAllConfigs = async () => {
   try {
     const response = await getConfigList({ page: 1, pageSize: 100 }) as any
@@ -195,38 +191,38 @@ const handleEdit = (record: SysConfig) => {
 
 const handleDelete = (record: SysConfig) => {
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除配置"${record.name}"吗？`,
+    title: t('config.confirmDelete'),
+    content: t('config.confirmDeleteContent', { name: record.name }),
     onOk: async () => {
       try {
         const response = await deleteConfig(record.id) as any
         if (response.code === 200) {
-          message.success('删除成功')
+          message.success(t('config.deleteSuccess'))
           refreshKey.value++
           loadAllConfigs()
         } else {
-          message.error(response.message || '删除失败')
+          message.error(response.message || t('config.deleteFailed'))
         }
-      } catch { message.error('删除失败') }
+      } catch { message.error(t('config.deleteFailed')) }
     }
   })
 }
 
 const handleSubmit = async () => {
   if (!form.value.name || !form.value.key) {
-    message.warning('请填写必填项')
+    message.warning(t('config.requiredFields'))
     return
   }
   try {
     if (form.value.id) {
       const response = await updateConfig(form.value.id, form.value) as any
-      if (response.code === 200) { message.success('更新成功'); modalVisible.value = false; refreshKey.value++; loadAllConfigs() }
+      if (response.code === 200) { message.success(t('config.updateSuccess')); modalVisible.value = false; refreshKey.value++; loadAllConfigs() }
     } else {
       const response = await createConfig(form.value) as any
-      if (response.code === 200) { message.success('创建成功'); modalVisible.value = false; refreshKey.value++; loadAllConfigs() }
-      else message.error(response.message || '创建失败')
+      if (response.code === 200) { message.success(t('config.createSuccess')); modalVisible.value = false; refreshKey.value++; loadAllConfigs() }
+      else message.error(response.message || t('config.operateFailed'))
     }
-  } catch { message.error('操作失败') }
+  } catch { message.error(t('config.operateFailed')) }
 }
 
 loadAllConfigs()
