@@ -7,6 +7,10 @@
 [![Vite](https://img.shields.io/badge/Vite-5.0-purple.svg)](https://vitejs.dev/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+## 📸 预览
+
+![系统截图](docs/images/screenshot.png)
+
 ## ✨ 特性
 
 ### 核心功能
