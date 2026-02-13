@@ -235,21 +235,12 @@ const selectedNotificationId = computed(() => {
 const normalizeText = (value: string) => value.trim().toLowerCase()
 
 const resolveTone = (notification: Notification): NotificationTone => {
-  const title = String(notification.title || '').toLowerCase()
-
-  if (title.includes('系统') || title.includes('update') || title.includes('升级')) {
-    return 'system'
-  }
-  if (title.includes('消息') || title.includes('message') || title.includes('mail')) {
-    return 'message'
-  }
-  if (title.includes('安全') || title.includes('security') || title.includes('风险')) {
-    return 'security'
-  }
-  if (title.includes('任务') || title.includes('task') || title.includes('完成')) {
-    return 'task'
+  // Use category if explicitly set
+  if (notification.category) {
+    return notification.category
   }
 
+  // Fallback to type-based classification
   switch (notification.type) {
     case 'warning':
       return 'security'

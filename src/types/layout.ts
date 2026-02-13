@@ -18,11 +18,14 @@ export interface Tab {
   affix?: boolean
 }
 
+export type NotificationCategory = 'system' | 'message' | 'security' | 'task' | 'error'
+
 export interface Notification {
   id: string
   title: string
   message: string
   type: 'success' | 'error' | 'warning' | 'info'
+  category?: NotificationCategory
   timestamp: number
   read: boolean
   avatar?: string

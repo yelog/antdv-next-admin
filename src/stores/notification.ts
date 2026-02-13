@@ -67,6 +67,7 @@ export const useNotificationStore = defineStore('notification', () => {
         title: '系统更新',
         message: '系统已更新到最新版本 v2.0.0，新增了多项功能优化',
         type: 'info',
+        category: 'system',
         timestamp: Date.now() - 1000 * 60 * 5, // 5分钟前
         read: false,
         link: '/dashboard'
@@ -76,6 +77,7 @@ export const useNotificationStore = defineStore('notification', () => {
         title: '新消息',
         message: '您有一条来自管理员的新消息，请及时查看',
         type: 'success',
+        category: 'message',
         timestamp: Date.now() - 1000 * 60 * 30, // 30分钟前
         read: false,
         link: '/profile'
@@ -85,6 +87,7 @@ export const useNotificationStore = defineStore('notification', () => {
         title: '安全提醒',
         message: '检测到您的账号在异地登录，如非本人操作请及时修改密码',
         type: 'warning',
+        category: 'security',
         timestamp: Date.now() - 1000 * 60 * 60 * 2, // 2小时前
         read: false,
         link: '/profile'
@@ -94,6 +97,7 @@ export const useNotificationStore = defineStore('notification', () => {
         title: '任务完成',
         message: '数据导出任务已完成，共导出 1,234 条记录',
         type: 'success',
+        category: 'task',
         timestamp: Date.now() - 1000 * 60 * 60 * 5, // 5小时前
         read: true,
         link: '/examples/table'
@@ -103,6 +107,7 @@ export const useNotificationStore = defineStore('notification', () => {
         title: '系统维护通知',
         message: '系统将于今晚 22:00-24:00 进行维护，期间可能无法访问',
         type: 'warning',
+        category: 'system',
         timestamp: Date.now() - 1000 * 60 * 60 * 24, // 1天前
         read: true,
         link: '/dashboard'
