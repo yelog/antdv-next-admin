@@ -42,7 +42,6 @@ const formItems: ProFormItem[] = [
     type: 'input',
     required: true,
     rules: [
-      commonRules.required(),
       commonRules.length(3, 20),
       commonRules.username()
     ],
@@ -56,7 +55,6 @@ const formItems: ProFormItem[] = [
     type: 'input',
     required: true,
     rules: [
-      commonRules.required(),
       commonRules.email()
     ]
   },
@@ -66,7 +64,6 @@ const formItems: ProFormItem[] = [
     type: 'password',
     required: true,
     rules: [
-      commonRules.required(),
       commonRules.password()
     ]
   },
@@ -77,7 +74,6 @@ const formItems: ProFormItem[] = [
     required: true,
     dependencies: ['password'],
     rules: [
-      commonRules.required(),
       ({ getFieldValue }: { getFieldValue: (field: string) => any }) => commonRules.confirmPassword(getFieldValue)
     ]
   },
