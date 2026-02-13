@@ -98,15 +98,6 @@
                 <span class="notice-time">{{ formatRelativeTime(notification.timestamp) }}</span>
               </div>
               <p class="notice-message">{{ notification.message }}</p>
-
-              <div class="notice-foot">
-                <a-tag :bordered="false" class="notice-type-tag">
-                  {{ getToneLabel(resolveTone(notification)) }}
-                </a-tag>
-                <span class="notice-read-state">
-                  {{ notification.read ? $t('notificationCenter.status.read') : $t('notificationCenter.status.unread') }}
-                </span>
-              </div>
             </div>
           </button>
         </div>
@@ -123,7 +114,7 @@
               <div :class="['detail-icon', `tone-${selectedTone}`]">
                 <component :is="getToneIcon(selectedTone)" />
               </div>
-              <div>
+              <div class="detail-title-content">
                 <h2 class="detail-title">{{ selectedNotification.title }}</h2>
                 <p class="detail-time">
                   {{ formatAbsoluteTime(selectedNotification.timestamp) }}
@@ -133,9 +124,27 @@
               </div>
             </div>
 
-            <a-tag :color="selectedNotification.read ? 'default' : 'processing'">
-              {{ selectedNotification.read ? $t('notificationCenter.status.read') : $t('notificationCenter.status.unread') }}
-            </a-tag>
+            <div class="detail-header-actions">
+              <a-tooltip v-if="!selectedNotification.read" :title="$t('notificationCenter.actions.markAsRead')">
+                <a-button
+                  type="text"
+                  size="small"
+                  @click="handleMarkAsRead(selectedNotification.id)"
+                >
+                  <template #icon><CheckCircleOutlined /></template>
+                </a-button>
+              </a-tooltip>
+              <a-tooltip :title="$t('notificationCenter.actions.delete')">
+                <a-button
+                  type="text"
+                  size="small"
+                  danger
+                  @click="handleDeleteNotification(selectedNotification.id)"
+                >
+                  <template #icon><DeleteOutlined /></template>
+                </a-button>
+              </a-tooltip>
+            </div>
           </header>
 
           <div class="detail-body">
@@ -153,25 +162,15 @@
             </div>
           </div>
 
-          <footer class="detail-actions">
-            <a-space :wrap="true">
-              <a-button
-                type="primary"
-                :disabled="selectedNotification.read"
-                @click="handleMarkAsRead(selectedNotification.id)"
-              >
-                {{ $t('notificationCenter.actions.markAsRead') }}
-              </a-button>
-              <a-button
-                :disabled="!selectedNotification.link"
-                @click="handleOpenRelated(selectedNotification)"
-              >
-                {{ $t('notificationCenter.actions.openRelated') }}
-              </a-button>
-              <a-button danger @click="handleDeleteNotification(selectedNotification.id)">
-                {{ $t('notificationCenter.actions.delete') }}
-              </a-button>
-            </a-space>
+          <footer v-if="selectedNotification.link" class="detail-actions">
+            <a-button
+              type="primary"
+              size="large"
+              block
+              @click="handleOpenRelated(selectedNotification)"
+            >
+              {{ $t('notificationCenter.actions.openRelated') }}
+            </a-button>
           </footer>
         </template>
 
@@ -197,7 +196,8 @@ import {
   SafetyCertificateOutlined,
   CheckCircleOutlined,
   ExclamationCircleOutlined,
-  SearchOutlined
+  SearchOutlined,
+  DeleteOutlined
 } from '@antdv-next/icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -446,6 +446,7 @@ const handleOpenRelated = (notification: Notification) => {
   border: 1px solid var(--color-border-secondary);
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(2px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .metric-label {
@@ -458,8 +459,9 @@ const handleOpenRelated = (notification: Notification) => {
   margin-top: 6px;
   display: block;
   font-family: var(--font-family-number);
-  font-size: 22px;
+  font-size: 32px;
   line-height: 1.2;
+  font-weight: 600;
   color: var(--color-text-primary);
 }
 
@@ -518,7 +520,7 @@ const handleOpenRelated = (notification: Notification) => {
   gap: 8px;
   max-height: 650px;
   overflow-y: auto;
-  padding-right: 2px;
+  padding: 2px 2px 2px 0;
 }
 
 .notice-item {
@@ -535,18 +537,33 @@ const handleOpenRelated = (notification: Notification) => {
 
   &:hover {
     transform: translateY(-1px);
+    background: rgba(22, 119, 255, 0.02);
     border-color: rgba(22, 119, 255, 0.26);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
   }
 
   &.active {
     border-color: var(--color-primary);
-    background: linear-gradient(130deg, var(--color-primary-1), var(--color-bg-container));
-    box-shadow: 0 10px 26px rgba(22, 119, 255, 0.18);
+    background: rgba(22, 119, 255, 0.06);
+    box-shadow: 0 2px 8px rgba(22, 119, 255, 0.12);
   }
 
   &.unread .notice-title {
-    font-weight: 700;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  &:not(.unread) {
+    opacity: 0.75;
+
+    .notice-title {
+      color: var(--color-text-secondary);
+      font-weight: 400;
+    }
+
+    .notice-message {
+      color: var(--color-text-tertiary);
+    }
   }
 }
 
@@ -611,27 +628,6 @@ const handleOpenRelated = (notification: Notification) => {
   overflow: hidden;
 }
 
-.notice-foot {
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.notice-type-tag {
-  margin-right: 0;
-  font-size: 11px;
-  border-radius: 999px;
-  background: var(--color-bg-layout);
-  color: var(--color-text-secondary);
-}
-
-.notice-read-state {
-  font-size: 11px;
-  color: var(--color-text-tertiary);
-}
-
 .detail-panel {
   position: sticky;
   top: 10px;
@@ -650,6 +646,20 @@ const handleOpenRelated = (notification: Notification) => {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-title-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .detail-icon {
@@ -723,7 +733,9 @@ const handleOpenRelated = (notification: Notification) => {
 }
 
 .detail-actions {
-  margin-top: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-secondary);
 }
 
 .detail-placeholder {
@@ -760,27 +772,32 @@ const handleOpenRelated = (notification: Notification) => {
   padding: 40px 0 30px;
 }
 
-.tone-system {
+.notice-icon.tone-system,
+.detail-icon.tone-system {
   color: #1677ff;
   background: rgba(22, 119, 255, 0.13);
 }
 
-.tone-message {
+.notice-icon.tone-message,
+.detail-icon.tone-message {
   color: #16a34a;
   background: rgba(22, 163, 74, 0.14);
 }
 
-.tone-security {
+.notice-icon.tone-security,
+.detail-icon.tone-security {
   color: #f97316;
   background: rgba(249, 115, 22, 0.18);
 }
 
-.tone-task {
+.notice-icon.tone-task,
+.detail-icon.tone-task {
   color: #0f766e;
   background: rgba(15, 118, 110, 0.14);
 }
 
-.tone-error {
+.notice-icon.tone-error,
+.detail-icon.tone-error {
   color: #dc2626;
   background: rgba(220, 38, 38, 0.14);
 }
