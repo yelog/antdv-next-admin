@@ -19,11 +19,11 @@
             :before-upload="handleImport"
           >
             <a-button>
-              <UploadOutlined /> 导入
+              <UploadOutlined /> {{ $t('common.import') }}
             </a-button>
           </a-upload>
           <a-button @click="handleExport">
-            <DownloadOutlined /> 导出
+            <DownloadOutlined /> {{ $t('common.export') }}
           </a-button>
           <a-button type="primary" class="create-user-btn" @click="handleCreate">
             <PlusOutlined /> {{ $t('user.createUser') }}
@@ -416,21 +416,21 @@ const handleExport = async () => {
     const list = response.data.list
     exportToCSV(
       [
-        { title: '用户名', dataIndex: 'username' },
-        { title: '姓名', dataIndex: 'realName' },
-        { title: '邮箱', dataIndex: 'email' },
-        { title: '手机号', dataIndex: 'phone' },
-        { title: '性别', dataIndex: 'gender', render: (v: string) => v === 'male' ? '男' : '女' },
-        { title: '状态', dataIndex: 'status', render: (v: string) => v === 'active' ? '正常' : '禁用' },
-        { title: '角色', dataIndex: 'roles', render: (_: any, r: any) => (r.roles || []).map((role: any) => role.name).join(', ') },
-        { title: '创建时间', dataIndex: 'createdAt' }
+        { title: $t('user.username'), dataIndex: 'username' },
+        { title: $t('user.realName'), dataIndex: 'realName' },
+        { title: $t('user.email'), dataIndex: 'email' },
+        { title: $t('user.phone'), dataIndex: 'phone' },
+        { title: $t('user.gender'), dataIndex: 'gender', render: (v: string) => v === 'male' ? $t('user.male') : $t('user.female') },
+        { title: $t('user.status'), dataIndex: 'status', render: (v: string) => v === 'active' ? $t('user.active') : $t('user.inactive') },
+        { title: $t('user.role'), dataIndex: 'roles', render: (_: any, r: any) => (r.roles || []).map((role: any) => role.name).join(', ') },
+        { title: $t('common.createTime'), dataIndex: 'createdAt' }
       ],
       list,
-      `用户列表_${new Date().toISOString().slice(0, 10)}`
+      `${$t('user.title')}_${new Date().toISOString().slice(0, 10)}`
     )
-    message.success('导出成功')
+    message.success($t('user.exportSuccess'))
   } catch {
-    message.error('导出失败')
+    message.error($t('user.exportFailed'))
   }
 }
 
@@ -439,7 +439,7 @@ const handleImport = async (file: File) => {
   try {
     const rows = await parseCSV(file)
     if (rows.length < 2) {
-      message.warning('文件为空或格式不正确')
+      message.warning($t('user.importEmpty'))
       return false
     }
     const header = rows[0]
@@ -448,7 +448,7 @@ const handleImport = async (file: File) => {
     const emailIdx = header.findIndex(h => h.includes('邮箱'))
 
     if (usernameIdx === -1 || realNameIdx === -1 || emailIdx === -1) {
-      message.error('CSV 格式不正确，需包含"用户名"、"姓名"、"邮箱"列')
+      message.error($t('user.importFormatError'))
       return false
     }
 
@@ -466,10 +466,10 @@ const handleImport = async (file: File) => {
         successCount++
       } catch { /* skip duplicates */ }
     }
-    message.success(`成功导入 ${successCount} 条数据`)
+    message.success($t('user.importSuccess', { count: successCount }))
     refreshTable()
   } catch {
-    message.error('导入失败，请检查文件格式')
+    message.error($t('user.importFailed'))
   }
   return false
 }
