@@ -534,6 +534,31 @@ export default {
     '500description': 'Sorry, the server is reporting an error'
   },
 
+  editor: {
+    insertLink: 'Insert Link',
+    linkUrl: 'Link URL',
+    linkText: 'Link Text',
+    linkTextPlaceholder: 'Link text',
+    defaultPlaceholder: 'Enter content...',
+    imageOnly: 'Only image files are allowed',
+    imageSizeLimit: 'Image size cannot exceed 5MB',
+    imageInsertSuccess: 'Image inserted successfully',
+    imageUploadFailed: 'Image upload failed',
+    enterLinkUrl: 'Please enter link URL'
+  },
+
+  iconPicker: {
+    selectIcon: 'Select icon',
+    searchPlaceholder: 'Search icon name...',
+    onlineSearchFailed: 'Online search failed',
+    onlineSearchFailedDetail: 'Online search failed: {message}'
+  },
+
+  captcha: {
+    clickInOrder: 'Click in order: ',
+    refresh: 'Refresh'
+  },
+
   proForm: {
     enterPlaceholder: 'Please enter {label}',
     selectPlaceholder: 'Please select {label}',

@@ -137,15 +137,15 @@
     <!-- 链接弹窗 -->
     <a-modal
       v-model:open="linkModalVisible"
-      title="插入链接"
+      :title="$t('editor.insertLink')"
       @ok="insertLink"
     >
       <a-form layout="vertical">
-        <a-form-item label="链接地址">
+        <a-form-item :label="$t('editor.linkUrl')">
           <a-input v-model:value="linkUrl" placeholder="https://example.com" />
         </a-form-item>
-        <a-form-item label="链接文本">
-          <a-input v-model:value="linkText" placeholder="链接文本" />
+        <a-form-item :label="$t('editor.linkText')">
+          <a-input v-model:value="linkText" :placeholder="$t('editor.linkTextPlaceholder')" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -153,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onBeforeUnmount } from 'vue'
+import { ref, watch, onBeforeUnmount, computed } from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
@@ -174,6 +174,7 @@ import {
 } from '@antdv-next/icons'
 import { message } from 'antdv-next'
 import type { UploadProps } from 'antdv-next'
+import { $t } from '@/locales'
 
 interface Props {
   modelValue?: string
@@ -184,7 +185,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: '',
-  placeholder: '请输入内容...',
+  placeholder: '',
   disabled: false,
   height: 400
 })
@@ -193,6 +194,8 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
   'change': [value: string]
 }>()
+
+const resolvedPlaceholder = computed(() => props.placeholder || $t('editor.defaultPlaceholder'))
 
 // 链接弹窗
 const linkModalVisible = ref(false)
@@ -217,7 +220,7 @@ const editor = useEditor({
       }
     }),
     Placeholder.configure({
-      placeholder: props.placeholder
+      placeholder: resolvedPlaceholder.value
     })
   ],
   onUpdate: ({ editor }) => {
@@ -247,13 +250,13 @@ const handleImageUpload: UploadProps['beforeUpload'] = async (file) => {
 
   // 检查文件类型
   if (!file.type.startsWith('image/')) {
-    message.error('只能上传图片文件')
+    message.error($t('editor.imageOnly'))
     return false
   }
 
   // 检查文件大小（5MB）
   if (file.size > 5 * 1024 * 1024) {
-    message.error('图片大小不能超过 5MB')
+    message.error($t('editor.imageSizeLimit'))
     return false
   }
 
@@ -276,10 +279,10 @@ const handleImageUpload: UploadProps['beforeUpload'] = async (file) => {
     // const data = await response.json()
     // editor.value?.chain().focus().setImage({ src: data.url }).run()
 
-    message.success('图片插入成功')
+    message.success($t('editor.imageInsertSuccess'))
   } catch (error) {
-    console.error('图片上传失败:', error)
-    message.error('图片上传失败')
+    console.error('Image upload failed:', error)
+    message.error($t('editor.imageUploadFailed'))
   }
 
   return false // 阻止默认上传行为
@@ -299,7 +302,7 @@ const showLinkModal = () => {
 // 插入链接
 const insertLink = () => {
   if (!linkUrl.value) {
-    message.warning('请输入链接地址')
+    message.warning($t('editor.enterLinkUrl'))
     return
   }
 

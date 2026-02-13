@@ -535,6 +535,31 @@ export default {
     '500description': '抱歉，服务器出现错误'
   },
 
+  editor: {
+    insertLink: '插入链接',
+    linkUrl: '链接地址',
+    linkText: '链接文本',
+    linkTextPlaceholder: '链接文本',
+    defaultPlaceholder: '请输入内容...',
+    imageOnly: '只能上传图片文件',
+    imageSizeLimit: '图片大小不能超过 5MB',
+    imageInsertSuccess: '图片插入成功',
+    imageUploadFailed: '图片上传失败',
+    enterLinkUrl: '请输入链接地址'
+  },
+
+  iconPicker: {
+    selectIcon: '请选择图标',
+    searchPlaceholder: '搜索图标名称...',
+    onlineSearchFailed: '在线搜索失败',
+    onlineSearchFailedDetail: '在线搜索失败：{message}'
+  },
+
+  captcha: {
+    clickInOrder: '请依次点击：',
+    refresh: '刷新'
+  },
+
   proForm: {
     enterPlaceholder: '请输入{label}',
     selectPlaceholder: '请选择{label}',
