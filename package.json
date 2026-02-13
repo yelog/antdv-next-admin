@@ -17,6 +17,11 @@
     "@iconify-json/mdi": "^1.2.3",
     "@iconify-json/ri": "^1.2.10",
     "@iconify/vue": "^5.0.0",
+    "@tiptap/extension-image": "^3.19.0",
+    "@tiptap/extension-link": "^3.19.0",
+    "@tiptap/extension-placeholder": "^3.19.0",
+    "@tiptap/starter-kit": "^3.19.0",
+    "@tiptap/vue-3": "^3.19.0",
     "antdv-next": "^1.0.0",
     "axios": "^1.6.5",
     "dayjs": "^1.11.10",
@@ -25,7 +30,7 @@
     "pinia": "^2.1.7",
     "vue": "^3.4.0",
     "vue-echarts": "^6.6.8",
-    "vue-i18n": "^9.9.0",
+    "vue-i18n": "^11.0.0",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {

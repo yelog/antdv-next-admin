@@ -50,6 +50,7 @@ export default {
     table: '表格示例',
     icon: '图标示例',
     form: '表单示例',
+    editor: '富文本编辑器',
     captcha: '验证码示例',
     modal: '弹窗示例',
     watermark: '水印示例',

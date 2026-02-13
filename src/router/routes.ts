@@ -200,6 +200,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'editor',
+        name: 'ExamplesEditor',
+        component: () => import('@/views/examples/editor/index.vue'),
+        meta: {
+          title: 'menu.editor',
+          icon: 'EditOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'modal',
         name: 'ExamplesModal',
         component: () => import('@/views/examples/modal/index.vue'),

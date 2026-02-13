@@ -50,6 +50,7 @@ export default {
     table: 'Table Example',
     icon: 'Icon Example',
     form: 'Form Example',
+    editor: 'Rich Text Editor',
     modal: 'Modal Example',
     watermark: 'Watermark',
     requestAuth: 'Request/Auth Flow',
