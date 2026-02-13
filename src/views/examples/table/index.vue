@@ -12,6 +12,10 @@
         labelWidth: 80,
         defaultCollapsed: true
       }"
+      :header-filter="{
+        defaultMode: 'server',
+        requestPayload: 'flat'
+      }"
       row-key="id"
     >
       <template #toolbar-actions>
@@ -20,68 +24,8 @@
         </a-button>
       </template>
 
-      <!-- 自定义筛选图标 -->
-      <template #filterIcon="{ filtered, column }">
-        <SearchOutlined v-if="column.dataIndex === 'username'" :style="{ color: filtered ? '#1677ff' : undefined }" />
-        <FilterFilled v-else :style="{ color: filtered ? '#1677ff' : undefined }" />
-      </template>
-
-      <!-- 自定义筛选下拉框（用于用户名搜索） -->
-      <template #filterDropdown="{ column, setSelectedKeys, selectedKeys, confirm, clearFilters, close }">
-        <div v-if="column.dataIndex === 'username'" class="username-filter-panel" @keydown.stop>
-          <a-input
-            ref="searchInput"
-            class="username-filter-input"
-            allow-clear
-            :placeholder="`搜索${column.title}`"
-            :value="String(selectedKeys[0] || '')"
-            @update:value="handleFilterKeywordChange($event, setSelectedKeys)"
-            @keydown.enter="handleSearch(selectedKeys as string[], confirm, 'username')"
-          />
-          <div class="username-filter-actions">
-            <a-space class="username-filter-main-actions" :size="8">
-              <a-button
-                type="primary"
-                class="username-filter-btn"
-                @click="handleSearch(selectedKeys as string[], confirm, 'username')"
-              >
-                {{ $t('common.search') }}
-              </a-button>
-              <a-button class="username-filter-btn" @click="handleReset(clearFilters)">
-                {{ $t('common.reset') }}
-              </a-button>
-            </a-space>
-            <a-space class="username-filter-link-actions" :size="2">
-              <a-button
-                type="link"
-                size="small"
-                @click="() => { confirm({ closeDropdown: false }); searchText = String(selectedKeys[0] || ''); searchedColumn = 'username' }"
-              >
-                筛选
-              </a-button>
-              <a-button
-                type="link"
-                size="small"
-                @click="close?.()"
-              >
-                关闭
-              </a-button>
-            </a-space>
-          </div>
-        </div>
-      </template>
-
-      <!-- 自定义单元格渲染（用于状态 Switch 和用户名高亮） -->
-      <template #bodyCell="{ column, record, text }">
-        <template v-if="column.dataIndex === 'username'">
-          <template v-if="searchedColumn === 'username'">
-            <component :is="() => highlightText(text || '', searchText)" />
-          </template>
-          <template v-else>
-            {{ text }}
-          </template>
-        </template>
-        <template v-else-if="column.dataIndex === 'status'">
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.dataIndex === 'status'">
           <a-switch
             :checked="record.status === 'active'"
             @change="handleStatusChange(record, $event as boolean)"
@@ -111,8 +55,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, h } from 'vue'
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, FilterFilled } from '@antdv-next/icons'
+import { ref, computed } from 'vue'
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
 import { message } from 'antdv-next'
 import { $t } from '@/locales'
 import ProTable from '@/components/Pro/ProTable/index.vue'
@@ -126,55 +70,6 @@ const modalVisible = ref(false)
 const editingId = ref<string | null>(null)
 const formRef = ref()
 const formData = ref({})
-const searchInput = ref()
-const searchText = ref('')
-const searchedColumn = ref('')
-
-const splitKeywords = (keyword: string) => {
-  return keyword
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
-}
-
-const includesKeywords = (text: string, keyword: string) => {
-  const keywords = splitKeywords(keyword)
-  if (!keywords.length) {
-    return true
-  }
-  const lowerText = text.toLowerCase()
-  return keywords.every(item => lowerText.includes(item))
-}
-
-const escapeRegExp = (value: string) => {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
-// 高亮搜索关键字
-const highlightText = (text: string, keyword: string) => {
-  const keywords = splitKeywords(keyword)
-  if (!keywords.length) {
-    return text
-  }
-
-  const pattern = keywords.map(escapeRegExp).join('|')
-  if (!pattern) {
-    return text
-  }
-
-  const segments = text.split(new RegExp(`(${pattern})`, 'ig'))
-  if (segments.length <= 1) {
-    return text
-  }
-
-  return segments.map((part, index) => {
-    const matched = keywords.includes(part.toLowerCase())
-    return matched
-      ? h('mark', { class: 'table-highlight', key: `mark-${index}` }, part)
-      : part
-  })
-}
 
 // Table columns configuration
 const columns = computed<ProTableColumn[]>(() => [
@@ -183,19 +78,12 @@ const columns = computed<ProTableColumn[]>(() => [
     dataIndex: 'username',
     width: 150,
     fixed: 'left',
-    filterDropdown: () => null, // 使用自定义筛选下拉框
-    filterDropdownProps: {
-      onOpenChange(open: boolean) {
-        if (open) {
-          nextTick(() => {
-            searchInput.value?.focus?.()
-            searchInput.value?.select?.()
-          })
-        }
-      }
-    },
-    onFilter: (value: any, record: any) => {
-      return includesKeywords(String(record.username || ''), String(value || ''))
+    headerFilter: {
+      type: 'keyword',
+      mode: 'server',
+      icon: 'search',
+      placeholder: `搜索${$t('user.username')}`,
+      matchAllKeywords: true
     }
   },
   {
@@ -234,11 +122,16 @@ const columns = computed<ProTableColumn[]>(() => [
     title: $t('common.status'),
     dataIndex: 'status',
     width: 150,
-    filters: [
-      { text: $t('user.active'), value: 'active' },
-      { text: $t('user.inactive'), value: 'inactive' }
-    ],
-    onFilter: (value: any, record: any) => record.status === value
+    headerFilter: {
+      type: 'select',
+      mode: 'server',
+      icon: 'filter',
+      multiple: false,
+      options: [
+        { label: $t('user.active'), value: 'active' },
+        { label: $t('user.inactive'), value: 'inactive' }
+      ]
+    }
   },
   {
     title: $t('common.createTime'),
@@ -349,24 +242,6 @@ const fetchData = async (params: any) => {
   }
 }
 
-const handleSearch = (selectedKeys: string[], confirm: any, dataIndex: string) => {
-  confirm()
-  searchText.value = String(selectedKeys[0] || '')
-  searchedColumn.value = dataIndex
-}
-
-const handleFilterKeywordChange = (
-  value: string,
-  setSelectedKeys: (keys: string[]) => void
-) => {
-  setSelectedKeys(value ? [String(value)] : [])
-}
-
-const handleReset = (clearFilters?: () => void) => {
-  clearFilters?.()
-  searchText.value = ''
-}
-
 const handleStatusChange = async (record: any, checked: boolean) => {
   try {
     const newStatus = checked ? 'active' : 'inactive'
@@ -425,63 +300,5 @@ const handleSubmit = async () => {
     box-shadow: 0 8px 18px rgba(24, 119, 255, 0.36);
     transform: translateY(-1px);
   }
-}
-
-.username-filter-panel {
-  width: 320px;
-  max-width: calc(100vw - 64px);
-  padding: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.username-filter-input {
-  width: 100%;
-}
-
-.username-filter-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.username-filter-main-actions {
-  display: flex;
-  align-items: center;
-  flex: 1;
-}
-
-.username-filter-link-actions {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-}
-
-.username-filter-btn {
-  min-width: 88px;
-}
-
-@media (max-width: 640px) {
-  .username-filter-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .username-filter-main-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .username-filter-link-actions {
-    margin-left: 0;
-    justify-content: flex-end;
-  }
-}
-
-:deep(.table-highlight) {
-  background: #ffc069;
-  padding: 0;
 }
 </style>

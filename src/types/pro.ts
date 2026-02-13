@@ -25,6 +25,41 @@ export type SearchType =
   | 'checkbox'
   | 'radio'
 
+export type HeaderFilterMode =
+  | 'client'
+  | 'server'
+  | 'hybrid'
+
+export type ProTableHeaderFilterType =
+  | 'keyword'
+  | 'select'
+
+export interface ProTableHeaderFilterOption {
+  label: string
+  value: string | number | boolean
+}
+
+export interface ProTableHeaderFilter {
+  type: ProTableHeaderFilterType
+  mode?: HeaderFilterMode
+  icon?: 'search' | 'filter'
+  paramKey?: string
+  placeholder?: string
+  multiple?: boolean
+  options?: ProTableHeaderFilterOption[]
+  caseSensitive?: boolean
+  matchAllKeywords?: boolean
+  clientFilter?: (filterValue: any, record: any, column: ProTableColumn) => boolean
+  transformRequestValue?: (value: any, selectedValues: any[]) => any
+}
+
+export interface ProTableHeaderFilterConfig {
+  defaultMode?: HeaderFilterMode
+  requestPayload?: 'flat' | 'nested'
+  nestedKey?: string
+  resetPageOnFilterChange?: boolean
+}
+
 export interface ProTableColumn {
   title: string
   dataIndex: string
@@ -48,9 +83,23 @@ export interface ProTableColumn {
   searchOptions?: Array<{ label: string; value: any }>
   searchProps?: Record<string, any>
 
+  // Header filter
+  headerFilter?: ProTableHeaderFilter
+
   // Sorting
   sorter?: boolean | ((a: any, b: any) => number)
   defaultSortOrder?: 'ascend' | 'descend'
+
+  // Native table filter compatibility
+  filterDropdown?: any
+  filterDropdownProps?: Record<string, any>
+  filterIcon?: any
+  filters?: Array<{ text: string; value: any }>
+  filterMultiple?: boolean
+  filteredValue?: any[] | null
+  onFilter?: (value: any, record: any) => boolean
+  sortDirections?: Array<'ascend' | 'descend'>
+  customFilterDropdown?: boolean
 
   // Actions column
   actions?: ProTableAction[]

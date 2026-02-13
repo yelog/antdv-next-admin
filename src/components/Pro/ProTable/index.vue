@@ -213,12 +213,42 @@
           </div>
         </template>
 
-        <template v-if="$slots.filterIcon" #filterIcon="slotProps">
-          <slot name="filterIcon" v-bind="slotProps" />
+        <template v-if="$slots.filterIcon || hasBuiltInHeaderFilter" #filterIcon="slotProps">
+          <template v-if="shouldRenderBuiltInFilterIcon(slotProps.column)">
+            <SearchOutlined
+              v-if="getBuiltInFilterIconType(slotProps.column) === 'search'"
+              :style="{ color: slotProps.filtered ? '#1677ff' : undefined }"
+            />
+            <FilterFilled
+              v-else
+              :style="{ color: slotProps.filtered ? '#1677ff' : undefined }"
+            />
+          </template>
+          <slot v-else-if="$slots.filterIcon" name="filterIcon" v-bind="slotProps" />
         </template>
 
-        <template v-if="$slots.filterDropdown" #filterDropdown="slotProps">
-          <slot name="filterDropdown" v-bind="slotProps" />
+        <template v-if="$slots.filterDropdown || hasBuiltInKeywordHeaderFilter" #filterDropdown="slotProps">
+          <template v-if="isBuiltInKeywordFilterColumn(slotProps.column)">
+            <div class="pro-table-keyword-filter-panel" @keydown.stop>
+              <a-input
+                class="pro-table-keyword-filter-input"
+                allow-clear
+                :placeholder="getBuiltInKeywordFilterPlaceholder(slotProps.column)"
+                :value="getBuiltInKeywordFilterValue(slotProps.selectedKeys)"
+                @update:value="handleBuiltInKeywordInput($event, slotProps.setSelectedKeys)"
+                @keydown.enter="handleBuiltInKeywordSearch(slotProps.confirm)"
+              />
+              <a-space :size="8" class="pro-table-keyword-filter-actions">
+                <a-button type="primary" @click="handleBuiltInKeywordSearch(slotProps.confirm)">
+                  {{ $t('common.search') }}
+                </a-button>
+                <a-button @click="handleBuiltInKeywordReset(slotProps.setSelectedKeys, slotProps.clearFilters, slotProps.confirm)">
+                  {{ $t('common.reset') }}
+                </a-button>
+              </a-space>
+            </div>
+          </template>
+          <slot v-else-if="$slots.filterDropdown" name="filterDropdown" v-bind="slotProps" />
         </template>
 
         <template #bodyCell="{ column, record, text, index }">
@@ -270,6 +300,7 @@ import {
   ReloadOutlined,
   SettingOutlined,
   SearchOutlined,
+  FilterFilled,
   DownOutlined,
   ColumnHeightOutlined,
   VerticalLeftOutlined,
@@ -285,7 +316,10 @@ import type {
   ProTableSearch,
   ProTablePagination,
   ProTableRequest,
-  ProTableAction
+  ProTableAction,
+  ProTableHeaderFilter,
+  HeaderFilterMode,
+  ProTableHeaderFilterConfig
 } from '@/types/pro'
 import type { ProTableDensity, ProTableHeight } from '@/settings'
 
@@ -294,6 +328,7 @@ interface Props {
   request: ProTableRequest
   toolbar?: ProTableToolbar
   search?: ProTableSearch | false
+  headerFilter?: ProTableHeaderFilterConfig
   pagination?: ProTablePagination | false
   rowKey?: string | ((record: any) => string)
   size?: ProTableDensity
@@ -468,6 +503,8 @@ const tableScrollY = ref<number>()
 const shouldUseVerticalScroll = ref(false)
 const tableViewportWidth = ref(0)
 const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1200)
+const tableFilters = ref<Record<string, any[] | null>>({})
+const tableSorter = ref<any>(null)
 
 const showIndexColumn = ref(true)
 const defaultShowIndexColumn = ref(true)
@@ -489,6 +526,54 @@ const tableComponents = computed(() => {
   }
 })
 
+const normalizeHeaderFilterMode = (mode: HeaderFilterMode | undefined): HeaderFilterMode => {
+  return mode ?? props.headerFilter?.defaultMode ?? 'server'
+}
+
+const isClientHeaderFilterMode = (mode: HeaderFilterMode) => {
+  return mode === 'client' || mode === 'hybrid'
+}
+
+const isServerHeaderFilterMode = (mode: HeaderFilterMode) => {
+  return mode === 'server' || mode === 'hybrid'
+}
+
+const normalizeSelectedFilterValues = (value: unknown): any[] => {
+  if (Array.isArray(value)) {
+    return value.filter(item => item !== undefined && item !== null && item !== '')
+  }
+  if (value === undefined || value === null || value === '') {
+    return []
+  }
+  return [value]
+}
+
+const normalizeTableFilters = (filters: Record<string, any> | undefined) => {
+  const normalized: Record<string, any[] | null> = {}
+  if (!filters || typeof filters !== 'object') {
+    return normalized
+  }
+
+  Object.keys(filters).forEach((key) => {
+    const values = normalizeSelectedFilterValues(filters[key])
+    normalized[key] = values.length > 0 ? values : null
+  })
+
+  return normalized
+}
+
+const splitKeywordTerms = (keyword: string) => {
+  return keyword
+    .trim()
+    .split(/\s+/)
+    .map(item => item.trim())
+    .filter(Boolean)
+}
+
+const getColumnCellValue = (record: any, column: ProTableColumn) => {
+  return record?.[String(column.dataIndex)]
+}
+
 // Computed
 const toolbarActions = computed(() => props.toolbar?.actions || [])
 
@@ -509,6 +594,42 @@ const showDensityAction = computed(() => {
     toolbarActions.value.includes('density') ||
     (showRefreshAction.value && showColumnSettingAction.value)
   )
+})
+
+const headerFilterEntries = computed(() => {
+  const map = new Map<string, { key: string; column: ProTableColumn; headerFilter: ProTableHeaderFilter }>()
+
+  columnStates.value.forEach((state, index) => {
+    const column = state.column
+    if (!column.headerFilter) {
+      return
+    }
+
+    const key = resolveColumnKey(column, index)
+    const entry = {
+      key,
+      column,
+      headerFilter: column.headerFilter
+    }
+
+    map.set(key, entry)
+    map.set(String(column.dataIndex), entry)
+
+    if (column.key) {
+      map.set(String(column.key), entry)
+    }
+  })
+
+  return map
+})
+
+const hasBuiltInHeaderFilter = computed(() => {
+  return headerFilterEntries.value.size > 0
+})
+
+const hasBuiltInKeywordHeaderFilter = computed(() => {
+  return Array.from(headerFilterEntries.value.values())
+    .some(entry => entry.headerFilter.type === 'keyword')
 })
 
 const effectiveResizable = computed(() => {
@@ -826,6 +947,56 @@ const shouldUseHorizontalScroll = computed(() => {
   return columnTotalWidth.value > tableViewportWidth.value + 1
 })
 
+const applyKeywordClientFilter = (
+  value: any,
+  record: any,
+  column: ProTableColumn,
+  headerFilter: ProTableHeaderFilter
+) => {
+  if (typeof headerFilter.clientFilter === 'function') {
+    return headerFilter.clientFilter(value, record, column)
+  }
+
+  const keyword = String(value ?? '').trim()
+  if (!keyword) {
+    return true
+  }
+
+  const rawText = String(getColumnCellValue(record, column) ?? '')
+  const caseSensitive = Boolean(headerFilter.caseSensitive)
+  const normalizedText = caseSensitive ? rawText : rawText.toLowerCase()
+  const terms = splitKeywordTerms(keyword).map(item => (caseSensitive ? item : item.toLowerCase()))
+
+  if (terms.length === 0) {
+    return true
+  }
+
+  const matchAll = headerFilter.matchAllKeywords !== false
+  if (matchAll) {
+    return terms.every(term => normalizedText.includes(term))
+  }
+
+  return terms.some(term => normalizedText.includes(term))
+}
+
+const applySelectClientFilter = (
+  value: any,
+  record: any,
+  column: ProTableColumn,
+  headerFilter: ProTableHeaderFilter
+) => {
+  if (typeof headerFilter.clientFilter === 'function') {
+    return headerFilter.clientFilter(value, record, column)
+  }
+
+  const cellValue = getColumnCellValue(record, column)
+  if (Array.isArray(cellValue)) {
+    return cellValue.map(item => String(item)).includes(String(value))
+  }
+
+  return String(cellValue ?? '') === String(value ?? '')
+}
+
 const tableColumns = computed(() => {
   const sourceColumns = shouldUseHorizontalScroll.value
     ? displayColumns.value
@@ -841,11 +1012,60 @@ const tableColumns = computed(() => {
       effectiveColumnResizable.value &&
       (column.resizable ?? effectiveResizable.value)
     )
+    const headerFilter = column.headerFilter
+    const headerFilterMode = normalizeHeaderFilterMode(headerFilter?.mode)
+    const selectedValues = normalizeSelectedFilterValues(
+      tableFilters.value[key]
+      ?? tableFilters.value[String(column.dataIndex)]
+      ?? (column.key ? tableFilters.value[String(column.key)] : undefined)
+    )
+    const currentFilterIconType = headerFilter?.icon ?? (headerFilter?.type === 'keyword' ? 'search' : 'filter')
 
-    const originalOnHeaderCell = (column as Record<string, any>).onHeaderCell
+    const enhancedColumn: Record<string, any> = {
+      ...column
+    }
+
+    if (headerFilter) {
+      enhancedColumn.__proHeaderFilter = headerFilter
+      enhancedColumn.__proHeaderFilterKey = key
+      enhancedColumn.filteredValue = selectedValues.length > 0 ? selectedValues : null
+      enhancedColumn.filterIcon = enhancedColumn.filterIcon ?? ((filtered: boolean) => {
+        const IconComp = currentFilterIconType === 'search' ? SearchOutlined : FilterFilled
+        return h(IconComp, { style: { color: filtered ? '#1677ff' : undefined } })
+      })
+
+      if (headerFilter.type === 'keyword') {
+        enhancedColumn.filterDropdown = enhancedColumn.filterDropdown ?? (() => null)
+        if (!enhancedColumn.customFilterDropdown) {
+          enhancedColumn.customFilterDropdown = true
+        }
+        if (isClientHeaderFilterMode(headerFilterMode) && typeof enhancedColumn.onFilter !== 'function') {
+          enhancedColumn.onFilter = (value: any, record: any) =>
+            applyKeywordClientFilter(value, record, column, headerFilter)
+        }
+      }
+
+      if (headerFilter.type === 'select') {
+        if (!Array.isArray(enhancedColumn.filters) || enhancedColumn.filters.length === 0) {
+          enhancedColumn.filters = (headerFilter.options ?? []).map(item => ({
+            text: item.label,
+            value: item.value
+          }))
+        }
+        if (enhancedColumn.filterMultiple === undefined) {
+          enhancedColumn.filterMultiple = Boolean(headerFilter.multiple)
+        }
+        if (isClientHeaderFilterMode(headerFilterMode) && typeof enhancedColumn.onFilter !== 'function') {
+          enhancedColumn.onFilter = (value: any, record: any) =>
+            applySelectClientFilter(value, record, column, headerFilter)
+        }
+      }
+    }
+
+    const originalOnHeaderCell = (enhancedColumn as Record<string, any>).onHeaderCell
 
     return {
-      ...column,
+      ...enhancedColumn,
       onHeaderCell: (headerColumn: any) => {
         const originalCell = typeof originalOnHeaderCell === 'function'
           ? (originalOnHeaderCell(headerColumn) ?? {})
@@ -914,6 +1134,7 @@ const densityMenuProps = computed(() => ({
 
 // Methods
 const initializeColumnStates = () => {
+  const previousFilters = { ...tableFilters.value }
   const states = props.columns.map((column, index) => {
     const key = resolveColumnKey(column, index)
     const checked = !column.hideInTable
@@ -934,6 +1155,37 @@ const initializeColumnStates = () => {
   columnStates.value = states
   defaultColumnStates.value = states.map(cloneColumnState)
   showIndexColumn.value = defaultShowIndexColumn.value
+
+  const nextFilters: Record<string, any[] | null> = {}
+  states.forEach((state) => {
+    const key = state.key
+    const previous = normalizeSelectedFilterValues(previousFilters[key])
+    if (previous.length > 0) {
+      nextFilters[key] = previous
+      return
+    }
+
+    const initial = normalizeSelectedFilterValues(state.column.filteredValue)
+    if (initial.length > 0) {
+      nextFilters[key] = initial
+      return
+    }
+
+    if (state.column.key) {
+      const keyByColumnKey = normalizeSelectedFilterValues(previousFilters[String(state.column.key)])
+      if (keyByColumnKey.length > 0) {
+        nextFilters[key] = keyByColumnKey
+        return
+      }
+    }
+
+    const keyByDataIndex = normalizeSelectedFilterValues(previousFilters[String(state.column.dataIndex)])
+    if (keyByDataIndex.length > 0) {
+      nextFilters[key] = keyByDataIndex
+    }
+  })
+
+  tableFilters.value = nextFilters
 }
 
 const getRowIndex = (index: number) => {
@@ -1024,11 +1276,193 @@ const buildSelectPlaceholder = (label: unknown) => {
   return $t('proForm.selectPlaceholder', { label: normalizeFieldLabel(label) })
 }
 
+const getHeaderFilterEntry = (column: any) => {
+  if (!column) {
+    return undefined
+  }
+
+  const directHeaderFilter = column.__proHeaderFilter as ProTableHeaderFilter | undefined
+  const directKey = column.__proHeaderFilterKey as string | undefined
+  if (directHeaderFilter) {
+    return {
+      key: String(directKey || column.key || column.dataIndex || ''),
+      headerFilter: directHeaderFilter
+    }
+  }
+
+  const keys = [
+    column.key,
+    column.dataIndex
+  ].filter(Boolean).map(item => String(item))
+
+  for (const key of keys) {
+    const entry = headerFilterEntries.value.get(key)
+    if (entry) {
+      return {
+        key: entry.key,
+        headerFilter: entry.headerFilter
+      }
+    }
+  }
+
+  return undefined
+}
+
+const shouldRenderBuiltInFilterIcon = (column: any) => {
+  return Boolean(getHeaderFilterEntry(column))
+}
+
+const getBuiltInFilterIconType = (column: any) => {
+  const entry = getHeaderFilterEntry(column)
+  if (!entry) {
+    return 'filter'
+  }
+  return entry.headerFilter.icon ?? (entry.headerFilter.type === 'keyword' ? 'search' : 'filter')
+}
+
+const isBuiltInKeywordFilterColumn = (column: any) => {
+  const entry = getHeaderFilterEntry(column)
+  return entry?.headerFilter.type === 'keyword'
+}
+
+const getBuiltInKeywordFilterPlaceholder = (column: any) => {
+  const entry = getHeaderFilterEntry(column)
+  if (entry?.headerFilter.placeholder) {
+    return entry.headerFilter.placeholder
+  }
+  return buildEnterPlaceholder(column?.title)
+}
+
+const getBuiltInKeywordFilterValue = (selectedKeys: unknown) => {
+  const values = normalizeSelectedFilterValues(selectedKeys)
+  return String(values[0] ?? '')
+}
+
+const handleBuiltInKeywordInput = (
+  value: string,
+  setSelectedKeys?: (values: string[]) => void
+) => {
+  if (!setSelectedKeys) return
+  setSelectedKeys(value ? [String(value)] : [])
+}
+
+const handleBuiltInKeywordSearch = (confirm?: (param?: any) => void) => {
+  confirm?.()
+}
+
+const handleBuiltInKeywordReset = (
+  setSelectedKeys?: (values: string[]) => void,
+  clearFilters?: () => void,
+  confirm?: (param?: any) => void
+) => {
+  clearFilters?.()
+  setSelectedKeys?.([])
+  confirm?.()
+}
+
+const buildHeaderFilterRequestParams = () => {
+  const payloadMode = props.headerFilter?.requestPayload ?? 'flat'
+  const nestedKey = props.headerFilter?.nestedKey || 'filters'
+  const flatParams: Record<string, any> = {}
+  const nestedParams: Record<string, any> = {}
+
+  Object.keys(tableFilters.value).forEach((tableFilterKey) => {
+    const selectedValues = normalizeSelectedFilterValues(tableFilters.value[tableFilterKey])
+    if (selectedValues.length === 0) {
+      return
+    }
+
+    const entry = headerFilterEntries.value.get(tableFilterKey)
+    if (!entry) {
+      return
+    }
+
+    const mode = normalizeHeaderFilterMode(entry.headerFilter.mode)
+    if (!isServerHeaderFilterMode(mode)) {
+      return
+    }
+
+    const paramKey = entry.headerFilter.paramKey || String(entry.column.dataIndex)
+    const isMultiple = Boolean(entry.headerFilter.multiple)
+    let requestValue: any
+
+    if (entry.headerFilter.type === 'keyword') {
+      requestValue = String(selectedValues[0] ?? '')
+    } else {
+      requestValue = isMultiple ? selectedValues : selectedValues[0]
+    }
+
+    if (typeof entry.headerFilter.transformRequestValue === 'function') {
+      requestValue = entry.headerFilter.transformRequestValue(requestValue, selectedValues)
+    }
+
+    if (
+      requestValue === undefined
+      || requestValue === null
+      || requestValue === ''
+      || (Array.isArray(requestValue) && requestValue.length === 0)
+    ) {
+      return
+    }
+
+    if (payloadMode === 'nested') {
+      nestedParams[paramKey] = requestValue
+      return
+    }
+
+    flatParams[paramKey] = requestValue
+  })
+
+  if (payloadMode === 'nested') {
+    if (Object.keys(nestedParams).length === 0) {
+      return {}
+    }
+    return {
+      [nestedKey]: nestedParams
+    }
+  }
+
+  return flatParams
+}
+
+const buildSorterRequestParams = () => {
+  const sorter = tableSorter.value
+  if (!sorter) {
+    return {}
+  }
+
+  if (Array.isArray(sorter)) {
+    const activeSorters = sorter.filter(item => item?.field && item?.order)
+    if (activeSorters.length === 0) {
+      return {}
+    }
+    return {
+      sorter: activeSorters.map(item => ({
+        field: item.field,
+        order: item.order
+      }))
+    }
+  }
+
+  if (sorter?.field && sorter?.order) {
+    return {
+      sorter: {
+        field: sorter.field,
+        order: sorter.order
+      }
+    }
+  }
+
+  return {}
+}
+
 const loadData = async () => {
   loading.value = true
   try {
     const params: Record<string, any> = {
-      ...searchForm.value
+      ...searchForm.value,
+      ...buildHeaderFilterRequestParams(),
+      ...buildSorterRequestParams()
     }
 
     if (paginationEnabled.value) {
@@ -1057,6 +1491,8 @@ const handleSearch = () => {
 
 const handleReset = () => {
   searchForm.value = {}
+  tableFilters.value = {}
+  tableSorter.value = null
   currentPage.value = 1
   loadData()
 }
@@ -1066,13 +1502,21 @@ const handleRefresh = () => {
   emit('refresh')
 }
 
-const handleTableChange = (pagination: any) => {
+const handleTableChange = (pagination: any, filters: Record<string, any>, sorter: any, extra: any) => {
   if (paginationEnabled.value) {
     const nextCurrent = Number(pagination?.current || 1)
     const nextPageSize = Number(pagination?.pageSize || pageSize.value || 10)
     currentPage.value = nextCurrent
     pageSize.value = nextPageSize
   }
+
+  tableFilters.value = normalizeTableFilters(filters)
+  tableSorter.value = sorter
+
+  if (extra?.action === 'filter' && (props.headerFilter?.resetPageOnFilterChange ?? true)) {
+    currentPage.value = 1
+  }
+
   loadData()
 }
 
@@ -1513,6 +1957,25 @@ defineExpose({
     :deep(.anticon) {
       margin-right: 2px;
     }
+  }
+
+  .pro-table-keyword-filter-panel {
+    width: 260px;
+    max-width: calc(100vw - 48px);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pro-table-keyword-filter-input {
+    width: 100%;
+  }
+
+  .pro-table-keyword-filter-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   }
 }
 
