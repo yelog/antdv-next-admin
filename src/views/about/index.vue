@@ -17,7 +17,7 @@
       </div>
       <div class="hero-content">
         <div class="hero-icon">
-          <AppstoreOutlined />
+          <img :src="logoImg" alt="Logo" class="hero-logo" />
         </div>
         <h1 class="hero-title">Antdv Next Admin</h1>
         <p class="hero-desc">{{ $t('about.description') }}</p>
@@ -149,7 +149,6 @@
 
 <script setup lang="ts">
 import {
-  AppstoreOutlined,
   ProfileOutlined,
   CodeOutlined,
   BulbOutlined,
@@ -165,6 +164,7 @@ import {
   CloudOutlined
 } from '@antdv-next/icons'
 import { $t } from '@/locales'
+import logoImg from '@/assets/images/logo.png'
 
 const version = __APP_VERSION__
 
@@ -296,6 +296,12 @@ const features = [
   border: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 34px;
   margin-bottom: 24px;
+
+  .hero-logo {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+  }
 }
 
 .hero-title {

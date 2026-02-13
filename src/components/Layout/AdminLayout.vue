@@ -37,7 +37,7 @@
       <a-layout-header v-if="!layoutStore.pageFullscreen" class="horizontal-header">
         <div class="header-left">
           <div class="logo">
-            <img src="/logo.svg" alt="Logo" />
+            <img :src="logoImg" alt="Logo" />
             <span class="logo-title">{{ $t('common.appName') || 'Antdv Next Admin' }}</span>
           </div>
 
@@ -115,6 +115,7 @@ import { routesToMenuTree } from '@/router/utils'
 import type { MenuItem as MenuItemType } from '@/types/router'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
+import logoImg from '@/assets/images/logo.png'
 import Sidebar from './Sidebar.vue'
 import Header from './Header.vue'
 import TabBar from './TabBar.vue'

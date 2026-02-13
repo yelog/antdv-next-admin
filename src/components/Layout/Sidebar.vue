@@ -14,7 +14,7 @@
   >
     <!-- Logo -->
     <div class="sidebar-logo">
-      <img src="/logo.svg" alt="Logo" class="logo-img" />
+      <img :src="logoImg" alt="Logo" class="logo-img" />
       <transition name="fade">
         <span v-show="!layoutStore.collapsed" class="logo-title">
           {{ $t('common.appName') }}
@@ -49,6 +49,7 @@ import type { MenuItem as MenuItemType } from '@/types/router'
 import type { SidebarTheme } from '@/types/layout'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
+import logoImg from '@/assets/images/logo.png'
 
 const route = useRoute()
 const router = useRouter()
