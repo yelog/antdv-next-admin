@@ -2,29 +2,29 @@
   <div class="page-container">
     <div class="log-container">
       <a-tabs v-model:activeKey="activeTab" @change="handleTabChange">
-        <a-tab-pane key="operation" tab="操作日志">
+        <a-tab-pane key="operation" :tab="t('log.operationLog')">
           <ProTable
             ref="operationTableRef"
             :key="'operation-' + operationRefreshKey"
             :columns="operationColumns"
             :request="loadOperationLogs"
-            :toolbar="{ title: '操作日志' }"
+            :toolbar="{ title: t('log.operationLog') }"
           >
             <template #toolbar-actions>
               <a-button danger @click="handleClearOperationLog">
-                <DeleteOutlined /> 清空日志
+                <DeleteOutlined /> {{ t('log.clearLog') }}
               </a-button>
             </template>
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'action'">
                 <a-tag :color="actionColorMap[record.action] || 'default'">
-                  {{ actionLabelMap[record.action] || record.action }}
+                  {{ t(`log.actionTypes.${record.action}`) || record.action }}
                 </a-tag>
               </template>
               <template v-if="column.key === 'status'">
                 <span class="status-tag" :class="record.status === 'success' ? 'status-success' : 'status-fail'">
                   <span class="status-dot" />
-                  {{ record.status === 'success' ? '成功' : '失败' }}
+                  {{ record.status === 'success' ? t('log.success') : t('log.fail') }}
                 </span>
               </template>
               <template v-if="column.key === 'duration'">
@@ -36,24 +36,24 @@
           </ProTable>
         </a-tab-pane>
 
-        <a-tab-pane key="login" tab="登录日志">
+        <a-tab-pane key="login" :tab="t('log.loginLog')">
           <ProTable
             ref="loginTableRef"
             :key="'login-' + loginRefreshKey"
             :columns="loginColumns"
             :request="loadLoginLogs"
-            :toolbar="{ title: '登录日志' }"
+            :toolbar="{ title: t('log.loginLog') }"
           >
             <template #toolbar-actions>
               <a-button danger @click="handleClearLoginLog">
-                <DeleteOutlined /> 清空日志
+                <DeleteOutlined /> {{ t('log.clearLog') }}
               </a-button>
             </template>
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'status'">
                 <span class="status-tag" :class="record.status === 'success' ? 'status-success' : 'status-fail'">
                   <span class="status-dot" />
-                  {{ record.status === 'success' ? '成功' : '失败' }}
+                  {{ record.status === 'success' ? t('log.success') : t('log.fail') }}
                 </span>
               </template>
             </template>
@@ -65,27 +65,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { message, Modal } from 'antdv-next'
 import { DeleteOutlined } from '@antdv-next/icons'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import type { ProTableColumn } from '@/types/pro'
 import { getOperationLogList, getLoginLogList, clearOperationLog, clearLoginLog } from '@/api/log'
 
+const { t } = useI18n()
+
 const activeTab = ref('operation')
 const operationRefreshKey = ref(0)
 const loginRefreshKey = ref(0)
-
-const actionLabelMap: Record<string, string> = {
-  login: '登录',
-  logout: '登出',
-  create: '新增',
-  update: '修改',
-  delete: '删除',
-  export: '导出',
-  import: '导入',
-  other: '其他'
-}
 
 const actionColorMap: Record<string, string> = {
   login: 'blue',
@@ -99,9 +91,9 @@ const actionColorMap: Record<string, string> = {
 }
 
 // 操作日志列
-const operationColumns: ProTableColumn[] = [
+const operationColumns = computed<ProTableColumn[]>(() => [
   {
-    title: '操作用户',
+    title: t('log.operationUser'),
     dataIndex: 'username',
     key: 'username',
     width: 100,
@@ -109,86 +101,86 @@ const operationColumns: ProTableColumn[] = [
     searchType: 'input'
   },
   {
-    title: '操作模块',
+    title: t('log.operationModule'),
     dataIndex: 'module',
     key: 'module',
     width: 110,
     search: true,
     searchType: 'select',
     searchOptions: [
-      { label: '用户管理', value: '用户管理' },
-      { label: '角色管理', value: '角色管理' },
-      { label: '菜单管理', value: '菜单管理' },
-      { label: '数据字典', value: '数据字典' },
-      { label: '系统登录', value: '系统登录' },
-      { label: '个人中心', value: '个人中心' },
-      { label: '数据看板', value: '数据看板' }
+      { label: t('log.modules.userManagement'), value: '用户管理' },
+      { label: t('log.modules.roleManagement'), value: '角色管理' },
+      { label: t('log.modules.menuManagement'), value: '菜单管理' },
+      { label: t('log.modules.dictionary'), value: '数据字典' },
+      { label: t('log.modules.systemLogin'), value: '系统登录' },
+      { label: t('log.modules.profile'), value: '个人中心' },
+      { label: t('log.modules.dashboard'), value: '数据看板' }
     ]
   },
   {
-    title: '操作类型',
+    title: t('log.operationType'),
     dataIndex: 'action',
     key: 'action',
     width: 90,
     search: true,
     searchType: 'select',
     searchOptions: [
-      { label: '登录', value: 'login' },
-      { label: '登出', value: 'logout' },
-      { label: '新增', value: 'create' },
-      { label: '修改', value: 'update' },
-      { label: '删除', value: 'delete' },
-      { label: '导出', value: 'export' }
+      { label: t('log.actionTypes.login'), value: 'login' },
+      { label: t('log.actionTypes.logout'), value: 'logout' },
+      { label: t('log.actionTypes.create'), value: 'create' },
+      { label: t('log.actionTypes.update'), value: 'update' },
+      { label: t('log.actionTypes.delete'), value: 'delete' },
+      { label: t('log.actionTypes.export'), value: 'export' }
     ]
   },
   {
-    title: '操作描述',
+    title: t('log.operationDescription'),
     dataIndex: 'description',
     key: 'description',
     ellipsis: true
   },
   {
-    title: '请求方法',
+    title: t('log.requestMethod'),
     dataIndex: 'method',
     key: 'method',
     width: 90
   },
   {
-    title: 'IP地址',
+    title: t('log.ipAddress'),
     dataIndex: 'ip',
     key: 'ip',
     width: 130
   },
   {
-    title: '状态',
+    title: t('common.status'),
     dataIndex: 'status',
     key: 'status',
     width: 80,
     search: true,
     searchType: 'select',
     searchOptions: [
-      { label: '成功', value: 'success' },
-      { label: '失败', value: 'fail' }
+      { label: t('log.success'), value: 'success' },
+      { label: t('log.fail'), value: 'fail' }
     ]
   },
   {
-    title: '耗时',
+    title: t('log.duration'),
     dataIndex: 'duration',
     key: 'duration',
     width: 80
   },
   {
-    title: '操作时间',
+    title: t('log.operationTime'),
     dataIndex: 'createTime',
     key: 'createTime',
     width: 170
   }
-]
+])
 
 // 登录日志列
-const loginColumns: ProTableColumn[] = [
+const loginColumns = computed<ProTableColumn[]>(() => [
   {
-    title: '用户名',
+    title: t('log.username'),
     dataIndex: 'username',
     key: 'username',
     width: 120,
@@ -196,7 +188,7 @@ const loginColumns: ProTableColumn[] = [
     searchType: 'input'
   },
   {
-    title: 'IP地址',
+    title: t('log.ipAddress'),
     dataIndex: 'ip',
     key: 'ip',
     width: 140,
@@ -204,42 +196,42 @@ const loginColumns: ProTableColumn[] = [
     searchType: 'input'
   },
   {
-    title: '浏览器',
+    title: t('log.browser'),
     dataIndex: 'browser',
     key: 'browser',
     width: 130
   },
   {
-    title: '操作系统',
+    title: t('log.os'),
     dataIndex: 'os',
     key: 'os',
     width: 130
   },
   {
-    title: '状态',
+    title: t('common.status'),
     dataIndex: 'status',
     key: 'status',
     width: 80,
     search: true,
     searchType: 'select',
     searchOptions: [
-      { label: '成功', value: 'success' },
-      { label: '失败', value: 'fail' }
+      { label: t('log.success'), value: 'success' },
+      { label: t('log.fail'), value: 'fail' }
     ]
   },
   {
-    title: '提示信息',
+    title: t('log.message'),
     dataIndex: 'message',
     key: 'message',
     ellipsis: true
   },
   {
-    title: '登录时间',
+    title: t('log.loginTime'),
     dataIndex: 'createTime',
     key: 'createTime',
     width: 170
   }
-]
+])
 
 const handleTabChange = () => {}
 
@@ -257,7 +249,7 @@ const loadOperationLogs = async (params: any) => {
       return { data: response.data.list, total: response.data.total, success: true }
     }
   } catch (error) {
-    console.error('加载操作日志失败:', error)
+    console.error(t('log.loadOperationLogFailed'), error)
   }
   return { data: [], total: 0, success: false }
 }
@@ -275,25 +267,25 @@ const loadLoginLogs = async (params: any) => {
       return { data: response.data.list, total: response.data.total, success: true }
     }
   } catch (error) {
-    console.error('加载登录日志失败:', error)
+    console.error(t('log.loadLoginLogFailed'), error)
   }
   return { data: [], total: 0, success: false }
 }
 
 const handleClearOperationLog = () => {
   Modal.confirm({
-    title: '确认清空',
-    content: '确定要清空所有操作日志吗？此操作不可恢复。',
+    title: t('log.confirmClear'),
+    content: t('log.confirmClearOperation'),
     okType: 'danger',
     onOk: async () => {
       try {
         const response = await clearOperationLog() as any
         if (response.code === 200) {
-          message.success('清空成功')
+          message.success(t('log.clearSuccess'))
           operationRefreshKey.value++
         }
       } catch (error) {
-        message.error('清空失败')
+        message.error(t('log.clearFailed'))
       }
     }
   })
@@ -301,18 +293,18 @@ const handleClearOperationLog = () => {
 
 const handleClearLoginLog = () => {
   Modal.confirm({
-    title: '确认清空',
-    content: '确定要清空所有登录日志吗？此操作不可恢复。',
+    title: t('log.confirmClear'),
+    content: t('log.confirmClearLogin'),
     okType: 'danger',
     onOk: async () => {
       try {
         const response = await clearLoginLog() as any
         if (response.code === 200) {
-          message.success('清空成功')
+          message.success(t('log.clearSuccess'))
           loginRefreshKey.value++
         }
       } catch (error) {
-        message.error('清空失败')
+        message.error(t('log.clearFailed'))
       }
     }
   })
