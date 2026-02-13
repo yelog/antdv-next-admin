@@ -4,10 +4,10 @@
       <!-- 左侧：字典类型列表 -->
       <div class="dict-types">
         <div class="dict-types-header">
-          <h3>字典类型</h3>
+          <h3>{{ t('dict.dictType') }}</h3>
           <a-button type="primary" size="small" @click="handleAddType">
             <template #icon><PlusOutlined /></template>
-            新增
+            {{ t('common.add') }}
           </a-button>
         </div>
         <div class="dict-types-list">
@@ -23,12 +23,12 @@
               <div class="type-code">{{ type.code }}</div>
             </div>
             <div class="type-actions" @click.stop>
-              <a-tooltip title="编辑">
+              <a-tooltip :title="t('common.edit')">
                 <a-button type="text" size="small" @click="handleEditType(type)">
                   <template #icon><EditOutlined /></template>
                 </a-button>
               </a-tooltip>
-              <a-tooltip title="删除">
+              <a-tooltip :title="t('common.delete')">
                 <a-button type="text" size="small" danger @click="handleDeleteType(type)">
                   <template #icon><DeleteOutlined /></template>
                 </a-button>
@@ -46,36 +46,36 @@
           :columns="columns"
           :request="loadData"
           :search="false"
-          :toolbar="{ title: `字典数据 - ${selectedTypeName}` }"
+          :toolbar="{ title: t('dict.dictDataTitle', { name: selectedTypeName }) }"
         >
           <template #toolbar-actions>
             <a-button type="primary" @click="handleAdd">
-              <PlusOutlined /> 新增数据
+              <PlusOutlined /> {{ t('dict.createData') }}
             </a-button>
           </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
               <span class="status-tag" :class="record.status === 'enabled' ? 'status-enabled' : 'status-disabled'">
                 <span class="status-dot" />
-                {{ record.status === 'enabled' ? '启用' : '禁用' }}
+                {{ record.status === 'enabled' ? t('dict.enabled') : t('dict.disabled') }}
               </span>
             </template>
             <template v-if="column.key === 'action'">
               <a-space :size="4">
                 <a-button type="link" size="small" @click="handleEdit(record)">
                   <template #icon><EditOutlined /></template>
-                  编辑
+                  {{ t('common.edit') }}
                 </a-button>
                 <a-button type="link" size="small" danger @click="handleDelete(record)">
                   <template #icon><DeleteOutlined /></template>
-                  删除
+                  {{ t('common.delete') }}
                 </a-button>
               </a-space>
             </template>
           </template>
         </ProTable>
         <div v-else class="dict-data-empty">
-          <a-empty description="请选择左侧字典类型" />
+          <a-empty :description="t('dict.selectTypeHint')" />
         </div>
       </div>
     </div>
@@ -87,19 +87,19 @@
       @ok="handleTypeSubmit"
     >
       <a-form :model="typeForm" :label-col="{ span: 6 }">
-        <a-form-item label="类型名称" required>
-          <a-input v-model:value="typeForm.name" placeholder="请输入类型名称" />
+        <a-form-item :label="t('dict.typeName')" required>
+          <a-input v-model:value="typeForm.name" :placeholder="t('dict.typeNamePlaceholder')" />
         </a-form-item>
-        <a-form-item label="类型编码" required>
-          <a-input v-model:value="typeForm.code" placeholder="请输入类型编码" :disabled="!!typeForm.id" />
+        <a-form-item :label="t('dict.typeCode')" required>
+          <a-input v-model:value="typeForm.code" :placeholder="t('dict.typeCodePlaceholder')" :disabled="!!typeForm.id" />
         </a-form-item>
-        <a-form-item label="描述">
-          <a-textarea v-model:value="typeForm.description" placeholder="请输入描述" :rows="3" />
+        <a-form-item :label="t('dict.description')">
+          <a-textarea v-model:value="typeForm.description" :placeholder="t('dict.descriptionPlaceholder')" :rows="3" />
         </a-form-item>
-        <a-form-item label="状态">
+        <a-form-item :label="t('common.status')">
           <a-radio-group v-model:value="typeForm.status">
-            <a-radio value="enabled">启用</a-radio>
-            <a-radio value="disabled">禁用</a-radio>
+            <a-radio value="enabled">{{ t('dict.enabled') }}</a-radio>
+            <a-radio value="disabled">{{ t('dict.disabled') }}</a-radio>
           </a-radio-group>
         </a-form-item>
       </a-form>
@@ -112,23 +112,23 @@
       @ok="handleDataSubmit"
     >
       <a-form :model="dataForm" :label-col="{ span: 6 }">
-        <a-form-item label="字典标签" required>
-          <a-input v-model:value="dataForm.label" placeholder="请输入字典标签" />
+        <a-form-item :label="t('dict.dictLabel')" required>
+          <a-input v-model:value="dataForm.label" :placeholder="t('dict.labelPlaceholder')" />
         </a-form-item>
-        <a-form-item label="字典值" required>
-          <a-input v-model:value="dataForm.value" placeholder="请输入字典值" />
+        <a-form-item :label="t('dict.dictValue')" required>
+          <a-input v-model:value="dataForm.value" :placeholder="t('dict.valuePlaceholder')" />
         </a-form-item>
-        <a-form-item label="排序">
+        <a-form-item :label="t('dict.sort')">
           <a-input-number v-model:value="dataForm.sort" :min="0" style="width: 100%" />
         </a-form-item>
-        <a-form-item label="状态">
+        <a-form-item :label="t('common.status')">
           <a-radio-group v-model:value="dataForm.status">
-            <a-radio value="enabled">启用</a-radio>
-            <a-radio value="disabled">禁用</a-radio>
+            <a-radio value="enabled">{{ t('dict.enabled') }}</a-radio>
+            <a-radio value="disabled">{{ t('dict.disabled') }}</a-radio>
           </a-radio-group>
         </a-form-item>
-        <a-form-item label="备注">
-          <a-textarea v-model:value="dataForm.remark" placeholder="请输入备注" :rows="3" />
+        <a-form-item :label="t('dict.remark')">
+          <a-textarea v-model:value="dataForm.remark" :placeholder="t('dict.remarkPlaceholder')" :rows="3" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -139,6 +139,7 @@
 import { ref, computed } from 'vue'
 import { message, Modal } from 'antdv-next'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
+import { useI18n } from 'vue-i18n'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import type { ProTableColumn } from '@/types/pro'
 import type { DictType, DictData } from '@/types/dict'
@@ -154,6 +155,7 @@ import {
 } from '@/api/dict'
 import { useDictStore } from '@/stores/dict'
 
+const { t } = useI18n()
 const dictStore = useDictStore()
 
 // 字典类型列表
@@ -166,7 +168,7 @@ const selectedTypeName = computed(() => {
 
 // 字典类型弹窗
 const typeModalVisible = ref(false)
-const typeModalTitle = computed(() => typeForm.value.id ? '编辑字典类型' : '新增字典类型')
+const typeModalTitle = computed(() => typeForm.value.id ? t('dict.editType') : t('dict.createType'))
 const typeForm = ref<Partial<DictType>>({
   name: '',
   code: '',
@@ -176,7 +178,7 @@ const typeForm = ref<Partial<DictType>>({
 
 // 字典数据弹窗
 const dataModalVisible = ref(false)
-const dataModalTitle = computed(() => dataForm.value.id ? '编辑字典数据' : '新增字典数据')
+const dataModalTitle = computed(() => dataForm.value.id ? t('dict.editData') : t('dict.createData'))
 const dataForm = ref<Partial<DictData>>({
   label: '',
   value: '',
@@ -188,34 +190,34 @@ const dataForm = ref<Partial<DictData>>({
 // 表格列配置
 const columns: ProTableColumn[] = [
   {
-    title: '字典标签',
+    title: t('dict.dictLabel'),
     dataIndex: 'label',
     key: 'label'
   },
   {
-    title: '字典值',
+    title: t('dict.dictValue'),
     dataIndex: 'value',
     key: 'value'
   },
   {
-    title: '排序',
+    title: t('dict.sort'),
     dataIndex: 'sort',
     key: 'sort',
     width: 80
   },
   {
-    title: '状态',
+    title: t('common.status'),
     dataIndex: 'status',
     key: 'status',
     width: 80
   },
   {
-    title: '备注',
+    title: t('dict.remark'),
     dataIndex: 'remark',
     key: 'remark'
   },
   {
-    title: '操作',
+    title: t('common.actions'),
     key: 'action',
     width: 150,
     fixed: 'right'
@@ -233,7 +235,7 @@ const loadDictTypes = async () => {
       }
     }
   } catch (error) {
-    console.error('加载字典类型失败:', error)
+    console.error(t('dict.loadTypeFailed'), error)
   }
 }
 
@@ -253,7 +255,7 @@ const loadData = async (params: any) => {
       }
     }
   } catch (error) {
-    console.error('加载字典数据失败:', error)
+    console.error(t('dict.loadDataFailed'), error)
   }
   return {
     data: [],
@@ -287,20 +289,20 @@ const handleEditType = (type: DictType) => {
 // 删除字典类型
 const handleDeleteType = (type: DictType) => {
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除字典类型"${type.name}"吗？`,
+    title: t('dict.confirmDelete'),
+    content: t('dict.confirmDeleteType', { name: type.name }),
     onOk: async () => {
       try {
         const response = await deleteDictType(type.id) as any
         if (response.code === 200) {
-          message.success('删除成功')
+          message.success(t('dict.deleteSuccess'))
           loadDictTypes()
           if (selectedTypeCode.value === type.code) {
             selectedTypeCode.value = ''
           }
         }
       } catch (error) {
-        message.error('删除失败')
+        message.error(t('dict.deleteFailed'))
       }
     }
   })
@@ -309,7 +311,7 @@ const handleDeleteType = (type: DictType) => {
 // 提交字典类型
 const handleTypeSubmit = async () => {
   if (!typeForm.value.name || !typeForm.value.code) {
-    message.warning('请填写必填项')
+    message.warning(t('dict.requiredFields'))
     return
   }
 
@@ -317,20 +319,20 @@ const handleTypeSubmit = async () => {
     if (typeForm.value.id) {
       const response = await updateDictType(typeForm.value.id, typeForm.value) as any
       if (response.code === 200) {
-        message.success('更新成功')
+        message.success(t('dict.updateSuccess'))
         typeModalVisible.value = false
         loadDictTypes()
       }
     } else {
       const response = await createDictType(typeForm.value) as any
       if (response.code === 200) {
-        message.success('创建成功')
+        message.success(t('dict.createSuccess'))
         typeModalVisible.value = false
         loadDictTypes()
       }
     }
   } catch (error) {
-    message.error('操作失败')
+    message.error(t('dict.operateFailed'))
   }
 }
 
@@ -356,18 +358,18 @@ const handleEdit = (record: DictData) => {
 // 删除字典数据
 const handleDelete = (record: DictData) => {
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除字典数据"${record.label}"吗？`,
+    title: t('dict.confirmDelete'),
+    content: t('dict.confirmDeleteData', { label: record.label }),
     onOk: async () => {
       try {
         const response = await deleteDictData(record.id) as any
         if (response.code === 200) {
-          message.success('删除成功')
+          message.success(t('dict.deleteSuccess'))
           // 刷新字典缓存
           dictStore.refreshDictData()
         }
       } catch (error) {
-        message.error('删除失败')
+        message.error(t('dict.deleteFailed'))
       }
     }
   })
@@ -376,7 +378,7 @@ const handleDelete = (record: DictData) => {
 // 提交字典数据
 const handleDataSubmit = async () => {
   if (!dataForm.value.label || !dataForm.value.value) {
-    message.warning('请填写必填项')
+    message.warning(t('dict.requiredFields'))
     return
   }
 
@@ -384,7 +386,7 @@ const handleDataSubmit = async () => {
     if (dataForm.value.id) {
       const response = await updateDictData(dataForm.value.id, dataForm.value) as any
       if (response.code === 200) {
-        message.success('更新成功')
+        message.success(t('dict.updateSuccess'))
         dataModalVisible.value = false
         // 刷新字典缓存
         dictStore.refreshDictData()
@@ -392,14 +394,14 @@ const handleDataSubmit = async () => {
     } else {
       const response = await createDictData(dataForm.value) as any
       if (response.code === 200) {
-        message.success('创建成功')
+        message.success(t('dict.createSuccess'))
         dataModalVisible.value = false
         // 刷新字典缓存
         dictStore.refreshDictData()
       }
     }
   } catch (error) {
-    message.error('操作失败')
+    message.error(t('dict.operateFailed'))
   }
 }
 
