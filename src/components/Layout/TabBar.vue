@@ -89,11 +89,13 @@ const currentTab = computed(() => {
 const tabItems = computed(() => {
   // Access locale to establish reactivity dependency on language changes
   const currentLocale = locale.value
+  // Keep locale dependency but don't use it as a key to avoid forced remounts
+  void currentLocale
   
   return tabsStore.tabs.map(tab => ({
     key: tab.path,
-      closable: tab.closable,
-      label: h('span', { class: 'tab-label-wrapper', key: `${tab.path}-${currentLocale}` }, [
+    closable: tab.closable,
+    label: h('span', { class: 'tab-label-wrapper' }, [
         h(
           Dropdown,
           {
@@ -400,24 +402,25 @@ const getTabIcon = (tab: Tab) => {
     }
   }
 
-  .tab-label {
+  // Use :deep() to ensure styles apply even when VNodes are cloned by a-tabs
+  :deep(.tab-label) {
     display: inline-flex;
     align-items: center;
     max-width: 180px;
     gap: 6px;
   }
 
-  .tab-menu-icon {
+  :deep(.tab-menu-icon) {
     font-size: 14px;
     color: inherit;
   }
 
-  .tab-pin-icon {
+  :deep(.tab-pin-icon) {
     font-size: 12px;
     color: var(--color-warning);
   }
 
-  .tab-text {
+  :deep(.tab-text) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
