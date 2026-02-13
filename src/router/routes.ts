@@ -165,6 +165,17 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           requiresAuth: true,
           requiredPermissions: ['system.dict.view']
         }
+      },
+      {
+        path: 'log',
+        name: 'SystemLog',
+        component: () => import('@/views/system/log/index.vue'),
+        meta: {
+          title: 'menu.log',
+          icon: 'FileTextOutlined',
+          requiresAuth: true,
+          requiredPermissions: ['system.log.view']
+        }
       }
     ]
   },

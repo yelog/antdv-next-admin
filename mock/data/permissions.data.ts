@@ -249,6 +249,36 @@ export const mockPermissions: Permission[] = [
             visible: true
           }
         ]
+      },
+      {
+        id: '38',
+        name: 'System Log',
+        code: 'system.log.view',
+        description: 'System log menu',
+        resource: '/system/log',
+        action: 'view',
+        type: 'menu',
+        parentId: '10',
+        path: '/system/log',
+        component: 'system/log/index',
+        icon: 'FileTextOutlined',
+        sort: 5,
+        status: 'active',
+        visible: true,
+        children: [
+          {
+            id: '39',
+            name: 'Clear Log',
+            code: 'system.log.clear',
+            description: 'Can clear logs',
+            resource: 'system.log',
+            action: 'delete',
+            type: 'button',
+            parentId: '38',
+            status: 'active',
+            visible: true
+          }
+        ]
       }
     ]
   },

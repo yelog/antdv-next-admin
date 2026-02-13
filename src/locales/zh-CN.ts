@@ -47,6 +47,7 @@ export default {
     role: '角色管理',
     permission: '菜单管理',
     dict: '数据字典',
+    log: '系统日志',
     examples: '示例页面',
     table: '表格示例',
     icon: '图标示例',

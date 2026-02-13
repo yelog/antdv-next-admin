@@ -47,6 +47,7 @@ export default {
     role: 'Role Management',
     permission: 'Menu Management',
     dict: 'Dictionary',
+    log: 'System Log',
     examples: 'Examples',
     table: 'Table Example',
     icon: 'Icon Example',
