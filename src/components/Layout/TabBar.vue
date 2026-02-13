@@ -55,6 +55,7 @@ import type { Tab } from '@/types/layout'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
 import { $t } from '@/locales'
+import i18n from '@/locales'
 
 const route = useRoute()
 const router = useRouter()
@@ -84,7 +85,13 @@ const currentTab = computed(() => {
   return tabsStore.activeTab || tabsStore.tabs[0]
 })
 
+// Track current locale to make tabItems reactive to language changes
+const currentLocale = computed(() => i18n.global.locale.value)
+
 const tabItems = computed(() => {
+  // Access currentLocale to establish reactivity dependency on locale changes
+  void currentLocale.value
+  
   return tabsStore.tabs.map(tab => ({
     key: tab.path,
     closable: tab.closable,
@@ -240,6 +247,8 @@ const getContextMenuProps = (tab: Tab) => ({
 })
 
 const activeTabMenuProps = computed(() => {
+  // Access currentLocale to establish reactivity dependency on locale changes
+  void currentLocale.value
   const tab = currentTab.value
   return {
     items: tab ? getTabMenuItems(tab) : [],
