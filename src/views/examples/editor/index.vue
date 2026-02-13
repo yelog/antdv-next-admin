@@ -10,19 +10,19 @@
         <!-- 基础用法 -->
         <div>
           <h3>基础用法</h3>
-          <TiptapEditor v-model="content1" :height="300" placeholder="请输入内容..." />
+          <Editor v-model="content1" :height="300" placeholder="请输入内容..." />
         </div>
 
         <!-- 禁用状态 -->
         <div>
           <h3>禁用状态</h3>
-          <TiptapEditor v-model="content2" :height="200" disabled />
+          <Editor v-model="content2" :height="200" disabled />
         </div>
 
         <!-- 自定义高度 -->
         <div>
           <h3>自定义高度</h3>
-          <TiptapEditor v-model="content3" :height="500" />
+          <Editor v-model="content3" :height="500" />
         </div>
 
         <!-- 内容预览 -->
@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { message } from 'antdv-next'
-import TiptapEditor from '@/components/TiptapEditor/index.vue'
+import Editor from '@/components/Editor/index.vue'
 
 const content1 = ref('<p>这是一个基于 <strong>Tiptap</strong> 的富文本编辑器示例。</p>')
 const content2 = ref('<p>这是禁用状态的编辑器，无法编辑。</p>')
