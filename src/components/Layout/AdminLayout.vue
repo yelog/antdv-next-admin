@@ -23,7 +23,7 @@
             <router-view v-slot="{ Component }">
               <transition :name="settingsStore.pageAnimation" mode="out-in">
                 <keep-alive :include="cachedTabs">
-                  <component :is="Component" :key="$route.fullPath" />
+                  <component :is="Component" :key="pageViewKey" />
                 </keep-alive>
               </transition>
             </router-view>
@@ -87,7 +87,7 @@
               <router-view v-slot="{ Component }">
                 <transition :name="settingsStore.pageAnimation" mode="out-in">
                   <keep-alive :include="cachedTabs">
-                    <component :is="Component" :key="$route.fullPath" />
+                    <component :is="Component" :key="pageViewKey" />
                   </keep-alive>
                 </transition>
               </router-view>
@@ -138,6 +138,7 @@ let resizeObserver: ResizeObserver | null = null
 let rafId = 0
 
 const cachedTabs = computed(() => tabsStore.cachedTabs)
+const pageViewKey = computed(() => route.path)
 
 const isIframePage = computed(() => {
   return route.path.includes('/iframe/')

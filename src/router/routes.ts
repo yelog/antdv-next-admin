@@ -90,6 +90,17 @@ export const basicRoutes: AppRouteRecordRaw[] = [
           requiresAuth: true,
           hidden: true
         }
+      },
+      {
+        path: 'notifications',
+        name: 'Notifications',
+        component: () => import('@/views/notification/index.vue'),
+        meta: {
+          title: 'layout.notifications',
+          icon: 'BellOutlined',
+          requiresAuth: true,
+          hidden: true
+        }
       }
     ]
   }

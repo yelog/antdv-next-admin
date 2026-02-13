@@ -304,6 +304,49 @@ export default {
     createSuccess: '创建成功'
   },
 
+  notificationCenter: {
+    kicker: 'Notification Hub',
+    title: '通知中心',
+    subtitle: '统一查看系统动态、消息提醒与任务结果，支持快速筛选与详情追踪。',
+    searchPlaceholder: '搜索通知标题或内容',
+    listTitle: '通知列表',
+    listSubtitle: '当前匹配到 {count} 条通知',
+    emptyFiltered: '暂无匹配通知',
+    metrics: {
+      total: '通知总数',
+      unread: '未读通知',
+      today: '今日新增'
+    },
+    filters: {
+      allStatus: '全部状态',
+      unread: '仅未读',
+      read: '仅已读',
+      allTypes: '全部类型',
+      system: '系统更新',
+      message: '新消息',
+      security: '安全提醒',
+      task: '任务完成',
+      error: '异常告警'
+    },
+    status: {
+      read: '已读',
+      unread: '未读'
+    },
+    meta: {
+      type: '通知类型',
+      receivedAt: '接收时间'
+    },
+    actions: {
+      markAsRead: '标记为已读',
+      openRelated: '前往相关页面',
+      delete: '删除通知'
+    },
+    placeholder: {
+      title: '选择一条通知查看详情',
+      desc: '从左侧通知列表中选择任意一条，即可在此查看完整内容与关联操作。'
+    }
+  },
+
   exampleForm: {
     description: 'ProForm 高级表单示例 - 展示各种表单控件',
     age: '年龄',

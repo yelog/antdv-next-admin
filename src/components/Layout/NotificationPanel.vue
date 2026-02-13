@@ -1,5 +1,6 @@
 <template>
   <a-popover
+    v-model:open="popoverOpen"
     trigger="click"
     placement="bottomRight"
     :arrow="false"
@@ -103,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import {
   BellOutlined,
   RocketOutlined,
@@ -123,6 +124,7 @@ import router from '@/router'
 dayjs.extend(relativeTime)
 
 const notificationStore = useNotificationStore()
+const popoverOpen = ref(false)
 
 const displayedNotifications = computed(() => {
   return notificationStore.notifications.slice(0, 10)
@@ -173,9 +175,13 @@ const getNotificationIcon = (notification: Notification) => {
 
 const handleNotificationClick = (notification: Notification) => {
   notificationStore.markAsRead(notification.id)
-  if (notification.link) {
-    router.push(notification.link)
-  }
+  popoverOpen.value = false
+  router.push({
+    path: '/notifications',
+    query: {
+      id: notification.id
+    }
+  })
 }
 
 const handleRemoveNotification = (id: string) => {
@@ -191,7 +197,8 @@ const handleClearAll = () => {
 }
 
 const handleViewAll = () => {
-  router.push('/dashboard')
+  popoverOpen.value = false
+  router.push('/notifications')
 }
 </script>
 

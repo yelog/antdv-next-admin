@@ -303,6 +303,49 @@ export default {
     createSuccess: 'Created successfully'
   },
 
+  notificationCenter: {
+    kicker: 'Notification Hub',
+    title: 'Notification Center',
+    subtitle: 'Track system updates, messages, and task outcomes in one place with fast filtering and detail tracing.',
+    searchPlaceholder: 'Search notifications by title or content',
+    listTitle: 'Notification List',
+    listSubtitle: '{count} notifications matched',
+    emptyFiltered: 'No matching notifications',
+    metrics: {
+      total: 'Total Notifications',
+      unread: 'Unread',
+      today: 'Today'
+    },
+    filters: {
+      allStatus: 'All Status',
+      unread: 'Unread',
+      read: 'Read',
+      allTypes: 'All Types',
+      system: 'System Update',
+      message: 'Message',
+      security: 'Security Alert',
+      task: 'Task Done',
+      error: 'Error Alert'
+    },
+    status: {
+      read: 'Read',
+      unread: 'Unread'
+    },
+    meta: {
+      type: 'Type',
+      receivedAt: 'Received At'
+    },
+    actions: {
+      markAsRead: 'Mark as read',
+      openRelated: 'Open related page',
+      delete: 'Delete notification'
+    },
+    placeholder: {
+      title: 'Select a notification to view details',
+      desc: 'Choose an item from the list on the left to see full content and related actions here.'
+    }
+  },
+
   exampleForm: {
     description: 'Advanced ProForm example demonstrating various form controls',
     age: 'Age',
