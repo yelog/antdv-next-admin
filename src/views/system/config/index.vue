@@ -232,7 +232,8 @@ loadAllConfigs()
 .config-container {
   display: flex;
   gap: 16px;
-  height: calc(100vh - 180px);
+  flex: 1;
+  min-height: 0;
 }
 
 .config-groups {

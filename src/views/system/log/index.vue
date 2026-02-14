@@ -317,6 +317,26 @@ const handleClearLoginLog = () => {
   border-radius: 8px;
   padding: 16px 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  :deep(.ant-tabs) {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  :deep(.ant-tabs-content) {
+    flex: 1;
+    min-height: 0;
+  }
+
+  :deep(.ant-tabs-tabpane) {
+    height: 100%;
+  }
 
   :deep(.ant-tabs-nav) {
     margin-bottom: 8px;
