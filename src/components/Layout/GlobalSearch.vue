@@ -88,6 +88,7 @@ import { usePermissionStore } from '@/stores/permission'
 import type { MenuItem } from '@/types/router'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
+import { match as pinyinMatch } from 'pinyin-pro'
 
 interface SearchItem {
   path: string
@@ -159,9 +160,24 @@ const formatPath = (path: string) => {
 
 const highlightText = (text: string, query: string): string => {
   if (!query) return text
+
+  // 1. Try direct text match
   const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const regex = new RegExp(`(${escaped})`, 'gi')
-  return text.replace(regex, '<span class="highlight">$1</span>')
+  if (regex.test(text)) {
+    return text.replace(regex, '<span class="highlight">$1</span>')
+  }
+
+  // 2. Try pinyin match (full pinyin / first letter / mixed)
+  const matched = pinyinMatch(text, query)
+  if (matched && matched.length > 0) {
+    const indexSet = new Set(matched)
+    return Array.from(text).map((char, i) =>
+      indexSet.has(i) ? `<span class="highlight">${char}</span>` : char
+    ).join('')
+  }
+
+  return text
 }
 
 const handleSearch = () => {
@@ -174,7 +190,8 @@ const handleSearch = () => {
   searchResults.value = searchSource.value.filter(
     item =>
       item.title.toLowerCase().includes(query) ||
-      item.path.toLowerCase().includes(query)
+      item.path.toLowerCase().includes(query) ||
+      pinyinMatch(item.title, query) !== null
   ).slice(0, 20)
   activeIndex.value = 0
 }
