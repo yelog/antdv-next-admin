@@ -85,6 +85,18 @@ export function setupRouterGuards(router: Router) {
       }
     }
 
+    // If catch-all redirected to 404 but user is not logged in,
+    // redirect to login instead of showing 404
+    if (
+      to.path === '/404' &&
+      !!redirectedFromPath &&
+      redirectedFromPath !== '/404' &&
+      !isLoggedIn()
+    ) {
+      next({ path: '/login', query: { redirect: redirectedFromPath } })
+      return
+    }
+
     // Check if route requires authentication
     const requiresAuth = to.meta.requiresAuth !== false
 
