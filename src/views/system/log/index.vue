@@ -329,9 +329,13 @@ const handleClearLoginLog = () => {
     flex-direction: column;
   }
 
-  :deep(.ant-tabs-content) {
+  :deep(.ant-tabs-content-holder) {
     flex: 1;
     min-height: 0;
+  }
+
+  :deep(.ant-tabs-content) {
+    height: 100%;
   }
 
   :deep(.ant-tabs-tabpane) {
