@@ -231,9 +231,9 @@ const handleViewAll = () => {
       justify-content: center;
       font-size: 12px;
       font-weight: 600;
-      color: var(--color-primary-7);
-      background: var(--color-primary-1);
-      border: 1px solid var(--color-primary-2);
+      color: var(--color-primary);
+      background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
     }
   }
 
@@ -275,7 +275,7 @@ const handleViewAll = () => {
       }
 
       &.unread {
-        background: var(--color-primary-1);
+        background: color-mix(in srgb, var(--color-primary) 8%, transparent);
       }
 
       .notification-icon {
@@ -351,7 +351,7 @@ const handleViewAll = () => {
           margin-top: 6px;
           font-size: 12px;
           line-height: 16px;
-          color: var(--color-primary-7);
+          color: var(--color-primary);
           opacity: 0;
           transform: translateY(2px);
           transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
@@ -378,7 +378,7 @@ const handleViewAll = () => {
       }
 
       &:hover .notification-title {
-        color: var(--color-primary-7);
+        color: var(--color-primary);
       }
 
       &:hover .notification-detail-hint {
@@ -477,10 +477,10 @@ const handleViewAll = () => {
       height: 34px;
       border-radius: 8px;
       font-size: 13px;
-      color: var(--color-primary-7);
+      color: var(--color-primary);
 
       &:hover {
-        background: rgba(22, 119, 255, 0.08);
+        background: color-mix(in srgb, var(--color-primary) 8%, transparent);
       }
     }
   }
@@ -491,13 +491,19 @@ const handleViewAll = () => {
 .notification-popover-overlay {
   .ant-popover-inner {
     border-radius: 12px;
-    border: 1px solid rgba(15, 23, 42, 0.06);
+    border: 1px solid var(--color-border-secondary);
     box-shadow: 0 28px 72px rgba(15, 23, 42, 0.18), 0 6px 18px rgba(15, 23, 42, 0.08);
     overflow: hidden;
   }
 
   .ant-popover-inner-content {
     padding: 0;
+  }
+}
+
+:root.dark .notification-popover-overlay {
+  .ant-popover-inner {
+    box-shadow: 0 28px 72px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.2);
   }
 }
 </style>

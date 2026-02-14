@@ -402,7 +402,7 @@ const handleOpenRelated = (notification: Notification) => {
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-primary-7);
+  color: var(--color-primary);
   font-weight: 600;
 }
 
@@ -435,7 +435,7 @@ const handleOpenRelated = (notification: Notification) => {
   padding: 14px 14px 12px;
   border-radius: 12px;
   border: 1px solid var(--color-border-secondary);
-  background: rgba(255, 255, 255, 0.72);
+  background: color-mix(in srgb, var(--color-bg-container) 72%, transparent);
   backdrop-filter: blur(2px);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
@@ -791,6 +791,30 @@ const handleOpenRelated = (notification: Notification) => {
 .detail-icon.tone-error {
   color: #dc2626;
   background: rgba(220, 38, 38, 0.14);
+}
+
+/* ===== Dark Mode ===== */
+:root.dark {
+  .hero-panel {
+    background: linear-gradient(135deg, var(--color-bg-container) 0%, color-mix(in srgb, var(--color-primary) 12%, var(--color-bg-container)) 58%, var(--color-bg-container) 100%);
+  }
+
+  .metric-card {
+    background: color-mix(in srgb, var(--color-bg-container) 85%, transparent);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .notice-item {
+    &:hover {
+      background: color-mix(in srgb, var(--color-primary) 6%, var(--color-bg-container));
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    &.active {
+      background: color-mix(in srgb, var(--color-primary) 10%, var(--color-bg-container));
+      box-shadow: 0 2px 8px rgba(22, 119, 255, 0.2);
+    }
+  }
 }
 
 @media (max-width: 1200px) {
