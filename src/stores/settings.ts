@@ -30,7 +30,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const primaryColor = ref<PrimaryColor>('blue')
   const customPrimaryColor = ref<string>('')
   const primaryColorHex = computed(() => customPrimaryColor.value || PRIMARY_COLOR_HEX_MAP[primaryColor.value])
-  const sidebarTheme = ref<SidebarTheme>('dark')
+  const sidebarTheme = ref<SidebarTheme>('light')
   const layoutMode = ref<LayoutMode>('vertical')
   const pageAnimation = ref<PageAnimation>('slide-left')
   const grayMode = ref(false)
