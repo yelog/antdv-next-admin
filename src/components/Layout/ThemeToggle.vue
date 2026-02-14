@@ -52,23 +52,15 @@ onBeforeUnmount(resetRotateState)
 
 <style scoped lang="scss">
 .theme-icon-wrapper {
-  position: relative;
-  display: inline-flex;
-  /* Match other header icons (e.g. GlobalOutlined) by inheriting button font-size */
-  width: 1em;
-  height: 1em;
-  align-items: center;
-  justify-content: center;
+  display: inline-grid;
+  place-items: center;
 }
 
 .theme-icon {
-  position: absolute;
-  inset: 0;
+  grid-area: 1 / 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* Keep icon size consistent with siblings inside `.header-action` */
-  font-size: 1em;
   opacity: 0;
   transform: scale(0.85);
   transition: opacity 0.22s ease, transform 0.3s ease;
