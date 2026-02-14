@@ -1,5 +1,5 @@
 <template>
-  <div class="login-shell" :class="{ 'is-dark': themeStore.isDark }">
+  <div class="login-shell">
     <div class="ambient ambient-left"></div>
     <div class="ambient ambient-right"></div>
     <div class="ambient ambient-bottom"></div>
@@ -88,7 +88,6 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { UserOutlined, LockOutlined } from '@antdv-next/icons'
 import { useAuthStore } from '@/stores/auth'
-import { useThemeStore } from '@/stores/theme'
 import { message } from 'antdv-next'
 import { $t } from '@/locales'
 import ThemeToggle from '@/components/Layout/ThemeToggle.vue'
@@ -97,7 +96,6 @@ import logoImg from '@/assets/images/logo.png'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const themeStore = useThemeStore()
 
 const loading = ref(false)
 const formState = reactive({
@@ -402,7 +400,7 @@ const handleSubmit = async () => {
   }
 }
 
-.login-shell.is-dark {
+:root.dark .login-shell {
   --login-bg: radial-gradient(circle at 12% 18%, rgba(80, 140, 255, 0.34), transparent 44%),
     radial-gradient(circle at 88% 12%, rgba(48, 191, 255, 0.22), transparent 34%),
     radial-gradient(circle at 80% 85%, rgba(119, 80, 255, 0.2), transparent 35%),
@@ -418,7 +416,7 @@ const handleSubmit = async () => {
   --login-shadow: 0 30px 70px rgba(2, 8, 22, 0.66), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-.login-shell.is-dark {
+:root.dark .login-shell {
   .ambient-left {
     background: radial-gradient(circle at 38% 36%, rgba(91, 163, 255, 0.4), rgba(42, 94, 198, 0.08));
   }
