@@ -162,7 +162,9 @@ export default {
     usernameRequired: 'Please enter username',
     passwordRequired: 'Please enter password',
     loginSuccess: 'Login successful',
-    loginFailed: 'Login failed'
+    loginFailed: 'Login failed',
+    slideToVerify: 'Slide to verify',
+    verifySuccess: 'Verified'
   },
 
   dashboard: {

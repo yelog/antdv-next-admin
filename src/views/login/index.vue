@@ -51,6 +51,17 @@
         </a-form-item>
 
         <a-form-item>
+          <SliderCaptcha
+            ref="captchaRef"
+            :text="$t('login.slideToVerify')"
+            :success-text="$t('login.verifySuccess')"
+            :height="46"
+            @success="onCaptchaSuccess"
+            @fail="onCaptchaFail"
+          />
+        </a-form-item>
+
+        <a-form-item>
           <a-checkbox v-model:checked="formState.remember">
             {{ $t('login.remember') }}
           </a-checkbox>
@@ -63,6 +74,7 @@
             size="large"
             block
             :loading="loading"
+            :disabled="!captchaVerified"
           >
             {{ $t('login.login') }}
           </a-button>
@@ -92,12 +104,15 @@ import { message } from 'antdv-next'
 import { $t } from '@/locales'
 import ThemeToggle from '@/components/Layout/ThemeToggle.vue'
 import LanguageSwitch from '@/components/Layout/LanguageSwitch.vue'
+import { SliderCaptcha } from '@/components/Captcha'
 import logoImg from '@/assets/images/logo.png'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
 const loading = ref(false)
+const captchaVerified = ref(false)
+const captchaRef = ref<InstanceType<typeof SliderCaptcha>>()
 const formState = reactive({
   username: 'admin',
   password: '123456',
@@ -109,6 +124,14 @@ const rules = {
   password: [{ required: true, message: $t('login.passwordRequired') }]
 }
 
+const onCaptchaSuccess = () => {
+  captchaVerified.value = true
+}
+
+const onCaptchaFail = () => {
+  captchaVerified.value = false
+}
+
 const handleSubmit = async () => {
   loading.value = true
   try {
@@ -117,6 +140,8 @@ const handleSubmit = async () => {
     router.push('/')
   } catch (error: any) {
     message.error(error.message || $t('login.loginFailed'))
+    captchaVerified.value = false
+    captchaRef.value?.reset()
   } finally {
     loading.value = false
   }
@@ -365,6 +390,76 @@ const handleSubmit = async () => {
       box-shadow: 0 14px 28px rgba(20, 103, 255, 0.3);
     }
 
+    :deep(.ant-btn-primary:disabled) {
+      background: linear-gradient(135deg, #1f83ff 0%, #1467ff 100%);
+      opacity: 0.5;
+      box-shadow: none;
+      transform: none;
+      color: #fff;
+      border: none;
+    }
+
+    :deep(.slider-captcha) {
+      .slider-bg {
+        border-radius: 12px;
+        border-color: var(--login-input-border);
+        background: var(--login-input-bg);
+        transition: border-color var(--duration-base) var(--ease-out),
+          background var(--duration-base) var(--ease-out);
+      }
+
+      .slider-bg.success {
+        background: rgba(82, 196, 26, 0.08);
+        border-color: rgba(82, 196, 26, 0.5);
+      }
+
+      .slider-text {
+        color: var(--login-muted);
+        font-weight: 500;
+        font-size: 13px;
+        letter-spacing: 0.04em;
+      }
+
+      .slider-track {
+        background: linear-gradient(90deg, rgba(47, 132, 255, 0.08), rgba(47, 132, 255, 0.15));
+        border-right: 1px solid rgba(47, 132, 255, 0.3);
+        border-radius: 12px 0 0 12px;
+      }
+
+      .slider-handle {
+        border-radius: 12px;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(230, 242, 255, 0.9));
+        border-color: rgba(47, 132, 255, 0.4);
+        box-shadow: 0 2px 8px rgba(47, 132, 255, 0.15);
+        color: rgba(47, 132, 255, 0.8);
+        font-weight: 600;
+        transition: background var(--duration-base) var(--ease-out),
+          border-color var(--duration-base) var(--ease-out),
+          box-shadow var(--duration-base) var(--ease-out),
+          color var(--duration-base) var(--ease-out);
+
+        &:hover {
+          border-color: rgba(47, 132, 255, 0.6);
+          box-shadow: 0 0 0 3px rgba(47, 132, 255, 0.12), 0 2px 8px rgba(47, 132, 255, 0.2);
+          color: rgba(47, 132, 255, 1);
+        }
+
+        &:active {
+          background: linear-gradient(135deg, #1f83ff 0%, #1467ff 100%);
+          border-color: rgba(47, 132, 255, 0.7);
+          color: #fff;
+          cursor: grabbing;
+        }
+      }
+
+      .slider-handle.success {
+        background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+        border-color: rgba(82, 196, 26, 0.6);
+        box-shadow: 0 2px 8px rgba(82, 196, 26, 0.25);
+        color: #fff;
+      }
+    }
+
     .login-tips {
       margin-top: 18px;
       padding: 12px 14px;
@@ -446,6 +541,35 @@ const handleSubmit = async () => {
       .logo-wrap {
         background: linear-gradient(145deg, rgba(26, 44, 84, 0.92), rgba(13, 25, 52, 0.86));
         border-color: rgba(124, 161, 233, 0.34);
+      }
+    }
+
+    :deep(.slider-captcha) {
+      .slider-handle {
+        background: linear-gradient(145deg, rgba(18, 32, 62, 0.95), rgba(12, 22, 44, 0.9));
+        border-color: rgba(47, 132, 255, 0.45);
+        color: rgba(100, 170, 255, 0.9);
+
+        &:hover {
+          border-color: rgba(47, 132, 255, 0.65);
+          box-shadow: 0 0 0 3px rgba(47, 132, 255, 0.15), 0 2px 8px rgba(47, 132, 255, 0.25);
+        }
+
+        &:active {
+          background: linear-gradient(135deg, #1f83ff 0%, #1467ff 100%);
+          color: #fff;
+        }
+      }
+
+      .slider-handle.success {
+        background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+        border-color: rgba(82, 196, 26, 0.5);
+        box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+      }
+
+      .slider-bg.success {
+        background: rgba(82, 196, 26, 0.06);
+        border-color: rgba(82, 196, 26, 0.35);
       }
     }
 

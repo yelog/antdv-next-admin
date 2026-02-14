@@ -163,7 +163,9 @@ export default {
     usernameRequired: '请输入用户名',
     passwordRequired: '请输入密码',
     loginSuccess: '登录成功',
-    loginFailed: '登录失败'
+    loginFailed: '登录失败',
+    slideToVerify: '滑动验证身份',
+    verifySuccess: '验证成功'
   },
 
   dashboard: {
