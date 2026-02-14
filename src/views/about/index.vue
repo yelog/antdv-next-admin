@@ -206,6 +206,7 @@ const features = [
 .about-page {
   max-width: 1200px;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 /* ===== Hero Banner ===== */
