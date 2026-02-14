@@ -11,8 +11,10 @@
 
     <div class="login-box">
       <div class="login-header">
+        <!-- Keep consistent with the in-app (top-left) logo style -->
         <div class="logo-wrap">
           <img src="/logo.svg" alt="Logo" class="logo" />
+          <span class="logo-title">{{ $t('common.appName') || 'Antdv Next Admin' }}</span>
         </div>
         <p class="eyebrow">Antdv Next Admin</p>
         <h1 class="title">{{ $t('login.title') }}</h1>
@@ -245,16 +247,26 @@ const handleSubmit = async () => {
         background: linear-gradient(145deg, rgba(255, 255, 255, 0.85), rgba(208, 232, 255, 0.8));
         border: 1px solid rgba(255, 255, 255, 0.8);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
-        display: grid;
-        place-items: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
         transition:
           background var(--duration-slower) var(--ease-in-out),
           border-color var(--duration-slower) var(--ease-in-out);
       }
 
       .logo {
-        width: 58px;
-        height: 58px;
+        width: 42px;
+        height: 42px;
+      }
+
+      .logo-title {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--login-text);
+        line-height: 1;
       }
 
       .eyebrow {
