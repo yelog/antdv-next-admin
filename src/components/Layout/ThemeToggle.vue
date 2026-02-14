@@ -54,6 +54,11 @@ onBeforeUnmount(resetRotateState)
 .theme-icon-wrapper {
   display: inline-grid;
   place-items: center;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-icon-wrapper:hover {
+  transform: rotate(90deg);
 }
 
 .theme-icon {
@@ -92,7 +97,8 @@ onBeforeUnmount(resetRotateState)
     animation: none;
   }
 
-  .theme-icon {
+  .theme-icon,
+  .theme-icon-wrapper {
     transition: none;
   }
 }
