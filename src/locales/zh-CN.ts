@@ -59,6 +59,7 @@ export default {
     form: '表单示例',
     editor: '富文本编辑器',
     captcha: '验证码示例',
+    spin: '加载示例',
     modal: '弹窗示例',
     watermark: '水印示例',
     requestAuth: '请求鉴权闭环',
@@ -411,6 +412,21 @@ export default {
     point: '点选验证 (Point)',
     success: '验证通过！',
     fail: '验证失败，请重试'
+  },
+
+  exampleSpin: {
+    title: 'Spin 加载示例',
+    description: '演示 Spin 组件的多种用法，包括基础加载、不同尺寸、自定义指示符、进度展示、延迟加载和全屏加载。',
+    basic: '基本用法 & 尺寸',
+    tip: '自定义描述文案',
+    nested: '卡片加载中',
+    delay: '延迟显示',
+    customIndicator: '自定义指示符',
+    percent: '进度展示',
+    customStyle: '自定义样式',
+    fullscreen: '全屏加载',
+    showFullscreen: '显示全屏加载',
+    loadingState: '加载状态：'
   },
 
   exampleEditor: {

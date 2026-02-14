@@ -310,6 +310,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'spin',
+        name: 'ExamplesSpin',
+        component: () => import('@/views/examples/spin/index.vue'),
+        meta: {
+          title: 'menu.spin',
+          icon: 'LoadingOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'watermark',
         name: 'ExamplesWatermark',
         component: () => import('@/views/examples/watermark/index.vue'),

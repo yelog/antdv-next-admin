@@ -59,6 +59,7 @@ export default {
     form: 'Form Example',
     editor: 'Rich Text Editor',
     modal: 'Modal Example',
+    spin: 'Spin Example',
     watermark: 'Watermark',
     requestAuth: 'Request/Auth Flow',
     rbacFlow: 'RBAC Flow',
@@ -410,6 +411,21 @@ export default {
     point: 'Point Captcha',
     success: 'Verification passed!',
     fail: 'Verification failed, please retry'
+  },
+
+  exampleSpin: {
+    title: 'Spin Example',
+    description: 'Demonstrates various usages of the Spin component including basic loading, sizes, custom indicators, progress, delay and fullscreen.',
+    basic: 'Basic & Sizes',
+    tip: 'Custom Tip',
+    nested: 'Card Loading',
+    delay: 'Delay',
+    customIndicator: 'Custom Indicator',
+    percent: 'Progress',
+    customStyle: 'Custom Style',
+    fullscreen: 'Fullscreen',
+    showFullscreen: 'Show Fullscreen',
+    loadingState: 'Loading state:'
   },
 
   exampleEditor: {
