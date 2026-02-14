@@ -54,8 +54,9 @@ onBeforeUnmount(resetRotateState)
 .theme-icon-wrapper {
   position: relative;
   display: inline-flex;
-  width: 18px;
-  height: 18px;
+  /* Match other header icons (e.g. GlobalOutlined) by inheriting button font-size */
+  width: 1em;
+  height: 1em;
   align-items: center;
   justify-content: center;
 }
@@ -66,7 +67,8 @@ onBeforeUnmount(resetRotateState)
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  /* Keep icon size consistent with siblings inside `.header-action` */
+  font-size: 1em;
   opacity: 0;
   transform: scale(0.85);
   transition: opacity 0.22s ease, transform 0.3s ease;
