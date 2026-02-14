@@ -31,7 +31,7 @@
                   <FileOutlined v-else />
                 </div>
                 <div class="item-info">
-                  <span class="item-title">{{ result.title }}</span>
+                  <span class="item-title" v-html="highlightText(result.title, searchQuery)"></span>
                   <span class="item-path">{{ formatPath(result.path) }}</span>
                 </div>
                 <EnterOutlined class="item-enter" />
@@ -119,19 +119,22 @@ const menuSource = computed<MenuItem[]>(() => {
 const searchSource = computed<SearchItem[]>(() => {
   const items: SearchItem[] = []
 
-  const traverse = (menus: MenuItem[]) => {
+  const traverse = (menus: MenuItem[], parentLabels: string[] = []) => {
     menus.forEach(menu => {
-      if (menu.path) {
+      const currentLabel = resolveLocaleText(menu.label, menu.path)
+      const currentLabels = [...parentLabels, currentLabel]
+
+      if (menu.children && menu.children.length > 0) {
+        // Only recurse into children, skip non-leaf nodes
+        traverse(menu.children, currentLabels)
+      } else if (menu.path) {
+        // Leaf node: show full parent path
         items.push({
           path: menu.path,
-          title: resolveLocaleText(menu.label, menu.path),
+          title: currentLabels.join(' > '),
           icon: menu.icon,
           rawTitle: menu.label
         })
-      }
-
-      if (menu.children && menu.children.length > 0) {
-        traverse(menu.children)
       }
     })
   }
@@ -152,6 +155,13 @@ const getIconComponent = (icon?: string) => resolveIcon(icon)
 
 const formatPath = (path: string) => {
   return path.split('/').filter(Boolean).join(' > ')
+}
+
+const highlightText = (text: string, query: string): string => {
+  if (!query) return text
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const regex = new RegExp(`(${escaped})`, 'gi')
+  return text.replace(regex, '<span class="highlight">$1</span>')
 }
 
 const handleSearch = () => {
@@ -365,6 +375,11 @@ defineExpose({ open, close })
     font-size: 14px;
     font-weight: 500;
     line-height: 1.4;
+
+    :deep(.highlight) {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
   }
 
   .item-path {
