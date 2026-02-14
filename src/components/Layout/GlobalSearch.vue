@@ -32,7 +32,7 @@
                 </div>
                 <div class="item-info">
                   <span class="item-title" v-html="highlightText(result.title, searchQuery)"></span>
-                  <span class="item-path">{{ formatPath(result.path) }}</span>
+                  <span class="item-path" v-html="highlightText(formatPath(result.path), searchQuery)"></span>
                 </div>
                 <EnterOutlined class="item-enter" />
               </div>
@@ -405,6 +405,11 @@ defineExpose({ open, close })
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+
+    :deep(.highlight) {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
   }
 
   .item-enter {
