@@ -27,6 +27,7 @@ const router = useRouter()
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 1;
   min-height: 500px;
 }
 </style>
