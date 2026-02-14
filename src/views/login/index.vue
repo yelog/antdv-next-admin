@@ -427,7 +427,7 @@ const handleSubmit = async () => {
       }
 
       .slider-handle {
-        border-radius: 12px;
+        border-radius: 0 12px 12px 0;
         background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(230, 242, 255, 0.9));
         border-color: rgba(47, 132, 255, 0.4);
         box-shadow: 0 2px 8px rgba(47, 132, 255, 0.15);
