@@ -13,8 +13,7 @@
       <div class="login-header">
         <!-- Keep consistent with the in-app (top-left) logo style -->
         <div class="logo-wrap">
-          <img src="/logo.svg" alt="Logo" class="logo" />
-          <span class="logo-title">{{ $t('common.appName') || 'Antdv Next Admin' }}</span>
+          <img :src="logoImg" alt="Logo" class="logo" />
         </div>
         <p class="eyebrow">Antdv Next Admin</p>
         <h1 class="title">{{ $t('login.title') }}</h1>
@@ -94,6 +93,7 @@ import { message } from 'antdv-next'
 import { $t } from '@/locales'
 import ThemeToggle from '@/components/Layout/ThemeToggle.vue'
 import LanguageSwitch from '@/components/Layout/LanguageSwitch.vue'
+import logoImg from '@/assets/images/logo.png'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -248,25 +248,17 @@ const handleSubmit = async () => {
         border: 1px solid rgba(255, 255, 255, 0.8);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 4px;
         transition:
           background var(--duration-slower) var(--ease-in-out),
           border-color var(--duration-slower) var(--ease-in-out);
       }
 
       .logo {
-        width: 42px;
-        height: 42px;
-      }
-
-      .logo-title {
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--login-text);
-        line-height: 1;
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
       }
 
       .eyebrow {
