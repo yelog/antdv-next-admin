@@ -83,6 +83,7 @@ export default {
     logout: '退出登录',
     logoutConfirm: '确定要退出登录吗？',
     profile: '个人中心',
+    documentation: '帮助文档',
     settings: '系统设置',
     theme: '主题设置',
     themeLight: '亮色主题',

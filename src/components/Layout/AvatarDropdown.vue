@@ -17,6 +17,7 @@ import {
   DownOutlined,
   UserOutlined,
   GithubOutlined,
+  BookOutlined,
   LogoutOutlined
 } from '@antdv-next/icons'
 import { useAuthStore } from '@/stores/auth'
@@ -33,6 +34,9 @@ const handleMenuClick = ({ key }: { key: string }) => {
       break
     case 'github':
       window.open('https://github.com/yelog/antdv-next-admin', '_blank')
+      break
+    case 'docs':
+      window.open('https://antdv-next-admin-doc.yelog.org', '_blank')
       break
     case 'logout':
       Modal.confirm({
@@ -60,6 +64,11 @@ const menuProps = computed(() => ({
       key: 'github',
       label: 'GitHub',
       icon: h(GithubOutlined)
+    },
+    {
+      key: 'docs',
+      label: $t('layout.documentation'),
+      icon: h(BookOutlined)
     },
     {
       type: 'divider'

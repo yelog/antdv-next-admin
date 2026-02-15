@@ -82,6 +82,7 @@ export default {
     logout: 'Logout',
     logoutConfirm: 'Are you sure you want to logout?',
     profile: 'Profile',
+    documentation: 'Documentation',
     settings: 'Settings',
     theme: 'Theme',
     themeLight: 'Light Theme',
