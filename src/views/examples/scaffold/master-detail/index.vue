@@ -34,12 +34,14 @@
           <a-tag :color="getStatusColor(activeRecord.status)">{{ getStatusText(activeRecord.status) }}</a-tag>
         </div>
 
-        <a-descriptions :column="1" size="small" bordered class="mb-md">
-          <a-descriptions-item :label="$t('examples.scaffold.masterDetail.titleLabel')">{{ activeRecord.title }}</a-descriptions-item>
-          <a-descriptions-item :label="$t('examples.scaffold.masterDetail.ownerLabel')">{{ activeRecord.owner }}</a-descriptions-item>
-          <a-descriptions-item :label="$t('examples.scaffold.masterDetail.priorityLabel')">{{ activeRecord.priority }}</a-descriptions-item>
-          <a-descriptions-item :label="$t('examples.scaffold.masterDetail.createdAtLabel')">{{ activeRecord.createdAt }}</a-descriptions-item>
-        </a-descriptions>
+        <ProDescriptions
+          :columns="detailColumns"
+          :data="activeRecord"
+          :column="1"
+          size="small"
+          bordered
+          class="mb-md"
+        />
 
         <a-tabs v-model:active-key="activeTab" size="small">
           <a-tab-pane key="desc" :tab="$t('examples.scaffold.masterDetail.descTab')">
@@ -64,6 +66,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { $t } from '@/locales'
+import ProDescriptions from '@/components/Pro/ProDescriptions/index.vue'
+import type { ProDescriptionItem } from '@/types/pro'
 
 type TicketStatus = 'open' | 'processing' | 'closed'
 
@@ -129,6 +133,13 @@ const columns = computed(() => [
   { title: $t('examples.scaffold.masterDetail.colPriority'), dataIndex: 'priority', width: 100 },
   { title: $t('examples.scaffold.masterDetail.colStatus'), dataIndex: 'status', width: 120 },
   { title: $t('examples.scaffold.masterDetail.colCreatedAt'), dataIndex: 'createdAt', width: 190 }
+])
+
+const detailColumns = computed<ProDescriptionItem[]>(() => [
+  { label: $t('examples.scaffold.masterDetail.titleLabel'), dataIndex: 'title' },
+  { label: $t('examples.scaffold.masterDetail.ownerLabel'), dataIndex: 'owner' },
+  { label: $t('examples.scaffold.masterDetail.priorityLabel'), dataIndex: 'priority' },
+  { label: $t('examples.scaffold.masterDetail.createdAtLabel'), dataIndex: 'createdAt' }
 ])
 
 const drawerOpen = ref(false)

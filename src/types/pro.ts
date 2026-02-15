@@ -219,3 +219,15 @@ export interface ProFormGrid {
   gutter?: number
   cols?: number
 }
+
+// ProDescriptions Types
+export interface ProDescriptionItem {
+  label: string
+  dataIndex: string
+  valueType?: ValueType
+  valueEnum?: Record<string, { text: string; status?: string; color?: string }>
+  valueTypeProps?: Record<string, any>
+  span?: number
+  render?: (value: any, record: any) => any
+  copyable?: boolean
+}

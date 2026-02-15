@@ -65,17 +65,14 @@
               </a-button>
             </a-space>
           </div>
-          <a-descriptions :column="2" bordered size="middle" class="dept-descriptions">
-            <a-descriptions-item :label="t('dept.deptName')">{{ selectedDept.name }}</a-descriptions-item>
-            <a-descriptions-item :label="t('dept.parentDept')">{{ getParentName(selectedDept.parentId) }}</a-descriptions-item>
-            <a-descriptions-item :label="t('dept.leader')">{{ selectedDept.leader || '-' }}</a-descriptions-item>
-            <a-descriptions-item :label="t('dept.phone')">{{ selectedDept.phone || '-' }}</a-descriptions-item>
-            <a-descriptions-item :label="t('dept.email')">{{ selectedDept.email || '-' }}</a-descriptions-item>
-            <a-descriptions-item :label="t('dept.sort')">{{ selectedDept.sort }}</a-descriptions-item>
-            <a-descriptions-item :label="t('dept.createTime')">{{ selectedDept.createTime }}</a-descriptions-item>
-            <a-descriptions-item :label="t('dept.updateTime')">{{ selectedDept.updateTime }}</a-descriptions-item>
-            <a-descriptions-item :label="t('dept.remark')" :span="2">{{ selectedDept.remark || '-' }}</a-descriptions-item>
-          </a-descriptions>
+          <ProDescriptions
+            :columns="deptDescColumns"
+            :data="deptDescData"
+            :column="2"
+            bordered
+            size="middle"
+            class="dept-descriptions"
+          />
 
           <!-- child dept list -->
           <div class="dept-children">
@@ -165,7 +162,8 @@ import { message, Modal } from 'antdv-next'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
 import { useI18n } from 'vue-i18n'
 import ProTable from '@/components/Pro/ProTable/index.vue'
-import type { ProTableColumn } from '@/types/pro'
+import ProDescriptions from '@/components/Pro/ProDescriptions/index.vue'
+import type { ProTableColumn, ProDescriptionItem } from '@/types/pro'
 import type { Department } from '@/types/dept'
 import { getDeptTree, getDeptList, createDept, updateDept, deleteDept } from '@/api/dept'
 
@@ -214,6 +212,26 @@ const childColumns = computed<ProTableColumn[]>(() => [
   { title: t('dept.status'), dataIndex: 'status', key: 'status', width: 80 },
   { title: t('common.actions'), key: 'action', width: 120 }
 ])
+
+const deptDescColumns = computed<ProDescriptionItem[]>(() => [
+  { label: t('dept.deptName'), dataIndex: 'name' },
+  { label: t('dept.parentDept'), dataIndex: 'parentName' },
+  { label: t('dept.leader'), dataIndex: 'leader' },
+  { label: t('dept.phone'), dataIndex: 'phone' },
+  { label: t('dept.email'), dataIndex: 'email' },
+  { label: t('dept.sort'), dataIndex: 'sort' },
+  { label: t('dept.createTime'), dataIndex: 'createTime' },
+  { label: t('dept.updateTime'), dataIndex: 'updateTime' },
+  { label: t('dept.remark'), dataIndex: 'remark', span: 2 }
+])
+
+const deptDescData = computed(() => {
+  if (!selectedDept.value) return {}
+  return {
+    ...selectedDept.value,
+    parentName: getParentName(selectedDept.value.parentId)
+  }
+})
 
 const getParentName = (parentId: string | null) => {
   if (!parentId) return t('dept.noneTopLevel')
