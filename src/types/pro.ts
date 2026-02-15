@@ -261,6 +261,32 @@ export interface ProChartProps {
 // ProUpload Types
 export type ProUploadMode = 'button' | 'dragger' | 'image' | 'avatar'
 
+// ProStatCard Types
+export type ProStatCardTone = 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'cyan'
+
+export interface ProStatCardProps {
+  label: string
+  value: string | number
+  trend?: string
+  trendDirection?: 'up' | 'down'
+  icon?: any
+  tone?: ProStatCardTone
+}
+
+// ProStepForm Types
+export interface ProStepFormStep {
+  title: string
+  description?: string
+  icon?: any
+}
+
+// ProSplitLayout Types
+export interface ProSplitLayoutProps {
+  sideWidth?: number | string
+  sidePosition?: 'left' | 'right'
+  gap?: number | string
+}
+
 // ProDetail Types
 export interface ProDetailTab {
   key: string

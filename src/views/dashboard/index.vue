@@ -32,21 +32,15 @@
     </section>
 
     <section class="stats-grid">
-      <article
+      <ProStatCard
         v-for="card in statCards"
         :key="card.key"
-        class="stat-card"
-        :class="`tone-${card.tone}`"
-      >
-        <p class="stat-label">{{ card.label }}</p>
-        <p class="stat-value">{{ card.value }}</p>
-        <p class="stat-trend">
-          <RiseOutlined />
-          <span>{{ $t('dashboard.compareYesterday', { value: card.trend }) }}</span>
-        </p>
-
-        <component :is="card.icon" class="stat-watermark" />
-      </article>
+        :label="card.label"
+        :value="card.value"
+        :trend="$t('dashboard.compareYesterday', { value: card.trend })"
+        :icon="card.icon"
+        :tone="card.tone"
+      />
     </section>
 
     <section class="charts-grid">
@@ -104,6 +98,7 @@ import {
 } from '@antdv-next/icons'
 import { useAuthStore } from '@/stores/auth'
 import ProChart from '@/components/Pro/ProChart/index.vue'
+import ProStatCard from '@/components/Pro/ProStatCard/index.vue'
 import i18n, { $t } from '@/locales'
 
 const authStore = useAuthStore()
@@ -371,73 +366,6 @@ onBeforeUnmount(() => {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--spacing-md);
-
-    .stat-card {
-      position: relative;
-      overflow: hidden;
-      min-height: 168px;
-      padding: 20px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--color-border-secondary);
-      background: var(--color-bg-container);
-      box-shadow: var(--shadow-card);
-      transition: all var(--duration-slow) var(--ease-out);
-
-      &:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-card-hover);
-      }
-
-      .stat-label {
-        font-size: 12px;
-        color: var(--color-text-tertiary);
-        margin-bottom: 10px;
-      }
-
-      .stat-value {
-        margin: 0;
-        font-size: 36px;
-        line-height: 1;
-        font-family: var(--font-family-number);
-        font-weight: var(--font-weight-bold);
-        color: var(--color-text-primary);
-        letter-spacing: -0.02em;
-      }
-
-      .stat-trend {
-        margin-top: 14px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: var(--color-success);
-        font-weight: var(--font-weight-medium);
-      }
-
-      .stat-watermark {
-        position: absolute;
-        right: 14px;
-        bottom: -6px;
-        font-size: 96px;
-        color: var(--accent-soft);
-      }
-
-      &.tone-blue {
-        --accent-soft: rgba(24, 119, 255, 0.12);
-      }
-
-      &.tone-green {
-        --accent-soft: rgba(82, 196, 26, 0.12);
-      }
-
-      &.tone-orange {
-        --accent-soft: rgba(250, 140, 22, 0.12);
-      }
-
-      &.tone-purple {
-        --accent-soft: rgba(114, 46, 209, 0.12);
-      }
-    }
   }
 
   .charts-grid {
@@ -540,14 +468,6 @@ onBeforeUnmount(() => {
 
     .stats-grid {
       grid-template-columns: 1fr;
-
-      .stat-card {
-        min-height: 150px;
-
-        .stat-value {
-          font-size: 32px;
-        }
-      }
     }
   }
 }
