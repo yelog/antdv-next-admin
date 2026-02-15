@@ -31,7 +31,7 @@
                 v-else-if="resolveSearchType(col) === 'select'"
                 v-model:value="searchForm[col.dataIndex]"
                 :placeholder="buildSelectPlaceholder(col.title)"
-                :options="col.searchOptions"
+                :options="resolveSearchOptions(col)"
                 v-bind="col.searchProps"
               />
 
@@ -300,7 +300,7 @@
             <ValueTypeRender
               :value="text"
               :type="column.valueType"
-              :enum="column.valueEnum"
+              :enum="resolveValueEnum(column)"
               :record="record"
             />
           </template>
@@ -1292,12 +1292,40 @@ const buildSelectPlaceholder = (label: unknown) => {
 
 const resolveSearchType = (col: ProTableColumn): SearchType => {
   if (col.searchType) return col.searchType
+  if (col.options || col.searchOptions || col.valueEnum) {
+    const vt = col.valueType
+    if (vt === 'tag' || vt === 'badge') return 'select'
+  }
   const vt = col.valueType
   if (vt === 'tag' || vt === 'badge') return 'select'
   if (vt === 'date' || vt === 'dateTime' || vt === 'time') return 'datePicker'
   if (vt === 'dateRange') return 'dateRange'
   if (vt === 'money' || vt === 'percent' || vt === 'progress') return 'number'
   return 'input'
+}
+
+const resolveSearchOptions = (col: ProTableColumn) => {
+  if (col.searchOptions) return col.searchOptions
+  if (col.options) return col.options.map(o => ({ label: o.label, value: o.value }))
+  if (col.valueEnum) {
+    return Object.entries(col.valueEnum).map(([value, config]) => ({
+      label: config.text,
+      value
+    }))
+  }
+  return undefined
+}
+
+const resolveValueEnum = (col: ProTableColumn) => {
+  if (col.valueEnum) return col.valueEnum
+  if (col.options) {
+    const enumMap: Record<string, { text: string; status?: string; color?: string }> = {}
+    col.options.forEach(o => {
+      enumMap[String(o.value)] = { text: o.label, status: o.status, color: o.color }
+    })
+    return enumMap
+  }
+  return undefined
 }
 
 const getHeaderFilterEntry = (column: any) => {
