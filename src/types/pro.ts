@@ -242,3 +242,16 @@ export interface ProStatusMap {
     icon?: any
   }
 }
+
+// ProChart Types
+export type ProChartType = 'line' | 'bar' | 'pie' | 'donut' | 'area' | 'radar'
+
+export interface ProChartProps {
+  type: ProChartType
+  data: any[]
+  height?: number | string
+  title?: string
+  subTitle?: string
+  loading?: boolean
+  option?: Record<string, any>
+}

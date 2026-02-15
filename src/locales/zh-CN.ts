@@ -203,6 +203,16 @@ export default {
       user: '用户',
       task: '任务',
       release: '发布'
+    },
+    months: {
+      jan: '1月',
+      feb: '2月',
+      mar: '3月',
+      apr: '4月',
+      may: '5月',
+      jun: '6月',
+      jul: '7月',
+      aug: '8月'
     }
   },
 

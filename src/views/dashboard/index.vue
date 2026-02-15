@@ -51,39 +51,25 @@
 
     <section class="charts-grid">
       <div class="card chart-card">
-        <div class="card-header">
-          <h3 class="card-title">{{ $t('dashboard.salesTrend') }}</h3>
-          <a-button type="link" size="small">{{ $t('dashboard.viewMore') }}</a-button>
-        </div>
-
-        <div class="chart-canvas line-canvas">
-          <div class="line-grid"></div>
-          <div class="line-fill"></div>
-          <div class="bars">
-            <span
-              v-for="(value, index) in salesBars"
-              :key="index"
-              :style="{ height: `${value}%` }"
-            ></span>
-          </div>
-        </div>
+        <ProChart
+          :type="'bar'"
+          :title="$t('dashboard.salesTrend')"
+          :data="salesChartData"
+          :height="280"
+        >
+          <template #extra>
+            <a-button type="link" size="small">{{ $t('dashboard.viewMore') }}</a-button>
+          </template>
+        </ProChart>
       </div>
 
       <div class="card chart-card">
-        <div class="card-header">
-          <h3 class="card-title">{{ $t('dashboard.userDistribution') }}</h3>
-        </div>
-
-        <div class="chart-canvas donut-canvas">
-          <div class="donut-ring"></div>
-          <ul class="legend-list">
-            <li v-for="item in userDistribution" :key="item.label">
-              <span class="legend-dot" :style="{ background: item.color }"></span>
-              <span class="legend-label">{{ item.label }}</span>
-              <span class="legend-value">{{ item.value }}%</span>
-            </li>
-          </ul>
-        </div>
+        <ProChart
+          :type="'donut'"
+          :title="$t('dashboard.userDistribution')"
+          :data="userDistributionChartData"
+          :height="280"
+        />
       </div>
     </section>
 
@@ -117,6 +103,7 @@ import {
   ClockCircleOutlined
 } from '@antdv-next/icons'
 import { useAuthStore } from '@/stores/auth'
+import ProChart from '@/components/Pro/ProChart/index.vue'
 import i18n, { $t } from '@/locales'
 
 const authStore = useAuthStore()
@@ -188,12 +175,21 @@ const statCards = computed(() => [
   }
 ])
 
-const salesBars = [34, 48, 44, 62, 58, 70, 66, 72]
+const salesChartData = computed(() => [
+  { name: $t('dashboard.months.jan'), value: 340 },
+  { name: $t('dashboard.months.feb'), value: 480 },
+  { name: $t('dashboard.months.mar'), value: 440 },
+  { name: $t('dashboard.months.apr'), value: 620 },
+  { name: $t('dashboard.months.may'), value: 580 },
+  { name: $t('dashboard.months.jun'), value: 700 },
+  { name: $t('dashboard.months.jul'), value: 660 },
+  { name: $t('dashboard.months.aug'), value: 720 }
+])
 
-const userDistribution = computed(() => [
-  { label: $t('dashboard.newUsers'), value: 46, color: '#1677ff' },
-  { label: $t('dashboard.returningUsers'), value: 34, color: '#52c41a' },
-  { label: $t('dashboard.enterpriseUsers'), value: 20, color: '#fa8c16' }
+const userDistributionChartData = computed(() => [
+  { name: $t('dashboard.newUsers'), value: 46 },
+  { name: $t('dashboard.returningUsers'), value: 34 },
+  { name: $t('dashboard.enterpriseUsers'), value: 20 }
 ])
 
 const activities = computed(() => [
@@ -453,130 +449,6 @@ onBeforeUnmount(() => {
       min-height: 360px;
       display: flex;
       flex-direction: column;
-
-      .card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 18px;
-
-        .card-title {
-          margin: 0;
-          font-size: 18px;
-          color: var(--color-text-primary);
-        }
-      }
-
-      .chart-canvas {
-        flex: 1;
-        border-radius: 12px;
-        border: 1px solid var(--color-border-secondary);
-        background: linear-gradient(180deg, rgba(24, 119, 255, 0.03), rgba(24, 119, 255, 0));
-        position: relative;
-        overflow: hidden;
-      }
-
-      .line-canvas {
-        padding: 18px;
-
-        .line-grid {
-          position: absolute;
-          inset: 18px;
-          background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.08) 1px, transparent 1px);
-          background-size: 100% 22%;
-        }
-
-        .line-fill {
-          position: absolute;
-          left: 18px;
-          right: 18px;
-          bottom: 18px;
-          z-index: 1;
-          height: 44%;
-          background: linear-gradient(180deg, rgba(24, 119, 255, 0.18), rgba(24, 119, 255, 0.03));
-          clip-path: polygon(0 84%, 14% 70%, 28% 74%, 42% 58%, 56% 63%, 70% 44%, 84% 48%, 100% 30%, 100% 100%, 0 100%);
-        }
-
-        .bars {
-          position: absolute;
-          left: 18px;
-          right: 18px;
-          bottom: 18px;
-          z-index: 2;
-          height: 66%;
-          display: grid;
-          grid-template-columns: repeat(8, minmax(0, 1fr));
-          align-items: end;
-          gap: 12px;
-
-          span {
-            width: clamp(12px, 40%, 22px);
-            justify-self: center;
-            border-radius: 10px 10px 4px 4px;
-            background: linear-gradient(180deg, rgba(24, 119, 255, 0.9), rgba(24, 119, 255, 0.32));
-            border: 1px solid rgba(24, 119, 255, 0.28);
-            box-shadow: 0 10px 16px rgba(24, 119, 255, 0.16);
-            transition: transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out);
-
-            &:hover {
-              transform: translateY(-2px);
-              box-shadow: 0 12px 20px rgba(24, 119, 255, 0.22);
-            }
-          }
-        }
-      }
-
-      .donut-canvas {
-        display: grid;
-        place-items: center;
-        padding: 20px;
-        gap: 16px;
-
-        .donut-ring {
-          width: 164px;
-          height: 164px;
-          border-radius: 50%;
-          background: conic-gradient(#1677ff 0 46%, #52c41a 46% 80%, #fa8c16 80% 100%);
-          position: relative;
-          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-
-          &::after {
-            content: '';
-            position: absolute;
-            inset: 26px;
-            border-radius: 50%;
-            background: var(--color-bg-container);
-            border: 1px solid var(--color-border-secondary);
-          }
-        }
-
-        .legend-list {
-          width: min(280px, 100%);
-          display: grid;
-          gap: 10px;
-
-          li {
-            display: grid;
-            grid-template-columns: 12px 1fr auto;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            color: var(--color-text-secondary);
-          }
-
-          .legend-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-          }
-
-          .legend-value {
-            font-family: var(--font-family-number);
-            color: var(--color-text-primary);
-            font-weight: var(--font-weight-semibold);
-          }
-        }
-      }
     }
   }
 

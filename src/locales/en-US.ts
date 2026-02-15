@@ -202,6 +202,16 @@ export default {
       user: 'User',
       task: 'Task',
       release: 'Release'
+    },
+    months: {
+      jan: 'Jan',
+      feb: 'Feb',
+      mar: 'Mar',
+      apr: 'Apr',
+      may: 'May',
+      jun: 'Jun',
+      jul: 'Jul',
+      aug: 'Aug'
     }
   },
 
