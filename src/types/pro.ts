@@ -190,10 +190,10 @@ export interface ProFormItem {
 
   // Layout
   colSpan?: number
-  hidden?: boolean
+  hidden?: boolean | ((values: Record<string, any>) => boolean)
 
-  // Options (for select, radio, checkbox, etc.)
-  options?: Array<{ label: string; value: any; disabled?: boolean }>
+  // Options (for select, radio, checkbox, etc.) — supports function form for dynamic options
+  options?: Array<{ label: string; value: any; disabled?: boolean }> | ((values: Record<string, any>) => Array<{ label: string; value: any; disabled?: boolean }>)
 
   // Props to pass to the component
   props?: Record<string, any>

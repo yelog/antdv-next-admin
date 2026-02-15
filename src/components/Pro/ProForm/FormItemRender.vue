@@ -43,7 +43,7 @@
       v-else-if="item.type === 'select'"
       v-model:value="modelValue"
       :placeholder="resolveSelectPlaceholder()"
-      :options="item.options"
+      :options="resolvedOptions"
       v-bind="item.props"
       @update:value="handleChange"
     />
@@ -52,7 +52,7 @@
     <a-radio-group
       v-else-if="item.type === 'radio'"
       v-model:value="modelValue"
-      :options="item.options"
+      :options="resolvedOptions"
       v-bind="item.props"
       @update:value="handleChange"
     />
@@ -61,7 +61,7 @@
     <a-checkbox-group
       v-else-if="item.type === 'checkbox'"
       v-model:value="modelValue"
-      :options="item.options"
+      :options="resolvedOptions"
       v-bind="item.props"
       @update:value="handleChange"
     />
@@ -137,7 +137,7 @@
       v-else-if="item.type === 'cascader'"
       v-model:value="modelValue"
       :placeholder="resolveSelectPlaceholder()"
-      :options="item.options"
+      :options="resolvedOptions"
       style="width: 100%"
       v-bind="item.props"
       @update:value="handleChange"
@@ -148,7 +148,7 @@
       v-else-if="item.type === 'treeSelect'"
       v-model:value="modelValue"
       :placeholder="resolveSelectPlaceholder()"
-      :tree-data="item.options"
+      :tree-data="resolvedOptions"
       style="width: 100%"
       v-bind="item.props"
       @update:value="handleChange"
@@ -174,7 +174,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { UploadOutlined } from '@antdv-next/icons'
 import { $t } from '@/locales'
 import type { ProFormItem } from '@/types/pro'
@@ -182,12 +182,22 @@ import type { ProFormItem } from '@/types/pro'
 interface Props {
   value?: any
   item: ProFormItem
+  formData?: Record<string, any>
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  formData: () => ({})
+})
 const emit = defineEmits(['update:value', 'change'])
 
 const modelValue = ref(props.value ?? props.item.initialValue)
+
+const resolvedOptions = computed(() => {
+  if (typeof props.item.options === 'function') {
+    return props.item.options(props.formData)
+  }
+  return props.item.options
+})
 
 watch(
   () => props.value,

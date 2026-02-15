@@ -24,6 +24,7 @@
           <FormItemRender
             v-model:value="formData[item.name]"
             :item="item"
+            :form-data="formData"
           />
         </a-form-item>
       </a-col>
@@ -71,7 +72,10 @@ const formData = ref<Record<string, any>>({})
 
 // Computed
 const visibleFormItems = computed(() => {
-  return props.formItems.filter(item => !item.hidden)
+  return props.formItems.filter(item => {
+    if (typeof item.hidden === 'function') return !item.hidden(formData.value)
+    return !item.hidden
+  })
 })
 
 const formRules = computed(() => {
