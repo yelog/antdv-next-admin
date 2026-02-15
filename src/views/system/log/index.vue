@@ -22,10 +22,7 @@
                 </a-tag>
               </template>
               <template v-if="column.key === 'status'">
-                <span class="status-tag" :class="record.status === 'success' ? 'status-success' : 'status-fail'">
-                  <span class="status-dot" />
-                  {{ record.status === 'success' ? t('log.success') : t('log.fail') }}
-                </span>
+                <ProStatus :value="record.status" :status-map="logStatusMap" />
               </template>
               <template v-if="column.key === 'duration'">
                 <span :style="{ color: record.duration > 300 ? '#ff4d4f' : record.duration > 100 ? '#faad14' : '#52c41a' }">
@@ -51,10 +48,7 @@
             </template>
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'status'">
-                <span class="status-tag" :class="record.status === 'success' ? 'status-success' : 'status-fail'">
-                  <span class="status-dot" />
-                  {{ record.status === 'success' ? t('log.success') : t('log.fail') }}
-                </span>
+                <ProStatus :value="record.status" :status-map="logStatusMap" />
               </template>
             </template>
           </ProTable>
@@ -70,10 +64,16 @@ import { useI18n } from 'vue-i18n'
 import { message, Modal } from 'antdv-next'
 import { DeleteOutlined } from '@antdv-next/icons'
 import ProTable from '@/components/Pro/ProTable/index.vue'
-import type { ProTableColumn } from '@/types/pro'
+import ProStatus from '@/components/Pro/ProStatus/index.vue'
+import type { ProTableColumn, ProStatusMap } from '@/types/pro'
 import { getOperationLogList, getLoginLogList, clearOperationLog, clearLoginLog } from '@/api/log'
 
 const { t } = useI18n()
+
+const logStatusMap = computed<ProStatusMap>(() => ({
+  success: { text: t('log.success'), color: '#52c41a' },
+  fail: { text: t('log.fail'), color: '#ff4d4f' }
+}))
 
 const activeTab = ref('operation')
 const operationRefreshKey = ref(0)
@@ -349,35 +349,6 @@ const handleClearLoginLog = () => {
   :deep(.ant-table-thead > tr > th),
   :deep(.ant-table-thead > tr > td) {
     background: #fafafa;
-  }
-}
-
-.status-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  line-height: 20px;
-
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  &.status-success {
-    background: #f6ffed;
-    color: #389e0d;
-    .status-dot { background: #52c41a; }
-  }
-
-  &.status-fail {
-    background: #fff2f0;
-    color: #cf1322;
-    .status-dot { background: #ff4d4f; }
   }
 }
 </style>

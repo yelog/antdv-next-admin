@@ -45,10 +45,7 @@
           <div class="dept-detail-header">
             <div class="dept-detail-title">
               <h3>{{ selectedDept.name }}</h3>
-              <span class="status-tag" :class="selectedDept.status === 'enabled' ? 'status-enabled' : 'status-disabled'">
-                <span class="status-dot" />
-                {{ selectedDept.status === 'enabled' ? t('dept.enabled') : t('dept.disabled') }}
-              </span>
+              <ProStatus :value="selectedDept.status" :status-map="deptStatusMap" />
             </div>
             <a-space>
               <a-button type="primary" size="small" @click="handleAdd(selectedDept.id)">
@@ -88,10 +85,7 @@
             >
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'status'">
-                  <span class="status-tag" :class="record.status === 'enabled' ? 'status-enabled' : 'status-disabled'">
-                    <span class="status-dot" />
-                    {{ record.status === 'enabled' ? t('dept.enabled') : t('dept.disabled') }}
-                  </span>
+                  <ProStatus :value="record.status" :status-map="deptStatusMap" />
                 </template>
                 <template v-if="column.key === 'action'">
                   <a-space :size="4">
@@ -163,11 +157,17 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
 import { useI18n } from 'vue-i18n'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProDescriptions from '@/components/Pro/ProDescriptions/index.vue'
-import type { ProTableColumn, ProDescriptionItem } from '@/types/pro'
+import ProStatus from '@/components/Pro/ProStatus/index.vue'
+import type { ProTableColumn, ProDescriptionItem, ProStatusMap } from '@/types/pro'
 import type { Department } from '@/types/dept'
 import { getDeptTree, getDeptList, createDept, updateDept, deleteDept } from '@/api/dept'
 
 const { t } = useI18n()
+
+const deptStatusMap = computed<ProStatusMap>(() => ({
+  enabled: { text: t('dept.enabled'), color: '#52c41a' },
+  disabled: { text: t('dept.disabled'), color: '#bfbfbf' }
+}))
 
 const searchText = ref('')
 const treeData = ref<Department[]>([])
@@ -468,36 +468,6 @@ loadDeptTree()
     align-items: center;
     justify-content: center;
     height: 100%;
-  }
-}
-
-// status tag
-.status-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  line-height: 20px;
-
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  &.status-enabled {
-    background: #f6ffed;
-    color: #389e0d;
-    .status-dot { background: #52c41a; }
-  }
-
-  &.status-disabled {
-    background: #f5f5f5;
-    color: #8c8c8c;
-    .status-dot { background: #bfbfbf; }
   }
 }
 </style>

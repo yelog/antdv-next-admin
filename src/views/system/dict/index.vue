@@ -55,10 +55,7 @@
           </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
-              <span class="status-tag" :class="record.status === 'enabled' ? 'status-enabled' : 'status-disabled'">
-                <span class="status-dot" />
-                {{ record.status === 'enabled' ? t('dict.enabled') : t('dict.disabled') }}
-              </span>
+              <ProStatus :value="record.status" :status-map="dictStatusMap" />
             </template>
             <template v-if="column.key === 'action'">
               <a-space :size="4">
@@ -141,7 +138,8 @@ import { message, Modal } from 'antdv-next'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
 import { useI18n } from 'vue-i18n'
 import ProTable from '@/components/Pro/ProTable/index.vue'
-import type { ProTableColumn } from '@/types/pro'
+import ProStatus from '@/components/Pro/ProStatus/index.vue'
+import type { ProTableColumn, ProStatusMap } from '@/types/pro'
 import type { DictType, DictData } from '@/types/dict'
 import {
   getDictTypes,
@@ -157,6 +155,11 @@ import { useDictStore } from '@/stores/dict'
 
 const { t } = useI18n()
 const dictStore = useDictStore()
+
+const dictStatusMap = computed<ProStatusMap>(() => ({
+  enabled: { text: t('dict.enabled'), color: '#52c41a' },
+  disabled: { text: t('dict.disabled'), color: '#bfbfbf' }
+}))
 
 // dict type list
 const dictTypes = ref<DictType[]>([])
@@ -569,42 +572,6 @@ loadDictTypes()
     align-items: center;
     justify-content: center;
     height: 100%;
-  }
-}
-
-// status tag
-.status-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  line-height: 20px;
-
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  &.status-enabled {
-    background: #f6ffed;
-    color: #389e0d;
-
-    .status-dot {
-      background: #52c41a;
-    }
-  }
-
-  &.status-disabled {
-    background: #f5f5f5;
-    color: #8c8c8c;
-
-    .status-dot {
-      background: #bfbfbf;
-    }
   }
 }
 </style>

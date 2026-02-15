@@ -231,3 +231,14 @@ export interface ProDescriptionItem {
   render?: (value: any, record: any) => any
   copyable?: boolean
 }
+
+// ProStatus Types
+export type ProStatusMode = 'dot' | 'tag' | 'badge'
+
+export interface ProStatusMap {
+  [key: string]: {
+    text: string
+    color: string
+    icon?: any
+  }
+}
