@@ -26,38 +26,30 @@
       :destroy-on-close="false"
     >
       <template v-if="activeRecord">
-        <div class="detail-head">
-          <div>
-            <div class="label">{{ $t('examples.scaffold.masterDetail.ticketNumber') }}</div>
-            <strong>#{{ activeRecord.id }}</strong>
-          </div>
-          <a-tag :color="getStatusColor(activeRecord.status)">{{ getStatusText(activeRecord.status) }}</a-tag>
-        </div>
-
-        <ProDescriptions
-          :columns="detailColumns"
+        <ProDetail
+          :title="`#${activeRecord.id}`"
+          :sub-title="$t('examples.scaffold.masterDetail.ticketNumber')"
+          :tags="[{ text: getStatusText(activeRecord.status), color: getStatusColor(activeRecord.status) }]"
+          :descriptions="detailColumns"
           :data="activeRecord"
-          :column="1"
-          size="small"
-          bordered
-          class="mb-md"
-        />
-
-        <a-tabs v-model:active-key="activeTab" size="small">
-          <a-tab-pane key="desc" :tab="$t('examples.scaffold.masterDetail.descTab')">
+          :description-column="1"
+          :tabs="drawerTabs"
+          v-model:active-tab="activeTab"
+        >
+          <template #tab-desc>
             <div class="tab-panel">
               {{ activeRecord.description }}
             </div>
-          </a-tab-pane>
-          <a-tab-pane key="logs" :tab="$t('examples.scaffold.masterDetail.logsTab')">
+          </template>
+          <template #tab-logs>
             <a-timeline>
               <a-timeline-item v-for="log in activeRecord.logs" :key="log.time + log.action">
                 <strong>{{ log.action }}</strong>
                 <div class="text-secondary">{{ log.operator }} · {{ log.time }}</div>
               </a-timeline-item>
             </a-timeline>
-          </a-tab-pane>
-        </a-tabs>
+          </template>
+        </ProDetail>
       </template>
     </a-drawer>
   </div>
@@ -66,8 +58,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { $t } from '@/locales'
-import ProDescriptions from '@/components/Pro/ProDescriptions/index.vue'
-import type { ProDescriptionItem } from '@/types/pro'
+import ProDetail from '@/components/Pro/ProDetail/index.vue'
+import type { ProDescriptionItem, ProDetailTab } from '@/types/pro'
 
 type TicketStatus = 'open' | 'processing' | 'closed'
 
@@ -142,6 +134,11 @@ const detailColumns = computed<ProDescriptionItem[]>(() => [
   { label: $t('examples.scaffold.masterDetail.createdAtLabel'), dataIndex: 'createdAt' }
 ])
 
+const drawerTabs = computed<ProDetailTab[]>(() => [
+  { key: 'desc', label: $t('examples.scaffold.masterDetail.descTab') },
+  { key: 'logs', label: $t('examples.scaffold.masterDetail.logsTab') }
+])
+
 const drawerOpen = ref(false)
 const activeTab = ref('desc')
 const activeRecord = ref<TicketRecord | null>(null)
@@ -171,22 +168,6 @@ const getStatusColor = (status: unknown) => {
 <style scoped lang="scss">
 .mb-lg {
   margin-bottom: var(--spacing-lg);
-}
-
-.mb-md {
-  margin-bottom: var(--spacing-md);
-}
-
-.detail-head {
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  .label {
-    color: var(--color-text-secondary);
-    font-size: 12px;
-  }
 }
 
 .tab-panel {

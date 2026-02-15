@@ -260,3 +260,9 @@ export interface ProChartProps {
 
 // ProUpload Types
 export type ProUploadMode = 'button' | 'dragger' | 'image' | 'avatar'
+
+// ProDetail Types
+export interface ProDetailTab {
+  key: string
+  label: string
+}
