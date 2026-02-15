@@ -21,22 +21,30 @@
           >
             <a-form-item :label="col.title" :name="col.dataIndex">
               <a-input
-                v-if="col.searchType === 'input'"
+                v-if="resolveSearchType(col) === 'input'"
                 v-model:value="searchForm[col.dataIndex]"
                 :placeholder="buildEnterPlaceholder(col.title)"
                 v-bind="col.searchProps"
               />
 
               <a-select
-                v-else-if="col.searchType === 'select'"
+                v-else-if="resolveSearchType(col) === 'select'"
                 v-model:value="searchForm[col.dataIndex]"
                 :placeholder="buildSelectPlaceholder(col.title)"
                 :options="col.searchOptions"
                 v-bind="col.searchProps"
               />
 
+              <a-input-number
+                v-else-if="resolveSearchType(col) === 'number'"
+                v-model:value="searchForm[col.dataIndex]"
+                :placeholder="buildEnterPlaceholder(col.title)"
+                style="width: 100%"
+                v-bind="col.searchProps"
+              />
+
               <a-date-picker
-                v-else-if="col.searchType === 'datePicker'"
+                v-else-if="resolveSearchType(col) === 'datePicker'"
                 v-model:value="searchForm[col.dataIndex]"
                 :placeholder="buildSelectPlaceholder(col.title)"
                 style="width: 100%"
@@ -44,7 +52,7 @@
               />
 
               <a-range-picker
-                v-else-if="col.searchType === 'dateRange'"
+                v-else-if="resolveSearchType(col) === 'dateRange'"
                 v-model:value="searchForm[col.dataIndex]"
                 style="width: 100%"
                 v-bind="col.searchProps"
@@ -328,7 +336,8 @@ import type {
   ProTableAction,
   ProTableHeaderFilter,
   HeaderFilterMode,
-  ProTableHeaderFilterConfig
+  ProTableHeaderFilterConfig,
+  SearchType
 } from '@/types/pro'
 import type { ProTableDensity, ProTableHeight } from '@/settings'
 
@@ -1279,6 +1288,16 @@ const buildEnterPlaceholder = (label: unknown) => {
 
 const buildSelectPlaceholder = (label: unknown) => {
   return $t('proForm.selectPlaceholder', { label: normalizeFieldLabel(label) })
+}
+
+const resolveSearchType = (col: ProTableColumn): SearchType => {
+  if (col.searchType) return col.searchType
+  const vt = col.valueType
+  if (vt === 'tag' || vt === 'badge') return 'select'
+  if (vt === 'date' || vt === 'dateTime' || vt === 'time') return 'datePicker'
+  if (vt === 'dateRange') return 'dateRange'
+  if (vt === 'money' || vt === 'percent' || vt === 'progress') return 'number'
+  return 'input'
 }
 
 const getHeaderFilterEntry = (column: any) => {
