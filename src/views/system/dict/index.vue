@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
-    <div class="dict-container">
-      <!-- dict type list -->
-      <div class="dict-types">
+    <ProSplitLayout :side-width="260">
+      <template #side>
+        <!-- dict type list -->
         <div class="dict-types-header">
           <h3>{{ t('dict.dictType') }}</h3>
           <a-button type="primary" size="small" @click="handleAddType">
@@ -36,10 +36,10 @@
             </div>
           </div>
         </div>
-      </div>
+      </template>
 
-      <!-- dict data list -->
-      <div class="dict-data">
+      <template #main>
+        <!-- dict data list -->
         <ProTable
           v-if="selectedTypeCode"
           :key="selectedTypeCode"
@@ -74,8 +74,8 @@
         <div v-else class="dict-data-empty">
           <a-empty :description="t('dict.selectTypeHint')" />
         </div>
-      </div>
-    </div>
+      </template>
+    </ProSplitLayout>
 
     <!-- dict type modal -->
     <a-modal
@@ -139,6 +139,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
 import { useI18n } from 'vue-i18n'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProStatus from '@/components/Pro/ProStatus/index.vue'
+import ProSplitLayout from '@/components/Pro/ProSplitLayout/index.vue'
 import type { ProTableColumn, ProStatusMap } from '@/types/pro'
 import type { DictType, DictData } from '@/types/dict'
 import {
@@ -413,165 +414,134 @@ loadDictTypes()
 </script>
 
 <style scoped lang="scss">
-.dict-container {
+// dict types content
+.dict-types-header {
   display: flex;
-  gap: 16px;
-  flex: 1;
-  min-height: 0;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-secondary, #f0f0f0);
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+  }
 }
 
-// dict types panel
-.dict-types {
-  width: 260px;
-  flex-shrink: 0;
-  background: var(--color-bg-container);
-  border-radius: 8px;
-  padding: 20px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+.dict-types-list {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0 -8px;
+  padding: 0 8px;
 
-  .dict-types-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--color-border-secondary, #f0f0f0);
-
-    h3 {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--color-text);
-    }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
   }
 
-  .dict-types-list {
-    flex: 1;
-    overflow-y: auto;
-    margin: 0 -8px;
-    padding: 0 8px;
+  .dict-type-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 12px 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    border: none;
+    transition: all 0.2s ease;
+    overflow: hidden;
 
-    // custom scrollbar
-    &::-webkit-scrollbar {
-      width: 4px;
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 0;
+      background: var(--ant-primary-color);
+      border-radius: 0 3px 3px 0;
+      transition: height 0.2s ease;
     }
-    &::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.1);
-      border-radius: 4px;
-    }
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
 
-    .dict-type-item {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 12px 12px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-bottom: 4px;
-      border: none;
-      transition: all 0.2s ease;
-      overflow: hidden;
-
-      // left indicator
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 3px;
-        height: 0;
-        background: var(--ant-primary-color);
-        border-radius: 0 3px 3px 0;
-        transition: height 0.2s ease;
-      }
-
-      &:hover {
-        background: var(--color-fill-quaternary, #fafafa);
-
-        .type-actions {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      &.active {
-        background: var(--ant-primary-color-deprecated-l-50, rgba(22, 119, 255, 0.06));
-
-        &::before {
-          height: 60%;
-        }
-
-        .type-name {
-          color: var(--ant-primary-color);
-          font-weight: 600;
-        }
-      }
-
-      .type-info {
-        flex: 1;
-        min-width: 0;
-
-        .type-name {
-          font-size: 14px;
-          font-weight: 500;
-          margin-bottom: 2px;
-          color: var(--color-text);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          transition: color 0.2s;
-        }
-
-        .type-code {
-          font-size: 12px;
-          color: var(--color-text-quaternary, #bfbfbf);
-          font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-      }
+    &:hover {
+      background: var(--color-fill-quaternary, #fafafa);
 
       .type-actions {
-        display: flex;
-        gap: 2px;
-        opacity: 0;
-        transform: translateX(8px);
-        transition: all 0.2s ease;
-        flex-shrink: 0;
+        opacity: 1;
+        transform: translateX(0);
       }
+    }
+
+    &.active {
+      background: var(--ant-primary-color-deprecated-l-50, rgba(22, 119, 255, 0.06));
+
+      &::before {
+        height: 60%;
+      }
+
+      .type-name {
+        color: var(--ant-primary-color);
+        font-weight: 600;
+      }
+    }
+
+    .type-info {
+      flex: 1;
+      min-width: 0;
+
+      .type-name {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 2px;
+        color: var(--color-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: color 0.2s;
+      }
+
+      .type-code {
+        font-size: 12px;
+        color: var(--color-text-quaternary, #bfbfbf);
+        font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .type-actions {
+      display: flex;
+      gap: 2px;
+      opacity: 0;
+      transform: translateX(8px);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
     }
   }
 }
 
-// dict data panel
-.dict-data {
-  flex: 1;
-  background: var(--color-bg-container);
-  border-radius: 8px;
-  padding: 16px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  min-width: 0;
+// dict data content
+:deep(.ant-table-thead > tr > th),
+:deep(.ant-table-thead > tr > td) {
+  background: #fafafa;
+}
 
-  // table header background
-  :deep(.ant-table-thead > tr > th),
-  :deep(.ant-table-thead > tr > td) {
-    background: #fafafa;
-  }
-
-  .dict-data-empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
+.dict-data-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 </style>

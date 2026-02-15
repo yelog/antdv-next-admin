@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
-    <div class="dept-container">
-      <!-- dept tree -->
-      <div class="dept-tree">
+    <ProSplitLayout :side-width="280">
+      <template #side>
+        <!-- dept tree -->
         <div class="dept-tree-header">
           <h3>{{ t('dept.organizationStructure') }}</h3>
           <a-button type="primary" size="small" @click="handleAdd(null)">
@@ -37,10 +37,10 @@
           </a-tree>
           <a-empty v-else :image="null" :description="t('common.noData')" />
         </div>
-      </div>
+      </template>
 
-      <!-- dept detail -->
-      <div class="dept-detail">
+      <template #main>
+        <!-- dept detail -->
         <template v-if="selectedDept">
           <div class="dept-detail-header">
             <div class="dept-detail-title">
@@ -100,8 +100,8 @@
         <div v-else class="dept-detail-empty">
           <a-empty :description="t('dept.selectDeptNode')" />
         </div>
-      </div>
-    </div>
+      </template>
+    </ProSplitLayout>
 
     <!-- add/edit modal -->
     <a-modal
@@ -158,6 +158,7 @@ import { useI18n } from 'vue-i18n'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProDescriptions from '@/components/Pro/ProDescriptions/index.vue'
 import ProStatus from '@/components/Pro/ProStatus/index.vue'
+import ProSplitLayout from '@/components/Pro/ProSplitLayout/index.vue'
 import type { ProTableColumn, ProDescriptionItem, ProStatusMap } from '@/types/pro'
 import type { Department } from '@/types/dept'
 import { getDeptTree, getDeptList, createDept, updateDept, deleteDept } from '@/api/dept'
@@ -349,125 +350,97 @@ loadDeptTree()
 </script>
 
 <style scoped lang="scss">
-.dept-container {
+// dept tree content
+.dept-tree-header {
   display: flex;
-  gap: 16px;
-  flex: 1;
-  min-height: 0;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+  }
 }
 
-// dept tree panel
-.dept-tree {
-  width: 280px;
-  flex-shrink: 0;
-  background: var(--color-bg-container);
-  border-radius: 8px;
-  padding: 20px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+.dept-tree-search {
+  margin-bottom: 12px;
+}
 
-  .dept-tree-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+.dept-tree-body {
+  flex: 1;
+  overflow-y: auto;
 
-    h3 {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--color-text);
-    }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
   }
 
-  .dept-tree-search {
-    margin-bottom: 12px;
-  }
-
-  .dept-tree-body {
+  :deep(.ant-tree-node-content-wrapper) {
     flex: 1;
-    overflow-y: auto;
+  }
 
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.1);
-      border-radius: 4px;
-    }
+  .tree-node {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 
-    :deep(.ant-tree-node-content-wrapper) {
+    .tree-node-name {
       flex: 1;
     }
 
-    .tree-node {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      .tree-node-name {
-        flex: 1;
-      }
-
-      .tree-node-badge {
-        font-size: 11px;
-        padding: 0 6px;
-        border-radius: 8px;
-        background: #fff1f0;
-        color: #cf1322;
-        line-height: 18px;
-      }
+    .tree-node-badge {
+      font-size: 11px;
+      padding: 0 6px;
+      border-radius: 8px;
+      background: #fff1f0;
+      color: #cf1322;
+      line-height: 18px;
     }
   }
 }
 
-// dept detail panel
-.dept-detail {
-  flex: 1;
-  background: var(--color-bg-container);
-  border-radius: 8px;
-  padding: 20px 24px;
-  overflow-y: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  min-width: 0;
+// dept detail content
+.dept-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-secondary, #f0f0f0);
 
-  .dept-detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border-secondary, #f0f0f0);
-
-    .dept-detail-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-
-      h3 {
-        margin: 0;
-        font-size: 17px;
-        font-weight: 600;
-      }
-    }
-  }
-
-  .dept-descriptions {
-    margin-bottom: 24px;
-  }
-
-  .dept-children {
-    :deep(.ant-table-thead > tr > th) {
-      background: #fafafa;
-    }
-  }
-
-  .dept-detail-empty {
+  .dept-detail-title {
     display: flex;
     align-items: center;
-    justify-content: center;
-    height: 100%;
+    gap: 12px;
+
+    h3 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+    }
   }
+}
+
+.dept-descriptions {
+  margin-bottom: 24px;
+}
+
+.dept-children {
+  :deep(.ant-table-thead > tr > th) {
+    background: #fafafa;
+  }
+}
+
+.dept-detail-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 </style>

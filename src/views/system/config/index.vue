@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
-    <div class="config-container">
-      <!-- groups nav -->
-      <div class="config-groups">
+    <ProSplitLayout :side-width="200">
+      <template #side>
+        <!-- groups nav -->
         <div class="config-groups-header">
           <h3>{{ $t('config.configGroups') }}</h3>
         </div>
@@ -18,10 +18,10 @@
             <span class="group-count">{{ getGroupCount(group) }}</span>
           </div>
         </div>
-      </div>
+      </template>
 
-      <!-- config list -->
-      <div class="config-data">
+      <template #main>
+        <!-- config list -->
         <ProTable
           :key="selectedGroup + refreshKey"
           :columns="columns"
@@ -73,8 +73,8 @@
             </template>
           </template>
         </ProTable>
-      </div>
-    </div>
+      </template>
+    </ProSplitLayout>
 
     <!-- add/edit modal -->
     <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit" :width="520">
@@ -121,6 +121,7 @@ import { message, Modal } from 'antdv-next'
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@antdv-next/icons'
 import { useI18n } from 'vue-i18n'
 import ProTable from '@/components/Pro/ProTable/index.vue'
+import ProSplitLayout from '@/components/Pro/ProSplitLayout/index.vue'
 import type { ProTableColumn } from '@/types/pro'
 import type { SysConfig } from '@/types/config'
 import { getConfigList, createConfig, updateConfig, deleteConfig } from '@/api/config'
