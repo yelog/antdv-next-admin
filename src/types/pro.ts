@@ -75,6 +75,7 @@ export interface ProTableColumn {
   // Value rendering
   valueType?: ValueType
   valueEnum?: Record<string, { text: string; status?: string; color?: string }>
+  valueTypeProps?: Record<string, any>
   copyable?: boolean
 
   // Unified options: auto-derives searchOptions and valueEnum when set

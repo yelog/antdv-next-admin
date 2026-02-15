@@ -7,12 +7,12 @@
 
     <!-- Date -->
     <span v-else-if="type === 'date'">
-      {{ formatDate(value, 'YYYY-MM-DD') }}
+      {{ formatDate(value, valueTypeProps.format || 'YYYY-MM-DD') }}
     </span>
 
     <!-- DateTime -->
     <span v-else-if="type === 'dateTime'">
-      {{ formatDate(value, 'YYYY-MM-DD HH:mm:ss') }}
+      {{ formatDate(value, valueTypeProps.format || 'YYYY-MM-DD HH:mm:ss') }}
     </span>
 
     <!-- Tag -->
@@ -29,19 +29,19 @@
 
     <!-- Money -->
     <span v-else-if="type === 'money'" class="money">
-      ¥{{ formatMoney(value) }}
+      {{ valueTypeProps.symbol ?? '¥' }}{{ formatMoney(value, valueTypeProps.precision) }}
     </span>
 
     <!-- Percent -->
     <span v-else-if="type === 'percent'">
-      {{ formatPercent(value) }}%
+      {{ formatPercent(value, valueTypeProps.precision) }}%
     </span>
 
     <!-- Avatar -->
-    <a-avatar v-else-if="type === 'avatar'" :src="value" :size="32" />
+    <a-avatar v-else-if="type === 'avatar'" :src="value" :size="valueTypeProps.size || 32" />
 
     <!-- Image -->
-    <a-image v-else-if="type === 'image'" :src="value" :width="80" />
+    <a-image v-else-if="type === 'image'" :src="value" :width="valueTypeProps.width || 80" />
 
     <!-- Link -->
     <a v-else-if="type === 'link'" :href="value" target="_blank" class="link">
@@ -53,6 +53,7 @@
       v-else-if="type === 'progress'"
       :percent="value"
       :status="value >= 100 ? 'success' : 'active'"
+      v-bind="valueTypeProps"
     />
 
     <!-- Default -->
@@ -73,11 +74,13 @@ interface Props {
   enum?: Record<string, { text: string; status?: string; color?: string }>
   record?: any
   copyable?: boolean
+  valueTypeProps?: Record<string, any>
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'text',
-  copyable: false
+  copyable: false,
+  valueTypeProps: () => ({})
 })
 
 const getEnumConfig = (value: any) => {
@@ -89,14 +92,16 @@ const formatDate = (value: any, format: string) => {
   return dayjs(value).format(format)
 }
 
-const formatMoney = (value: any) => {
+const formatMoney = (value: any, precision?: number) => {
   if (value === null || value === undefined) return '0.00'
-  return Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  const p = precision ?? 2
+  return Number(value).toFixed(p).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
-const formatPercent = (value: any) => {
+const formatPercent = (value: any, precision?: number) => {
   if (value === null || value === undefined) return '0'
-  return Number(value).toFixed(2)
+  const p = precision ?? 2
+  return Number(value).toFixed(p)
 }
 
 const handleCopy = async () => {

@@ -302,6 +302,7 @@
               :type="column.valueType"
               :enum="resolveValueEnum(column)"
               :record="record"
+              :value-type-props="column.valueTypeProps"
             />
           </template>
         </template>
