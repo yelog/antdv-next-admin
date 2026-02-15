@@ -290,6 +290,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'milkdown',
+        name: 'ExamplesMilkdown',
+        component: () => import('@/views/examples/milkdown/index.vue'),
+        meta: {
+          title: 'menu.milkdown',
+          icon: 'FileMarkdownOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'modal',
         name: 'ExamplesModal',
         component: () => import('@/views/examples/modal/index.vue'),

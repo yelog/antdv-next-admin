@@ -58,6 +58,7 @@ export default {
     icon: 'Icon Example',
     form: 'Form Example',
     editor: 'Rich Text Editor',
+    milkdown: 'Markdown Editor',
     modal: 'Modal Example',
     spin: 'Spin Example',
     watermark: 'Watermark',
