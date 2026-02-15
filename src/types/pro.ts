@@ -171,6 +171,8 @@ export type FormItemType =
   | 'dateRange'
   | 'timeRange'
   | 'upload'
+  | 'imageUpload'
+  | 'avatarUpload'
   | 'slider'
   | 'rate'
   | 'colorPicker'
@@ -255,3 +257,6 @@ export interface ProChartProps {
   loading?: boolean
   option?: Record<string, any>
 }
+
+// ProUpload Types
+export type ProUploadMode = 'button' | 'dragger' | 'image' | 'avatar'

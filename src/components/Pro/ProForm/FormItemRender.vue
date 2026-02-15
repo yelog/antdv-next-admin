@@ -104,17 +104,33 @@
     />
 
     <!-- Upload -->
-    <a-upload
+    <ProUpload
       v-else-if="item.type === 'upload'"
-      v-model:file-list="modelValue"
+      :value="modelValue"
+      mode="button"
+      :button-text="item.placeholder"
       v-bind="item.props"
-      @update:file-list="handleChange"
-    >
-      <a-button>
-        <UploadOutlined />
-        {{ item.placeholder || $t('proForm.uploadFile') }}
-      </a-button>
-    </a-upload>
+      @update:value="handleChange"
+    />
+
+    <!-- Image Upload -->
+    <ProUpload
+      v-else-if="item.type === 'imageUpload'"
+      :value="modelValue"
+      mode="image"
+      :button-text="item.placeholder"
+      v-bind="item.props"
+      @update:value="handleChange"
+    />
+
+    <!-- Avatar Upload -->
+    <ProUpload
+      v-else-if="item.type === 'avatarUpload'"
+      :value="modelValue"
+      mode="avatar"
+      v-bind="item.props"
+      @update:value="handleChange"
+    />
 
     <!-- Slider -->
     <a-slider
@@ -175,8 +191,8 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import { UploadOutlined } from '@antdv-next/icons'
 import { $t } from '@/locales'
+import ProUpload from '../ProUpload/index.vue'
 import type { ProFormItem } from '@/types/pro'
 
 interface Props {

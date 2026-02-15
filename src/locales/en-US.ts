@@ -622,6 +622,14 @@ export default {
     uploadFile: 'Upload File'
   },
 
+  proUpload: {
+    uploadFile: 'Upload File',
+    uploadImage: 'Upload Image',
+    dragHint: 'Click or drag file to this area to upload',
+    fileSizeExceed: 'File size must not exceed {size}MB',
+    fileTypeNotAllowed: 'File type not allowed'
+  },
+
   proTable: {
     total: 'Total {total} items',
     density: 'Table Density',

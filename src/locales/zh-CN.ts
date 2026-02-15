@@ -623,6 +623,14 @@ export default {
     uploadFile: '上传文件'
   },
 
+  proUpload: {
+    uploadFile: '上传文件',
+    uploadImage: '上传图片',
+    dragHint: '点击或拖拽文件到此区域上传',
+    fileSizeExceed: '文件大小不能超过 {size}MB',
+    fileTypeNotAllowed: '不支持该文件类型'
+  },
+
   proTable: {
     total: '共 {total} 条',
     density: '表格密度',
