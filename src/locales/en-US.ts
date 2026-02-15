@@ -597,6 +597,7 @@ export default {
     license: 'License',
     author: 'Author',
     email: 'Email',
+    documentation: 'Documentation',
     techStack: 'Tech Stack',
     features: 'Core Features',
     feature1: 'Vue 3 Composition API',

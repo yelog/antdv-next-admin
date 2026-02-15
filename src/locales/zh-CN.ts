@@ -598,6 +598,7 @@ export default {
     license: '开源协议',
     author: '作者',
     email: '邮箱',
+    documentation: '帮助文档',
     techStack: '技术栈',
     features: '核心特性',
     feature1: '基于 Vue 3 Composition API',

@@ -86,6 +86,23 @@
                 </a>
               </span>
             </div>
+            <div class="info-row">
+              <span class="info-label">
+                <BookOutlined class="row-icon" />
+                {{ $t('about.documentation') }}
+              </span>
+              <span class="info-value">
+                <a
+                  href="https://antdv-next-admin-doc.yelog.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="link"
+                >
+                  antdv-next-admin-doc
+                  <LinkOutlined class="link-arrow" />
+                </a>
+              </span>
+            </div>
           </div>
         </a-card>
       </a-col>
@@ -155,6 +172,7 @@ import {
   GithubOutlined,
   MailOutlined,
   LinkOutlined,
+  BookOutlined,
   ApiOutlined,
   SafetyOutlined,
   ApartmentOutlined,
