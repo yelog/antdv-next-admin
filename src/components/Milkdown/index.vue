@@ -14,9 +14,6 @@ import { history } from '@milkdown/plugin-history'
 import { clipboard } from '@milkdown/plugin-clipboard'
 import { listener, listenerCtx } from '@milkdown/plugin-listener'
 import { prism } from '@milkdown/plugin-prism'
-import { tooltip } from '@milkdown/plugin-tooltip'
-import { slash } from '@milkdown/plugin-slash'
-import { block } from '@milkdown/plugin-block'
 
 interface Props {
   modelValue?: string
@@ -77,9 +74,6 @@ onMounted(async () => {
     .use(clipboard)
     .use(listener)
     .use(prism)
-    .use(tooltip)
-    .use(slash)
-    .use(block)
     .create()
   
   editorInstance.value = editor
