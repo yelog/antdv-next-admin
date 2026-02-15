@@ -630,6 +630,11 @@ export default {
     fileTypeNotAllowed: 'File type not allowed'
   },
 
+  proStepForm: {
+    prev: 'Previous',
+    next: 'Next'
+  },
+
   proTable: {
     total: 'Total {total} items',
     density: 'Table Density',

@@ -631,6 +631,11 @@ export default {
     fileTypeNotAllowed: '不支持该文件类型'
   },
 
+  proStepForm: {
+    prev: '上一步',
+    next: '下一步'
+  },
+
   proTable: {
     total: '共 {total} 条',
     density: '表格密度',
