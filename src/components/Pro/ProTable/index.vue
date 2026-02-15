@@ -307,6 +307,23 @@
         </template>
       </a-table>
     </div>
+
+    <!-- Built-in CRUD Modal -->
+    <ProModal
+      v-if="formItems && formItems.length > 0"
+      v-model:open="crudModalOpen"
+      :title="crudModalTitle"
+      :width="formModalWidth"
+      @ok="handleCrudSubmit"
+    >
+      <ProForm
+        ref="crudFormRef"
+        :form-items="formItems"
+        :initial-values="crudFormInitialValues"
+        :layout="formLayout"
+        :grid="formGrid"
+      />
+    </ProModal>
   </div>
 </template>
 
@@ -325,6 +342,8 @@ import {
 } from '@antdv-next/icons'
 import { message, Modal } from 'antdv-next'
 import ValueTypeRender from './ValueTypeRender.vue'
+import ProModal from '../ProModal/index.vue'
+import ProForm from '../ProForm/index.vue'
 import { appDefaultSettings } from '@/settings'
 import { $t } from '@/locales'
 import type {
@@ -337,7 +356,10 @@ import type {
   ProTableHeaderFilter,
   HeaderFilterMode,
   ProTableHeaderFilterConfig,
-  SearchType
+  SearchType,
+  ProFormItem,
+  ProFormLayout,
+  ProFormGrid
 } from '@/types/pro'
 import type { ProTableDensity, ProTableHeight } from '@/settings'
 
@@ -356,6 +378,13 @@ interface Props {
   ellipsis?: boolean
   bordered?: boolean
   fixedHeader?: boolean
+  // Built-in CRUD modal
+  formItems?: ProFormItem[]
+  formGrid?: ProFormGrid
+  formLayout?: ProFormLayout
+  formModalWidth?: number | string
+  formCreateTitle?: string
+  formEditTitle?: string
 }
 
 interface ColumnState {
@@ -481,10 +510,11 @@ const props = withDefaults(defineProps<Props>(), {
     showSizeChanger: true,
     showQuickJumper: true,
     showTotal: (value: number) => $t('proTable.total', { total: value })
-  })
+  }),
+  formModalWidth: 640
 })
 
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh', 'form-submit'])
 
 const normalizeDensity = (size: ProTableDensity | undefined): TableSize => {
   if (size === 'large' || size === 'middle' || size === 'small') {
@@ -1777,13 +1807,53 @@ watch(
   { deep: true }
 )
 
+// Built-in CRUD modal state
+const crudModalOpen = ref(false)
+const crudFormRef = ref()
+const crudFormInitialValues = ref<Record<string, any>>({})
+const editingRecord = ref<any>(null)
+
+const crudModalTitle = computed(() => {
+  if (editingRecord.value) {
+    return props.formEditTitle || $t('common.edit')
+  }
+  return props.formCreateTitle || $t('common.add')
+})
+
+const openCreateModal = (initialValues?: Record<string, any>) => {
+  editingRecord.value = null
+  crudFormInitialValues.value = initialValues || {}
+  crudModalOpen.value = true
+}
+
+const openEditModal = (record: any) => {
+  editingRecord.value = record
+  crudFormInitialValues.value = { ...record }
+  crudModalOpen.value = true
+}
+
+const handleCrudSubmit = async () => {
+  if (!crudFormRef.value) return
+  const valid = await crudFormRef.value.validate()
+  if (!valid) return
+  const values = crudFormRef.value.getFieldsValue()
+  emit('form-submit', {
+    values,
+    record: editingRecord.value,
+    isEdit: Boolean(editingRecord.value)
+  })
+  crudModalOpen.value = false
+}
+
 // Expose methods
 defineExpose({
   refresh: loadData,
   reload: () => {
     currentPage.value = 1
     loadData()
-  }
+  },
+  openCreateModal,
+  openEditModal
 })
 </script>
 
