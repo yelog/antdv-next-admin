@@ -111,6 +111,8 @@ export default {
       close: '关闭当前',
       pin: '固定当前',
       unpin: '取消固定',
+      favorite: '收藏',
+      unfavorite: '取消收藏',
       closeOthers: '关闭其他',
       closeAll: '关闭所有',
       closeLeft: '关闭左侧',

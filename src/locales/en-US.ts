@@ -110,6 +110,8 @@ export default {
       close: 'Close',
       pin: 'Pin',
       unpin: 'Unpin',
+      favorite: 'Add to Favorites',
+      unfavorite: 'Remove from Favorites',
       closeOthers: 'Close Others',
       closeAll: 'Close All',
       closeLeft: 'Close Left',

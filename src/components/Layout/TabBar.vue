@@ -49,7 +49,9 @@ import {
   CloseCircleOutlined,
   CloseSquareOutlined,
   VerticalLeftOutlined,
-  VerticalRightOutlined
+  VerticalRightOutlined,
+  StarOutlined,
+  StarFilled
 } from '@antdv-next/icons'
 import { useTabsStore } from '@/stores/tabs'
 import { useLayoutStore } from '@/stores/layout'
@@ -71,6 +73,7 @@ const toggleFullscreen = () => {
 type TabMenuKey =
   | 'close'
   | 'pin'
+  | 'favorite'
   | 'refresh'
   | 'closeLeft'
   | 'closeRight'
@@ -111,6 +114,7 @@ const tabItems = computed(() => {
             return h('span', { class: 'tab-label' }, [
               icon ? h(icon, { class: 'tab-menu-icon' }) : null,
               h('span', { class: 'tab-text' }, getTabLabel(tab)),
+              tab.favorite ? h(StarFilled, { class: 'tab-favorite-icon' }) : null,
               isTabFixed(tab) ? h(PushpinFilled, { class: 'tab-pin-icon' }) : null
             ])
           }
@@ -170,6 +174,11 @@ const getTabMenuItems = (tab: Tab) => {
       disabled: Boolean(tab.affix)
     },
     {
+      key: 'favorite',
+      icon: h(tab.favorite ? StarFilled : StarOutlined),
+      label: tab.favorite ? t('layout.tabs.unfavorite') : t('layout.tabs.favorite')
+    },
+    {
       key: 'refresh',
       icon: h(ReloadOutlined),
       label: t('layout.tabs.refresh')
@@ -227,6 +236,9 @@ const handleContextMenu = (e: { key: string }, tab: Tab) => {
       break
     case 'pin':
       tabsStore.togglePinTab(tab.path)
+      break
+    case 'favorite':
+      tabsStore.toggleFavoriteTab(tab.path)
       break
     case 'refresh':
       tabsStore.refreshTab(tab.path)
@@ -416,6 +428,11 @@ const getTabIcon = (tab: Tab) => {
   }
 
   :deep(.tab-pin-icon) {
+    font-size: 12px;
+    color: var(--color-warning);
+  }
+
+  :deep(.tab-favorite-icon) {
     font-size: 12px;
     color: var(--color-warning);
   }

@@ -161,6 +161,13 @@ export const useTabsStore = defineStore('tabs', () => {
     updateTabClosable(tab)
   }
 
+  const toggleFavoriteTab = (path: string) => {
+    const tab = tabs.value.find(item => item.path === path)
+    if (!tab) return
+
+    tab.favorite = !tab.favorite
+  }
+
   const setActiveTab = (path: string) => {
     activeTabPath.value = path
   }
@@ -309,6 +316,7 @@ export const useTabsStore = defineStore('tabs', () => {
     closeLeftTabs,
     closeRightTabs,
     togglePinTab,
+    toggleFavoriteTab,
     setActiveTab,
     refreshTab,
     initAffixTabs,

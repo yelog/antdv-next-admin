@@ -16,6 +16,8 @@ export interface Tab {
   // User pinned tab (cannot be closed by batch close actions)
   pinned?: boolean
   affix?: boolean
+  // User favorite tab
+  favorite?: boolean
 }
 
 export type NotificationCategory = 'system' | 'message' | 'security' | 'task' | 'error'
