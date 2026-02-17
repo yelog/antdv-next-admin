@@ -79,7 +79,7 @@
                     mode="tags"
                     size="middle"
                     style="width: 100%"
-                    :placeholder="t('common.inputTags')"
+                    :placeholder="输入标签按回车确认"
                     :max-tag-count="2"
                   />
                 </template>
@@ -89,7 +89,7 @@
                   <div class="boolean-field-wrapper">
                     <a-switch v-model:checked="editData[key]" size="small" />
                     <span class="switch-label">
-                      {{ editData[key] ? (fieldConfig[key]?.activeLabel || t('common.enabled')) : (fieldConfig[key]?.inactiveLabel || t('common.disabled')) }}
+                      {{ editData[key] ? (fieldConfig[key]?.activeLabel || "已启用") : (fieldConfig[key]?.inactiveLabel || "已禁用") }}
                     </span>
                   </div>
                 </template>
@@ -166,18 +166,18 @@
             @click="showAddFieldDialog = true"
           >
             <PlusOutlined />
-            {{ t('common.addField') }}
+            "新增字段"
           </a-button>
         </div>
       </div>
       
       <!-- Raw Edit Mode -->
       <template v-else>
-        <a-form-item :label="t('common.jsonContent')">
+        <a-form-item label="JSON 内容">
           <a-textarea
             v-model:value="rawJsonText"
             :auto-size="{ minRows: 10, maxRows: 20 }"
-            :placeholder="t('common.jsonPlaceholder')"
+            placeholder="输入有效的 JSON..."
             class="raw-editor"
           />
         </a-form-item>
@@ -186,7 +186,7 @@
       <template #footer>
         <a-space>
           <a-button @click="toggleEditMode" size="small">
-            {{ useRawEdit ? t('common.formEdit') : t('common.rawEdit') }}
+            {{ useRawEdit ? "表单编辑" : "原始编辑" }}
           </a-button>
           <a-button @click="handleCancel" size="small">
             {{ cancelText }}
@@ -201,30 +201,30 @@
     <!-- Add Field Dialog -->
     <a-modal
       v-model:open="showAddFieldDialog"
-      :title="t('common.addField')"
-      :ok-text="t('common.confirm')"
-      :cancel-text="t('common.cancel')"
+      :title="新增字段"
+      :ok-text="确定"
+      :cancel-text="取消"
       @ok="handleAddField"
       @cancel="showAddFieldDialog = false"
       width="400px"
     >
       <a-form layout="vertical">
-        <a-form-item :label="t('common.fieldName')" required>
+        <a-form-item :label="字段名称" required>
           <a-input
             v-model:value="newField.name"
             size="middle"
-            :placeholder="t('common.inputFieldName')"
+            :placeholder="请输入字段名称"
             @pressEnter="handleAddField"
           />
         </a-form-item>
-        <a-form-item :label="t('common.fieldType')">
-          <a-select v-model:value="newField.type" size="middle" :placeholder="t('common.selectFieldType')">
-            <a-select-option value="string">{{ t('common.typeString') }}</a-select-option>
-            <a-select-option value="number">{{ t('common.typeNumber') }}</a-select-option>
-            <a-select-option value="boolean">{{ t('common.typeBoolean') }}</a-select-option>
-            <a-select-option value="tags">{{ t('common.typeTags') }}</a-select-option>
-            <a-select-option value="array">{{ t('common.typeArray') }}</a-select-option>
-            <a-select-option value="object">{{ t('common.typeObject') }}</a-select-option>
+        <a-form-item :label="字段类型">
+          <a-select v-model:value="newField.type" size="middle" :placeholder="请选择字段类型">
+            <a-select-option value="string">"文本"</a-select-option>
+            <a-select-option value="number">"数字"</a-select-option>
+            <a-select-option value="boolean">"布尔值"</a-select-option>
+            <a-select-option value="tags">"标签"</a-select-option>
+            <a-select-option value="array">"数组"</a-select-option>
+            <a-select-option value="object">"对象"</a-select-option>
           </a-select>
         </a-form-item>
       </a-form>
@@ -240,7 +240,6 @@ import {
   DeleteOutlined,
   HolderOutlined
 } from '@antdv-next/icons'
-import { useI18n } from 'vue-i18n'
 import { message } from 'antdv-next'
 import draggable from 'vuedraggable'
 
@@ -248,7 +247,6 @@ defineOptions({
   name: 'JsonInput'
 })
 
-const { t } = useI18n()
 
 interface LabelMap {
   [key: string]: string
@@ -346,8 +344,8 @@ const draggingIndex = ref<number>(-1)
 const showAddFieldDialog = ref(false)
 const newField = ref({ name: '', type: 'string' })
 
-const okText = computed(() => t('common.ok') || 'OK')
-const cancelText = computed(() => t('common.cancel') || 'Cancel')
+const okText = '确定'
+const cancelText = '取消'
 
 const displayValue = computed(() => {
   if (!props.value) return ''
@@ -424,7 +422,7 @@ function handleOk() {
       emit('change', parsed)
       modalVisible.value = false
     } catch (e) {
-      errorMessage.value = t('common.jsonParseError') || 'Invalid JSON format'
+      errorMessage.value = "JSON 格式错误"
     }
   } else {
     const result: Record<string, any> = {}
@@ -457,7 +455,7 @@ function toggleEditMode() {
       fieldOrder.value = Object.keys(editData.value)
       errorMessage.value = ''
     } catch (e) {
-      errorMessage.value = t('common.jsonParseError') || 'Invalid JSON format'
+      errorMessage.value = "JSON 格式错误"
       return
     }
   }
@@ -467,11 +465,11 @@ function toggleEditMode() {
 // Field operations
 function handleAddField() {
   if (!newField.value.name.trim()) {
-    message.warning(t('common.pleaseInputFieldName'))
+    message.warning("请输入字段名")
     return
   }
   if (editData.value[newField.value.name]) {
-    message.warning(t('common.fieldExists'))
+    message.warning("字段已存在")
     return
   }
   
@@ -500,7 +498,7 @@ function handleAddField() {
   newField.value = { name: '', type: 'string' }
   showAddFieldDialog.value = false
   
-  message.success(t('common.addSuccess'))
+  message.success("添加成功")
 }
 
 function removeField(key: string) {
@@ -518,7 +516,7 @@ function validateArray(key: string) {
     try {
       JSON.parse(value)
     } catch {
-      errorMessage.value = `${key}: ${t('common.invalidArray')}`
+      errorMessage.value = `${key}: ${"无效的数组格式"}`
     }
   }
 }
