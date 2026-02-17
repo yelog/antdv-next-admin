@@ -43,39 +43,24 @@
           <template #item="{ element: key, index }">
             <div
               v-if="editData[key] !== undefined"
-              class="field-card"
-              :class="{ 'is-dragging': draggingIndex === index }"
+              class="field-row"
+              :class="{ 'is-dragging': draggingIndex === index, 'is-hovered': hoveredField === key }"
               @mouseenter="hoveredField = key"
               @mouseleave="hoveredField = null"
             >
-              <div class="field-header">
-                <div class="drag-handle" v-if="allowSort">
-                  <HolderOutlined />
-                </div>
-                <div class="field-info">
-                  <span class="field-label">{{ getFieldLabel(key) }}</span>
-                  <span class="field-key">{{ key }}</span>
-                </div>
-                <div class="field-actions" :class="{ 'is-visible': hoveredField === key }">
-                  <a-tooltip :title="t('common.moveUp')" v-if="allowSort && index > 0">
-                    <a-button type="text" size="small" @click="moveField(index, 'up')">
-                      <ArrowUpOutlined />
-                    </a-button>
-                  </a-tooltip>
-                  <a-tooltip :title="t('common.moveDown')" v-if="allowSort && index < fieldOrder.length - 1">
-                    <a-button type="text" size="small" @click="moveField(index, 'down')">
-                      <ArrowDownOutlined />
-                    </a-button>
-                  </a-tooltip>
-                  <a-tooltip :title="t('common.delete')" v-if="allowDelete && !isFieldDisabled(key)">
-                    <a-button type="text" size="small" danger @click="removeField(key)">
-                      <DeleteOutlined />
-                    </a-button>
-                  </a-tooltip>
-                </div>
+              <!-- Drag Handle -->
+              <div class="drag-handle" v-if="allowSort">
+                <HolderOutlined />
               </div>
               
-              <div class="field-body">
+              <!-- Left: Label & Key -->
+              <div class="field-label-section">
+                <div class="field-label">{{ getFieldLabel(key) }}</div>
+                <div class="field-key">{{ key }}</div>
+              </div>
+              
+              <!-- Right: Input -->
+              <div class="field-input-section">
                 <!-- Object Type -->
                 <template v-if="getFieldType(key) === 'object'">
                   <JsonInput
@@ -92,26 +77,28 @@
                   <a-select
                     v-model:value="editData[key]"
                     mode="tags"
+                    size="middle"
                     style="width: 100%"
                     :placeholder="t('common.inputTags')"
-                    :max-tag-count="3"
+                    :max-tag-count="2"
                   />
                 </template>
                 
                 <!-- Boolean/Status Type -->
                 <template v-else-if="getFieldType(key) === 'boolean' || key === 'isActive' || key === 'status'">
-                  <div class="switch-with-label">
-                    <a-switch v-model:checked="editData[key]" />
+                  <a-space>
+                    <a-switch v-model:checked="editData[key]" size="small" />
                     <span class="switch-label">
                       {{ editData[key] ? (fieldConfig[key]?.activeLabel || t('common.enabled')) : (fieldConfig[key]?.inactiveLabel || t('common.disabled')) }}
                     </span>
-                  </div>
+                  </a-space>
                 </template>
                 
                 <!-- Number Type -->
                 <template v-else-if="getFieldType(key) === 'number' || key === 'age' || key === 'price' || key === 'stock'">
                   <a-input-number
                     v-model:value="editData[key]"
+                    size="middle"
                     style="width: 100%"
                     :placeholder="getFieldLabel(key)"
                     :min="fieldConfig[key]?.min"
@@ -123,8 +110,9 @@
                 <template v-else-if="getFieldType(key) === 'array'">
                   <a-textarea
                     v-model:value="editData[key]"
-                    placeholder="JSON Array: [1, 2, 3] or ['a', 'b']"
-                    :auto-size="{ minRows: 2, maxRows: 4 }"
+                    size="middle"
+                    placeholder="JSON: [1, 2, 3]"
+                    :auto-size="{ minRows: 1, maxRows: 3 }"
                     @blur="validateArray(key)"
                   />
                 </template>
@@ -133,8 +121,9 @@
                 <template v-else-if="key === 'address' || key === 'description' || key === 'bio'">
                   <a-textarea
                     v-model:value="editData[key]"
+                    size="middle"
                     :placeholder="getFieldLabel(key)"
-                    :auto-size="{ minRows: 3, maxRows: 6 }"
+                    :auto-size="{ minRows: 2, maxRows: 4 }"
                     show-count
                     :maxlength="fieldConfig[key]?.maxLength || 500"
                   />
@@ -144,10 +133,26 @@
                 <template v-else>
                   <a-input
                     v-model:value="editData[key]"
+                    size="middle"
                     :placeholder="getFieldLabel(key)"
                     allow-clear
                   />
                 </template>
+              </div>
+              
+              <!-- Actions -->
+              <div class="field-actions" :class="{ 'is-visible': hoveredField === key }">
+                <a-button-group size="small">
+                  <a-button v-if="allowSort && index > 0" @click="moveField(index, 'up')">
+                    <ArrowUpOutlined />
+                  </a-button>
+                  <a-button v-if="allowSort && index < fieldOrder.length - 1" @click="moveField(index, 'down')">
+                    <ArrowDownOutlined />
+                  </a-button>
+                  <a-button v-if="allowDelete && !isFieldDisabled(key)" danger @click="removeField(key)">
+                    <DeleteOutlined />
+                  </a-button>
+                </a-button-group>
               </div>
             </div>
           </template>
@@ -158,7 +163,7 @@
           <a-button
             v-if="!showAddFieldDialog"
             type="dashed"
-            block
+            size="small"
             class="add-field-btn"
             @click="showAddFieldDialog = true"
           >
@@ -182,13 +187,13 @@
       
       <template #footer>
         <a-space>
-          <a-button @click="toggleEditMode">
+          <a-button @click="toggleEditMode" size="small">
             {{ useRawEdit ? t('common.formEdit') : t('common.rawEdit') }}
           </a-button>
-          <a-button @click="handleCancel">
+          <a-button @click="handleCancel" size="small">
             {{ cancelText }}
           </a-button>
-          <a-button type="primary" @click="handleOk">
+          <a-button type="primary" @click="handleOk" size="small">
             {{ okText }}
           </a-button>
         </a-space>
@@ -209,12 +214,13 @@
         <a-form-item :label="t('common.fieldName')" required>
           <a-input
             v-model:value="newField.name"
+            size="middle"
             :placeholder="t('common.inputFieldName')"
             @pressEnter="handleAddField"
           />
         </a-form-item>
         <a-form-item :label="t('common.fieldType')">
-          <a-select v-model:value="newField.type" :placeholder="t('common.selectFieldType')">
+          <a-select v-model:value="newField.type" size="middle" :placeholder="t('common.selectFieldType')">
             <a-select-option value="string">{{ t('common.typeString') }}</a-select-option>
             <a-select-option value="number">{{ t('common.typeNumber') }}</a-select-option>
             <a-select-option value="boolean">{{ t('common.typeBoolean') }}</a-select-option>
@@ -371,7 +377,6 @@ function getFieldType(key: string): string {
   if (typeof value === 'boolean') return 'boolean'
   if (typeof value === 'number') return 'number'
   if (Array.isArray(value)) {
-    // Check if it's a tags array (array of strings)
     if (value.length > 0 && typeof value[0] === 'string') return 'tags'
     return 'array'
   }
@@ -474,7 +479,6 @@ function handleAddField() {
     return
   }
   
-  // Initialize with default value based on type
   let defaultValue: any = ''
   switch (newField.value.type) {
     case 'boolean':
@@ -497,7 +501,6 @@ function handleAddField() {
   editData.value[newField.value.name] = defaultValue
   fieldOrder.value.push(newField.value.name)
   
-  // Reset
   newField.value = { name: '', type: 'string' }
   showAddFieldDialog.value = false
   
@@ -552,120 +555,132 @@ watch(() => props.value, (newVal) => {
 
 .json-input-modal {
   :deep(.ant-modal-body) {
-    max-height: 60vh;
+    max-height: 65vh;
     overflow-y: auto;
-    padding: 20px 24px;
+    padding: 16px 20px;
+    background: var(--color-bg-layout);
   }
 }
 
 .json-error-alert {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .form-edit-container {
+  background: var(--color-bg-layout);
+  
   .field-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
   }
   
-  .field-card {
+  .field-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
     background: var(--color-bg-container);
-    border: 1px solid var(--color-border-secondary);
-    border-radius: 8px;
-    padding: 16px;
-    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--color-border-secondary);
+    transition: all 0.15s ease;
     
-    &:hover {
-      border-color: var(--color-primary);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    &:hover,
+    &.is-hovered {
+      background: var(--color-primary-bg);
     }
     
     &.is-dragging {
-      opacity: 0.8;
-      transform: scale(1.02);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: var(--color-primary-bg);
+      opacity: 0.9;
     }
     
-    .field-header {
+    &:first-child {
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+    }
+    
+    &:last-child {
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
+      border-bottom: none;
+    }
+    
+    .drag-handle {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      cursor: grab;
+      color: var(--color-text-quaternary);
+      transition: color 0.2s;
+      flex-shrink: 0;
+      margin-top: 4px;
       
-      .drag-handle {
-        cursor: grab;
-        color: var(--color-text-tertiary);
-        padding: 4px;
-        border-radius: 4px;
-        transition: all 0.2s;
-        
-        &:hover {
-          color: var(--color-text-secondary);
-          background: var(--color-bg-layout);
-        }
-        
-        &:active {
-          cursor: grabbing;
-        }
+      &:hover {
+        color: var(--color-text-secondary);
       }
       
-      .field-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        
-        .field-label {
-          font-weight: 500;
-          font-size: 14px;
-          color: var(--color-text-primary);
-        }
-        
-        .field-key {
-          font-size: 12px;
-          color: var(--color-text-tertiary);
-        }
-      }
-      
-      .field-actions {
-        display: flex;
-        gap: 4px;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        
-        &.is-visible {
-          opacity: 1;
-        }
-        
-        :deep(.ant-btn) {
-          padding: 0 4px;
-          height: 24px;
-        }
+      &:active {
+        cursor: grabbing;
       }
     }
     
-    .field-body {
-      padding-left: 32px;
+    .field-label-section {
+      width: 120px;
+      flex-shrink: 0;
+      padding-top: 4px;
       
-      .switch-with-label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        
-        .switch-label {
-          font-size: 14px;
-          color: var(--color-text-secondary);
-        }
+      .field-label {
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--color-text-primary);
+        line-height: 1.4;
+      }
+      
+      .field-key {
+        font-size: 11px;
+        color: var(--color-text-tertiary);
+        line-height: 1.3;
+        margin-top: 2px;
+      }
+    }
+    
+    .field-input-section {
+      flex: 1;
+      min-width: 0;
+      
+      .switch-label {
+        font-size: 12px;
+        color: var(--color-text-secondary);
+        margin-left: 6px;
+      }
+    }
+    
+    .field-actions {
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      flex-shrink: 0;
+      margin-top: 2px;
+      
+      &.is-visible {
+        opacity: 1;
+      }
+      
+      :deep(.ant-btn) {
+        padding: 0 6px;
+        height: 22px;
+        font-size: 11px;
       }
     }
   }
   
   .add-field-section {
-    margin-top: 20px;
+    margin-top: 12px;
+    padding: 0 12px;
     
     .add-field-btn {
-      height: 44px;
       border-style: dashed;
       
       &:hover {
@@ -682,11 +697,32 @@ watch(() => props.value, (newVal) => {
 }
 
 // Responsive
-@media (max-width: 768px) {
+@media (max-width: 576px) {
   .form-edit-container {
-    .field-card {
-      .field-body {
-        padding-left: 0;
+    .field-row {
+      flex-wrap: wrap;
+      
+      .field-label-section {
+        width: 100%;
+        padding-top: 0;
+        margin-bottom: 6px;
+        
+        .field-label,
+        .field-key {
+          display: inline;
+          margin-right: 8px;
+        }
+      }
+      
+      .field-input-section {
+        width: calc(100% - 28px);
+      }
+      
+      .field-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 8px;
+        opacity: 1;
       }
     }
   }
