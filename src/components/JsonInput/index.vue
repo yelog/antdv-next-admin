@@ -98,7 +98,7 @@
                 <template v-else-if="getFieldType(key) === 'number' || key === 'age' || key === 'price' || key === 'stock'">
                   <a-input-number
                     v-model:value="editData[key]"
-                    size="middle"
+                    :controls="false"
                     style="width: 100%"
                     :placeholder="getFieldLabel(key)"
                     :min="fieldConfig[key]?.min"
@@ -633,16 +633,20 @@ watch(() => props.value, (newVal) => {
       flex: 1;
       min-width: 0;
       
-      // Ensure all inputs have consistent width
+      // Ensure all inputs have consistent width and height
       :deep(.ant-input),
-      :deep(.ant-input-number),
       :deep(.ant-select),
       :deep(.ant-input-affix-wrapper) {
         width: 100%;
       }
       
+      // InputNumber needs special handling for alignment
       :deep(.ant-input-number) {
         width: 100%;
+        
+        .ant-input-number-input {
+          height: 30px;
+        }
       }
       
       .boolean-field-wrapper {
