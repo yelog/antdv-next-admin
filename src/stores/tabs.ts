@@ -1,14 +1,18 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Tab } from '@/types/layout'
 import type { RouteLocationNormalized } from 'vue-router'
 import router from '@/router'
+import { useSettingsStore } from './settings'
+
+const TABS_STORAGE_KEY = 'app-tabs-state'
 
 export const useTabsStore = defineStore('tabs', () => {
   // State
   const tabs = ref<Tab[]>([])
   const activeTabPath = ref<string>('')
   const refreshingRoutes = ref<string[]>([])
+  const isRestored = ref(false)
 
   const isFixedTab = (tab: Tab) => Boolean(tab.affix || tab.pinned)
   const updateTabClosable = (tab: Tab) => {
@@ -221,6 +225,75 @@ export const useTabsStore = defineStore('tabs', () => {
     }
   }
 
+  // Save tabs state to localStorage
+  const saveTabsState = () => {
+    const settingsStore = useSettingsStore()
+    if (!settingsStore.rememberTabState) return
+
+    const state = {
+      tabs: tabs.value,
+      activeTabPath: activeTabPath.value
+    }
+    localStorage.setItem(TABS_STORAGE_KEY, JSON.stringify(state))
+  }
+
+  // Restore tabs state from localStorage
+  const restoreTabsState = (routes: any[]) => {
+    const settingsStore = useSettingsStore()
+    if (!settingsStore.rememberTabState || isRestored.value) return
+
+    const savedState = localStorage.getItem(TABS_STORAGE_KEY)
+    if (!savedState) return
+
+    try {
+      const state = JSON.parse(savedState)
+      if (state.tabs && Array.isArray(state.tabs) && state.tabs.length > 0) {
+        // Filter out tabs that no longer exist in routes
+        const validPaths = new Set<string>()
+        const collectPaths = (routeList: any[], basePath = '') => {
+          routeList.forEach(route => {
+            const routePath = route.path ? String(route.path) : ''
+            const fullPath = resolveRoutePath(routePath, basePath)
+            validPaths.add(fullPath)
+            if (route.children) {
+              collectPaths(route.children, fullPath)
+            }
+          })
+        }
+        collectPaths(routes)
+
+        // Restore tabs that still exist
+        const restoredTabs = state.tabs.filter((tab: Tab) => validPaths.has(tab.path))
+        if (restoredTabs.length > 0) {
+          tabs.value = restoredTabs
+          // Restore active tab if it exists
+          if (state.activeTabPath && validPaths.has(state.activeTabPath)) {
+            activeTabPath.value = state.activeTabPath
+          } else {
+            activeTabPath.value = restoredTabs[0].path
+          }
+          isRestored.value = true
+        }
+      }
+    } catch {
+      // Invalid saved state, ignore
+    }
+  }
+
+  // Clear saved tabs state
+  const clearTabsState = () => {
+    localStorage.removeItem(TABS_STORAGE_KEY)
+  }
+
+  // Watch for changes and auto-save
+  watch(
+    () => ({ tabs: tabs.value, activeTabPath: activeTabPath.value }),
+    () => {
+      saveTabsState()
+    },
+    { deep: true }
+  )
+
   return {
     // State
     tabs,
@@ -238,6 +311,8 @@ export const useTabsStore = defineStore('tabs', () => {
     togglePinTab,
     setActiveTab,
     refreshTab,
-    initAffixTabs
+    initAffixTabs,
+    restoreTabsState,
+    clearTabsState
   }
 })

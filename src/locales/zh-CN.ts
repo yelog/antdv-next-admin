@@ -139,6 +139,8 @@ export default {
     none: '无动画',
     grayMode: '灰色模式',
     grayModeHint: '开启后整个应用呈现灰色调',
+    rememberTabState: '记住标签页状态',
+    rememberTabStateHint: '刷新页面后自动恢复之前打开的标签页',
     reset: '重置设置',
     confirmReset: '确定要重置所有偏好设置吗？',
     colors: {

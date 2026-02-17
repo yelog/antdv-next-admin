@@ -67,6 +67,13 @@
         <div class="hint">{{ $t('settings.grayModeHint') }}</div>
       </div>
 
+      <!-- Remember Tab State -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.rememberTabState') }}</h4>
+        <a-switch v-model:checked="settingsStore.rememberTabState" />
+        <div class="hint">{{ $t('settings.rememberTabStateHint') }}</div>
+      </div>
+
       <!-- Actions -->
       <div class="settings-actions">
         <a-button block @click="handleReset">
@@ -136,6 +143,10 @@ watch(() => settingsStore.pageAnimation, (value) => {
 
 watch(() => settingsStore.grayMode, (value) => {
   settingsStore.setGrayMode(value)
+})
+
+watch(() => settingsStore.rememberTabState, (value) => {
+  settingsStore.setRememberTabState(value)
 })
 
 const handleReset = () => {

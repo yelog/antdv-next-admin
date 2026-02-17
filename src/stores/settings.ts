@@ -34,6 +34,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const layoutMode = ref<LayoutMode>('vertical')
   const pageAnimation = ref<PageAnimation>('slide-left')
   const grayMode = ref(false)
+  const rememberTabState = ref(true)
 
   // Actions
   const setPrimaryColor = (color: PrimaryColor) => {
@@ -86,12 +87,18 @@ export const useSettingsStore = defineStore('settings', () => {
     localStorage.setItem('app-gray-mode', enabled.toString())
   }
 
+  const setRememberTabState = (enabled: boolean) => {
+    rememberTabState.value = enabled
+    localStorage.setItem('app-remember-tab-state', enabled.toString())
+  }
+
   const resetSettings = () => {
     setPrimaryColor('blue')
     setSidebarTheme('dark')
     setLayoutMode('vertical')
     setPageAnimation('slide-left')
     setGrayMode(false)
+    setRememberTabState(true)
   }
 
   const initSettings = () => {
@@ -102,6 +109,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const savedLayoutMode = localStorage.getItem('app-layout-mode') as LayoutMode
     const savedPageAnimation = localStorage.getItem('app-page-animation') as PageAnimation
     const savedGrayMode = localStorage.getItem('app-gray-mode')
+    const savedRememberTabState = localStorage.getItem('app-remember-tab-state')
 
     if (savedCustomPrimaryColor) {
       setCustomPrimaryColor(savedCustomPrimaryColor)
@@ -114,6 +122,7 @@ export const useSettingsStore = defineStore('settings', () => {
       setPageAnimation(savedPageAnimation)
     }
     if (savedGrayMode) setGrayMode(savedGrayMode === 'true')
+    rememberTabState.value = savedRememberTabState !== 'false'
   }
 
   return {
@@ -125,6 +134,7 @@ export const useSettingsStore = defineStore('settings', () => {
     layoutMode,
     pageAnimation,
     grayMode,
+    rememberTabState,
     // Actions
     setPrimaryColor,
     setCustomPrimaryColor,
@@ -132,6 +142,7 @@ export const useSettingsStore = defineStore('settings', () => {
     setLayoutMode,
     setPageAnimation,
     setGrayMode,
+    setRememberTabState,
     resetSettings,
     initSettings
   }

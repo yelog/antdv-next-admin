@@ -138,6 +138,8 @@ export default {
     none: 'None',
     grayMode: 'Gray Mode',
     grayModeHint: 'Enable grayscale mode for the entire app',
+    rememberTabState: 'Remember Tab State',
+    rememberTabStateHint: 'Automatically restore previously opened tabs after refresh',
     reset: 'Reset Settings',
     confirmReset: 'Are you sure you want to reset all preferences?',
     colors: {

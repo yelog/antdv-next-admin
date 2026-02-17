@@ -42,14 +42,19 @@ export function setupRouterGuards(router: Router) {
       dictStore.loadDictData()
     }
 
-    const initAffixTabsIfNeeded = () => {
+    const initTabsIfNeeded = () => {
       if (tabsStore.tabs.length > 0) return
 
       const routeSources = [
         ...basicRoutes,
         ...(permissionStore.routes as any[])
       ]
-      tabsStore.initAffixTabs(routeSources)
+
+      tabsStore.restoreTabsState(routeSources)
+
+      if (tabsStore.tabs.length === 0) {
+        tabsStore.initAffixTabs(routeSources)
+      }
     }
 
     // Set page title
@@ -75,7 +80,7 @@ export function setupRouterGuards(router: Router) {
     if (shouldRecoverFromNotFound) {
       try {
         await generateDynamicRoutes()
-        initAffixTabsIfNeeded()
+        initTabsIfNeeded()
         next({ path: redirectedFromPath, replace: true })
         return
       } catch (error) {
@@ -115,7 +120,7 @@ export function setupRouterGuards(router: Router) {
       if (!permissionStore.isRoutesGenerated) {
         try {
           await generateDynamicRoutes()
-          initAffixTabsIfNeeded()
+          initTabsIfNeeded()
 
           // Continue to the target route
           next({ ...to, replace: true })
@@ -147,7 +152,7 @@ export function setupRouterGuards(router: Router) {
         }
       }
 
-      initAffixTabsIfNeeded()
+      initTabsIfNeeded()
     }
 
     // Add to tabs
