@@ -540,8 +540,6 @@ defineExpose({ open, close })
     display: flex;
     align-items: center;
     margin-right: 8px;
-    opacity: 0;
-    transition: opacity 0.2s;
 
     .favorite-btn {
       width: 24px;
@@ -567,13 +565,7 @@ defineExpose({ open, close })
     }
   }
 
-  &:hover .item-actions {
-    opacity: 1;
-  }
-
   &.active .item-actions {
-    opacity: 1;
-
     .favorite-btn .favorite-icon:not(.active) {
       color: rgba(255, 255, 255, 0.8);
     }
