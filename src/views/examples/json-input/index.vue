@@ -3,83 +3,83 @@
     <div class="card">
       <h2>JsonInput {{ $t('common.component') || 'Component' }}</h2>
       <p class="mb-lg">
-        {{ $t('exampleJsonInput.description') || 'A powerful JSON input component that supports both form and raw JSON editing modes. It can handle nested objects, arrays, and various data types.' }}
+        {{ $t('examples.jsonInput.description') }}
       </p>
 
-      <a-divider orientation="left">{{ $t('common.basicUsage') || 'Basic Usage' }}</a-divider>
-      
+      <a-divider orientation="left">{{ $t('common.basicUsage') }}</a-divider>
+
       <a-form :model="formState" layout="vertical">
-        <a-form-item :label="$t('exampleJsonInput.userConfig') || 'User Configuration'">
+        <a-form-item :label="$t('examples.jsonInput.userConfig')">
           <JsonInput
             v-model:value="formState.userConfig"
             :label-map="{
-              name: $t('user.username') || 'Username',
-              email: $t('user.email') || 'Email',
-              age: $t('user.age') || 'Age',
-              isActive: $t('user.status') || 'Status',
-              tags: $t('user.tags') || 'Tags',
-              address: $t('user.address') || 'Address'
+              name: $t('user.username'),
+              email: $t('user.email'),
+              age: $t('user.age'),
+              isActive: $t('user.status'),
+              tags: $t('user.tags'),
+              address: $t('user.address')
             }"
-            :placeholder="$t('exampleJsonInput.clickToEdit') || 'Click to edit JSON'"
-            :modal-title="$t('exampleJsonInput.editUserConfig') || 'Edit User Configuration'"
+            :placeholder="$t('examples.jsonInput.clickToEdit')"
+            :modal-title="$t('examples.jsonInput.editUserConfig')"
           />
         </a-form-item>
 
-        <a-form-item :label="$t('exampleJsonInput.displayValue') || 'Display Value (using displayKey)'">
+        <a-form-item :label="$t('examples.jsonInput.displayValue')">
           <JsonInput
             v-model:value="formState.productInfo"
             display-key="name"
             :label-map="{
-              name: $t('exampleJsonInput.productName') || 'Product Name',
-              price: $t('exampleJsonInput.price') || 'Price',
-              stock: $t('exampleJsonInput.stock') || 'Stock',
-              description: $t('exampleJsonInput.description') || 'Description'
+              name: $t('examples.jsonInput.productName'),
+              price: $t('examples.jsonInput.price'),
+              stock: $t('examples.jsonInput.stock'),
+              description: $t('examples.jsonInput.description')
             }"
-            :placeholder="$t('exampleJsonInput.selectProduct') || 'Select product'"
+            :placeholder="$t('examples.jsonInput.selectProduct')"
           />
         </a-form-item>
 
-        <a-divider orientation="left">{{ $t('common.advancedUsage') || 'Advanced Usage' }}</a-divider>
+        <a-divider orientation="left">{{ $t('common.advancedUsage') }}</a-divider>
 
-        <a-form-item :label="$t('exampleJsonInput.withDisabledFields') || 'With Disabled Fields'">
+        <a-form-item :label="$t('examples.jsonInput.withDisabledFields')">
           <JsonInput
             v-model:value="formState.systemConfig"
             :label-map="{
               id: 'ID',
-              apiKey: $t('exampleJsonInput.apiKey') || 'API Key',
-              endpoint: $t('exampleJsonInput.endpoint') || 'Endpoint',
-              timeout: $t('exampleJsonInput.timeout') || 'Timeout (seconds)'
+              apiKey: $t('examples.jsonInput.apiKey'),
+              endpoint: $t('examples.jsonInput.endpoint'),
+              timeout: $t('examples.jsonInput.timeout')
             }"
             :disabled-fields="['id', 'apiKey']"
-            :placeholder="$t('exampleJsonInput.systemConfig') || 'System Configuration'"
+            :placeholder="$t('examples.jsonInput.systemConfig')"
           />
         </a-form-item>
 
-        <a-form-item :label="$t('exampleJsonInput.nestedObject') || 'Nested Object Support'">
+        <a-form-item :label="$t('examples.jsonInput.nestedObject')">
           <JsonInput
             v-model:value="formState.nestedData"
             :label-map="{
-              user: $t('user.info') || 'User Info',
-              'user.name': $t('user.name') || 'Name',
-              'user.email': $t('user.email') || 'Email',
-              settings: $t('user.settings') || 'Settings',
-              'settings.theme': $t('user.theme') || 'Theme',
-              'settings.language': $t('user.language') || 'Language'
+              user: $t('user.info'),
+              'user.name': $t('user.name'),
+              'user.email': $t('user.email'),
+              settings: $t('user.settings'),
+              'settings.theme': $t('user.theme'),
+              'settings.language': $t('user.language')
             }"
-            :placeholder="$t('exampleJsonInput.nestedData') || 'Nested Data Structure'"
+            :placeholder="$t('examples.jsonInput.nestedData')"
           />
         </a-form-item>
 
-        <a-form-item :label="$t('exampleJsonInput.emptyObject') || 'Empty Object (creates new)'">
+        <a-form-item :label="$t('examples.jsonInput.emptyObject')">
           <JsonInput
             v-model:value="formState.newConfig"
             :label-map="{}"
-            :placeholder="$t('exampleJsonInput.createNew') || 'Create new configuration'"
+            :placeholder="$t('examples.jsonInput.createNew')"
           />
         </a-form-item>
       </a-form>
 
-      <a-divider orientation="left">{{ $t('common.preview') || 'Preview' }}</a-divider>
+      <a-divider orientation="left">{{ $t('common.preview') }}</a-divider>
       
       <a-card title="Data Preview" size="small">
         <pre class="json-preview">{{ JSON.stringify(formState, null, 2) }}</pre>
