@@ -641,9 +641,15 @@ watch(() => props.value, (newVal) => {
       // InputNumber needs special handling for alignment
       :deep(.ant-input-number) {
         width: 100%;
+        box-sizing: border-box;
+        
+        .ant-input-number-input-wrap {
+          box-sizing: border-box;
+        }
         
         .ant-input-number-input {
           height: 30px;
+          box-sizing: border-box;
         }
       }
       
