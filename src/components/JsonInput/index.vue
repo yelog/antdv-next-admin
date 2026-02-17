@@ -105,6 +105,10 @@ import { ref, computed, watch, type PropType } from 'vue'
 import { EditOutlined } from '@antdv-next/icons'
 import { useI18n } from 'vue-i18n'
 
+defineOptions({
+  name: 'JsonInput'
+})
+
 const { t } = useI18n()
 
 interface LabelMap {
