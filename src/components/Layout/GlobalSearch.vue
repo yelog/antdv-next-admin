@@ -36,6 +36,17 @@
                     <span class="item-title" v-html="highlightText(result.title, searchQuery)"></span>
                     <span class="item-path" v-html="highlightText(formatPath(result.path), searchQuery)"></span>
                   </div>
+                  <div class="item-actions" @click.stop>
+                    <a-button
+                      type="text"
+                      size="small"
+                      class="favorite-btn"
+                      @click="toggleFavorite(result.path)"
+                    >
+                      <StarFilled v-if="isFavorite(result.path)" class="favorite-icon active" />
+                      <StarOutlined v-else class="favorite-icon" />
+                    </a-button>
+                  </div>
                   <EnterOutlined class="item-enter" />
                 </div>
               </div>
@@ -71,6 +82,17 @@
                 <div class="item-info">
                   <span class="item-title">{{ item.title }}</span>
                   <span class="item-path">{{ formatPath(item.path) }}</span>
+                </div>
+                <div class="item-actions" @click.stop>
+                  <a-button
+                    type="text"
+                    size="small"
+                    class="favorite-btn"
+                    @click="toggleFavorite(item.path)"
+                  >
+                    <StarFilled v-if="isFavorite(item.path)" class="favorite-icon active" />
+                    <StarOutlined v-else class="favorite-icon" />
+                  </a-button>
                 </div>
                 <EnterOutlined class="item-enter" />
               </div>
@@ -122,11 +144,14 @@ import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   ClockCircleOutlined,
-  CloseOutlined
+  CloseOutlined,
+  StarOutlined,
+  StarFilled
 } from '@antdv-next/icons'
 import { basicRoutes } from '@/router/routes'
 import { routesToMenuTree } from '@/router/utils'
 import { usePermissionStore } from '@/stores/permission'
+import { useTabsStore } from '@/stores/tabs'
 import type { MenuItem } from '@/types/router'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
@@ -151,6 +176,7 @@ interface MenuHistoryItem {
 
 const router = useRouter()
 const permissionStore = usePermissionStore()
+const tabsStore = useTabsStore()
 const visible = ref(false)
 const searchQuery = ref('')
 const searchResults = ref<SearchItem[]>([])
@@ -252,6 +278,15 @@ const handleSearch = () => {
 const handleResultClick = (result: SearchItem) => {
   router.push(result.path)
   close()
+}
+
+const isFavorite = (path: string) => {
+  const tab = tabsStore.tabs.find(t => t.path === path)
+  return tab?.favorite ?? false
+}
+
+const toggleFavorite = (path: string) => {
+  tabsStore.toggleFavoriteTab(path)
 }
 
 const handleKeydown = (e: KeyboardEvent) => {
@@ -499,6 +534,53 @@ defineExpose({ open, close })
     color: var(--color-text-tertiary);
     opacity: 0;
     transition: opacity 0.2s;
+  }
+
+  .item-actions {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+
+    .favorite-btn {
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .favorite-icon {
+        font-size: 14px;
+        color: var(--color-text-tertiary);
+        transition: color 0.2s;
+
+        &.active {
+          color: var(--color-warning);
+        }
+      }
+
+      &:hover .favorite-icon:not(.active) {
+        color: var(--color-warning);
+      }
+    }
+  }
+
+  &:hover .item-actions {
+    opacity: 1;
+  }
+
+  &.active .item-actions {
+    opacity: 1;
+
+    .favorite-btn .favorite-icon:not(.active) {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .favorite-btn:hover .favorite-icon:not(.active) {
+      color: #fff;
+    }
   }
 }
 
