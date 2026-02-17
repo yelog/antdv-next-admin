@@ -159,24 +159,26 @@ const hasClosableTabs = computed(() => {
 })
 
 const getTabMenuItems = (tab: Tab) => {
+  // Get the latest tab state from store to ensure reactivity
+  const latestTab = tabsStore.tabs.find(t => t.path === tab.path) || tab
   // Call t() function to get reactive translations
   return [
     {
       key: 'close',
       icon: h(CloseOutlined),
       label: t('layout.tabs.close'),
-      disabled: !tab.closable
+      disabled: !latestTab.closable
     },
     {
       key: 'pin',
-      icon: h(tab.pinned ? PushpinFilled : PushpinOutlined),
-      label: tab.pinned ? t('layout.tabs.unpin') : t('layout.tabs.pin'),
-      disabled: Boolean(tab.affix)
+      icon: h(latestTab.pinned ? PushpinFilled : PushpinOutlined),
+      label: latestTab.pinned ? t('layout.tabs.unpin') : t('layout.tabs.pin'),
+      disabled: Boolean(latestTab.affix)
     },
     {
       key: 'favorite',
-      icon: h(tab.favorite ? StarFilled : StarOutlined),
-      label: tab.favorite ? t('layout.tabs.unfavorite') : t('layout.tabs.favorite')
+      icon: h(latestTab.favorite ? StarFilled : StarOutlined),
+      label: latestTab.favorite ? t('layout.tabs.unfavorite') : t('layout.tabs.favorite')
     },
     {
       key: 'refresh',
