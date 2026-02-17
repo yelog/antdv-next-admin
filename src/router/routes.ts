@@ -280,6 +280,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'json-input',
+        name: 'ExamplesJsonInput',
+        component: () => import('@/views/examples/json-input/index.vue'),
+        meta: {
+          title: 'menu.jsonInput',
+          icon: 'CodeOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'editor',
         name: 'ExamplesEditor',
         component: () => import('@/views/examples/editor/index.vue'),
