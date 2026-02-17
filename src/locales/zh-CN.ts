@@ -69,6 +69,7 @@ export default {
     icon: '图标示例',
     form: '表单示例',
     jsonInput: 'JSON输入',
+    i18nInput: '国际化输入',
     editor: '富文本编辑器',
     milkdown: 'Markdown 编辑器',
     captcha: '验证码示例',
@@ -1197,6 +1198,25 @@ export default {
       nestedData: '嵌套数据结构',
       emptyObject: '空对象（创建新的）',
       createNew: '创建新配置'
+    },
+    i18nInput: {
+      description: '国际化输入组件，支持多语言内容编辑。基于 JsonInput 封装，自动根据系统支持的语言生成表单字段。',
+      productName: '产品名称（多语言）',
+      productDescription: '产品描述（多语言）',
+      editProductName: '编辑产品名称',
+      editProductDesc: '编辑产品描述',
+      clickToEdit: '点击编辑多语言内容',
+      stringFormat: '字符串格式值',
+      stringFormatHint: '支持字符串格式的 JSON，组件会自动解析和序列化',
+      currentLocale: '指定显示语言',
+      currentLocaleHint: '通过 locale 属性指定输入框中显示哪个语言的值',
+      emptyValue: '空值（自动初始化）',
+      dataPreview: '数据预览',
+      valueType: '值类型切换',
+      showAsString: '显示为字符串',
+      showAsObject: '显示为对象',
+      stringValue: '字符串格式',
+      objectValue: '对象格式'
     }
   }
 }

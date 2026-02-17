@@ -290,6 +290,16 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         }
       },
       {
+        path: 'i18n-input',
+        name: 'ExamplesI18nInput',
+        component: () => import('@/views/examples/i18n-input/index.vue'),
+        meta: {
+          title: 'menu.i18nInput',
+          icon: 'GlobalOutlined',
+          requiresAuth: true
+        }
+      },
+      {
         path: 'editor',
         name: 'ExamplesEditor',
         component: () => import('@/views/examples/editor/index.vue'),

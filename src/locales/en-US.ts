@@ -69,6 +69,7 @@ export default {
     icon: 'Icon Example',
     form: 'Form Example',
     jsonInput: 'JSON Input',
+    i18nInput: 'I18n Input',
     editor: 'Rich Text Editor',
     milkdown: 'Markdown Editor',
     modal: 'Modal Example',
@@ -1196,6 +1197,25 @@ export default {
       nestedData: 'Nested Data Structure',
       emptyObject: 'Empty Object (Create New)',
       createNew: 'Create New Configuration'
+    },
+    i18nInput: {
+      description: 'Internationalized input component supporting multi-language content editing. Built on top of JsonInput, it automatically generates form fields based on system-supported languages.',
+      productName: 'Product Name (Multi-language)',
+      productDescription: 'Product Description (Multi-language)',
+      editProductName: 'Edit Product Name',
+      editProductDesc: 'Edit Product Description',
+      clickToEdit: 'Click to edit multi-language content',
+      stringFormat: 'String Format Value',
+      stringFormatHint: 'Supports JSON in string format, component will automatically parse and serialize',
+      currentLocale: 'Specify Display Locale',
+      currentLocaleHint: 'Use the locale prop to specify which language value to display in the input',
+      emptyValue: 'Empty Value (Auto-initialize)',
+      dataPreview: 'Data Preview',
+      valueType: 'Value Type Toggle',
+      showAsString: 'Show as String',
+      showAsObject: 'Show as Object',
+      stringValue: 'String Format',
+      objectValue: 'Object Format'
     }
   }
 }
