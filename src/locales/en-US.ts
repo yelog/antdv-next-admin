@@ -101,6 +101,7 @@ export default {
     viewAllNotifications: 'View all notifications',
     searchPlaceholder: 'Search menu...',
     noSearchResults: 'No matching menu found',
+    recentMenus: 'Recent Visits',
     languages: {
       zhCN: 'Simplified Chinese',
       enUS: 'English'

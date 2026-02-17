@@ -102,6 +102,7 @@ export default {
     viewAllNotifications: '查看全部通知',
     searchPlaceholder: '搜索菜单...',
     noSearchResults: '未找到匹配的菜单',
+    recentMenus: '最近访问',
     languages: {
       zhCN: '简体中文',
       enUS: 'English'

@@ -1,4 +1,4 @@
-import type { Router } from 'vue-router'
+import type { Router, RouteLocationNormalized } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { usePermissionStore } from '@/stores/permission'
 import { useTabsStore } from '@/stores/tabs'
@@ -6,6 +6,37 @@ import { useDictStore } from '@/stores/dict'
 import { isLoggedIn } from '@/utils/auth'
 import { resolveLocaleText } from '@/utils/i18n'
 import { basicRoutes } from './routes'
+
+const MENU_HISTORY_KEY = 'app-menu-history'
+const MAX_HISTORY_ITEMS = 10
+
+interface MenuHistoryItem {
+  path: string
+  title: string
+  icon?: string
+  timestamp: number
+}
+
+function recordMenuHistory(route: RouteLocationNormalized) {
+  try {
+    const history: MenuHistoryItem[] = JSON.parse(localStorage.getItem(MENU_HISTORY_KEY) || '[]')
+    const title = resolveLocaleText(route.meta?.title as string, String(route.name || route.path))
+
+    const filtered = history.filter(item => item.path !== route.path)
+
+    filtered.unshift({
+      path: route.path,
+      title,
+      icon: route.meta?.icon as string,
+      timestamp: Date.now()
+    })
+
+    const trimmed = filtered.slice(0, MAX_HISTORY_ITEMS)
+
+    localStorage.setItem(MENU_HISTORY_KEY, JSON.stringify(trimmed))
+  } catch {
+  }
+}
 
 /**
  * Setup router guards
@@ -172,6 +203,11 @@ export function setupRouterGuards(router: Router) {
     const tabsStore = useTabsStore()
     if (to.path) {
       tabsStore.setActiveTab(to.path)
+    }
+
+    // Record menu visit history
+    if (to.name && to.meta.requiresAuth !== false && !to.meta.hidden) {
+      recordMenuHistory(to)
     }
   })
 

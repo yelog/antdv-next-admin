@@ -16,32 +16,72 @@
             <span class="search-tag">ESC</span>
           </div>
 
-          <div v-if="searchResults.length > 0 || searchQuery" class="search-body">
-            <div v-if="searchResults.length > 0" class="search-results">
+          <div class="search-body">
+            <!-- Search Results -->
+            <div v-if="searchQuery" class="search-results">
+              <div v-if="searchResults.length > 0">
+                <div
+                  v-for="(result, index) in searchResults"
+                  :key="result.path"
+                  class="search-item"
+                  :class="{ active: index === activeIndex }"
+                  @click="handleResultClick(result)"
+                  @mouseenter="activeIndex = index"
+                >
+                  <div class="item-icon">
+                    <component :is="getIconComponent(result.icon)" v-if="result.icon" />
+                    <FileOutlined v-else />
+                  </div>
+                  <div class="item-info">
+                    <span class="item-title" v-html="highlightText(result.title, searchQuery)"></span>
+                    <span class="item-path" v-html="highlightText(formatPath(result.path), searchQuery)"></span>
+                  </div>
+                  <EnterOutlined class="item-enter" />
+                </div>
+              </div>
+              <div v-else class="search-empty">
+                <div class="empty-icon">
+                  <SearchOutlined />
+                </div>
+                <p>{{ $t('layout.noSearchResults') }}</p>
+              </div>
+            </div>
+
+            <!-- Recent History -->
+            <div v-else-if="menuHistory.length > 0" class="search-results">
+              <div class="search-group-header">
+                <ClockCircleOutlined class="header-icon" />
+                <span class="header-title">{{ $t('layout.recentMenus') || '最近访问' }}</span>
+                <a-button type="link" size="small" class="clear-btn" @click="clearHistory">
+                  {{ $t('common.clear') || '清空' }}
+                </a-button>
+              </div>
               <div
-                v-for="(result, index) in searchResults"
-                :key="result.path"
+                v-for="(item, index) in menuHistory"
+                :key="item.path"
                 class="search-item"
                 :class="{ active: index === activeIndex }"
-                @click="handleResultClick(result)"
+                @click="handleHistoryClick(item)"
                 @mouseenter="activeIndex = index"
               >
                 <div class="item-icon">
-                  <component :is="getIconComponent(result.icon)" v-if="result.icon" />
+                  <component :is="getIconComponent(item.icon)" v-if="item.icon" />
                   <FileOutlined v-else />
                 </div>
                 <div class="item-info">
-                  <span class="item-title" v-html="highlightText(result.title, searchQuery)"></span>
-                  <span class="item-path" v-html="highlightText(formatPath(result.path), searchQuery)"></span>
+                  <span class="item-title">{{ item.title }}</span>
+                  <span class="item-path">{{ formatPath(item.path) }}</span>
                 </div>
                 <EnterOutlined class="item-enter" />
               </div>
             </div>
+
+            <!-- Empty State -->
             <div v-else class="search-empty">
               <div class="empty-icon">
                 <SearchOutlined />
               </div>
-              <p>{{ $t('layout.noSearchResults') }}</p>
+              <p>{{ $t('layout.searchPlaceholder') }}</p>
             </div>
           </div>
 
@@ -80,7 +120,9 @@ import {
   FileOutlined,
   EnterOutlined,
   ArrowUpOutlined,
-  ArrowDownOutlined
+  ArrowDownOutlined,
+  ClockCircleOutlined,
+  CloseOutlined
 } from '@antdv-next/icons'
 import { basicRoutes } from '@/router/routes'
 import { routesToMenuTree } from '@/router/utils'
@@ -90,11 +132,21 @@ import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
 import { match as pinyinMatch } from 'pinyin-pro'
 
+const MENU_HISTORY_KEY = 'app-menu-history'
+const MAX_HISTORY_ITEMS = 10
+
 interface SearchItem {
   path: string
   title: string
   icon?: string
   rawTitle: string
+}
+
+interface MenuHistoryItem {
+  path: string
+  title: string
+  icon?: string
+  timestamp: number
 }
 
 const router = useRouter()
@@ -104,6 +156,7 @@ const searchQuery = ref('')
 const searchResults = ref<SearchItem[]>([])
 const activeIndex = ref(0)
 const searchInputRef = ref<HTMLInputElement | null>(null)
+const menuHistory = ref<MenuHistoryItem[]>([])
 
 const fallbackMenus = computed<MenuItem[]>(() => {
   const basicChildren = basicRoutes.flatMap(route => route.children || [])
@@ -208,22 +261,27 @@ const handleKeydown = (e: KeyboardEvent) => {
     return
   }
 
-  if (searchResults.value.length === 0) return
+  const items = searchQuery.value ? searchResults.value : menuHistory.value
+  if (items.length === 0) return
 
   switch (e.key) {
     case 'ArrowUp':
       e.preventDefault()
-      activeIndex.value = activeIndex.value > 0 ? activeIndex.value - 1 : searchResults.value.length - 1
+      activeIndex.value = activeIndex.value > 0 ? activeIndex.value - 1 : items.length - 1
       scrollActiveIntoView()
       break
     case 'ArrowDown':
       e.preventDefault()
-      activeIndex.value = activeIndex.value < searchResults.value.length - 1 ? activeIndex.value + 1 : 0
+      activeIndex.value = activeIndex.value < items.length - 1 ? activeIndex.value + 1 : 0
       scrollActiveIntoView()
       break
     case 'Enter':
       e.preventDefault()
-      handleResultClick(searchResults.value[activeIndex.value])
+      if (searchQuery.value) {
+        handleResultClick(searchResults.value[activeIndex.value])
+      } else {
+        handleHistoryClick(menuHistory.value[activeIndex.value])
+      }
       break
   }
 }
@@ -237,11 +295,35 @@ const scrollActiveIntoView = () => {
   })
 }
 
+const loadMenuHistory = () => {
+  try {
+    const saved = localStorage.getItem(MENU_HISTORY_KEY)
+    if (saved) {
+      menuHistory.value = JSON.parse(saved)
+    } else {
+      menuHistory.value = []
+    }
+  } catch {
+    menuHistory.value = []
+  }
+}
+
+const handleHistoryClick = (item: MenuHistoryItem) => {
+  router.push(item.path)
+  close()
+}
+
+const clearHistory = () => {
+  menuHistory.value = []
+  localStorage.removeItem(MENU_HISTORY_KEY)
+}
+
 const open = () => {
   visible.value = true
   searchQuery.value = ''
   searchResults.value = []
   activeIndex.value = 0
+  loadMenuHistory()
   nextTick(() => {
     searchInputRef.value?.focus()
   })
@@ -417,6 +499,33 @@ defineExpose({ open, close })
     color: var(--color-text-tertiary);
     opacity: 0;
     transition: opacity 0.2s;
+  }
+}
+
+.search-group-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--color-border-secondary);
+  margin-bottom: 8px;
+
+  .header-icon {
+    font-size: 14px;
+    color: var(--color-text-tertiary);
+    margin-right: 8px;
+  }
+
+  .header-title {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .clear-btn {
+    font-size: 12px;
+    padding: 0;
+    height: auto;
   }
 }
 
