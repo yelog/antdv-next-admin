@@ -49,6 +49,10 @@ export default {
     invalidArray: '无效的数组格式',
     formEdit: '表单编辑',
     rawEdit: '原始编辑',
+    addField: '新增字段',
+    fieldName: '字段名称',
+    fieldExists: '字段已存在',
+    pleaseInput: '请输入',
     searchLabel: '搜索{label}'
   },
 

@@ -49,6 +49,10 @@ export default {
     invalidArray: 'Invalid array format',
     formEdit: 'Form Edit',
     rawEdit: 'Raw Edit',
+    addField: 'Add Field',
+    fieldName: 'Field Name',
+    fieldExists: 'Field already exists',
+    pleaseInput: 'Please input',
     searchLabel: 'Search {label}'
   },
 

@@ -6,6 +6,8 @@
     :placeholder="placeholder"
     :modal-title="modalTitle"
     :auto-size="autoSize"
+    :allow-add="false"
+    :allow-delete="false"
   />
 </template>
 

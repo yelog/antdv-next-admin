@@ -31,47 +31,89 @@
       />
       <a-form layout="vertical">
         <template v-if="!useRawEdit">
-          <a-form-item
+          <div
             v-for="(item, index) in formItems"
             :key="item.key"
-            :label="item.label"
-            :required="item.required"
+            class="form-field-row"
           >
-            <template v-if="item.type === 'object'">
-              <JsonInput
-                v-model:value="editData[item.key]"
-                :label-map="getNestedLabelMap(item.key)"
-                :disabled-fields="disabledFields"
-                :readonly-fields="readonlyFields"
-                :placeholder="`${item.label}...`"
+            <div class="field-label-row">
+              <span class="field-label">{{ item.label }}</span>
+              <a-button
+                v-if="allowDelete && !item.disabled"
+                type="text"
+                size="small"
+                danger
+                @click="removeField(item.key)"
+              >
+                <DeleteOutlined />
+              </a-button>
+            </div>
+            <a-form-item
+              :required="item.required"
+              class="field-input"
+            >
+              <template v-if="item.type === 'object'">
+                <JsonInput
+                  v-model:value="editData[item.key]"
+                  :label-map="getNestedLabelMap(item.key)"
+                  :disabled-fields="disabledFields"
+                  :readonly-fields="readonlyFields"
+                  :placeholder="`${item.label}...`"
+                />
+              </template>
+              <template v-else-if="item.type === 'array'">
+                <a-textarea
+                  v-model:value="editData[item.key]"
+                  placeholder="JSON Array format: [1, 2, 3] or ['a', 'b']"
+                  :auto-size="autoSize"
+                  @blur="validateArray(item.key)"
+                />
+              </template>
+              <template v-else-if="item.type === 'number'">
+                <a-input-number
+                  v-model:value="editData[item.key]"
+                  style="width: 100%"
+                  :placeholder="item.label"
+                />
+              </template>
+              <template v-else-if="item.type === 'boolean'">
+                <a-switch v-model:checked="editData[item.key]" />
+              </template>
+              <template v-else>
+                <a-textarea
+                  v-model:value="editData[item.key]"
+                  :placeholder="item.label"
+                  :auto-size="autoSize"
+                />
+              </template>
+            </a-form-item>
+          </div>
+          <div v-if="allowAdd" class="add-field-section">
+            <a-button
+              v-if="!showAddField"
+              type="dashed"
+              block
+              @click="showAddField = true"
+            >
+              <PlusOutlined />
+              {{ t('common.addField') || '新增字段' }}
+            </a-button>
+            <a-space v-else direction="vertical" style="width: 100%">
+              <a-input
+                v-model:value="newFieldName"
+                :placeholder="t('common.fieldName') || '字段名称'"
+                @pressEnter="addField"
               />
-            </template>
-            <template v-else-if="item.type === 'array'">
-              <a-textarea
-                v-model:value="editData[item.key]"
-                :placeholder="`JSON Array format: [1, 2, 3] or ['a', 'b']`"
-                :auto-size="autoSize"
-                @blur="validateArray(item.key)"
-              />
-            </template>
-            <template v-else-if="item.type === 'number'">
-              <a-input-number
-                v-model:value="editData[item.key]"
-                style="width: 100%"
-                :placeholder="item.label"
-              />
-            </template>
-            <template v-else-if="item.type === 'boolean'">
-              <a-switch v-model:checked="editData[item.key]" />
-            </template>
-            <template v-else>
-              <a-textarea
-                v-model:value="editData[item.key]"
-                :placeholder="item.label"
-                :auto-size="autoSize"
-              />
-            </template>
-          </a-form-item>
+              <a-space>
+                <a-button type="primary" size="small" @click="addField">
+                  {{ t('common.confirm') || '确定' }}
+                </a-button>
+                <a-button size="small" @click="showAddField = false">
+                  {{ t('common.cancel') || '取消' }}
+                </a-button>
+              </a-space>
+            </a-space>
+          </div>
         </template>
         <template v-else>
           <a-form-item :label="$t('common.jsonContent') || 'JSON Content'">
@@ -101,9 +143,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, type PropType } from 'vue'
-import { EditOutlined } from '@antdv-next/icons'
+import { ref, computed, watch, type PropType, h } from 'vue'
+import { EditOutlined, PlusOutlined, DeleteOutlined } from '@antdv-next/icons'
 import { useI18n } from 'vue-i18n'
+import { message } from 'antdv-next'
 
 defineOptions({
   name: 'JsonInput'
@@ -140,6 +183,14 @@ const props = defineProps({
   readonlyFields: {
     type: Array as PropType<string[]>,
     default: () => []
+  },
+  allowAdd: {
+    type: Boolean,
+    default: true
+  },
+  allowDelete: {
+    type: Boolean,
+    default: true
   },
   placeholder: {
     type: String,
@@ -178,6 +229,8 @@ const editData = ref<Record<string, any>>({})
 const errorMessage = ref('')
 const useRawEdit = ref(false)
 const rawJsonText = ref('')
+const newFieldName = ref('')
+const showAddField = ref(false)
 
 const okText = computed(() => t('common.ok') || 'OK')
 const cancelText = computed(() => t('common.cancel') || 'Cancel')
@@ -279,6 +332,24 @@ function toggleEditMode() {
   useRawEdit.value = !useRawEdit.value
 }
 
+function addField() {
+  if (!newFieldName.value.trim()) {
+    message.warning(t('common.pleaseInput') || '请输入字段名')
+    return
+  }
+  if (editData.value[newFieldName.value]) {
+    message.warning(t('common.fieldExists') || '字段已存在')
+    return
+  }
+  editData.value[newFieldName.value] = ''
+  newFieldName.value = ''
+  showAddField.value = false
+}
+
+function removeField(key: string) {
+  delete editData.value[key]
+}
+
 function validateArray(key: string) {
   const value = editData.value[key]
   if (typeof value === 'string') {
@@ -308,5 +379,31 @@ watch(() => props.value, (newVal) => {
 
 :deep(.ant-form-item) {
   margin-bottom: 16px;
+}
+
+.form-field-row {
+  margin-bottom: 16px;
+
+  .field-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+
+    .field-label {
+      font-weight: 500;
+      color: var(--color-text-primary);
+    }
+  }
+
+  .field-input {
+    margin-bottom: 0;
+  }
+}
+
+.add-field-section {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--color-border-secondary);
 }
 </style>
