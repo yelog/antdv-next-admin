@@ -38,6 +38,7 @@ export default {
     menu: '菜单',
     navigate: '切换',
     select: '选择',
+    clear: '清空',
     searchLabel: '搜索{label}'
   },
 

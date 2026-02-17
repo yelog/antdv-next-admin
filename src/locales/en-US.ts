@@ -38,6 +38,7 @@ export default {
     menu: 'Menu',
     navigate: 'Navigate',
     select: 'Select',
+    clear: 'Clear',
     searchLabel: 'Search {label}'
   },
 
