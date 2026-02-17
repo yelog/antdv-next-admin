@@ -266,7 +266,14 @@ export default {
     importSuccess: 'Successfully imported {count} records',
     importFailed: 'Import failed, please check file format',
     importEmpty: 'File is empty or format is incorrect',
-    importFormatError: 'CSV format is incorrect, must include "Username", "Name", "Email" columns'
+    importFormatError: 'CSV format is incorrect, must include "Username", "Name", "Email" columns',
+    age: 'Age',
+    tags: 'Tags',
+    address: 'Address',
+    info: 'User Info',
+    settings: 'Settings',
+    theme: 'Theme',
+    language: 'Language'
   },
 
   role: {
