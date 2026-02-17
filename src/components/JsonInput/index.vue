@@ -86,12 +86,12 @@
                 
                 <!-- Boolean/Status Type -->
                 <template v-else-if="getFieldType(key) === 'boolean' || key === 'isActive' || key === 'status'">
-                  <a-space>
+                  <div class="boolean-field-wrapper">
                     <a-switch v-model:checked="editData[key]" size="small" />
                     <span class="switch-label">
                       {{ editData[key] ? (fieldConfig[key]?.activeLabel || t('common.enabled')) : (fieldConfig[key]?.inactiveLabel || t('common.disabled')) }}
                     </span>
-                  </a-space>
+                  </div>
                 </template>
                 
                 <!-- Number Type -->
@@ -142,17 +142,15 @@
               
               <!-- Actions -->
               <div class="field-actions" :class="{ 'is-visible': hoveredField === key }">
-                <a-button-group size="small">
-                  <a-button v-if="allowSort && index > 0" @click="moveField(index, 'up')">
-                    <ArrowUpOutlined />
-                  </a-button>
-                  <a-button v-if="allowSort && index < fieldOrder.length - 1" @click="moveField(index, 'down')">
-                    <ArrowDownOutlined />
-                  </a-button>
-                  <a-button v-if="allowDelete && !isFieldDisabled(key)" danger @click="removeField(key)">
-                    <DeleteOutlined />
-                  </a-button>
-                </a-button-group>
+                <a-button
+                  v-if="allowDelete && !isFieldDisabled(key)"
+                  type="text"
+                  size="small"
+                  danger
+                  @click="removeField(key)"
+                >
+                  <DeleteOutlined />
+                </a-button>
               </div>
             </div>
           </template>
@@ -239,9 +237,7 @@ import { ref, computed, watch, type PropType } from 'vue'
 import { 
   EditOutlined, 
   PlusOutlined, 
-  DeleteOutlined, 
-  ArrowUpOutlined, 
-  ArrowDownOutlined,
+  DeleteOutlined,
   HolderOutlined
 } from '@antdv-next/icons'
 import { useI18n } from 'vue-i18n'
@@ -512,18 +508,6 @@ function removeField(key: string) {
   fieldOrder.value = fieldOrder.value.filter(k => k !== key)
 }
 
-function moveField(index: number, direction: 'up' | 'down') {
-  if (direction === 'up' && index > 0) {
-    const temp = fieldOrder.value[index]
-    fieldOrder.value[index] = fieldOrder.value[index - 1]
-    fieldOrder.value[index - 1] = temp
-  } else if (direction === 'down' && index < fieldOrder.value.length - 1) {
-    const temp = fieldOrder.value[index]
-    fieldOrder.value[index] = fieldOrder.value[index + 1]
-    fieldOrder.value[index + 1] = temp
-  }
-}
-
 function onDragEnd() {
   draggingIndex.value = -1
 }
@@ -649,10 +633,28 @@ watch(() => props.value, (newVal) => {
       flex: 1;
       min-width: 0;
       
+      // Ensure all inputs have consistent width
+      :deep(.ant-input),
+      :deep(.ant-input-number),
+      :deep(.ant-select),
+      :deep(.ant-input-affix-wrapper) {
+        width: 100%;
+      }
+      
+      :deep(.ant-input-number) {
+        width: 100%;
+      }
+      
+      .boolean-field-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 32px;
+      }
+      
       .switch-label {
         font-size: 12px;
         color: var(--color-text-secondary);
-        margin-left: 6px;
       }
     }
     
