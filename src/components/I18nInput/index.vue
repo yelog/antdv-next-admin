@@ -8,6 +8,7 @@
     :auto-size="autoSize"
     :allow-add="false"
     :allow-delete="false"
+    :allow-sort="false"
   />
 </template>
 

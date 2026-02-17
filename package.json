@@ -47,7 +47,8 @@
     "vue": "^3.4.0",
     "vue-echarts": "^6.6.8",
     "vue-i18n": "^11.0.0",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
