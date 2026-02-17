@@ -659,37 +659,32 @@ watch(() => props.value, (newVal) => {
     .field-actions {
       display: flex;
       align-items: center;
+      gap: 6px;
       opacity: 0;
       transition: opacity 0.15s ease;
       flex-shrink: 0;
       margin-top: 2px;
-      margin-left: 12px;
       
       &.is-visible {
         opacity: 1;
       }
       
+      :deep(.ant-btn) {
+        padding: 0 6px;
+        height: 22px;
+        font-size: 11px;
+      }
+      
       :deep(.ant-btn-group) {
         display: flex;
-        gap: 4px;
+        gap: 6px;
         
         .ant-btn {
           padding: 0 8px;
           height: 28px;
           font-size: 12px;
           border-radius: 4px;
-          
-          &:not(:first-child):not(:last-child) {
-            border-radius: 4px;
-          }
-          
-          &:first-child {
-            border-radius: 4px;
-          }
-          
-          &:last-child {
-            border-radius: 4px;
-          }
+          margin: 0;
         }
       }
     }
