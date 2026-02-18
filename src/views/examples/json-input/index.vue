@@ -12,6 +12,9 @@
         <a-form-item :label="$t('examples.jsonInput.userConfig')">
           <JsonInput
             v-model:value="formState.userConfig"
+            :field-config="{
+              address: { component: 'textarea', maxLength: 500 }
+            }"
             :placeholder="$t('examples.jsonInput.clickToEdit')"
             :modal-title="$t('examples.jsonInput.editUserConfig')"
           />
@@ -21,6 +24,9 @@
           <JsonInput
             v-model:value="formState.productInfo"
             display-key="name"
+            :field-config="{
+              description: { component: 'textarea', maxLength: 500 }
+            }"
             :placeholder="$t('examples.jsonInput.selectProduct')"
           />
         </a-form-item>

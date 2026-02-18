@@ -77,7 +77,7 @@
                 </template>
                 
                 <!-- Tags Type -->
-                <template v-else-if="getFieldType(key) === 'tags' || key === 'tags'">
+                <template v-else-if="getFieldType(key) === 'tags'">
                   <a-select
                     v-model:value="editData[key]"
                     mode="tags"
@@ -90,7 +90,7 @@
                 </template>
                 
                 <!-- Boolean/Status Type -->
-                <template v-else-if="getFieldType(key) === 'boolean' || key === 'isActive' || key === 'status'">
+                <template v-else-if="getFieldType(key) === 'boolean'">
                   <div class="boolean-field-wrapper">
                     <a-switch
                       v-model:checked="editData[key]"
@@ -104,7 +104,7 @@
                 </template>
                 
                 <!-- Number Type -->
-                <template v-else-if="getFieldType(key) === 'number' || key === 'age' || key === 'price' || key === 'stock'">
+                <template v-else-if="getFieldType(key) === 'number'">
                   <a-input-number
                     v-model:value="editData[key]"
                     :controls="false"
@@ -131,7 +131,7 @@
                 </template>
                 
                 <!-- String Type (Long Text) -->
-                <template v-else-if="key === 'address' || key === 'description' || key === 'bio'">
+                <template v-else-if="isLongTextField(key)">
                   <a-textarea
                     v-model:value="editData[key]"
                     size="middle"
@@ -271,6 +271,7 @@ interface LabelMap {
 
 interface FieldConfig {
   type?: 'string' | 'number' | 'boolean' | 'tags' | 'array' | 'object'
+  component?: 'input' | 'textarea'
   label?: string
   min?: number
   max?: number
@@ -379,6 +380,10 @@ function getFieldLabel(key: string): string {
 
 function hasLabelMap(key: string): boolean {
   return !!(props.fieldConfig[key]?.label || props.labelMap[key])
+}
+
+function isLongTextField(key: string): boolean {
+  return props.fieldConfig[key]?.component === 'textarea'
 }
 
 function getFieldType(key: string): string {
