@@ -416,6 +416,29 @@ function getNestedLabelMap(parentKey: string): LabelMap {
   return nested
 }
 
+function parseArrayTextValue(value: string): unknown[] {
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return []
+  }
+
+  const parsed = JSON.parse(trimmed)
+  if (!Array.isArray(parsed)) {
+    throw new Error('NOT_ARRAY')
+  }
+
+  return parsed
+}
+
+function normalizeArrayFieldsForForm() {
+  fieldOrder.value.forEach(key => {
+    const type = getFieldType(key)
+    if (type === 'array' && Array.isArray(editData.value[key])) {
+      editData.value[key] = JSON.stringify(editData.value[key], null, 2)
+    }
+  })
+}
+
 // Modal functions
 function showModal() {
   modalVisible.value = true
@@ -424,6 +447,7 @@ function showModal() {
   if (props.value) {
     editData.value = JSON.parse(JSON.stringify(props.value))
     fieldOrder.value = Object.keys(editData.value)
+    normalizeArrayFieldsForForm()
     rawJsonText.value = JSON.stringify(props.value, null, 2)
   } else {
     editData.value = {}
@@ -439,6 +463,8 @@ function handleCancel() {
 }
 
 function handleOk() {
+  errorMessage.value = ''
+
   if (useRawEdit.value) {
     try {
       const parsed = JSON.parse(rawJsonText.value)
@@ -453,11 +479,17 @@ function handleOk() {
     fieldOrder.value.forEach(key => {
       if (key in editData.value) {
         const type = getFieldType(key)
-        if (type === 'array' && typeof editData.value[key] === 'string') {
-          try {
-            result[key] = JSON.parse(editData.value[key])
-          } catch {
-            result[key] = editData.value[key]
+        if (type === 'array') {
+          const arrayValue = editData.value[key]
+          if (Array.isArray(arrayValue)) {
+            result[key] = arrayValue
+          } else {
+            try {
+              result[key] = parseArrayTextValue(String(arrayValue ?? ''))
+            } catch {
+              errorMessage.value = `${getFieldLabel(key)}: 无效的数组格式`
+              return
+            }
           }
         } else {
           result[key] = editData.value[key]
@@ -477,6 +509,7 @@ function toggleEditMode() {
     try {
       editData.value = JSON.parse(rawJsonText.value)
       fieldOrder.value = Object.keys(editData.value)
+      normalizeArrayFieldsForForm()
       errorMessage.value = ''
     } catch (e) {
       errorMessage.value = "JSON 格式错误"
@@ -508,6 +541,8 @@ function handleAddField() {
       defaultValue = 0
       break
     case 'tags':
+      defaultValue = []
+      break
     case 'array':
       defaultValue = []
       break
@@ -540,9 +575,10 @@ function validateArray(key: string) {
   const value = editData.value[key]
   if (typeof value === 'string') {
     try {
-      JSON.parse(value)
+      parseArrayTextValue(value)
+      errorMessage.value = ''
     } catch {
-      errorMessage.value = `${key}: ${"无效的数组格式"}`
+      errorMessage.value = `${getFieldLabel(key)}: 无效的数组格式`
     }
   }
 }
