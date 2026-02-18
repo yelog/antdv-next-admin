@@ -42,6 +42,10 @@ const props = defineProps({
   autoSize: {
     type: [Boolean, Object] as PropType<boolean | AutoSize>,
     default: () => ({ minRows: 2, maxRows: 6 })
+  },
+  strictLocales: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -104,12 +108,14 @@ function parseValue(value: string | Record<string, string> | null | undefined): 
     }
   })
   
-  // Remove locales not in available list
-  Object.keys(parsed).forEach(key => {
-    if (!availableLocales.find(item => item.locale === key)) {
-      delete parsed[key]
-    }
-  })
+  // Remove locales not in available list when strict mode is enabled
+  if (props.strictLocales) {
+    Object.keys(parsed).forEach(key => {
+      if (!availableLocales.find(item => item.locale === key)) {
+        delete parsed[key]
+      }
+    })
+  }
   
   return parsed
 }
