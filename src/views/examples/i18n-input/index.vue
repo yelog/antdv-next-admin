@@ -108,7 +108,7 @@ function toggleValueType() {
 
 <style scoped lang="scss">
 .page-container {
-  padding: 24px;
+  padding: 0;
 }
 
 .card {

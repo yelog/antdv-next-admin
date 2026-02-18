@@ -12,14 +12,6 @@
         <a-form-item :label="$t('examples.jsonInput.userConfig')">
           <JsonInput
             v-model:value="formState.userConfig"
-            :label-map="{
-              name: $t('user.username'),
-              email: $t('user.email'),
-              age: $t('user.age'),
-              isActive: $t('user.status'),
-              tags: $t('user.tags'),
-              address: $t('user.address')
-            }"
             :placeholder="$t('examples.jsonInput.clickToEdit')"
             :modal-title="$t('examples.jsonInput.editUserConfig')"
           />
@@ -29,27 +21,30 @@
           <JsonInput
             v-model:value="formState.productInfo"
             display-key="name"
-            :label-map="{
-              name: $t('examples.jsonInput.productName'),
-              price: $t('examples.jsonInput.price'),
-              stock: $t('examples.jsonInput.stock'),
-              description: $t('examples.jsonInput.description')
-            }"
             :placeholder="$t('examples.jsonInput.selectProduct')"
           />
         </a-form-item>
 
         <a-divider orientation="left">{{ $t('common.advancedUsage') }}</a-divider>
 
+        <a-form-item :label="$t('examples.jsonInput.withI18nKeys')">
+          <div class="hint">{{ $t('examples.jsonInput.i18nKeysHint') }}</div>
+          <JsonInput
+            v-model:value="formState.i18nConfig"
+            :label-map="{
+              name: $t('user.username'),
+              email: $t('user.email'),
+              age: $t('user.age'),
+              department: $t('user.department'),
+              position: $t('user.position')
+            }"
+            :placeholder="$t('examples.jsonInput.clickToEdit')"
+          />
+        </a-form-item>
+
         <a-form-item :label="$t('examples.jsonInput.withDisabledFields')">
           <JsonInput
             v-model:value="formState.systemConfig"
-            :label-map="{
-              id: 'ID',
-              apiKey: $t('examples.jsonInput.apiKey'),
-              endpoint: $t('examples.jsonInput.endpoint'),
-              timeout: $t('examples.jsonInput.timeout')
-            }"
             :disabled-fields="['id', 'apiKey']"
             :placeholder="$t('examples.jsonInput.systemConfig')"
           />
@@ -58,14 +53,6 @@
         <a-form-item :label="$t('examples.jsonInput.nestedObject')">
           <JsonInput
             v-model:value="formState.nestedData"
-            :label-map="{
-              user: $t('user.info'),
-              'user.name': $t('user.name'),
-              'user.email': $t('user.email'),
-              settings: $t('user.settings'),
-              'settings.theme': $t('user.theme'),
-              'settings.language': $t('user.language')
-            }"
             :placeholder="$t('examples.jsonInput.nestedData')"
           />
         </a-form-item>
@@ -73,7 +60,6 @@
         <a-form-item :label="$t('examples.jsonInput.emptyObject')">
           <JsonInput
             v-model:value="formState.newConfig"
-            :label-map="{}"
             :placeholder="$t('examples.jsonInput.createNew')"
           />
         </a-form-item>
@@ -107,6 +93,13 @@ const formState = reactive({
     stock: 50,
     description: 'High-performance laptop for professionals'
   },
+  i18nConfig: {
+    name: '张三',
+    email: 'zhangsan@example.com',
+    age: 30,
+    department: '技术部',
+    position: '高级工程师'
+  },
   systemConfig: {
     id: 'sys-001',
     apiKey: 'sk-1234567890abcdef',
@@ -129,7 +122,7 @@ const formState = reactive({
 
 <style scoped lang="scss">
 .page-container {
-  padding: 24px;
+  padding: 0;
 }
 
 .card {
@@ -150,6 +143,12 @@ const formState = reactive({
   overflow-x: auto;
   font-family: monospace;
   font-size: 12px;
+}
+
+.hint {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  margin-bottom: 8px;
 }
 
 :deep(.ant-divider) {
