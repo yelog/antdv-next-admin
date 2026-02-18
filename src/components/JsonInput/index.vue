@@ -284,11 +284,6 @@ interface FieldConfigMap {
   [key: string]: FieldConfig
 }
 
-interface AutoSize {
-  minRows?: number
-  maxRows?: number
-}
-
 const props = defineProps({
   value: {
     type: Object as PropType<Record<string, any> | null>,
@@ -337,14 +332,6 @@ const props = defineProps({
   modalWidth: {
     type: String,
     default: '600px'
-  },
-  autoSize: {
-    type: [Boolean, Object] as PropType<boolean | AutoSize>,
-    default: () => ({ minRows: 2, maxRows: 6 })
-  },
-  maxDepth: {
-    type: Number,
-    default: 3
   }
 })
 

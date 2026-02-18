@@ -5,7 +5,6 @@
     :label-map="localeLabelMap"
     :placeholder="placeholder"
     :modal-title="modalTitle"
-    :auto-size="autoSize"
     :allow-add="false"
     :allow-delete="false"
     :allow-sort="false"
@@ -15,12 +14,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, type PropType } from 'vue'
 import JsonInput from '@/components/JsonInput/index.vue'
-import { getLocale } from '@/locales'
-
-interface AutoSize {
-  minRows?: number
-  maxRows?: number
-}
+import { getLocale, SUPPORTED_LOCALES } from '@/locales'
 
 const props = defineProps({
   value: {
@@ -39,10 +33,6 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  autoSize: {
-    type: [Boolean, Object] as PropType<boolean | AutoSize>,
-    default: () => ({ minRows: 2, maxRows: 6 })
-  },
   strictLocales: {
     type: Boolean,
     default: false
@@ -51,18 +41,41 @@ const props = defineProps({
 
 const emit = defineEmits(['update:value', 'change'])
 
-// Available locales configuration
-const availableLocales = [
-  { locale: 'zh-CN', display: '简体中文', flag: '🇨🇳' },
-  { locale: 'en-US', display: 'English', flag: '🇺🇸' }
-]
+interface LocaleMeta {
+  display: string
+  flag: string
+}
 
-const displayLocale = computed(() => props.locale || getLocale())
+const localeMetaMap: Record<string, LocaleMeta> = {
+  'zh-CN': { display: '简体中文', flag: '🇨🇳' },
+  'en-US': { display: 'English', flag: '🇺🇸' }
+}
+
+const availableLocales = computed(() =>
+  SUPPORTED_LOCALES.map(locale => {
+    const meta = localeMetaMap[locale]
+    return {
+      locale,
+      display: meta?.display || locale,
+      flag: meta?.flag || '🌐'
+    }
+  })
+)
+
+const availableLocaleSet = computed(() => new Set(availableLocales.value.map(item => item.locale)))
+
+const displayLocale = computed(() => {
+  const locale = props.locale || getLocale()
+  if (availableLocaleSet.value.has(locale)) {
+    return locale
+  }
+  return availableLocales.value[0]?.locale || locale
+})
 
 // Generate label map for locales
 const localeLabelMap = computed(() => {
   const map: Record<string, string> = {}
-  availableLocales.forEach(item => {
+  availableLocales.value.forEach(item => {
     map[item.locale] = `${item.flag} ${item.display}`
   })
   return map
@@ -75,7 +88,7 @@ const syncingFromProps = ref(false)
 // Initialize default value with all locales
 function getDefaultValue(): Record<string, string> {
   const defaultValue: Record<string, string> = {}
-  availableLocales.forEach(item => {
+  availableLocales.value.forEach(item => {
     defaultValue[item.locale] = ''
   })
   return defaultValue
@@ -101,19 +114,18 @@ function normalizeValue(value: string | Record<string, string> | null | undefine
   } else if (typeof value === 'string') {
     try {
       parsed = JSON.parse(value)
-      if (typeof parsed !== 'object' || parsed === null) {
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
         parsed = getDefaultValue()
       }
     } catch {
       parsed = getDefaultValue()
     }
   } else if (typeof value === 'object') {
-    valueType.value = 'object'
     parsed = { ...value }
   }
   
   // Fill missing locales with empty string
-  availableLocales.forEach(item => {
+  availableLocales.value.forEach(item => {
     if (!parsed[item.locale]) {
       parsed[item.locale] = ''
     }
@@ -122,7 +134,7 @@ function normalizeValue(value: string | Record<string, string> | null | undefine
   // Remove locales not in available list when strict mode is enabled
   if (props.strictLocales) {
     Object.keys(parsed).forEach(key => {
-      if (!availableLocales.find(item => item.locale === key)) {
+      if (!availableLocaleSet.value.has(key)) {
         delete parsed[key]
       }
     })

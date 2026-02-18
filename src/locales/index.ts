@@ -2,10 +2,12 @@ import { createI18n } from 'vue-i18n'
 import zhCN from './zh-CN'
 import enUS from './en-US'
 
-const messages = {
+export const LOCALE_MESSAGES = {
   'zh-CN': zhCN,
   'en-US': enUS
 }
+
+export const SUPPORTED_LOCALES = Object.keys(LOCALE_MESSAGES) as string[]
 
 // Get saved locale or use default
 const savedLocale = localStorage.getItem('app-locale') || 'zh-CN'
@@ -14,7 +16,7 @@ const i18n = createI18n({
   legacy: false,
   locale: savedLocale,
   fallbackLocale: 'zh-CN',
-  messages,
+  messages: LOCALE_MESSAGES,
   globalInjection: true
 })
 
