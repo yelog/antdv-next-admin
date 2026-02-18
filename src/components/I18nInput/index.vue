@@ -70,6 +70,7 @@ const localeLabelMap = computed(() => {
 
 const innerValue = ref<Record<string, string>>({})
 const valueType = ref<'string' | 'object'>('object')
+const syncingFromProps = ref(false)
 
 // Initialize default value with all locales
 function getDefaultValue(): Record<string, string> {
@@ -80,14 +81,24 @@ function getDefaultValue(): Record<string, string> {
   return defaultValue
 }
 
+function isRecordEqual(a: Record<string, string>, b: Record<string, string>): boolean {
+  const aKeys = Object.keys(a)
+  const bKeys = Object.keys(b)
+
+  if (aKeys.length !== bKeys.length) {
+    return false
+  }
+
+  return aKeys.every(key => a[key] === b[key])
+}
+
 // Parse and normalize value
-function parseValue(value: string | Record<string, string> | null | undefined): Record<string, string> {
+function normalizeValue(value: string | Record<string, string> | null | undefined): Record<string, string> {
   let parsed: Record<string, string> = {}
   
   if (!value) {
     parsed = getDefaultValue()
   } else if (typeof value === 'string') {
-    valueType.value = 'string'
     try {
       parsed = JSON.parse(value)
       if (typeof parsed !== 'object' || parsed === null) {
@@ -124,7 +135,15 @@ function parseValue(value: string | Record<string, string> | null | undefined): 
 watch(
   () => props.value,
   (newValue) => {
-    innerValue.value = parseValue(newValue)
+    valueType.value = typeof newValue === 'string' ? 'string' : 'object'
+    const normalized = normalizeValue(newValue)
+
+    if (isRecordEqual(normalized, innerValue.value)) {
+      return
+    }
+
+    syncingFromProps.value = true
+    innerValue.value = normalized
   },
   { immediate: true }
 )
@@ -133,6 +152,15 @@ watch(
 watch(
   () => innerValue.value,
   (newValue) => {
+    if (syncingFromProps.value) {
+      syncingFromProps.value = false
+      return
+    }
+
+    if (isRecordEqual(newValue, normalizeValue(props.value))) {
+      return
+    }
+
     const returnValue = valueType.value === 'string' ? JSON.stringify(newValue) : newValue
     emit('update:value', returnValue)
     emit('change', returnValue)
