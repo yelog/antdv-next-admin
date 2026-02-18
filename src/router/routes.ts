@@ -514,6 +514,17 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               requiresAuth: true,
               order: 2
             }
+          },
+          {
+            path: '/examples/import-export',
+            name: 'ExamplesImportExport',
+            component: () => import('@/views/examples/scaffold/import-export/index.vue'),
+            meta: {
+              title: 'menu.importExport',
+              icon: 'FileTextOutlined',
+              requiresAuth: true,
+              order: 3
+            }
           }
         ]
       },
