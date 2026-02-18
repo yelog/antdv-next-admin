@@ -32,180 +32,40 @@
         class="json-error-alert"
       />
 
-      <div v-if="!useRawEdit" class="tree-edit-container">
-        <div class="tree-panel">
-          <div class="tree-toolbar">
-            <span class="panel-title">结构树</span>
-            <a-space size="small">
-              <a-button type="link" size="small" @click="expandAllNodes">展开</a-button>
-              <a-button type="link" size="small" @click="collapseToRoot">收起</a-button>
-            </a-space>
-          </div>
-          <a-tree
-            block-node
-            show-line
-            :tree-data="treeData"
-            :selected-keys="selectedTreeKeys"
-            :expanded-keys="expandedTreeKeys"
-            class="json-tree"
-            @select="onTreeSelect"
-            @expand="onTreeExpand"
-          />
-        </div>
+      <template v-if="!useRawEdit">
+        <div class="tree-edit-container">
+          <div class="editor-panel">
+            <div class="editor-toolbar">
+              <a-space>
+                <span class="panel-title">结构列表</span>
+                <a-tag color="blue">{{ rootFieldCount }} 个字段</a-tag>
+              </a-space>
+              <a-space size="small">
+                <a-button type="link" size="small" @click="expandAllObjectFields">展开全部</a-button>
+                <a-button type="link" size="small" @click="collapseAllObjectFields">全部收起</a-button>
+              </a-space>
+            </div>
 
-        <div class="editor-panel">
-          <div class="editor-toolbar">
-            <a-breadcrumb>
-              <a-breadcrumb-item>
-                <a href="#" @click.prevent="setActivePath([])">root</a>
-              </a-breadcrumb-item>
-              <a-breadcrumb-item v-for="(segment, index) in activePath" :key="`${segment}-${index}`">
-                <a href="#" @click.prevent="setActivePath(activePath.slice(0, index + 1))">
-                  {{ formatPathSegment(segment) }}
-                </a>
-              </a-breadcrumb-item>
-            </a-breadcrumb>
-            <a-tag color="blue">{{ currentFieldOrder.length }} 个字段</a-tag>
-          </div>
-
-          <draggable
-            v-model="currentFieldOrder"
-            :item-key="getFieldItemKey"
-            handle=".drag-handle"
-            class="field-list"
-            @start="onDragStart"
-            @end="onDragEnd"
-          >
-            <template #item="{ element: key }">
-              <div
-                v-if="currentObject[key] !== undefined"
-                class="field-row"
-                :class="{ 'is-dragging': draggingFieldKey === key, 'is-hovered': hoveredField === key }"
-                @mouseenter="hoveredField = key"
-                @mouseleave="hoveredField = null"
-              >
-                <div class="drag-handle" v-if="allowSort">
-                  <HolderOutlined />
-                </div>
-
-                <div class="field-label-section">
-                  <div class="field-label">{{ getFieldLabel(key) }}</div>
-                  <div v-if="hasLabelMap(key)" class="field-key">{{ key }}</div>
-                </div>
-
-                <div class="field-input-section">
-                  <template v-if="getFieldType(key) === 'object'">
-                    <div class="object-field-wrapper">
-                      <span class="object-summary">{{ getObjectSummary(key) }}</span>
-                      <a-button type="link" size="small" @click="enterObjectField(key)">进入</a-button>
-                    </div>
-                  </template>
-
-                  <template v-else-if="getFieldType(key) === 'tags'">
-                    <a-select
-                      v-model:value="currentObject[key]"
-                      mode="tags"
-                      size="middle"
-                      style="width: 100%"
-                      placeholder="输入标签按回车确认"
-                      :max-tag-count="2"
-                      :disabled="isFieldReadonly(key)"
-                    />
-                  </template>
-
-                  <template v-else-if="getFieldType(key) === 'boolean'">
-                    <div class="boolean-field-wrapper">
-                      <a-switch
-                        v-model:checked="currentObject[key]"
-                        size="small"
-                        :disabled="isFieldReadonly(key)"
-                      />
-                      <span class="switch-label">
-                        {{ currentObject[key] ? (getFieldConfig(key)?.activeLabel || '已启用') : (getFieldConfig(key)?.inactiveLabel || '已禁用') }}
-                      </span>
-                    </div>
-                  </template>
-
-                  <template v-else-if="getFieldType(key) === 'number'">
-                    <a-input-number
-                      v-model:value="currentObject[key]"
-                      :controls="false"
-                      style="width: 100%"
-                      :placeholder="getFieldLabel(key)"
-                      :min="getFieldConfig(key)?.min"
-                      :max="getFieldConfig(key)?.max"
-                      :disabled="isFieldDisabled(key)"
-                      :readonly="isFieldReadonly(key)"
-                    />
-                  </template>
-
-                  <template v-else-if="getFieldType(key) === 'array'">
-                    <a-textarea
-                      :value="getArrayFieldText(key)"
-                      size="middle"
-                      placeholder="JSON: [1, 2, 3]"
-                      :auto-size="{ minRows: 1, maxRows: 3 }"
-                      :disabled="isFieldDisabled(key)"
-                      :readonly="isFieldReadonly(key)"
-                      @update:value="onArrayTextChange(key, $event)"
-                      @blur="validateArray(key)"
-                    />
-                  </template>
-
-                  <template v-else-if="isLongTextField(key)">
-                    <a-textarea
-                      v-model:value="currentObject[key]"
-                      size="middle"
-                      :placeholder="getFieldLabel(key)"
-                      :auto-size="{ minRows: 2, maxRows: 4 }"
-                      show-count
-                      :maxlength="getFieldConfig(key)?.maxLength || 500"
-                      :disabled="isFieldDisabled(key)"
-                      :readonly="isFieldReadonly(key)"
-                    />
-                  </template>
-
-                  <template v-else>
-                    <a-input
-                      v-model:value="currentObject[key]"
-                      size="middle"
-                      :placeholder="getFieldLabel(key)"
-                      :allow-clear="!isFieldReadonly(key)"
-                      :disabled="isFieldDisabled(key)"
-                      :readonly="isFieldReadonly(key)"
-                    />
-                  </template>
-                </div>
-
-                <div class="field-actions" :class="{ 'is-visible': hoveredField === key }">
-                  <a-button
-                    v-if="allowDelete && !isFieldReadonly(key)"
-                    type="text"
-                    size="small"
-                    danger
-                    @click="removeField(key)"
-                  >
-                    <DeleteOutlined />
-                  </a-button>
-                </div>
-              </div>
-            </template>
-          </draggable>
-
-          <div v-if="allowAdd" class="add-field-section">
-            <a-button
-              v-if="!showAddFieldDialog"
-              type="dashed"
-              size="small"
-              class="add-field-btn"
-              @click="showAddFieldDialog = true"
-            >
-              <PlusOutlined />
-              新增字段
-            </a-button>
+            <div class="editor-content">
+              <JsonFieldTreeList
+                :path="[]"
+                :depth="0"
+                :allow-add="allowAdd"
+                :allow-delete="allowDelete"
+                :allow-sort="allowSort"
+                :hovered-path-key="hoveredFieldPathKey"
+                :dragging-path-key="draggingFieldPathKey"
+                :api="treeEditorApi"
+                @hover-change="onHoverChange"
+                @request-add-field="openAddFieldDialog"
+                @remove-field="onRemoveField"
+                @drag-start="onDragStart"
+                @drag-end="onDragEnd"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </template>
 
       <template v-else>
         <a-form-item label="JSON 内容">
@@ -221,7 +81,7 @@
       <template #footer>
         <a-space>
           <a-button @click="toggleEditMode" size="small">
-            {{ useRawEdit ? '树形编辑' : '原始编辑' }}
+            {{ useRawEdit ? '结构编辑' : '原始编辑' }}
           </a-button>
           <a-button @click="handleCancel" size="small">
             {{ cancelText }}
@@ -243,6 +103,9 @@
       width="400px"
     >
       <a-form layout="vertical">
+        <a-form-item label="目标对象">
+          <a-input :value="formatPathLabel(addFieldTargetPath)" size="middle" disabled />
+        </a-form-item>
         <a-form-item label="字段名称" required>
           <a-input
             v-model:value="newField.name"
@@ -268,49 +131,30 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, type PropType } from 'vue'
-import {
-  EditOutlined,
-  PlusOutlined,
-  DeleteOutlined,
-  HolderOutlined
-} from '@antdv-next/icons'
+import { EditOutlined } from '@antdv-next/icons'
 import { message } from 'antdv-next'
-import draggable from 'vuedraggable'
+import JsonFieldTreeList, { type FieldType, type JsonObject, type FieldConfig, type JsonTreeEditorApi } from './JsonFieldTreeList.vue'
 
 defineOptions({
   name: 'JsonInput'
 })
 
-type FieldType = 'string' | 'number' | 'boolean' | 'tags' | 'array' | 'object'
-
-interface JsonObject {
-  [key: string]: unknown
-}
-
 interface LabelMap {
   [key: string]: string
-}
-
-interface FieldConfig {
-  type?: FieldType
-  component?: 'input' | 'textarea'
-  label?: string
-  min?: number
-  max?: number
-  maxLength?: number
-  activeLabel?: string
-  inactiveLabel?: string
 }
 
 interface FieldConfigMap {
   [key: string]: FieldConfig
 }
 
-interface TreeNode {
+interface RemoveFieldPayload {
+  path: string[]
   key: string
-  title: string
-  selectable?: boolean
-  children?: TreeNode[]
+}
+
+interface DragStartPayload {
+  path: string[]
+  oldIndex?: number
 }
 
 const props = defineProps({
@@ -371,14 +215,14 @@ const editData = ref<JsonObject>({})
 const fieldOrderMap = ref<Record<string, string[]>>({})
 const dynamicTypeMap = ref<Record<string, FieldType>>({})
 const arrayTextBuffer = ref<Record<string, string>>({})
-const activePath = ref<string[]>([])
-const expandedTreeKeys = ref<string[]>([])
+const expandedPathKeys = ref<string[]>([])
 const errorMessage = ref('')
 const useRawEdit = ref(false)
 const rawJsonText = ref('')
-const hoveredField = ref<string | null>(null)
-const draggingFieldKey = ref<string | null>(null)
+const hoveredFieldPathKey = ref('')
+const draggingFieldPathKey = ref('')
 const showAddFieldDialog = ref(false)
+const addFieldTargetPath = ref<string[]>([])
 const newField = ref<{ name: string; type: FieldType }>({ name: '', type: 'string' })
 
 const okText = '确定'
@@ -394,22 +238,7 @@ const displayValue = computed(() => {
   return `${JSON.stringify(props.value).slice(0, 50)}...`
 })
 
-const selectedTreeKeys = computed(() => [serializePath(activePath.value)])
-
-const currentObject = computed<JsonObject>(() => {
-  const value = getValueByPath(editData.value, activePath.value)
-  if (isPlainObject(value)) {
-    return value
-  }
-  return editData.value
-})
-
-const currentFieldOrder = computed<string[]>({
-  get: () => getFieldOrderByPath(activePath.value),
-  set: (order) => setFieldOrderByPath(activePath.value, order)
-})
-
-const treeData = computed<TreeNode[]>(() => [buildTreeNode(editData.value, [])])
+const rootFieldCount = computed(() => getFieldOrderByPath([]).length)
 
 function isPlainObject(value: unknown): value is JsonObject {
   return Object.prototype.toString.call(value) === '[object Object]'
@@ -490,28 +319,20 @@ function getFieldConfigByPath(path: string[], key: string): FieldConfig | undefi
   return props.fieldConfig[fullPathKey] || props.fieldConfig[key]
 }
 
-function getFieldConfig(key: string): FieldConfig | undefined {
-  return getFieldConfigByPath(activePath.value, key)
-}
-
 function getFieldLabelByPath(path: string[], key: string): string {
   const config = getFieldConfigByPath(path, key)
   const fullPathKey = getFieldPath(path, key).join('.')
   return config?.label || props.labelMap[fullPathKey] || props.labelMap[key] || key
 }
 
-function getFieldLabel(key: string): string {
-  return getFieldLabelByPath(activePath.value, key)
-}
-
-function hasLabelMap(key: string): boolean {
-  const config = getFieldConfigByPath(activePath.value, key)
-  const fullPathKey = getFieldPath(activePath.value, key).join('.')
+function hasLabelMapByPath(path: string[], key: string): boolean {
+  const config = getFieldConfigByPath(path, key)
+  const fullPathKey = getFieldPath(path, key).join('.')
   return Boolean(config?.label || props.labelMap[fullPathKey] || props.labelMap[key])
 }
 
-function isLongTextField(key: string): boolean {
-  return getFieldConfigByPath(activePath.value, key)?.component === 'textarea'
+function isLongTextFieldByPath(path: string[], key: string): boolean {
+  return getFieldConfigByPath(path, key)?.component === 'textarea'
 }
 
 function setDynamicFieldType(path: string[], key: string, type: FieldType) {
@@ -566,22 +387,14 @@ function getFieldTypeByPath(path: string[], key: string): FieldType {
   return 'string'
 }
 
-function getFieldType(key: string): FieldType {
-  return getFieldTypeByPath(activePath.value, key)
-}
-
 function isFieldDisabledByPath(path: string[], key: string): boolean {
   const fullPathKey = getFieldPath(path, key).join('.')
   return props.disabledFields.includes(fullPathKey) || props.disabledFields.includes(key)
 }
 
-function isFieldDisabled(key: string): boolean {
-  return isFieldDisabledByPath(activePath.value, key)
-}
-
-function isFieldReadonly(key: string): boolean {
-  const fullPathKey = getFieldPath(activePath.value, key).join('.')
-  return isFieldDisabled(key) || props.readonlyFields.includes(fullPathKey) || props.readonlyFields.includes(key)
+function isFieldReadonlyByPath(path: string[], key: string): boolean {
+  const fullPathKey = getFieldPath(path, key).join('.')
+  return isFieldDisabledByPath(path, key) || props.readonlyFields.includes(fullPathKey) || props.readonlyFields.includes(key)
 }
 
 function getFieldOrderByPath(path: string[]): string[] {
@@ -620,10 +433,6 @@ function setFieldOrderByPath(path: string[], order: string[]) {
   fieldOrderMap.value[serializePath(path)] = [...order]
 }
 
-function getFieldItemKey(key: string): string {
-  return key
-}
-
 function formatPathSegment(segment: string): string {
   if (/^\d+$/.test(segment)) {
     return `[${segment}]`
@@ -631,176 +440,16 @@ function formatPathSegment(segment: string): string {
   return segment
 }
 
-function truncateText(text: string, maxLength = 20): string {
-  if (text.length <= maxLength) {
-    return text
+function formatPathLabel(path: string[]): string {
+  if (path.length === 0) {
+    return 'root'
   }
-  return `${text.slice(0, maxLength)}...`
+  return ['root', ...path.map(formatPathSegment)].join(' / ')
 }
 
-function getTreeNodeTitle(path: string[], value: unknown): string {
-  const nodeName = path.length === 0 ? 'root' : formatPathSegment(path[path.length - 1])
-
-  if (isPlainObject(value)) {
-    return `${nodeName} {${Object.keys(value).length}}`
-  }
-
-  if (Array.isArray(value)) {
-    return `${nodeName} [${value.length}]`
-  }
-
-  if (typeof value === 'string') {
-    return `${nodeName}: "${truncateText(value)}"`
-  }
-
-  return `${nodeName}: ${String(value)}`
-}
-
-function getOrderedObjectKeys(path: string[], target: JsonObject): string[] {
-  const defaultKeys = Object.keys(target)
-  const customOrder = fieldOrderMap.value[serializePath(path)]
-  if (!customOrder) {
-    return defaultKeys
-  }
-
-  const ordered = customOrder.filter(key => Object.prototype.hasOwnProperty.call(target, key))
-  defaultKeys.forEach(key => {
-    if (!ordered.includes(key)) {
-      ordered.push(key)
-    }
-  })
-  return ordered
-}
-
-function buildTreeChildren(value: unknown, path: string[]): TreeNode[] {
-  if (isPlainObject(value)) {
-    const orderedKeys = getOrderedObjectKeys(path, value)
-    return orderedKeys
-      .filter(key => Object.prototype.hasOwnProperty.call(value, key))
-      .map(key => buildTreeNode(value[key], [...path, key]))
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((item, index) => buildTreeNode(item, [...path, String(index)]))
-  }
-
-  return []
-}
-
-function buildTreeNode(value: unknown, path: string[]): TreeNode {
-  const children = buildTreeChildren(value, path)
-
-  const node: TreeNode = {
-    key: serializePath(path),
-    title: getTreeNodeTitle(path, value),
-    selectable: isPlainObject(value)
-  }
-
-  if (children.length > 0) {
-    node.children = children
-  }
-
-  return node
-}
-
-function collectExpandablePathKeys(value: unknown, path: string[] = []): string[] {
-  if (!isPlainObject(value) && !Array.isArray(value)) {
-    return []
-  }
-
-  const keys: string[] = [serializePath(path)]
-
-  if (isPlainObject(value)) {
-    Object.keys(value).forEach(key => {
-      keys.push(...collectExpandablePathKeys(value[key], [...path, key]))
-    })
-  } else {
-    value.forEach((item, index) => {
-      keys.push(...collectExpandablePathKeys(item, [...path, String(index)]))
-    })
-  }
-
-  return keys
-}
-
-function expandAllNodes() {
-  expandedTreeKeys.value = collectExpandablePathKeys(editData.value)
-}
-
-function collapseToRoot() {
-  expandedTreeKeys.value = [serializePath([])]
-}
-
-function ensurePathExpanded(path: string[]) {
-  const keys = [...expandedTreeKeys.value]
-
-  for (let i = 0; i <= path.length; i += 1) {
-    const nodePath = path.slice(0, i)
-    const nodeKey = serializePath(nodePath)
-    if (!keys.includes(nodeKey)) {
-      keys.push(nodeKey)
-    }
-  }
-
-  expandedTreeKeys.value = keys
-}
-
-function setActivePath(path: string[]) {
+function getObjectSummaryByPath(path: string[], key: string): string {
   const target = getObjectByPath(path)
-  if (!target) {
-    activePath.value = []
-  } else {
-    activePath.value = [...path]
-  }
-
-  hoveredField.value = null
-  draggingFieldKey.value = null
-  getFieldOrderByPath(activePath.value)
-}
-
-function onTreeSelect(selectedKeys: Array<string | number>) {
-  if (selectedKeys.length === 0) {
-    return
-  }
-
-  const selectedKey = selectedKeys[0]
-  if (typeof selectedKey !== 'string') {
-    return
-  }
-
-  const selectedPath = parsePath(selectedKey)
-  const selectedValue = getValueByPath(editData.value, selectedPath)
-
-  if (isPlainObject(selectedValue)) {
-    setActivePath(selectedPath)
-    return
-  }
-
-  const parentPath = selectedPath.slice(0, -1)
-  const parentValue = getValueByPath(editData.value, parentPath)
-  if (isPlainObject(parentValue)) {
-    setActivePath(parentPath)
-  }
-}
-
-function onTreeExpand(expandedKeys: Array<string | number>) {
-  expandedTreeKeys.value = expandedKeys.filter((key): key is string => typeof key === 'string')
-}
-
-function enterObjectField(key: string) {
-  const targetPath = [...activePath.value, key]
-  const target = getValueByPath(editData.value, targetPath)
-
-  if (!isPlainObject(target)) {
-    return
-  }
-
-  ensurePathExpanded(targetPath)
-  setActivePath(targetPath)
-}
-
-function getObjectSummary(key: string): string {
-  const value = currentObject.value[key]
+  const value = target ? target[key] : undefined
   if (isPlainObject(value)) {
     return `对象（${Object.keys(value).length} 个字段）`
   }
@@ -821,19 +470,16 @@ function parseArrayTextValue(value: string): unknown[] {
   return parsed
 }
 
-function getArrayFieldPath(key: string): string[] {
-  return [...activePath.value, key]
-}
-
-function getArrayFieldText(key: string): string {
-  const path = getArrayFieldPath(key)
-  const pathKey = serializePath(path)
+function getArrayFieldTextByPath(path: string[], key: string): string {
+  const fieldPath = getFieldPath(path, key)
+  const pathKey = serializePath(fieldPath)
 
   if (Object.prototype.hasOwnProperty.call(arrayTextBuffer.value, pathKey)) {
     return arrayTextBuffer.value[pathKey]
   }
 
-  const value = currentObject.value[key]
+  const target = getObjectByPath(path)
+  const value = target ? target[key] : undefined
   if (Array.isArray(value)) {
     return JSON.stringify(value, null, 2)
   }
@@ -843,9 +489,8 @@ function getArrayFieldText(key: string): string {
   return '[]'
 }
 
-function onArrayTextChange(key: string, value: string) {
-  const path = getArrayFieldPath(key)
-  arrayTextBuffer.value[serializePath(path)] = value
+function onArrayTextChangeByPath(path: string[], key: string, value: string) {
+  arrayTextBuffer.value[serializePath(getFieldPath(path, key))] = value
 }
 
 function commitArrayBuffer(path: string[]): boolean {
@@ -878,6 +523,12 @@ function commitArrayBuffer(path: string[]): boolean {
   }
 }
 
+function validateArrayByPath(path: string[], key: string) {
+  if (commitArrayBuffer(getFieldPath(path, key))) {
+    errorMessage.value = ''
+  }
+}
+
 function syncAllArrayBuffers(): boolean {
   const keys = Object.keys(arrayTextBuffer.value)
   for (const key of keys) {
@@ -896,6 +547,77 @@ function clearArrayBufferByPrefix(path: string[]) {
       delete arrayTextBuffer.value[pathKey]
     }
   }
+}
+
+function getOrderedObjectKeys(path: string[], target: JsonObject): string[] {
+  const defaultKeys = Object.keys(target)
+  const customOrder = fieldOrderMap.value[serializePath(path)]
+  if (!customOrder) {
+    return defaultKeys
+  }
+
+  const ordered = customOrder.filter(key => Object.prototype.hasOwnProperty.call(target, key))
+  defaultKeys.forEach(key => {
+    if (!ordered.includes(key)) {
+      ordered.push(key)
+    }
+  })
+  return ordered
+}
+
+function collectObjectPathKeys(value: unknown, path: string[] = []): string[] {
+  if (!isPlainObject(value)) {
+    return []
+  }
+
+  const keys: string[] = []
+  const orderedKeys = getOrderedObjectKeys(path, value)
+
+  orderedKeys.forEach(key => {
+    const childPath = [...path, key]
+    const childValue = value[key]
+    if (isPlainObject(childValue)) {
+      keys.push(serializePath(childPath))
+      keys.push(...collectObjectPathKeys(childValue, childPath))
+    }
+  })
+
+  return keys
+}
+
+function isPathExpanded(path: string[]): boolean {
+  if (path.length === 0) {
+    return true
+  }
+  return expandedPathKeys.value.includes(serializePath(path))
+}
+
+function setPathExpanded(path: string[], expanded: boolean) {
+  const pathKey = serializePath(path)
+  const next = expandedPathKeys.value.filter(item => item !== pathKey)
+  if (expanded) {
+    next.push(pathKey)
+  }
+  expandedPathKeys.value = next
+}
+
+function togglePathExpanded(path: string[]) {
+  setPathExpanded(path, !isPathExpanded(path))
+}
+
+function clearExpandedPathKeysByPrefix(path: string[]) {
+  expandedPathKeys.value = expandedPathKeys.value.filter(pathKey => {
+    const targetPath = parsePath(pathKey)
+    return !isPathPrefix(path, targetPath)
+  })
+}
+
+function expandAllObjectFields() {
+  expandedPathKeys.value = collectObjectPathKeys(editData.value)
+}
+
+function collapseAllObjectFields() {
+  expandedPathKeys.value = []
 }
 
 function buildOrderedValue(value: unknown, path: string[] = []): unknown {
@@ -924,11 +646,11 @@ function resetEditorState(nextValue: JsonObject) {
   fieldOrderMap.value = {}
   dynamicTypeMap.value = {}
   arrayTextBuffer.value = {}
-  activePath.value = []
-  hoveredField.value = null
-  draggingFieldKey.value = null
+  hoveredFieldPathKey.value = ''
+  draggingFieldPathKey.value = ''
+  addFieldTargetPath.value = []
   getFieldOrderByPath([])
-  expandedTreeKeys.value = [serializePath([])]
+  expandedPathKeys.value = collectObjectPathKeys(nextValue)
 }
 
 function showModal() {
@@ -1007,6 +729,18 @@ function toggleEditMode() {
   }
 }
 
+function openAddFieldDialog(path: string[]) {
+  const target = getObjectByPath(path)
+  if (!target) {
+    message.warning('目标对象不存在')
+    return
+  }
+
+  addFieldTargetPath.value = [...path]
+  newField.value = { name: '', type: 'string' }
+  showAddFieldDialog.value = true
+}
+
 function handleAddField() {
   const fieldName = newField.value.name.trim()
   if (!fieldName) {
@@ -1014,7 +748,14 @@ function handleAddField() {
     return
   }
 
-  if (Object.prototype.hasOwnProperty.call(currentObject.value, fieldName)) {
+  const targetPath = [...addFieldTargetPath.value]
+  const targetObject = getObjectByPath(targetPath)
+  if (!targetObject) {
+    message.warning('目标对象不存在')
+    return
+  }
+
+  if (Object.prototype.hasOwnProperty.call(targetObject, fieldName)) {
     message.warning('字段已存在')
     return
   }
@@ -1040,12 +781,16 @@ function handleAddField() {
       defaultValue = ''
   }
 
-  currentObject.value[fieldName] = defaultValue
-  setDynamicFieldType(activePath.value, fieldName, newField.value.type)
-  currentFieldOrder.value = [...currentFieldOrder.value, fieldName]
+  targetObject[fieldName] = defaultValue
+  setDynamicFieldType(targetPath, fieldName, newField.value.type)
+  setFieldOrderByPath(targetPath, [...getFieldOrderByPath(targetPath), fieldName])
 
   if (newField.value.type === 'array') {
-    arrayTextBuffer.value[getFieldPathKey(activePath.value, fieldName)] = '[]'
+    arrayTextBuffer.value[getFieldPathKey(targetPath, fieldName)] = '[]'
+  }
+
+  if (newField.value.type === 'object') {
+    setPathExpanded(getFieldPath(targetPath, fieldName), true)
   }
 
   newField.value = { name: '', type: 'string' }
@@ -1053,31 +798,67 @@ function handleAddField() {
   message.success('添加成功')
 }
 
-function removeField(key: string) {
-  delete currentObject.value[key]
-  currentFieldOrder.value = currentFieldOrder.value.filter(fieldKey => fieldKey !== key)
-
-  const removedPath = [...activePath.value, key]
-  clearArrayBufferByPrefix(removedPath)
-  clearDynamicFieldTypeByPrefix(removedPath)
-}
-
-function onDragStart(event: { oldIndex?: number }) {
-  if (event.oldIndex === undefined) {
-    draggingFieldKey.value = null
+function onRemoveField(payload: RemoveFieldPayload) {
+  const target = getObjectByPath(payload.path)
+  if (!target) {
     return
   }
-  draggingFieldKey.value = currentFieldOrder.value[event.oldIndex] ?? null
+
+  delete target[payload.key]
+  setFieldOrderByPath(payload.path, getFieldOrderByPath(payload.path).filter(key => key !== payload.key))
+
+  const removedPath = [...payload.path, payload.key]
+  clearArrayBufferByPrefix(removedPath)
+  clearDynamicFieldTypeByPrefix(removedPath)
+  clearExpandedPathKeysByPrefix(removedPath)
+
+  const removedPathKey = serializePath(removedPath)
+  if (hoveredFieldPathKey.value === removedPathKey) {
+    hoveredFieldPathKey.value = ''
+  }
+  if (draggingFieldPathKey.value === removedPathKey) {
+    draggingFieldPathKey.value = ''
+  }
+}
+
+function onHoverChange(pathKey: string) {
+  hoveredFieldPathKey.value = pathKey
+}
+
+function onDragStart(payload: DragStartPayload) {
+  if (payload.oldIndex === undefined) {
+    draggingFieldPathKey.value = ''
+    return
+  }
+
+  const currentOrder = getFieldOrderByPath(payload.path)
+  const fieldKey = currentOrder[payload.oldIndex]
+  draggingFieldPathKey.value = fieldKey ? getFieldPathKey(payload.path, fieldKey) : ''
 }
 
 function onDragEnd() {
-  draggingFieldKey.value = null
+  draggingFieldPathKey.value = ''
 }
 
-function validateArray(key: string) {
-  if (commitArrayBuffer(getArrayFieldPath(key))) {
-    errorMessage.value = ''
-  }
+const treeEditorApi: JsonTreeEditorApi = {
+  getObjectByPath,
+  getFieldOrderByPath,
+  setFieldOrderByPath,
+  getFieldPath,
+  getFieldPathKey,
+  getFieldLabelByPath,
+  hasLabelMapByPath,
+  getFieldTypeByPath,
+  getFieldConfigByPath,
+  isLongTextFieldByPath,
+  isFieldDisabledByPath,
+  isFieldReadonlyByPath,
+  getObjectSummaryByPath,
+  getArrayFieldTextByPath,
+  onArrayTextChangeByPath,
+  validateArrayByPath,
+  isPathExpanded,
+  togglePathExpanded
 }
 
 watch(
@@ -1087,11 +868,13 @@ watch(
       return
     }
 
-    editData.value = normalizeInputValue(newVal)
+    const normalized = normalizeInputValue(newVal)
+    editData.value = normalized
     fieldOrderMap.value = {}
     dynamicTypeMap.value = {}
     arrayTextBuffer.value = {}
     getFieldOrderByPath([])
+    expandedPathKeys.value = collectObjectPathKeys(normalized)
   },
   { deep: true }
 )
@@ -1116,25 +899,18 @@ watch(
 }
 
 .tree-edit-container {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 12px;
   min-height: 420px;
 
-  .tree-panel,
   .editor-panel {
-    background: var(--color-bg-container);
-    border: 1px solid var(--color-border-secondary);
-    border-radius: 8px;
-  }
-
-  .tree-panel {
     display: flex;
     flex-direction: column;
     min-height: 420px;
+    background: var(--color-bg-container);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 8px;
+    overflow: hidden;
   }
 
-  .tree-toolbar,
   .editor-toolbar {
     display: flex;
     align-items: center;
@@ -1149,197 +925,15 @@ watch(
     color: var(--color-text-primary);
   }
 
-  .json-tree {
+  .editor-content {
     flex: 1;
     overflow: auto;
-    padding: 8px;
-
-    :deep(.ant-tree-node-content-wrapper) {
-      min-height: 28px;
-      display: flex;
-      align-items: center;
-    }
-  }
-
-  .editor-panel {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  .field-list {
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-    padding: 6px 0;
-    max-height: 360px;
-  }
-
-  .field-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--color-border-secondary);
-    transition: all 0.15s ease;
-
-    &:hover,
-    &.is-hovered {
-      background: var(--color-primary-bg);
-    }
-
-    &.is-dragging {
-      background: var(--color-primary-bg);
-      opacity: 0.9;
-    }
-
-    &:last-child {
-      border-bottom: none;
-    }
-  }
-
-  .drag-handle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    cursor: grab;
-    color: var(--color-text-quaternary);
-    flex-shrink: 0;
-    margin-top: 4px;
-
-    &:active {
-      cursor: grabbing;
-    }
-  }
-
-  .field-label-section {
-    width: 140px;
-    flex-shrink: 0;
-    padding-top: 4px;
-
-    .field-label {
-      font-weight: 500;
-      font-size: 13px;
-      color: var(--color-text-primary);
-      line-height: 1.4;
-    }
-
-    .field-key {
-      font-size: 11px;
-      color: var(--color-text-tertiary);
-      line-height: 1.3;
-      margin-top: 2px;
-      word-break: break-all;
-    }
-  }
-
-  .field-input-section {
-    flex: 1;
-    min-width: 0;
-
-    :deep(.ant-input),
-    :deep(.ant-select),
-    :deep(.ant-input-affix-wrapper),
-    :deep(.ant-input-number) {
-      width: 100%;
-    }
-
-    .boolean-field-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 32px;
-    }
-
-    .switch-label {
-      font-size: 12px;
-      color: var(--color-text-secondary);
-    }
-
-    .object-field-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 32px;
-      background: var(--color-bg-layout);
-      border: 1px dashed var(--color-border-secondary);
-      border-radius: 6px;
-      padding: 0 10px;
-      gap: 8px;
-    }
-
-    .object-summary {
-      font-size: 12px;
-      color: var(--color-text-secondary);
-    }
-  }
-
-  .field-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    flex-shrink: 0;
-    margin-top: 2px;
-
-    &.is-visible {
-      opacity: 1;
-    }
-
-    :deep(.ant-btn) {
-      padding: 0 6px;
-      height: 22px;
-      font-size: 11px;
-    }
-  }
-
-  .add-field-section {
-    padding: 10px 12px 12px;
-    border-top: 1px solid var(--color-border-secondary);
-
-    .add-field-btn {
-      border-style: dashed;
-
-      &:hover {
-        border-color: var(--color-primary);
-        color: var(--color-primary);
-      }
-    }
+    max-height: 420px;
   }
 }
 
 .raw-editor {
   font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
   font-size: 13px;
-}
-
-@media (max-width: 768px) {
-  .tree-edit-container {
-    grid-template-columns: 1fr;
-
-    .tree-panel {
-      min-height: 220px;
-    }
-
-    .field-row {
-      flex-wrap: wrap;
-
-      .field-label-section {
-        width: 100%;
-        padding-top: 0;
-        margin-bottom: 6px;
-      }
-
-      .field-actions {
-        width: 100%;
-        justify-content: flex-end;
-        opacity: 1;
-      }
-    }
-  }
 }
 </style>
