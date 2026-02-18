@@ -56,7 +56,7 @@
               <!-- Left: Label & Key -->
               <div class="field-label-section">
                 <div class="field-label">{{ getFieldLabel(key) }}</div>
-                <div class="field-key">{{ key }}</div>
+                <div v-if="hasLabelMap(key)" class="field-key">{{ key }}</div>
               </div>
               
               <!-- Right: Input -->
@@ -358,6 +358,10 @@ const displayValue = computed(() => {
 // Helper functions
 function getFieldLabel(key: string): string {
   return props.fieldConfig[key]?.label || props.labelMap[key] || key
+}
+
+function hasLabelMap(key: string): boolean {
+  return !!(props.fieldConfig[key]?.label || props.labelMap[key])
 }
 
 function getFieldType(key: string): string {
