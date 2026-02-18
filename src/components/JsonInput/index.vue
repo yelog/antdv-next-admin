@@ -488,11 +488,13 @@ function toggleEditMode() {
 
 // Field operations
 function handleAddField() {
-  if (!newField.value.name.trim()) {
+  const fieldName = newField.value.name.trim()
+
+  if (!fieldName) {
     message.warning("请输入字段名")
     return
   }
-  if (editData.value[newField.value.name]) {
+  if (Object.prototype.hasOwnProperty.call(editData.value, fieldName)) {
     message.warning("字段已存在")
     return
   }
@@ -516,8 +518,8 @@ function handleAddField() {
       defaultValue = ''
   }
   
-  editData.value[newField.value.name] = defaultValue
-  fieldOrder.value.push(newField.value.name)
+  editData.value[fieldName] = defaultValue
+  fieldOrder.value.push(fieldName)
   
   newField.value = { name: '', type: 'string' }
   showAddFieldDialog.value = false
