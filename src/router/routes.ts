@@ -293,6 +293,17 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               requiresAuth: true,
               order: 3
             }
+          },
+          {
+            path: '/examples/virtual-table',
+            name: 'ExamplesVirtualTable',
+            component: () => import('@/views/examples/scaffold/virtual-table/index.vue'),
+            meta: {
+              title: 'menu.virtualTable',
+              icon: 'TableOutlined',
+              requiresAuth: true,
+              order: 4
+            }
           }
         ]
       },
