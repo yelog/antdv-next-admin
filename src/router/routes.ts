@@ -340,6 +340,17 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               requiresAuth: true,
               order: 3
             }
+          },
+          {
+            path: '/examples/advanced-filter',
+            name: 'ExamplesAdvancedFilter',
+            component: () => import('@/views/examples/scaffold/advanced-filter/index.vue'),
+            meta: {
+              title: 'menu.advancedFilter',
+              icon: 'ControlOutlined',
+              requiresAuth: true,
+              order: 4
+            }
           }
         ]
       },
