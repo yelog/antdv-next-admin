@@ -149,7 +149,9 @@ export default {
     recentMenus: '最近访问',
     languages: {
       zhCN: '简体中文',
-      enUS: 'English'
+      enUS: 'English',
+      jaJP: '日本語',
+      koKR: '한국어'
     },
     tabs: {
       refresh: '刷新当前',

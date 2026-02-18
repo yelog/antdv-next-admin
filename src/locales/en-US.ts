@@ -148,7 +148,9 @@ export default {
     recentMenus: 'Recent Visits',
     languages: {
       zhCN: 'Simplified Chinese',
-      enUS: 'English'
+      enUS: 'English',
+      jaJP: 'Japanese',
+      koKR: 'Korean'
     },
     tabs: {
       refresh: 'Refresh',
