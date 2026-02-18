@@ -82,7 +82,7 @@
                     mode="tags"
                     size="middle"
                     style="width: 100%"
-                    :placeholder="输入标签按回车确认"
+                    placeholder="输入标签按回车确认"
                     :max-tag-count="2"
                     :disabled="isFieldReadonly(key)"
                   />
@@ -217,30 +217,30 @@
     <!-- Add Field Dialog -->
     <a-modal
       v-model:open="showAddFieldDialog"
-      :title="新增字段"
-      :ok-text="确定"
-      :cancel-text="取消"
+      title="新增字段"
+      ok-text="确定"
+      cancel-text="取消"
       @ok="handleAddField"
       @cancel="showAddFieldDialog = false"
       width="400px"
     >
       <a-form layout="vertical">
-        <a-form-item :label="字段名称" required>
+        <a-form-item label="字段名称" required>
           <a-input
             v-model:value="newField.name"
             size="middle"
-            :placeholder="请输入字段名称"
+            placeholder="请输入字段名称"
             @pressEnter="handleAddField"
           />
         </a-form-item>
-        <a-form-item :label="字段类型">
-          <a-select v-model:value="newField.type" size="middle" :placeholder="请选择字段类型">
-            <a-select-option value="string">"文本"</a-select-option>
-            <a-select-option value="number">"数字"</a-select-option>
-            <a-select-option value="boolean">"布尔值"</a-select-option>
-            <a-select-option value="tags">"标签"</a-select-option>
-            <a-select-option value="array">"数组"</a-select-option>
-            <a-select-option value="object">"对象"</a-select-option>
+        <a-form-item label="字段类型">
+          <a-select v-model:value="newField.type" size="middle" placeholder="请选择字段类型">
+            <a-select-option value="string">文本</a-select-option>
+            <a-select-option value="number">数字</a-select-option>
+            <a-select-option value="boolean">布尔值</a-select-option>
+            <a-select-option value="tags">标签</a-select-option>
+            <a-select-option value="array">数组</a-select-option>
+            <a-select-option value="object">对象</a-select-option>
           </a-select>
         </a-form-item>
       </a-form>
