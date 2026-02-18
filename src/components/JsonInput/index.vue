@@ -35,16 +35,17 @@
       <div v-if="!useRawEdit" class="form-edit-container">
         <draggable
           v-model="fieldOrder"
-          item-key="key"
+          :item-key="getFieldItemKey"
           handle=".drag-handle"
           class="field-list"
+          @start="onDragStart"
           @end="onDragEnd"
         >
-          <template #item="{ element: key, index }">
+          <template #item="{ element: key }">
             <div
               v-if="editData[key] !== undefined"
               class="field-row"
-              :class="{ 'is-dragging': draggingIndex === index, 'is-hovered': hoveredField === key }"
+              :class="{ 'is-dragging': draggingFieldKey === key, 'is-hovered': hoveredField === key }"
               @mouseenter="hoveredField = key"
               @mouseleave="hoveredField = null"
             >
@@ -356,7 +357,7 @@ const errorMessage = ref('')
 const useRawEdit = ref(false)
 const rawJsonText = ref('')
 const hoveredField = ref<string | null>(null)
-const draggingIndex = ref<number>(-1)
+const draggingFieldKey = ref<string | null>(null)
 const showAddFieldDialog = ref(false)
 const newField = ref({ name: '', type: 'string' })
 
@@ -414,6 +415,10 @@ function getNestedLabelMap(parentKey: string): LabelMap {
     }
   })
   return nested
+}
+
+function getFieldItemKey(key: string): string {
+  return key
 }
 
 function parseArrayTextValue(value: string): unknown[] {
@@ -567,8 +572,16 @@ function removeField(key: string) {
   fieldOrder.value = fieldOrder.value.filter(k => k !== key)
 }
 
+function onDragStart(event: { oldIndex?: number }) {
+  if (event.oldIndex === undefined) {
+    draggingFieldKey.value = null
+    return
+  }
+  draggingFieldKey.value = fieldOrder.value[event.oldIndex] ?? null
+}
+
 function onDragEnd() {
-  draggingIndex.value = -1
+  draggingFieldKey.value = null
 }
 
 function validateArray(key: string) {
