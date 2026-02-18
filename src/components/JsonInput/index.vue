@@ -13,7 +13,7 @@
         </a-button>
       </template>
     </a-input-search>
-    
+
     <a-modal
       v-model:open="modalVisible"
       :title="modalTitle"
@@ -31,164 +31,182 @@
         show-icon
         class="json-error-alert"
       />
-      
-      <div v-if="!useRawEdit" class="form-edit-container">
-        <draggable
-          v-model="fieldOrder"
-          :item-key="getFieldItemKey"
-          handle=".drag-handle"
-          class="field-list"
-          @start="onDragStart"
-          @end="onDragEnd"
-        >
-          <template #item="{ element: key }">
-            <div
-              v-if="editData[key] !== undefined"
-              class="field-row"
-              :class="{ 'is-dragging': draggingFieldKey === key, 'is-hovered': hoveredField === key }"
-              @mouseenter="hoveredField = key"
-              @mouseleave="hoveredField = null"
-            >
-              <!-- Drag Handle -->
-              <div class="drag-handle" v-if="allowSort">
-                <HolderOutlined />
-              </div>
-              
-              <!-- Left: Label & Key -->
-              <div class="field-label-section">
-                <div class="field-label">{{ getFieldLabel(key) }}</div>
-                <div v-if="hasLabelMap(key)" class="field-key">{{ key }}</div>
-              </div>
-              
-              <!-- Right: Input -->
-              <div class="field-input-section">
-                <!-- Object Type -->
-                <template v-if="getFieldType(key) === 'object'">
-                  <JsonInput
-                    v-model:value="editData[key]"
-                    :label-map="getNestedLabelMap(key)"
-                    :disabled-fields="disabledFields"
-                    :readonly-fields="readonlyFields"
-                    :allow-add="!isFieldReadonly(key)"
-                    :allow-delete="!isFieldReadonly(key)"
-                    :allow-sort="!isFieldReadonly(key)"
-                    :placeholder="`${getFieldLabel(key)}...`"
-                  />
-                </template>
-                
-                <!-- Tags Type -->
-                <template v-else-if="getFieldType(key) === 'tags'">
-                  <a-select
-                    v-model:value="editData[key]"
-                    mode="tags"
-                    size="middle"
-                    style="width: 100%"
-                    placeholder="输入标签按回车确认"
-                    :max-tag-count="2"
-                    :disabled="isFieldReadonly(key)"
-                  />
-                </template>
-                
-                <!-- Boolean/Status Type -->
-                <template v-else-if="getFieldType(key) === 'boolean'">
-                  <div class="boolean-field-wrapper">
-                    <a-switch
-                      v-model:checked="editData[key]"
-                      size="small"
+
+      <div v-if="!useRawEdit" class="tree-edit-container">
+        <div class="tree-panel">
+          <div class="tree-toolbar">
+            <span class="panel-title">结构树</span>
+            <a-space size="small">
+              <a-button type="link" size="small" @click="expandAllNodes">展开</a-button>
+              <a-button type="link" size="small" @click="collapseToRoot">收起</a-button>
+            </a-space>
+          </div>
+          <a-tree
+            block-node
+            show-line
+            :tree-data="treeData"
+            :selected-keys="selectedTreeKeys"
+            :expanded-keys="expandedTreeKeys"
+            class="json-tree"
+            @select="onTreeSelect"
+            @expand="onTreeExpand"
+          />
+        </div>
+
+        <div class="editor-panel">
+          <div class="editor-toolbar">
+            <a-breadcrumb>
+              <a-breadcrumb-item>
+                <a href="#" @click.prevent="setActivePath([])">root</a>
+              </a-breadcrumb-item>
+              <a-breadcrumb-item v-for="(segment, index) in activePath" :key="`${segment}-${index}`">
+                <a href="#" @click.prevent="setActivePath(activePath.slice(0, index + 1))">
+                  {{ formatPathSegment(segment) }}
+                </a>
+              </a-breadcrumb-item>
+            </a-breadcrumb>
+            <a-tag color="blue">{{ currentFieldOrder.length }} 个字段</a-tag>
+          </div>
+
+          <draggable
+            v-model="currentFieldOrder"
+            :item-key="getFieldItemKey"
+            handle=".drag-handle"
+            class="field-list"
+            @start="onDragStart"
+            @end="onDragEnd"
+          >
+            <template #item="{ element: key }">
+              <div
+                v-if="currentObject[key] !== undefined"
+                class="field-row"
+                :class="{ 'is-dragging': draggingFieldKey === key, 'is-hovered': hoveredField === key }"
+                @mouseenter="hoveredField = key"
+                @mouseleave="hoveredField = null"
+              >
+                <div class="drag-handle" v-if="allowSort">
+                  <HolderOutlined />
+                </div>
+
+                <div class="field-label-section">
+                  <div class="field-label">{{ getFieldLabel(key) }}</div>
+                  <div v-if="hasLabelMap(key)" class="field-key">{{ key }}</div>
+                </div>
+
+                <div class="field-input-section">
+                  <template v-if="getFieldType(key) === 'object'">
+                    <div class="object-field-wrapper">
+                      <span class="object-summary">{{ getObjectSummary(key) }}</span>
+                      <a-button type="link" size="small" @click="enterObjectField(key)">进入</a-button>
+                    </div>
+                  </template>
+
+                  <template v-else-if="getFieldType(key) === 'tags'">
+                    <a-select
+                      v-model:value="currentObject[key]"
+                      mode="tags"
+                      size="middle"
+                      style="width: 100%"
+                      placeholder="输入标签按回车确认"
+                      :max-tag-count="2"
                       :disabled="isFieldReadonly(key)"
                     />
-                    <span class="switch-label">
-                      {{ editData[key] ? (fieldConfig[key]?.activeLabel || "已启用") : (fieldConfig[key]?.inactiveLabel || "已禁用") }}
-                    </span>
-                  </div>
-                </template>
-                
-                <!-- Number Type -->
-                <template v-else-if="getFieldType(key) === 'number'">
-                  <a-input-number
-                    v-model:value="editData[key]"
-                    :controls="false"
-                    style="width: 100%"
-                    :placeholder="getFieldLabel(key)"
-                    :min="fieldConfig[key]?.min"
-                    :max="fieldConfig[key]?.max"
-                    :disabled="isFieldDisabled(key)"
-                    :readonly="isFieldReadonly(key)"
-                  />
-                </template>
-                
-                <!-- Array Type -->
-                <template v-else-if="getFieldType(key) === 'array'">
-                  <a-textarea
-                    v-model:value="editData[key]"
-                    size="middle"
-                    placeholder="JSON: [1, 2, 3]"
-                    :auto-size="{ minRows: 1, maxRows: 3 }"
-                    @blur="validateArray(key)"
-                    :disabled="isFieldDisabled(key)"
-                    :readonly="isFieldReadonly(key)"
-                  />
-                </template>
-                
-                <!-- String Type (Long Text) -->
-                <template v-else-if="isLongTextField(key)">
-                  <a-textarea
-                    v-model:value="editData[key]"
-                    size="middle"
-                    :placeholder="getFieldLabel(key)"
-                    :auto-size="{ minRows: 2, maxRows: 4 }"
-                    show-count
-                    :maxlength="fieldConfig[key]?.maxLength || 500"
-                    :disabled="isFieldDisabled(key)"
-                    :readonly="isFieldReadonly(key)"
-                  />
-                </template>
-                
-                <!-- Default String -->
-                <template v-else>
-                  <a-input
-                    v-model:value="editData[key]"
-                    size="middle"
-                    :placeholder="getFieldLabel(key)"
-                    :allow-clear="!isFieldReadonly(key)"
-                    :disabled="isFieldDisabled(key)"
-                    :readonly="isFieldReadonly(key)"
-                  />
-                </template>
+                  </template>
+
+                  <template v-else-if="getFieldType(key) === 'boolean'">
+                    <div class="boolean-field-wrapper">
+                      <a-switch
+                        v-model:checked="currentObject[key]"
+                        size="small"
+                        :disabled="isFieldReadonly(key)"
+                      />
+                      <span class="switch-label">
+                        {{ currentObject[key] ? (getFieldConfig(key)?.activeLabel || '已启用') : (getFieldConfig(key)?.inactiveLabel || '已禁用') }}
+                      </span>
+                    </div>
+                  </template>
+
+                  <template v-else-if="getFieldType(key) === 'number'">
+                    <a-input-number
+                      v-model:value="currentObject[key]"
+                      :controls="false"
+                      style="width: 100%"
+                      :placeholder="getFieldLabel(key)"
+                      :min="getFieldConfig(key)?.min"
+                      :max="getFieldConfig(key)?.max"
+                      :disabled="isFieldDisabled(key)"
+                      :readonly="isFieldReadonly(key)"
+                    />
+                  </template>
+
+                  <template v-else-if="getFieldType(key) === 'array'">
+                    <a-textarea
+                      :value="getArrayFieldText(key)"
+                      size="middle"
+                      placeholder="JSON: [1, 2, 3]"
+                      :auto-size="{ minRows: 1, maxRows: 3 }"
+                      :disabled="isFieldDisabled(key)"
+                      :readonly="isFieldReadonly(key)"
+                      @update:value="onArrayTextChange(key, $event)"
+                      @blur="validateArray(key)"
+                    />
+                  </template>
+
+                  <template v-else-if="isLongTextField(key)">
+                    <a-textarea
+                      v-model:value="currentObject[key]"
+                      size="middle"
+                      :placeholder="getFieldLabel(key)"
+                      :auto-size="{ minRows: 2, maxRows: 4 }"
+                      show-count
+                      :maxlength="getFieldConfig(key)?.maxLength || 500"
+                      :disabled="isFieldDisabled(key)"
+                      :readonly="isFieldReadonly(key)"
+                    />
+                  </template>
+
+                  <template v-else>
+                    <a-input
+                      v-model:value="currentObject[key]"
+                      size="middle"
+                      :placeholder="getFieldLabel(key)"
+                      :allow-clear="!isFieldReadonly(key)"
+                      :disabled="isFieldDisabled(key)"
+                      :readonly="isFieldReadonly(key)"
+                    />
+                  </template>
+                </div>
+
+                <div class="field-actions" :class="{ 'is-visible': hoveredField === key }">
+                  <a-button
+                    v-if="allowDelete && !isFieldReadonly(key)"
+                    type="text"
+                    size="small"
+                    danger
+                    @click="removeField(key)"
+                  >
+                    <DeleteOutlined />
+                  </a-button>
+                </div>
               </div>
-              
-              <!-- Actions -->
-              <div class="field-actions" :class="{ 'is-visible': hoveredField === key }">
-                <a-button
-                  v-if="allowDelete && !isFieldReadonly(key)"
-                  type="text"
-                  size="small"
-                  danger
-                  @click="removeField(key)"
-                >
-                  <DeleteOutlined />
-                </a-button>
-              </div>
-            </div>
-          </template>
-        </draggable>
-        
-        <!-- Add Field Button -->
-        <div v-if="allowAdd" class="add-field-section">
-          <a-button
-            v-if="!showAddFieldDialog"
-            type="dashed"
-            size="small"
-            class="add-field-btn"
-            @click="showAddFieldDialog = true"
-          >
-            <PlusOutlined />
-            "新增字段"
-          </a-button>
+            </template>
+          </draggable>
+
+          <div v-if="allowAdd" class="add-field-section">
+            <a-button
+              v-if="!showAddFieldDialog"
+              type="dashed"
+              size="small"
+              class="add-field-btn"
+              @click="showAddFieldDialog = true"
+            >
+              <PlusOutlined />
+              新增字段
+            </a-button>
+          </div>
         </div>
       </div>
-      
-      <!-- Raw Edit Mode -->
+
       <template v-else>
         <a-form-item label="JSON 内容">
           <a-textarea
@@ -199,11 +217,11 @@
           />
         </a-form-item>
       </template>
-      
+
       <template #footer>
         <a-space>
           <a-button @click="toggleEditMode" size="small">
-            {{ useRawEdit ? "表单编辑" : "原始编辑" }}
+            {{ useRawEdit ? '树形编辑' : '原始编辑' }}
           </a-button>
           <a-button @click="handleCancel" size="small">
             {{ cancelText }}
@@ -214,8 +232,7 @@
         </a-space>
       </template>
     </a-modal>
-    
-    <!-- Add Field Dialog -->
+
     <a-modal
       v-model:open="showAddFieldDialog"
       title="新增字段"
@@ -251,9 +268,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, type PropType } from 'vue'
-import { 
-  EditOutlined, 
-  PlusOutlined, 
+import {
+  EditOutlined,
+  PlusOutlined,
   DeleteOutlined,
   HolderOutlined
 } from '@antdv-next/icons'
@@ -264,13 +281,18 @@ defineOptions({
   name: 'JsonInput'
 })
 
+type FieldType = 'string' | 'number' | 'boolean' | 'tags' | 'array' | 'object'
+
+interface JsonObject {
+  [key: string]: unknown
+}
 
 interface LabelMap {
   [key: string]: string
 }
 
 interface FieldConfig {
-  type?: 'string' | 'number' | 'boolean' | 'tags' | 'array' | 'object'
+  type?: FieldType
   component?: 'input' | 'textarea'
   label?: string
   min?: number
@@ -284,9 +306,16 @@ interface FieldConfigMap {
   [key: string]: FieldConfig
 }
 
+interface TreeNode {
+  key: string
+  title: string
+  selectable?: boolean
+  children?: TreeNode[]
+}
+
 const props = defineProps({
   value: {
-    type: Object as PropType<Record<string, any> | null>,
+    type: Object as PropType<JsonObject | null>,
     default: null
   },
   displayKey: {
@@ -331,86 +360,451 @@ const props = defineProps({
   },
   modalWidth: {
     type: String,
-    default: '600px'
+    default: '900px'
   }
 })
 
 const emit = defineEmits(['update:value', 'change'])
 
-// State
 const modalVisible = ref(false)
-const editData = ref<Record<string, any>>({})
-const fieldOrder = ref<string[]>([])
+const editData = ref<JsonObject>({})
+const fieldOrderMap = ref<Record<string, string[]>>({})
+const dynamicTypeMap = ref<Record<string, FieldType>>({})
+const arrayTextBuffer = ref<Record<string, string>>({})
+const activePath = ref<string[]>([])
+const expandedTreeKeys = ref<string[]>([])
 const errorMessage = ref('')
 const useRawEdit = ref(false)
 const rawJsonText = ref('')
 const hoveredField = ref<string | null>(null)
 const draggingFieldKey = ref<string | null>(null)
 const showAddFieldDialog = ref(false)
-const newField = ref({ name: '', type: 'string' })
+const newField = ref<{ name: string; type: FieldType }>({ name: '', type: 'string' })
 
 const okText = '确定'
 const cancelText = '取消'
 
 const displayValue = computed(() => {
-  if (!props.value) return ''
+  if (!props.value) {
+    return ''
+  }
   if (props.displayKey && props.value[props.displayKey] !== undefined) {
     return String(props.value[props.displayKey])
   }
-  return JSON.stringify(props.value).slice(0, 50) + '...'
+  return `${JSON.stringify(props.value).slice(0, 50)}...`
 })
 
-// Helper functions
+const selectedTreeKeys = computed(() => [serializePath(activePath.value)])
+
+const currentObject = computed<JsonObject>(() => {
+  const value = getValueByPath(editData.value, activePath.value)
+  if (isPlainObject(value)) {
+    return value
+  }
+  return editData.value
+})
+
+const currentFieldOrder = computed<string[]>({
+  get: () => getFieldOrderByPath(activePath.value),
+  set: (order) => setFieldOrderByPath(activePath.value, order)
+})
+
+const treeData = computed<TreeNode[]>(() => [buildTreeNode(editData.value, [])])
+
+function isPlainObject(value: unknown): value is JsonObject {
+  return Object.prototype.toString.call(value) === '[object Object]'
+}
+
+function deepCloneObject<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T
+}
+
+function normalizeInputValue(value: JsonObject | null): JsonObject {
+  if (!value || !isPlainObject(value)) {
+    return {}
+  }
+  return deepCloneObject(value)
+}
+
+function serializePath(path: string[]): string {
+  return JSON.stringify(path)
+}
+
+function parsePath(pathKey: string): string[] {
+  try {
+    const parsed: unknown = JSON.parse(pathKey)
+    if (Array.isArray(parsed) && parsed.every(item => typeof item === 'string')) {
+      return parsed
+    }
+  } catch {
+    return []
+  }
+  return []
+}
+
+function isPathPrefix(prefix: string[], target: string[]): boolean {
+  if (prefix.length > target.length) {
+    return false
+  }
+  return prefix.every((segment, index) => segment === target[index])
+}
+
+function getValueByPath(root: unknown, path: string[]): unknown {
+  let current: unknown = root
+  for (const segment of path) {
+    if (Array.isArray(current)) {
+      const index = Number(segment)
+      if (!Number.isInteger(index) || index < 0 || index >= current.length) {
+        return undefined
+      }
+      current = current[index]
+      continue
+    }
+    if (isPlainObject(current)) {
+      current = current[segment]
+      continue
+    }
+    return undefined
+  }
+  return current
+}
+
+function getObjectByPath(path: string[]): JsonObject | null {
+  const value = getValueByPath(editData.value, path)
+  if (isPlainObject(value)) {
+    return value
+  }
+  return null
+}
+
+function getFieldPath(path: string[], key: string): string[] {
+  return [...path, key]
+}
+
+function getFieldPathKey(path: string[], key: string): string {
+  return serializePath(getFieldPath(path, key))
+}
+
+function getFieldConfigByPath(path: string[], key: string): FieldConfig | undefined {
+  const fullPathKey = getFieldPath(path, key).join('.')
+  return props.fieldConfig[fullPathKey] || props.fieldConfig[key]
+}
+
+function getFieldConfig(key: string): FieldConfig | undefined {
+  return getFieldConfigByPath(activePath.value, key)
+}
+
+function getFieldLabelByPath(path: string[], key: string): string {
+  const config = getFieldConfigByPath(path, key)
+  const fullPathKey = getFieldPath(path, key).join('.')
+  return config?.label || props.labelMap[fullPathKey] || props.labelMap[key] || key
+}
+
 function getFieldLabel(key: string): string {
-  return props.fieldConfig[key]?.label || props.labelMap[key] || key
+  return getFieldLabelByPath(activePath.value, key)
 }
 
 function hasLabelMap(key: string): boolean {
-  return !!(props.fieldConfig[key]?.label || props.labelMap[key])
+  const config = getFieldConfigByPath(activePath.value, key)
+  const fullPathKey = getFieldPath(activePath.value, key).join('.')
+  return Boolean(config?.label || props.labelMap[fullPathKey] || props.labelMap[key])
 }
 
 function isLongTextField(key: string): boolean {
-  return props.fieldConfig[key]?.component === 'textarea'
+  return getFieldConfigByPath(activePath.value, key)?.component === 'textarea'
 }
 
-function getFieldType(key: string): string {
-  const value = editData.value[key]
-  const configType = props.fieldConfig[key]?.type
-  
-  if (configType) return configType
-  
-  // Auto detect type
-  if (value === null || value === undefined) return 'string'
-  if (typeof value === 'boolean') return 'boolean'
-  if (typeof value === 'number') return 'number'
+function setDynamicFieldType(path: string[], key: string, type: FieldType) {
+  dynamicTypeMap.value[getFieldPathKey(path, key)] = type
+}
+
+function getDynamicFieldType(path: string[], key: string): FieldType | undefined {
+  return dynamicTypeMap.value[getFieldPathKey(path, key)]
+}
+
+function clearDynamicFieldTypeByPrefix(path: string[]) {
+  for (const pathKey of Object.keys(dynamicTypeMap.value)) {
+    const targetPath = parsePath(pathKey)
+    if (isPathPrefix(path, targetPath)) {
+      delete dynamicTypeMap.value[pathKey]
+    }
+  }
+}
+
+function getFieldTypeByPath(path: string[], key: string): FieldType {
+  const dynamicType = getDynamicFieldType(path, key)
+  if (dynamicType) {
+    return dynamicType
+  }
+
+  const configType = getFieldConfigByPath(path, key)?.type
+  if (configType) {
+    return configType
+  }
+
+  const target = getObjectByPath(path)
+  const value = target ? target[key] : undefined
+
+  if (value === null || value === undefined) {
+    return 'string'
+  }
+  if (typeof value === 'boolean') {
+    return 'boolean'
+  }
+  if (typeof value === 'number') {
+    return 'number'
+  }
   if (Array.isArray(value)) {
-    if (value.length > 0 && typeof value[0] === 'string') return 'tags'
+    if (value.length > 0 && value.every(item => typeof item === 'string')) {
+      return 'tags'
+    }
     return 'array'
   }
-  if (typeof value === 'object') return 'object'
+  if (isPlainObject(value)) {
+    return 'object'
+  }
   return 'string'
 }
 
+function getFieldType(key: string): FieldType {
+  return getFieldTypeByPath(activePath.value, key)
+}
+
+function isFieldDisabledByPath(path: string[], key: string): boolean {
+  const fullPathKey = getFieldPath(path, key).join('.')
+  return props.disabledFields.includes(fullPathKey) || props.disabledFields.includes(key)
+}
+
 function isFieldDisabled(key: string): boolean {
-  return props.disabledFields.includes(key)
+  return isFieldDisabledByPath(activePath.value, key)
 }
 
 function isFieldReadonly(key: string): boolean {
-  return isFieldDisabled(key) || props.readonlyFields.includes(key)
+  const fullPathKey = getFieldPath(activePath.value, key).join('.')
+  return isFieldDisabled(key) || props.readonlyFields.includes(fullPathKey) || props.readonlyFields.includes(key)
 }
 
-function getNestedLabelMap(parentKey: string): LabelMap {
-  const nested: LabelMap = {}
-  Object.keys(props.labelMap).forEach(key => {
-    if (key.startsWith(`${parentKey}.`)) {
-      nested[key.slice(parentKey.length + 1)] = props.labelMap[key]
+function getFieldOrderByPath(path: string[]): string[] {
+  const target = getObjectByPath(path)
+  if (!target) {
+    return []
+  }
+
+  const pathKey = serializePath(path)
+  const keys = Object.keys(target)
+  const currentOrder = fieldOrderMap.value[pathKey]
+
+  if (!currentOrder) {
+    fieldOrderMap.value[pathKey] = [...keys]
+    return fieldOrderMap.value[pathKey]
+  }
+
+  const normalizedOrder = currentOrder.filter(key => Object.prototype.hasOwnProperty.call(target, key))
+  keys.forEach(key => {
+    if (!normalizedOrder.includes(key)) {
+      normalizedOrder.push(key)
     }
   })
-  return nested
+
+  const isSameLength = normalizedOrder.length === currentOrder.length
+  const isSameOrder = isSameLength && normalizedOrder.every((key, index) => key === currentOrder[index])
+  if (!isSameOrder) {
+    fieldOrderMap.value[pathKey] = normalizedOrder
+    return normalizedOrder
+  }
+
+  return currentOrder
+}
+
+function setFieldOrderByPath(path: string[], order: string[]) {
+  fieldOrderMap.value[serializePath(path)] = [...order]
 }
 
 function getFieldItemKey(key: string): string {
   return key
+}
+
+function formatPathSegment(segment: string): string {
+  if (/^\d+$/.test(segment)) {
+    return `[${segment}]`
+  }
+  return segment
+}
+
+function truncateText(text: string, maxLength = 20): string {
+  if (text.length <= maxLength) {
+    return text
+  }
+  return `${text.slice(0, maxLength)}...`
+}
+
+function getTreeNodeTitle(path: string[], value: unknown): string {
+  const nodeName = path.length === 0 ? 'root' : formatPathSegment(path[path.length - 1])
+
+  if (isPlainObject(value)) {
+    return `${nodeName} {${Object.keys(value).length}}`
+  }
+
+  if (Array.isArray(value)) {
+    return `${nodeName} [${value.length}]`
+  }
+
+  if (typeof value === 'string') {
+    return `${nodeName}: "${truncateText(value)}"`
+  }
+
+  return `${nodeName}: ${String(value)}`
+}
+
+function getOrderedObjectKeys(path: string[], target: JsonObject): string[] {
+  const defaultKeys = Object.keys(target)
+  const customOrder = fieldOrderMap.value[serializePath(path)]
+  if (!customOrder) {
+    return defaultKeys
+  }
+
+  const ordered = customOrder.filter(key => Object.prototype.hasOwnProperty.call(target, key))
+  defaultKeys.forEach(key => {
+    if (!ordered.includes(key)) {
+      ordered.push(key)
+    }
+  })
+  return ordered
+}
+
+function buildTreeChildren(value: unknown, path: string[]): TreeNode[] {
+  if (isPlainObject(value)) {
+    const orderedKeys = getOrderedObjectKeys(path, value)
+    return orderedKeys
+      .filter(key => Object.prototype.hasOwnProperty.call(value, key))
+      .map(key => buildTreeNode(value[key], [...path, key]))
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item, index) => buildTreeNode(item, [...path, String(index)]))
+  }
+
+  return []
+}
+
+function buildTreeNode(value: unknown, path: string[]): TreeNode {
+  const children = buildTreeChildren(value, path)
+
+  const node: TreeNode = {
+    key: serializePath(path),
+    title: getTreeNodeTitle(path, value),
+    selectable: isPlainObject(value)
+  }
+
+  if (children.length > 0) {
+    node.children = children
+  }
+
+  return node
+}
+
+function collectExpandablePathKeys(value: unknown, path: string[] = []): string[] {
+  if (!isPlainObject(value) && !Array.isArray(value)) {
+    return []
+  }
+
+  const keys: string[] = [serializePath(path)]
+
+  if (isPlainObject(value)) {
+    Object.keys(value).forEach(key => {
+      keys.push(...collectExpandablePathKeys(value[key], [...path, key]))
+    })
+  } else {
+    value.forEach((item, index) => {
+      keys.push(...collectExpandablePathKeys(item, [...path, String(index)]))
+    })
+  }
+
+  return keys
+}
+
+function expandAllNodes() {
+  expandedTreeKeys.value = collectExpandablePathKeys(editData.value)
+}
+
+function collapseToRoot() {
+  expandedTreeKeys.value = [serializePath([])]
+}
+
+function ensurePathExpanded(path: string[]) {
+  const keys = [...expandedTreeKeys.value]
+
+  for (let i = 0; i <= path.length; i += 1) {
+    const nodePath = path.slice(0, i)
+    const nodeKey = serializePath(nodePath)
+    if (!keys.includes(nodeKey)) {
+      keys.push(nodeKey)
+    }
+  }
+
+  expandedTreeKeys.value = keys
+}
+
+function setActivePath(path: string[]) {
+  const target = getObjectByPath(path)
+  if (!target) {
+    activePath.value = []
+  } else {
+    activePath.value = [...path]
+  }
+
+  hoveredField.value = null
+  draggingFieldKey.value = null
+  getFieldOrderByPath(activePath.value)
+}
+
+function onTreeSelect(selectedKeys: Array<string | number>) {
+  if (selectedKeys.length === 0) {
+    return
+  }
+
+  const selectedKey = selectedKeys[0]
+  if (typeof selectedKey !== 'string') {
+    return
+  }
+
+  const selectedPath = parsePath(selectedKey)
+  const selectedValue = getValueByPath(editData.value, selectedPath)
+
+  if (isPlainObject(selectedValue)) {
+    setActivePath(selectedPath)
+    return
+  }
+
+  const parentPath = selectedPath.slice(0, -1)
+  const parentValue = getValueByPath(editData.value, parentPath)
+  if (isPlainObject(parentValue)) {
+    setActivePath(parentPath)
+  }
+}
+
+function onTreeExpand(expandedKeys: Array<string | number>) {
+  expandedTreeKeys.value = expandedKeys.filter((key): key is string => typeof key === 'string')
+}
+
+function enterObjectField(key: string) {
+  const targetPath = [...activePath.value, key]
+  const target = getValueByPath(editData.value, targetPath)
+
+  if (!isPlainObject(target)) {
+    return
+  }
+
+  ensurePathExpanded(targetPath)
+  setActivePath(targetPath)
+}
+
+function getObjectSummary(key: string): string {
+  const value = currentObject.value[key]
+  if (isPlainObject(value)) {
+    return `对象（${Object.keys(value).length} 个字段）`
+  }
+  return '对象'
 }
 
 function parseArrayTextValue(value: string): unknown[] {
@@ -427,30 +821,125 @@ function parseArrayTextValue(value: string): unknown[] {
   return parsed
 }
 
-function normalizeArrayFieldsForForm() {
-  fieldOrder.value.forEach(key => {
-    const type = getFieldType(key)
-    if (type === 'array' && Array.isArray(editData.value[key])) {
-      editData.value[key] = JSON.stringify(editData.value[key], null, 2)
-    }
-  })
+function getArrayFieldPath(key: string): string[] {
+  return [...activePath.value, key]
 }
 
-// Modal functions
+function getArrayFieldText(key: string): string {
+  const path = getArrayFieldPath(key)
+  const pathKey = serializePath(path)
+
+  if (Object.prototype.hasOwnProperty.call(arrayTextBuffer.value, pathKey)) {
+    return arrayTextBuffer.value[pathKey]
+  }
+
+  const value = currentObject.value[key]
+  if (Array.isArray(value)) {
+    return JSON.stringify(value, null, 2)
+  }
+  if (typeof value === 'string') {
+    return value
+  }
+  return '[]'
+}
+
+function onArrayTextChange(key: string, value: string) {
+  const path = getArrayFieldPath(key)
+  arrayTextBuffer.value[serializePath(path)] = value
+}
+
+function commitArrayBuffer(path: string[]): boolean {
+  if (path.length === 0) {
+    return true
+  }
+
+  const pathKey = serializePath(path)
+  if (!Object.prototype.hasOwnProperty.call(arrayTextBuffer.value, pathKey)) {
+    return true
+  }
+
+  const parentPath = path.slice(0, -1)
+  const fieldKey = path[path.length - 1]
+  const parent = getValueByPath(editData.value, parentPath)
+
+  if (!isPlainObject(parent)) {
+    delete arrayTextBuffer.value[pathKey]
+    return true
+  }
+
+  try {
+    const parsed = parseArrayTextValue(arrayTextBuffer.value[pathKey])
+    parent[fieldKey] = parsed
+    delete arrayTextBuffer.value[pathKey]
+    return true
+  } catch {
+    errorMessage.value = `${getFieldLabelByPath(parentPath, fieldKey)}: 无效的数组格式`
+    return false
+  }
+}
+
+function syncAllArrayBuffers(): boolean {
+  const keys = Object.keys(arrayTextBuffer.value)
+  for (const key of keys) {
+    const path = parsePath(key)
+    if (!commitArrayBuffer(path)) {
+      return false
+    }
+  }
+  return true
+}
+
+function clearArrayBufferByPrefix(path: string[]) {
+  for (const pathKey of Object.keys(arrayTextBuffer.value)) {
+    const targetPath = parsePath(pathKey)
+    if (isPathPrefix(path, targetPath)) {
+      delete arrayTextBuffer.value[pathKey]
+    }
+  }
+}
+
+function buildOrderedValue(value: unknown, path: string[] = []): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item, index) => buildOrderedValue(item, [...path, String(index)]))
+  }
+
+  if (!isPlainObject(value)) {
+    return value
+  }
+
+  const orderedKeys = getFieldOrderByPath(path)
+  const result: JsonObject = {}
+
+  orderedKeys.forEach(key => {
+    if (Object.prototype.hasOwnProperty.call(value, key)) {
+      result[key] = buildOrderedValue(value[key], [...path, key])
+    }
+  })
+
+  return result
+}
+
+function resetEditorState(nextValue: JsonObject) {
+  editData.value = nextValue
+  fieldOrderMap.value = {}
+  dynamicTypeMap.value = {}
+  arrayTextBuffer.value = {}
+  activePath.value = []
+  hoveredField.value = null
+  draggingFieldKey.value = null
+  getFieldOrderByPath([])
+  expandedTreeKeys.value = [serializePath([])]
+}
+
 function showModal() {
   modalVisible.value = true
   errorMessage.value = ''
   useRawEdit.value = false
-  if (props.value) {
-    editData.value = JSON.parse(JSON.stringify(props.value))
-    fieldOrder.value = Object.keys(editData.value)
-    normalizeArrayFieldsForForm()
-    rawJsonText.value = JSON.stringify(props.value, null, 2)
-  } else {
-    editData.value = {}
-    fieldOrder.value = []
-    rawJsonText.value = '{}'
-  }
+  showAddFieldDialog.value = false
+
+  const normalized = normalizeInputValue(props.value)
+  resetEditorState(normalized)
+  rawJsonText.value = JSON.stringify(normalized, null, 2)
 }
 
 function handleCancel() {
@@ -464,72 +953,73 @@ function handleOk() {
 
   if (useRawEdit.value) {
     try {
-      const parsed = JSON.parse(rawJsonText.value)
+      const parsed: unknown = JSON.parse(rawJsonText.value)
+      if (!isPlainObject(parsed)) {
+        errorMessage.value = 'JSON 根节点必须是对象'
+        return
+      }
       emit('update:value', parsed)
       emit('change', parsed)
       modalVisible.value = false
-    } catch (e) {
-      errorMessage.value = "JSON 格式错误"
+    } catch {
+      errorMessage.value = 'JSON 格式错误'
     }
-  } else {
-    const result: Record<string, any> = {}
-    fieldOrder.value.forEach(key => {
-      if (key in editData.value) {
-        const type = getFieldType(key)
-        if (type === 'array') {
-          const arrayValue = editData.value[key]
-          if (Array.isArray(arrayValue)) {
-            result[key] = arrayValue
-          } else {
-            try {
-              result[key] = parseArrayTextValue(String(arrayValue ?? ''))
-            } catch {
-              errorMessage.value = `${getFieldLabel(key)}: 无效的数组格式`
-              return
-            }
-          }
-        } else {
-          result[key] = editData.value[key]
-        }
-      }
-    })
-    emit('update:value', result)
-    emit('change', result)
-    modalVisible.value = false
+    return
   }
+
+  if (!syncAllArrayBuffers()) {
+    return
+  }
+
+  const result = buildOrderedValue(editData.value)
+  if (!isPlainObject(result)) {
+    errorMessage.value = 'JSON 根节点必须是对象'
+    return
+  }
+
+  emit('update:value', result)
+  emit('change', result)
+  modalVisible.value = false
 }
 
 function toggleEditMode() {
   if (!useRawEdit.value) {
-    rawJsonText.value = JSON.stringify(editData.value, null, 2)
-  } else {
-    try {
-      editData.value = JSON.parse(rawJsonText.value)
-      fieldOrder.value = Object.keys(editData.value)
-      normalizeArrayFieldsForForm()
-      errorMessage.value = ''
-    } catch (e) {
-      errorMessage.value = "JSON 格式错误"
+    if (!syncAllArrayBuffers()) {
       return
     }
+    rawJsonText.value = JSON.stringify(editData.value, null, 2)
+    useRawEdit.value = true
+    return
   }
-  useRawEdit.value = !useRawEdit.value
+
+  try {
+    const parsed: unknown = JSON.parse(rawJsonText.value)
+    if (!isPlainObject(parsed)) {
+      errorMessage.value = 'JSON 根节点必须是对象'
+      return
+    }
+
+    resetEditorState(parsed)
+    errorMessage.value = ''
+    useRawEdit.value = false
+  } catch {
+    errorMessage.value = 'JSON 格式错误'
+  }
 }
 
-// Field operations
 function handleAddField() {
   const fieldName = newField.value.name.trim()
-
   if (!fieldName) {
-    message.warning("请输入字段名")
+    message.warning('请输入字段名')
     return
   }
-  if (Object.prototype.hasOwnProperty.call(editData.value, fieldName)) {
-    message.warning("字段已存在")
+
+  if (Object.prototype.hasOwnProperty.call(currentObject.value, fieldName)) {
+    message.warning('字段已存在')
     return
   }
-  
-  let defaultValue: any = ''
+
+  let defaultValue: unknown = ''
   switch (newField.value.type) {
     case 'boolean':
       defaultValue = false
@@ -549,19 +1039,27 @@ function handleAddField() {
     default:
       defaultValue = ''
   }
-  
-  editData.value[fieldName] = defaultValue
-  fieldOrder.value.push(fieldName)
-  
+
+  currentObject.value[fieldName] = defaultValue
+  setDynamicFieldType(activePath.value, fieldName, newField.value.type)
+  currentFieldOrder.value = [...currentFieldOrder.value, fieldName]
+
+  if (newField.value.type === 'array') {
+    arrayTextBuffer.value[getFieldPathKey(activePath.value, fieldName)] = '[]'
+  }
+
   newField.value = { name: '', type: 'string' }
   showAddFieldDialog.value = false
-  
-  message.success("添加成功")
+  message.success('添加成功')
 }
 
 function removeField(key: string) {
-  delete editData.value[key]
-  fieldOrder.value = fieldOrder.value.filter(k => k !== key)
+  delete currentObject.value[key]
+  currentFieldOrder.value = currentFieldOrder.value.filter(fieldKey => fieldKey !== key)
+
+  const removedPath = [...activePath.value, key]
+  clearArrayBufferByPrefix(removedPath)
+  clearDynamicFieldTypeByPrefix(removedPath)
 }
 
 function onDragStart(event: { oldIndex?: number }) {
@@ -569,7 +1067,7 @@ function onDragStart(event: { oldIndex?: number }) {
     draggingFieldKey.value = null
     return
   }
-  draggingFieldKey.value = fieldOrder.value[event.oldIndex] ?? null
+  draggingFieldKey.value = currentFieldOrder.value[event.oldIndex] ?? null
 }
 
 function onDragEnd() {
@@ -577,24 +1075,26 @@ function onDragEnd() {
 }
 
 function validateArray(key: string) {
-  const value = editData.value[key]
-  if (typeof value === 'string') {
-    try {
-      parseArrayTextValue(value)
-      errorMessage.value = ''
-    } catch {
-      errorMessage.value = `${getFieldLabel(key)}: 无效的数组格式`
-    }
+  if (commitArrayBuffer(getArrayFieldPath(key))) {
+    errorMessage.value = ''
   }
 }
 
-// Watchers
-watch(() => props.value, (newVal) => {
-  if (newVal && !modalVisible.value) {
-    editData.value = JSON.parse(JSON.stringify(newVal))
-    fieldOrder.value = Object.keys(editData.value)
-  }
-}, { deep: true })
+watch(
+  () => props.value,
+  (newVal) => {
+    if (modalVisible.value) {
+      return
+    }
+
+    editData.value = normalizeInputValue(newVal)
+    fieldOrderMap.value = {}
+    dynamicTypeMap.value = {}
+    arrayTextBuffer.value = {}
+    getFieldOrderByPath([])
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped lang="scss">
@@ -604,8 +1104,8 @@ watch(() => props.value, (newVal) => {
 
 .json-input-modal {
   :deep(.ant-modal-body) {
-    max-height: 65vh;
-    overflow-y: auto;
+    max-height: 70vh;
+    overflow: hidden;
     padding: 16px 20px;
     background: var(--color-bg-layout);
   }
@@ -615,167 +1115,195 @@ watch(() => props.value, (newVal) => {
   margin-bottom: 12px;
 }
 
-.form-edit-container {
-  background: var(--color-bg-layout);
-  
+.tree-edit-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 12px;
+  min-height: 420px;
+
+  .tree-panel,
+  .editor-panel {
+    background: var(--color-bg-container);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 8px;
+  }
+
+  .tree-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 420px;
+  }
+
+  .tree-toolbar,
+  .editor-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--color-border-secondary);
+  }
+
+  .panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .json-tree {
+    flex: 1;
+    overflow: auto;
+    padding: 8px;
+
+    :deep(.ant-tree-node-content-wrapper) {
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .editor-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
   .field-list {
     display: flex;
     flex-direction: column;
+    overflow: auto;
+    padding: 6px 0;
+    max-height: 360px;
   }
-  
+
   .field-row {
     display: flex;
     align-items: flex-start;
     gap: 8px;
     padding: 10px 12px;
-    background: var(--color-bg-container);
     border-bottom: 1px solid var(--color-border-secondary);
     transition: all 0.15s ease;
-    
+
     &:hover,
     &.is-hovered {
       background: var(--color-primary-bg);
     }
-    
+
     &.is-dragging {
       background: var(--color-primary-bg);
       opacity: 0.9;
     }
-    
-    &:first-child {
-      border-top-left-radius: 6px;
-      border-top-right-radius: 6px;
-    }
-    
+
     &:last-child {
-      border-bottom-left-radius: 6px;
-      border-bottom-right-radius: 6px;
       border-bottom: none;
     }
-    
-    .drag-handle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 20px;
-      height: 20px;
-      cursor: grab;
-      color: var(--color-text-quaternary);
-      transition: color 0.2s;
-      flex-shrink: 0;
-      margin-top: 4px;
-      
-      &:hover {
-        color: var(--color-text-secondary);
-      }
-      
-      &:active {
-        cursor: grabbing;
-      }
-    }
-    
-    .field-label-section {
-      width: 120px;
-      flex-shrink: 0;
-      padding-top: 4px;
-      
-      .field-label {
-        font-weight: 500;
-        font-size: 13px;
-        color: var(--color-text-primary);
-        line-height: 1.4;
-      }
-      
-      .field-key {
-        font-size: 11px;
-        color: var(--color-text-tertiary);
-        line-height: 1.3;
-        margin-top: 2px;
-      }
-    }
-    
-    .field-input-section {
-      flex: 1;
-      min-width: 0;
-      
-      // Ensure all inputs have consistent width and height
-      :deep(.ant-input),
-      :deep(.ant-select),
-      :deep(.ant-input-affix-wrapper) {
-        width: 100%;
-      }
-      
-      // InputNumber needs special handling for alignment
-      :deep(.ant-input-number) {
-        width: 100%;
-        box-sizing: border-box;
-        
-        .ant-input-number-input-wrap {
-          box-sizing: border-box;
-        }
-        
-        .ant-input-number-input {
-          height: 30px;
-          box-sizing: border-box;
-        }
-      }
-      
-      .boolean-field-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-height: 32px;
-      }
-      
-      .switch-label {
-        font-size: 12px;
-        color: var(--color-text-secondary);
-      }
-    }
-    
-    .field-actions {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      gap: 6px;
-      opacity: 0;
-      transition: opacity 0.15s ease;
-      flex-shrink: 0;
-      margin-top: 2px;
-      
-      &.is-visible {
-        opacity: 1;
-      }
-      
-      :deep(.ant-btn) {
-        padding: 0 6px;
-        height: 22px;
-        font-size: 11px;
-      }
-      
-      :deep(.ant-btn-group) {
-        display: flex;
-        gap: 6px;
-        
-        .ant-btn {
-          padding: 0 8px;
-          height: 28px;
-          font-size: 12px;
-          border-radius: 4px;
-          margin: 0;
-        }
-      }
+  }
+
+  .drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    cursor: grab;
+    color: var(--color-text-quaternary);
+    flex-shrink: 0;
+    margin-top: 4px;
+
+    &:active {
+      cursor: grabbing;
     }
   }
-  
+
+  .field-label-section {
+    width: 140px;
+    flex-shrink: 0;
+    padding-top: 4px;
+
+    .field-label {
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--color-text-primary);
+      line-height: 1.4;
+    }
+
+    .field-key {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      line-height: 1.3;
+      margin-top: 2px;
+      word-break: break-all;
+    }
+  }
+
+  .field-input-section {
+    flex: 1;
+    min-width: 0;
+
+    :deep(.ant-input),
+    :deep(.ant-select),
+    :deep(.ant-input-affix-wrapper),
+    :deep(.ant-input-number) {
+      width: 100%;
+    }
+
+    .boolean-field-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 32px;
+    }
+
+    .switch-label {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    .object-field-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 32px;
+      background: var(--color-bg-layout);
+      border: 1px dashed var(--color-border-secondary);
+      border-radius: 6px;
+      padding: 0 10px;
+      gap: 8px;
+    }
+
+    .object-summary {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+  }
+
+  .field-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    flex-shrink: 0;
+    margin-top: 2px;
+
+    &.is-visible {
+      opacity: 1;
+    }
+
+    :deep(.ant-btn) {
+      padding: 0 6px;
+      height: 22px;
+      font-size: 11px;
+    }
+  }
+
   .add-field-section {
-    margin-top: 12px;
-    padding: 0 12px;
-    
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--color-border-secondary);
+
     .add-field-btn {
       border-style: dashed;
-      
+
       &:hover {
         border-color: var(--color-primary);
         color: var(--color-primary);
@@ -789,32 +1317,26 @@ watch(() => props.value, (newVal) => {
   font-size: 13px;
 }
 
-// Responsive
-@media (max-width: 576px) {
-  .form-edit-container {
+@media (max-width: 768px) {
+  .tree-edit-container {
+    grid-template-columns: 1fr;
+
+    .tree-panel {
+      min-height: 220px;
+    }
+
     .field-row {
       flex-wrap: wrap;
-      
+
       .field-label-section {
         width: 100%;
         padding-top: 0;
         margin-bottom: 6px;
-        
-        .field-label,
-        .field-key {
-          display: inline;
-          margin-right: 8px;
-        }
       }
-      
-      .field-input-section {
-        width: calc(100% - 28px);
-      }
-      
+
       .field-actions {
         width: 100%;
         justify-content: flex-end;
-        margin-top: 8px;
         opacity: 1;
       }
     }
