@@ -125,14 +125,25 @@ const greetingText = computed(() => {
 })
 
 const currentTimeText = computed(() => {
-  const targetLocale = i18n.global.locale.value === 'zh-CN' ? 'zh-CN' : 'en-US'
-  return new Intl.DateTimeFormat(targetLocale, {
-    month: 'short',
-    day: 'numeric',
-    weekday: 'short',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(now.value)
+  const targetLocale = String(i18n.global.locale.value || 'en-US')
+
+  try {
+    return new Intl.DateTimeFormat(targetLocale, {
+      month: 'short',
+      day: 'numeric',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(now.value)
+  } catch {
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(now.value)
+  }
 })
 
 const statCards = computed(() => [

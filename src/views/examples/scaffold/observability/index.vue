@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import { $t } from '@/locales'
+import { $t, getLocale } from '@/locales'
 
 type Scenario = 'success' | 'empty' | 'network' | 'auth' | 'business'
 type State = 'idle' | 'loading' | 'success' | 'empty' | 'error'
@@ -109,7 +109,7 @@ let logId = 0
 const pushEvent = (text: string, level: LogLevel = 'info') => {
   events.value.unshift({
     id: ++logId,
-    time: new Date().toLocaleTimeString('zh-CN', { hour12: false }),
+    time: new Date().toLocaleTimeString(getLocale(), { hour12: false }),
     text,
     level
   })

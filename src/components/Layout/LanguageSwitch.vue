@@ -14,7 +14,9 @@ import i18n, { setLocale, $t } from '@/locales'
 const currentLocale = computed(() => String(i18n.global.locale.value))
 const localeOptions = computed(() => ([
   { label: $t('layout.languages.zhCN'), value: 'zh-CN' },
-  { label: $t('layout.languages.enUS'), value: 'en-US' }
+  { label: $t('layout.languages.enUS'), value: 'en-US' },
+  { label: $t('layout.languages.jaJP'), value: 'ja-JP' },
+  { label: $t('layout.languages.koKR'), value: 'ko-KR' }
 ]))
 
 const handleLanguageChange = ({ key }: { key: string | number }) => {

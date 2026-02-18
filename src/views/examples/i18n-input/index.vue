@@ -39,7 +39,7 @@
           <div class="hint">{{ $t('examples.i18nInput.currentLocaleHint') }}</div>
           <I18nInput
             v-model:value="formState.withLocale"
-            locale="zh-CN"
+            locale="ja-JP"
             :placeholder="$t('examples.i18nInput.clickToEdit')"
           />
         </a-form-item>
@@ -85,16 +85,22 @@ import I18nInput from '@/components/I18nInput/index.vue'
 const formState = reactive({
   productName: {
     'zh-CN': '苹果手机',
-    'en-US': 'iPhone'
+    'en-US': 'iPhone',
+    'ja-JP': 'iPhone',
+    'ko-KR': '아이폰'
   },
   productDescription: {
     'zh-CN': '这是最新款的智能手机，拥有强大的性能和优秀的拍照功能。',
-    'en-US': 'This is the latest smartphone with powerful performance and excellent camera capabilities.'
+    'en-US': 'This is the latest smartphone with powerful performance and excellent camera capabilities.',
+    'ja-JP': 'これは最新のスマートフォンで、強力な性能と優れたカメラ機能を備えています。',
+    'ko-KR': '강력한 성능과 뛰어난 카메라 기능을 갖춘 최신 스마트폰입니다.'
   },
-  stringFormat: '{"zh-CN": "字符串格式", "en-US": "String Format"}',
+  stringFormat: '{"zh-CN": "字符串格式", "en-US": "String Format", "ja-JP": "文字列形式", "ko-KR": "문자열 형식"}',
   withLocale: {
-    'zh-CN': '指定显示中文',
-    'en-US': 'Specify Chinese display'
+    'zh-CN': '指定显示日语',
+    'en-US': 'Show Japanese value',
+    'ja-JP': '日本語表示を指定',
+    'ko-KR': '일본어 표시 지정'
   },
   emptyValue: null as Record<string, string> | string | null
 })

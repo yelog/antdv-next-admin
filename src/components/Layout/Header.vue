@@ -153,6 +153,12 @@ const handleMoreMenuClick = ({ key }: { key: string }) => {
     case 'lang-en':
       setLocale('en-US')
       break
+    case 'lang-ja':
+      setLocale('ja-JP')
+      break
+    case 'lang-ko':
+      setLocale('ko-KR')
+      break
     case 'settings':
       openSettings()
       break
@@ -200,6 +206,14 @@ const moreMenuProps = computed(() => ({
         {
           key: 'lang-en',
           label: $t('layout.languages.enUS')
+        },
+        {
+          key: 'lang-ja',
+          label: $t('layout.languages.jaJP')
+        },
+        {
+          key: 'lang-ko',
+          label: $t('layout.languages.koKR')
         }
       ]
     },

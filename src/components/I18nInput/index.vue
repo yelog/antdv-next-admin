@@ -48,7 +48,9 @@ interface LocaleMeta {
 
 const localeMetaMap: Record<string, LocaleMeta> = {
   'zh-CN': { display: '简体中文', flag: '🇨🇳' },
-  'en-US': { display: 'English', flag: '🇺🇸' }
+  'en-US': { display: 'English', flag: '🇺🇸' },
+  'ja-JP': { display: '日本語', flag: '🇯🇵' },
+  'ko-KR': { display: '한국어', flag: '🇰🇷' }
 }
 
 const availableLocales = computed(() =>

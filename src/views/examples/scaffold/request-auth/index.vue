@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { message } from 'antdv-next'
-import { $t } from '@/locales'
+import { $t, getLocale } from '@/locales'
 
 type LogLevel = 'info' | 'success' | 'error'
 
@@ -83,7 +83,7 @@ let failNextRefresh = false
 let logId = 0
 let refreshPromise: Promise<string> | null = null
 
-const now = () => new Date().toLocaleTimeString('zh-CN', { hour12: false })
+const now = () => new Date().toLocaleTimeString(getLocale(), { hour12: false })
 
 const pushLog = (text: string, level: LogLevel = 'info') => {
   logs.value.unshift({
