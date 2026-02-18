@@ -13,6 +13,13 @@ export const LOCALE_MESSAGES = {
 
 export const SUPPORTED_LOCALES = Object.keys(LOCALE_MESSAGES) as string[]
 
+export const LOCALE_NATIVE_LABELS: Record<string, string> = {
+  'zh-CN': '简体中文',
+  'en-US': 'English',
+  'ja-JP': '日本語',
+  'ko-KR': '한국어'
+}
+
 // Get saved locale or use default
 const savedLocale = localStorage.getItem('app-locale') || 'zh-CN'
 

@@ -9,14 +9,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { GlobalOutlined } from '@antdv-next/icons'
-import i18n, { setLocale, $t } from '@/locales'
+import i18n, { setLocale, LOCALE_NATIVE_LABELS } from '@/locales'
 
 const currentLocale = computed(() => String(i18n.global.locale.value))
 const localeOptions = computed(() => ([
-  { label: $t('layout.languages.zhCN'), value: 'zh-CN' },
-  { label: $t('layout.languages.enUS'), value: 'en-US' },
-  { label: $t('layout.languages.jaJP'), value: 'ja-JP' },
-  { label: $t('layout.languages.koKR'), value: 'ko-KR' }
+  { label: LOCALE_NATIVE_LABELS['zh-CN'], value: 'zh-CN' },
+  { label: LOCALE_NATIVE_LABELS['en-US'], value: 'en-US' },
+  { label: LOCALE_NATIVE_LABELS['ja-JP'], value: 'ja-JP' },
+  { label: LOCALE_NATIVE_LABELS['ko-KR'], value: 'ko-KR' }
 ]))
 
 const handleLanguageChange = ({ key }: { key: string | number }) => {

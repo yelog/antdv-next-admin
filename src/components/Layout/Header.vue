@@ -89,7 +89,7 @@ import {
 } from '@antdv-next/icons'
 import { useLayoutStore } from '@/stores/layout'
 import { useThemeStore } from '@/stores/theme'
-import { $t, setLocale } from '@/locales'
+import { $t, setLocale, LOCALE_NATIVE_LABELS } from '@/locales'
 import Breadcrumb from './Breadcrumb.vue'
 import FullscreenToggle from './FullscreenToggle.vue'
 import NotificationPanel from './NotificationPanel.vue'
@@ -201,19 +201,19 @@ const moreMenuProps = computed(() => ({
       children: [
         {
           key: 'lang-zh',
-          label: $t('layout.languages.zhCN')
+          label: LOCALE_NATIVE_LABELS['zh-CN']
         },
         {
           key: 'lang-en',
-          label: $t('layout.languages.enUS')
+          label: LOCALE_NATIVE_LABELS['en-US']
         },
         {
           key: 'lang-ja',
-          label: $t('layout.languages.jaJP')
+          label: LOCALE_NATIVE_LABELS['ja-JP']
         },
         {
           key: 'lang-ko',
-          label: $t('layout.languages.koKR')
+          label: LOCALE_NATIVE_LABELS['ko-KR']
         }
       ]
     },
