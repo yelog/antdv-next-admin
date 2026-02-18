@@ -599,89 +599,75 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         },
         children: [
           {
-            path: '/examples/external',
-            name: 'ExamplesExternal',
+            path: 'iframe',
+            name: 'ExamplesExternalIframe',
             redirect: '/examples/external/iframe/typescript',
             component: () => import('@/components/RouteView.vue'),
             meta: {
-              title: 'menu.external',
-              icon: 'LinkOutlined',
+              title: 'menu.externalIframe',
+              icon: 'AppstoreAddOutlined',
               requiresAuth: true,
               order: 1
             },
             children: [
               {
-                path: 'iframe',
-                name: 'ExamplesExternalIframe',
-                redirect: '/examples/external/iframe/typescript',
-                component: () => import('@/components/RouteView.vue'),
+                path: '/examples/external/iframe/typescript',
+                name: 'ExamplesExternalIframeTypescript',
+                component: () => import('@/views/examples/external/iframe/typescript.vue'),
                 meta: {
-                  title: 'menu.externalIframe',
-                  icon: 'AppstoreAddOutlined',
+                  title: 'menu.externalTypescript',
+                  icon: 'CodeOutlined',
                   requiresAuth: true,
                   order: 1
-                },
-                children: [
-                  {
-                    path: 'typescript',
-                    name: 'ExamplesExternalIframeTypescript',
-                    component: () => import('@/views/examples/external/iframe/typescript.vue'),
-                    meta: {
-                      title: 'menu.externalTypescript',
-                      icon: 'CodeOutlined',
-                      requiresAuth: true,
-                      order: 1
-                    }
-                  },
-                  {
-                    path: 'antdv-next',
-                    name: 'ExamplesExternalIframeAntdvNext',
-                    component: () => import('@/views/examples/external/iframe/antdv-next.vue'),
-                    meta: {
-                      title: 'menu.externalAntdvNext',
-                      icon: 'AntDesignOutlined',
-                      requiresAuth: true,
-                      order: 2
-                    }
-                  }
-                ]
+                }
               },
               {
-                path: 'link',
-                name: 'ExamplesExternalLink',
-                component: () => import('@/components/RouteView.vue'),
+                path: '/examples/external/iframe/antdv-next',
+                name: 'ExamplesExternalIframeAntdvNext',
+                component: () => import('@/views/examples/external/iframe/antdv-next.vue'),
                 meta: {
-                  title: 'menu.externalLink',
-                  icon: 'LinkOutlined',
+                  title: 'menu.externalAntdvNext',
+                  icon: 'AntDesignOutlined',
                   requiresAuth: true,
                   order: 2
-                },
-                children: [
-                  {
-                    path: 'vite',
-                    name: 'ExamplesExternalLinkVite',
-                    component: () => import('@/views/examples/external/link/vite.vue'),
-                    meta: {
-                      title: 'menu.externalVite',
-                      icon: 'ThunderboltOutlined',
-                      requiresAuth: true,
-                      externalLink: 'https://vite.dev',
-                      order: 1
-                    }
-                  },
-                  {
-                    path: 'vue',
-                    name: 'ExamplesExternalLinkVue',
-                    component: () => import('@/views/examples/external/link/vue.vue'),
-                    meta: {
-                      title: 'menu.externalVue',
-                      icon: 'CoffeeOutlined',
-                      requiresAuth: true,
-                      externalLink: 'https://vuejs.org',
-                      order: 2
-                    }
-                  }
-                ]
+                }
+              }
+            ]
+          },
+          {
+            path: 'link',
+            name: 'ExamplesExternalLink',
+            component: () => import('@/components/RouteView.vue'),
+            meta: {
+              title: 'menu.externalLink',
+              icon: 'LinkOutlined',
+              requiresAuth: true,
+              order: 2
+            },
+            children: [
+              {
+                path: '/examples/external/link/vite',
+                name: 'ExamplesExternalLinkVite',
+                component: () => import('@/views/examples/external/link/vite.vue'),
+                meta: {
+                  title: 'menu.externalVite',
+                  icon: 'ThunderboltOutlined',
+                  requiresAuth: true,
+                  externalLink: 'https://vite.dev',
+                  order: 1
+                }
+              },
+              {
+                path: '/examples/external/link/vue',
+                name: 'ExamplesExternalLinkVue',
+                component: () => import('@/views/examples/external/link/vue.vue'),
+                meta: {
+                  title: 'menu.externalVue',
+                  icon: 'CoffeeOutlined',
+                  requiresAuth: true,
+                  externalLink: 'https://vuejs.org',
+                  order: 2
+                }
               }
             ]
           }
@@ -700,51 +686,37 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         },
         children: [
           {
-            path: '/examples/exception',
-            name: 'ExamplesException',
-            redirect: '/examples/exception/403',
-            component: () => import('@/components/RouteView.vue'),
+            path: '/examples/exception/403',
+            name: 'ExamplesException403',
+            component: () => import('@/views/examples/exception/403.vue'),
             meta: {
-              title: 'menu.exception',
-              icon: 'WarningOutlined',
+              title: 'menu.exception403',
+              icon: 'StopOutlined',
               requiresAuth: true,
               order: 1
-            },
-            children: [
-              {
-                path: '403',
-                name: 'ExamplesException403',
-                component: () => import('@/views/examples/exception/403.vue'),
-                meta: {
-                  title: 'menu.exception403',
-                  icon: 'StopOutlined',
-                  requiresAuth: true,
-                  order: 1
-                }
-              },
-              {
-                path: '404',
-                name: 'ExamplesException404',
-                component: () => import('@/views/examples/exception/404.vue'),
-                meta: {
-                  title: 'menu.exception404',
-                  icon: 'FileUnknownOutlined',
-                  requiresAuth: true,
-                  order: 2
-                }
-              },
-              {
-                path: '500',
-                name: 'ExamplesException500',
-                component: () => import('@/views/examples/exception/500.vue'),
-                meta: {
-                  title: 'menu.exception500',
-                  icon: 'BugOutlined',
-                  requiresAuth: true,
-                  order: 3
-                }
-              }
-            ]
+            }
+          },
+          {
+            path: '/examples/exception/404',
+            name: 'ExamplesException404',
+            component: () => import('@/views/examples/exception/404.vue'),
+            meta: {
+              title: 'menu.exception404',
+              icon: 'FileUnknownOutlined',
+              requiresAuth: true,
+              order: 2
+            }
+          },
+          {
+            path: '/examples/exception/500',
+            name: 'ExamplesException500',
+            component: () => import('@/views/examples/exception/500.vue'),
+            meta: {
+              title: 'menu.exception500',
+              icon: 'BugOutlined',
+              requiresAuth: true,
+              order: 3
+            }
           }
         ]
       }
