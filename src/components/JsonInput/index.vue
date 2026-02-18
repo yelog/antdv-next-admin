@@ -68,6 +68,9 @@
                     :label-map="getNestedLabelMap(key)"
                     :disabled-fields="disabledFields"
                     :readonly-fields="readonlyFields"
+                    :allow-add="!isFieldReadonly(key)"
+                    :allow-delete="!isFieldReadonly(key)"
+                    :allow-sort="!isFieldReadonly(key)"
                     :placeholder="`${getFieldLabel(key)}...`"
                   />
                 </template>
@@ -81,13 +84,18 @@
                     style="width: 100%"
                     :placeholder="输入标签按回车确认"
                     :max-tag-count="2"
+                    :disabled="isFieldReadonly(key)"
                   />
                 </template>
                 
                 <!-- Boolean/Status Type -->
                 <template v-else-if="getFieldType(key) === 'boolean' || key === 'isActive' || key === 'status'">
                   <div class="boolean-field-wrapper">
-                    <a-switch v-model:checked="editData[key]" size="small" />
+                    <a-switch
+                      v-model:checked="editData[key]"
+                      size="small"
+                      :disabled="isFieldReadonly(key)"
+                    />
                     <span class="switch-label">
                       {{ editData[key] ? (fieldConfig[key]?.activeLabel || "已启用") : (fieldConfig[key]?.inactiveLabel || "已禁用") }}
                     </span>
@@ -103,6 +111,8 @@
                     :placeholder="getFieldLabel(key)"
                     :min="fieldConfig[key]?.min"
                     :max="fieldConfig[key]?.max"
+                    :disabled="isFieldDisabled(key)"
+                    :readonly="isFieldReadonly(key)"
                   />
                 </template>
                 
@@ -114,6 +124,8 @@
                     placeholder="JSON: [1, 2, 3]"
                     :auto-size="{ minRows: 1, maxRows: 3 }"
                     @blur="validateArray(key)"
+                    :disabled="isFieldDisabled(key)"
+                    :readonly="isFieldReadonly(key)"
                   />
                 </template>
                 
@@ -126,6 +138,8 @@
                     :auto-size="{ minRows: 2, maxRows: 4 }"
                     show-count
                     :maxlength="fieldConfig[key]?.maxLength || 500"
+                    :disabled="isFieldDisabled(key)"
+                    :readonly="isFieldReadonly(key)"
                   />
                 </template>
                 
@@ -135,7 +149,9 @@
                     v-model:value="editData[key]"
                     size="middle"
                     :placeholder="getFieldLabel(key)"
-                    allow-clear
+                    :allow-clear="!isFieldReadonly(key)"
+                    :disabled="isFieldDisabled(key)"
+                    :readonly="isFieldReadonly(key)"
                   />
                 </template>
               </div>
@@ -143,7 +159,7 @@
               <!-- Actions -->
               <div class="field-actions" :class="{ 'is-visible': hoveredField === key }">
                 <a-button
-                  v-if="allowDelete && !isFieldDisabled(key)"
+                  v-if="allowDelete && !isFieldReadonly(key)"
                   type="text"
                   size="small"
                   danger
@@ -384,6 +400,10 @@ function getFieldType(key: string): string {
 
 function isFieldDisabled(key: string): boolean {
   return props.disabledFields.includes(key)
+}
+
+function isFieldReadonly(key: string): boolean {
+  return isFieldDisabled(key) || props.readonlyFields.includes(key)
 }
 
 function getNestedLabelMap(parentKey: string): LabelMap {
@@ -673,6 +693,8 @@ watch(() => props.value, (newVal) => {
     .field-actions {
       display: flex;
       align-items: center;
+      justify-content: center;
+      width: 28px;
       gap: 6px;
       opacity: 0;
       transition: opacity 0.15s ease;
