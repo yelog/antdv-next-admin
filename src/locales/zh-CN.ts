@@ -205,6 +205,9 @@ export default {
     grayModeHint: '开启后整个应用呈现灰色调',
     rememberTabState: '记住标签页状态',
     rememberTabStateHint: '刷新页面后自动恢复之前打开的标签页',
+    aiCollab: 'AI 对话分屏',
+    aiCollabHint: '在业务页面右侧显示 AI 对话协同面板',
+    aiCollabHintMobile: '移动端暂不支持 AI 对话分屏',
     reset: '重置设置',
     confirmReset: '确定要重置所有偏好设置吗？',
     colors: {

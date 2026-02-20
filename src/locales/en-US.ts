@@ -204,6 +204,9 @@ export default {
     grayModeHint: 'Enable grayscale mode for the entire app',
     rememberTabState: 'Remember Tab State',
     rememberTabStateHint: 'Automatically restore previously opened tabs after refresh',
+    aiCollab: 'AI Chat Split View',
+    aiCollabHint: 'Show AI chat collaboration panel on the right side of business pages',
+    aiCollabHintMobile: 'AI chat split view is not available on mobile',
     reset: 'Reset Settings',
     confirmReset: 'Are you sure you want to reset all preferences?',
     colors: {

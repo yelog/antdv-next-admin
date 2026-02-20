@@ -201,6 +201,9 @@ export default {
     grayModeHint: 'アプリ全体でグレースケール モードを有効にする',
     rememberTabState: 'タブの状態を記憶する',
     rememberTabStateHint: '更新後に以前に開いていたタブを自動的に復元する',
+    aiCollab: 'AI チャット分割表示',
+    aiCollabHint: '業務ページの右側に AI チャット協同パネルを表示します',
+    aiCollabHintMobile: 'モバイルでは AI チャット分割表示を利用できません',
     reset: '設定をリセットする',
     confirmReset: 'すべての設定をリセットしてもよろしいですか?',
     colors: {

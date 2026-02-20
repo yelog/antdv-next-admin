@@ -74,6 +74,19 @@
         <div class="hint">{{ $t('settings.rememberTabStateHint') }}</div>
       </div>
 
+      <!-- AI Chat Split Panel -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.aiCollab') }}</h4>
+        <a-switch
+          :checked="layoutStore.aiCollabEnabled"
+          :disabled="layoutStore.isMobile"
+          @change="handleAiCollabChange"
+        />
+        <div class="hint">
+          {{ layoutStore.isMobile ? $t('settings.aiCollabHintMobile') : $t('settings.aiCollabHint') }}
+        </div>
+      </div>
+
       <!-- Actions -->
       <div class="settings-actions">
         <a-button block @click="handleReset">
@@ -88,12 +101,14 @@
 import { computed, ref, watch } from 'vue'
 import { CheckOutlined } from '@antdv-next/icons'
 import { useSettingsStore } from '@/stores/settings'
+import { useLayoutStore } from '@/stores/layout'
 import { Modal } from 'antdv-next'
 import { $t } from '@/locales'
 import type { PageAnimation, PrimaryColor } from '@/types/layout'
 
 const visible = ref(false)
 const settingsStore = useSettingsStore()
+const layoutStore = useLayoutStore()
 const customColor = ref(settingsStore.customPrimaryColor || '#1890ff')
 
 const PRESET_COLORS: Array<{ value: PrimaryColor; hex: string }> = [
@@ -154,9 +169,14 @@ const handleReset = () => {
     title: $t('settings.confirmReset'),
     onOk: () => {
       settingsStore.resetSettings()
+      layoutStore.setAiCollabEnabled(false)
       customColor.value = '#1890ff'
     }
   })
+}
+
+const handleAiCollabChange = (checked: boolean) => {
+  layoutStore.setAiCollabEnabled(checked)
 }
 
 const open = () => {
