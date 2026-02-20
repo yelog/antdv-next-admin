@@ -32,6 +32,17 @@
 
       <!-- Desktop: Show all actions -->
       <template v-if="!layoutStore.isMobile">
+        <a-tooltip :title="layoutStore.aiCollabEnabled ? $t('layout.aiCollabDisable') : $t('layout.aiCollabEnable')">
+          <a-button
+            type="text"
+            class="header-action ai-toggle-btn"
+            :class="{ active: layoutStore.aiCollabEnabled }"
+            @click="layoutStore.toggleAiCollab"
+          >
+            <MessageOutlined />
+          </a-button>
+        </a-tooltip>
+
         <!-- Fullscreen Toggle -->
         <FullscreenToggle />
 
@@ -82,8 +93,8 @@ import {
   SearchOutlined,
   SettingOutlined,
   MoreOutlined,
+  MessageOutlined,
   FullscreenOutlined,
-  BellOutlined,
   BulbOutlined,
   GlobalOutlined
 } from '@antdv-next/icons'
@@ -138,6 +149,9 @@ const handleMoreMenuClick = ({ key }: { key: string }) => {
     case 'fullscreen':
       toggleFullscreen()
       break
+    case 'ai-collab':
+      layoutStore.toggleAiCollab()
+      break
     case 'theme-light':
       themeStore.setThemeMode('light')
       break
@@ -171,6 +185,11 @@ const moreMenuProps = computed(() => ({
       key: 'fullscreen',
       label: $t('layout.fullscreen'),
       icon: h(FullscreenOutlined)
+    },
+    {
+      key: 'ai-collab',
+      label: layoutStore.aiCollabEnabled ? $t('layout.aiCollabDisable') : $t('layout.aiCollabEnable'),
+      icon: h(MessageOutlined)
     },
     {
       type: 'divider'
@@ -356,6 +375,11 @@ onBeforeUnmount(() => {
         background: var(--color-bg-layout);
         color: var(--color-text-primary);
       }
+    }
+
+    .ai-toggle-btn.active {
+      color: var(--color-primary);
+      background: color-mix(in srgb, var(--color-primary) 12%, transparent);
     }
 
     // Ensure buttons in nested components follow the same style.

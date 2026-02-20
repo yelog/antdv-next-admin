@@ -19,14 +19,32 @@
 
         <!-- Page Content -->
         <a-layout-content class="page-content" :class="{ 'is-iframe-page': isIframePage }">
-          <div class="page-scroll">
-            <router-view v-slot="{ Component }">
-              <transition :name="settingsStore.pageAnimation" mode="out-in">
-                <keep-alive :include="cachedTabs">
-                  <component :is="Component" :key="pageViewKey" />
-                </keep-alive>
-              </transition>
-            </router-view>
+          <div ref="workspaceRef" class="page-workspace" :class="{ 'is-ai-active': isAICollabActive }">
+            <div class="page-workspace-main">
+              <div class="page-scroll">
+                <router-view v-slot="{ Component }">
+                  <transition :name="settingsStore.pageAnimation" mode="out-in">
+                    <keep-alive :include="cachedTabs">
+                      <component :is="Component" :key="pageViewKey" />
+                    </keep-alive>
+                  </transition>
+                </router-view>
+              </div>
+            </div>
+
+            <template v-if="isAICollabActive">
+              <div
+                class="page-workspace-resizer"
+                role="separator"
+                aria-orientation="vertical"
+                @mousedown="startAiResize"
+              />
+              <AICollabPanel
+                class="page-workspace-ai"
+                :style="{ width: `${effectiveAiPanelWidth}px` }"
+                @close="layoutStore.setAiCollabEnabled(false)"
+              />
+            </template>
           </div>
         </a-layout-content>
       </a-layout>
@@ -83,14 +101,32 @@
 
           <!-- Page Content -->
           <div class="page-content" :class="{ 'is-iframe-page': isIframePage }">
-            <div class="page-scroll">
-              <router-view v-slot="{ Component }">
-                <transition :name="settingsStore.pageAnimation" mode="out-in">
-                  <keep-alive :include="cachedTabs">
-                    <component :is="Component" :key="pageViewKey" />
-                  </keep-alive>
-                </transition>
-              </router-view>
+            <div ref="workspaceRef" class="page-workspace" :class="{ 'is-ai-active': isAICollabActive }">
+              <div class="page-workspace-main">
+                <div class="page-scroll">
+                  <router-view v-slot="{ Component }">
+                    <transition :name="settingsStore.pageAnimation" mode="out-in">
+                      <keep-alive :include="cachedTabs">
+                        <component :is="Component" :key="pageViewKey" />
+                      </keep-alive>
+                    </transition>
+                  </router-view>
+                </div>
+              </div>
+
+              <template v-if="isAICollabActive">
+                <div
+                  class="page-workspace-resizer"
+                  role="separator"
+                  aria-orientation="vertical"
+                  @mousedown="startAiResize"
+                />
+                <AICollabPanel
+                  class="page-workspace-ai"
+                  :style="{ width: `${effectiveAiPanelWidth}px` }"
+                  @close="layoutStore.setAiCollabEnabled(false)"
+                />
+              </template>
             </div>
           </div>
         </a-layout-content>
@@ -119,6 +155,7 @@ import logoImg from '@/assets/images/logo.png'
 import Sidebar from './Sidebar.vue'
 import Header from './Header.vue'
 import TabBar from './TabBar.vue'
+import AICollabPanel from './AICollabPanel.vue'
 
 type HorizontalMenuItems = NonNullable<MenuProps['items']>
 
@@ -135,14 +172,42 @@ const measureMenuWrapRef = ref<HTMLElement>()
 const measuredTopMenuWidths = ref<number[]>([])
 const visibleMenuCount = ref(0)
 const OVERFLOW_TRIGGER_WIDTH = 36
+const MIN_AI_PANEL_WIDTH = 320
+const MAX_AI_PANEL_WIDTH = 560
+const MIN_MAIN_WORKSPACE_WIDTH = 420
 let resizeObserver: ResizeObserver | null = null
+let workspaceResizeObserver: ResizeObserver | null = null
 let rafId = 0
+
+const workspaceRef = ref<HTMLElement | null>(null)
+const workspaceWidth = ref(0)
+const isAiResizing = ref(false)
 
 const cachedTabs = computed(() => tabsStore.cachedTabs)
 const pageViewKey = computed(() => route.path)
 
 const isIframePage = computed(() => {
   return route.path.includes('/iframe/')
+})
+
+const isAICollabActive = computed(() => {
+  return layoutStore.aiCollabEnabled && !layoutStore.isMobile && !layoutStore.pageFullscreen
+})
+
+const maxAiPanelWidth = computed(() => {
+  if (workspaceWidth.value <= 0) {
+    return MAX_AI_PANEL_WIDTH
+  }
+  const limitByWorkspace = workspaceWidth.value - MIN_MAIN_WORKSPACE_WIDTH
+  const capped = Math.min(MAX_AI_PANEL_WIDTH, limitByWorkspace)
+  return Math.max(MIN_AI_PANEL_WIDTH, capped)
+})
+
+const effectiveAiPanelWidth = computed(() => {
+  return Math.max(
+    MIN_AI_PANEL_WIDTH,
+    Math.min(layoutStore.aiPanelWidth, maxAiPanelWidth.value)
+  )
 })
 
 const fallbackMenuItems = computed(() => {
@@ -269,6 +334,56 @@ const overflowMenuProps = computed(() => ({
   onClick: handleHorizontalMenuClick
 }))
 
+const updateWorkspaceWidth = () => {
+  workspaceWidth.value = workspaceRef.value?.getBoundingClientRect().width || 0
+}
+
+const syncAiPanelWidth = () => {
+  if (!layoutStore.aiCollabEnabled) {
+    return
+  }
+
+  const clamped = Math.max(
+    MIN_AI_PANEL_WIDTH,
+    Math.min(layoutStore.aiPanelWidth, maxAiPanelWidth.value)
+  )
+  if (clamped !== layoutStore.aiPanelWidth) {
+    layoutStore.setAiPanelWidth(clamped)
+  }
+}
+
+const stopAiResize = () => {
+  if (!isAiResizing.value) {
+    return
+  }
+  isAiResizing.value = false
+  document.body.classList.remove('is-ai-panel-resizing')
+}
+
+const handleAiResizeMove = (event: MouseEvent) => {
+  if (!isAiResizing.value || !workspaceRef.value) {
+    return
+  }
+
+  const rect = workspaceRef.value.getBoundingClientRect()
+  const nextWidth = rect.right - event.clientX
+  const clampedWidth = Math.max(
+    MIN_AI_PANEL_WIDTH,
+    Math.min(nextWidth, maxAiPanelWidth.value)
+  )
+  layoutStore.setAiPanelWidth(clampedWidth)
+}
+
+const startAiResize = (event: MouseEvent) => {
+  if (!isAICollabActive.value) {
+    return
+  }
+
+  event.preventDefault()
+  isAiResizing.value = true
+  document.body.classList.add('is-ai-panel-resizing')
+}
+
 const measureHorizontalMenuItemWidths = () => {
   const wrap = measureMenuWrapRef.value
   if (!wrap) {
@@ -338,14 +453,23 @@ const scheduleMenuLayout = () => {
 onMounted(() => {
   layoutStore.initLayout()
   scheduleMenuLayout()
+  updateWorkspaceWidth()
+  syncAiPanelWidth()
+  window.addEventListener('mousemove', handleAiResizeMove)
+  window.addEventListener('mouseup', stopAiResize)
 
   if (typeof ResizeObserver !== 'undefined') {
     resizeObserver = new ResizeObserver(() => {
       scheduleMenuLayout()
     })
+    workspaceResizeObserver = new ResizeObserver(() => {
+      updateWorkspaceWidth()
+      syncAiPanelWidth()
+    })
 
     if (menuAreaRef.value) resizeObserver.observe(menuAreaRef.value)
     if (measureMenuWrapRef.value) resizeObserver.observe(measureMenuWrapRef.value)
+    if (workspaceRef.value) workspaceResizeObserver.observe(workspaceRef.value)
   }
 })
 
@@ -354,8 +478,13 @@ onBeforeUnmount(() => {
     cancelAnimationFrame(rafId)
     rafId = 0
   }
+  stopAiResize()
+  window.removeEventListener('mousemove', handleAiResizeMove)
+  window.removeEventListener('mouseup', stopAiResize)
   resizeObserver?.disconnect()
   resizeObserver = null
+  workspaceResizeObserver?.disconnect()
+  workspaceResizeObserver = null
 })
 
 watch(
@@ -370,6 +499,16 @@ watch(
   () => settingsStore.layoutMode,
   () => {
     scheduleMenuLayout()
+    nextTick(() => {
+      if (workspaceResizeObserver) {
+        workspaceResizeObserver.disconnect()
+        if (workspaceRef.value) {
+          workspaceResizeObserver.observe(workspaceRef.value)
+        }
+      }
+      updateWorkspaceWidth()
+      syncAiPanelWidth()
+    })
   }
 )
 
@@ -377,6 +516,38 @@ watch(
   () => route.path,
   () => {
     scheduleMenuLayout()
+  }
+)
+
+watch(
+  () => layoutStore.isMobile,
+  (isMobile) => {
+    if (isMobile && layoutStore.aiCollabEnabled) {
+      layoutStore.setAiCollabEnabled(false)
+    }
+  }
+)
+
+watch(
+  () => layoutStore.pageFullscreen,
+  (isFullscreen) => {
+    if (isFullscreen && layoutStore.aiCollabEnabled) {
+      layoutStore.setAiCollabEnabled(false)
+    }
+  }
+)
+
+watch(
+  () => layoutStore.aiCollabEnabled,
+  (enabled) => {
+    if (enabled) {
+      nextTick(() => {
+        updateWorkspaceWidth()
+        syncAiPanelWidth()
+      })
+    } else {
+      stopAiResize()
+    }
   }
 )
 </script>
@@ -581,6 +752,51 @@ watch(
     }
   }
 
+  .page-workspace {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .page-workspace-main {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .page-workspace-ai {
+    height: 100%;
+    flex-shrink: 0;
+  }
+
+  .page-workspace-resizer {
+    width: 10px;
+    margin: 0 2px;
+    cursor: col-resize;
+    position: relative;
+    flex-shrink: 0;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 42px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--color-primary) 35%, var(--color-border-secondary));
+      opacity: 0.4;
+      transition: opacity var(--duration-base) var(--ease-out);
+    }
+
+    &:hover::before {
+      opacity: 0.9;
+    }
+  }
+
   .page-scroll {
     height: 100%;
     overflow: auto;
@@ -600,6 +816,11 @@ watch(
       margin-left: 0 !important;
     }
   }
+}
+
+:global(body.is-ai-panel-resizing) {
+  cursor: col-resize;
+  user-select: none;
 }
 
 // Global watermark overlay - must cover fixed elements like Sidebar
