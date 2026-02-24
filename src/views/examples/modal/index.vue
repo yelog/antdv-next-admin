@@ -41,6 +41,21 @@
         </div>
 
         <div class="config-item">
+          <span>{{ $t('exampleModal.mask') }}</span>
+          <a-switch v-model:checked="mask" />
+        </div>
+
+        <div class="config-item">
+          <span>{{ $t('exampleModal.maskClosable') }}</span>
+          <a-switch v-model:checked="maskClosable" />
+        </div>
+
+        <div class="config-item">
+          <span>{{ $t('exampleModal.keyboard') }}</span>
+          <a-switch v-model:checked="keyboard" />
+        </div>
+
+        <div class="config-item">
           <span>{{ $t('exampleModal.dataCount') }}</span>
           <a-input-number
             v-model:value="dataCount"
@@ -57,7 +72,9 @@
       v-model:open="modalOpen"
       :title="$t('exampleModal.modalTitle')"
       :width="modalWidth"
-      :mask-closable="false"
+      :mask="mask"
+      :mask-closable="maskClosable"
+      :keyboard="keyboard"
       :draggable="draggable"
       :resizable="resizable"
       :fullscreenable="fullscreenable"
@@ -116,6 +133,9 @@ const modalWidth = ref(760)
 const draggable = ref(true)
 const resizable = ref(true)
 const fullscreenable = ref(true)
+const mask = ref(true)
+const maskClosable = ref(true)
+const keyboard = ref(true)
 const dataCount = ref(24)
 
 const mockRows = computed(() => {
