@@ -96,7 +96,7 @@ import type { ModalProps } from 'antdv-next'
 import { CloseOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@antdv-next/icons'
 import { $t } from '@/locales'
 
-interface ProModalProps extends ModalProps {
+interface ProModalProps extends /* @vue-ignore */ ModalProps {
   draggable?: boolean
   resizable?: boolean
   fullscreenable?: boolean
