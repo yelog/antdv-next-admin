@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<Props>(), {
   requireAll: false
 })
 
-const { can, canAll, canAny } = usePermission()
+const { canAll, canAny } = usePermission()
 
 const hasPermission = computed(() => {
   if (!props.permission) {

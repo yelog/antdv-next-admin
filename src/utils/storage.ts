@@ -6,7 +6,7 @@ interface StorageData<T> {
 }
 
 class Storage {
-  private storage: globalThis.Storage
+  protected storage: globalThis.Storage
 
   constructor(storage: globalThis.Storage) {
     this.storage = storage

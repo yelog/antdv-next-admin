@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 interface Props {
   width?: number | string
@@ -39,7 +39,6 @@ const emit = defineEmits(['success', 'fail'])
 const containerRef = ref<HTMLElement | null>(null)
 const mainCanvasRef = ref<HTMLCanvasElement | null>(null)
 const moveCanvasRef = ref<HTMLCanvasElement | null>(null)
-const sliderContainerRef = ref<HTMLElement | null>(null)
 const isMoving = ref(false)
 const isSuccess = ref(false)
 const loading = ref(false)

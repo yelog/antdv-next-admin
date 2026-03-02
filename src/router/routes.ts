@@ -55,6 +55,7 @@ export const demoRoutes: AppRouteRecordRaw[] = [
     name: 'Demo',
     component: () => import('@/views/demo/DemoLayout.vue'),
     meta: {
+      title: 'Demo',
       requiresAuth: false,
       hidden: true
     },
@@ -92,6 +93,7 @@ export const basicRoutes: AppRouteRecordRaw[] = [
         name: 'Redirect',
         component: () => import('@/views/redirect/index.vue'),
         meta: {
+          title: 'Redirect',
           hidden: true
         }
       },

@@ -2,7 +2,6 @@ import type { OperationLog, LoginLog } from '@/types/log'
 
 const modules = ['userManagement', 'roleManagement', 'menuManagement', 'dictionary', 'systemLogin', 'profile', 'dashboard']
 const actions: OperationLog['action'][] = ['login', 'logout', 'create', 'update', 'delete', 'export', 'other']
-const methods = ['GET', 'POST', 'PUT', 'DELETE']
 const browsers = ['Chrome 120', 'Firefox 121', 'Safari 17', 'Edge 120']
 const osList = ['Windows 11', 'macOS 14', 'Ubuntu 22.04', 'iOS 17']
 const ips = ['192.168.1.100', '192.168.1.101', '10.0.0.50', '172.16.0.88', '192.168.2.200', '10.10.1.33']

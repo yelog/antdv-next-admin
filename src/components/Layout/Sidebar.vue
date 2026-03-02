@@ -41,7 +41,6 @@ import { useRoute, useRouter } from 'vue-router'
 import type { MenuProps } from 'antdv-next'
 import { useLayoutStore } from '@/stores/layout'
 import { useSettingsStore } from '@/stores/settings'
-import { useThemeStore } from '@/stores/theme'
 import { usePermissionStore } from '@/stores/permission'
 import { basicRoutes } from '@/router/routes'
 import { routesToMenuTree } from '@/router/utils'
@@ -55,7 +54,6 @@ const route = useRoute()
 const router = useRouter()
 const layoutStore = useLayoutStore()
 const settingsStore = useSettingsStore()
-const themeStore = useThemeStore()
 const permissionStore = usePermissionStore()
 
 const selectedKeys = ref<string[]>([])

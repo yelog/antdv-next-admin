@@ -233,7 +233,7 @@ const editor = useEditor({
 // 监听外部值变化
 watch(() => props.modelValue, (newValue) => {
   if (editor.value && newValue !== editor.value.getHTML()) {
-    editor.value.commands.setContent(newValue, false)
+    editor.value.commands.setContent(newValue)
   }
 })
 

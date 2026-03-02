@@ -13,6 +13,7 @@ export interface RouteMeta {
   affix?: boolean // Pin tab (cannot be closed)
   badge?: string | number
   activeMenu?: string
+  externalLink?: string
 }
 
 export interface AppRouteRecordRaw extends Omit<RouteRecordRaw, 'meta' | 'children'> {

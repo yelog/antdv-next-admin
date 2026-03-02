@@ -104,7 +104,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useLayoutStore } from '@/stores/layout'
 import { Modal } from 'antdv-next'
 import { $t } from '@/locales'
-import type { PageAnimation, PrimaryColor } from '@/types/layout'
+import type { PrimaryColor } from '@/types/layout'
 
 const visible = ref(false)
 const settingsStore = useSettingsStore()

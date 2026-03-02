@@ -153,13 +153,13 @@ const handleMoreMenuClick = ({ key }: { key: string }) => {
       layoutStore.toggleAiCollab()
       break
     case 'theme-light':
-      themeStore.setThemeMode('light')
+      themeStore.setTheme('light')
       break
     case 'theme-dark':
-      themeStore.setThemeMode('dark')
+      themeStore.setTheme('dark')
       break
     case 'theme-auto':
-      themeStore.setThemeMode('auto')
+      themeStore.setTheme('system')
       break
     case 'lang-zh':
       setLocale('zh-CN')

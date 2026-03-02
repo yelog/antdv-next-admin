@@ -3,7 +3,6 @@ import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
 
 // Token refresh state
-let isRefreshing = false
 let refreshPromise: Promise<string> | null = null
 
 // Create axios instance
@@ -64,11 +63,9 @@ service.interceptors.response.use(
       try {
         // Ensure only one refresh request is made
         if (!refreshPromise) {
-          isRefreshing = true
           const authStore = useAuthStore()
 
           refreshPromise = authStore.refreshToken().finally(() => {
-            isRefreshing = false
             refreshPromise = null
           })
         }

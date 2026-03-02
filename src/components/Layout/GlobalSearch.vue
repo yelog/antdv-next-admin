@@ -135,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   SearchOutlined,
@@ -144,7 +144,6 @@ import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   ClockCircleOutlined,
-  CloseOutlined,
   StarOutlined,
   StarFilled
 } from '@antdv-next/icons'
@@ -158,7 +157,6 @@ import { resolveIcon } from '@/utils/icon'
 import { match as pinyinMatch } from 'pinyin-pro'
 
 const MENU_HISTORY_KEY = 'app-menu-history'
-const MAX_HISTORY_ITEMS = 10
 
 interface SearchItem {
   path: string
