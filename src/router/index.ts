@@ -9,9 +9,6 @@ const routes = [
   ...demoRoutes,
   ...basicRoutes
 ]
-  ...staticRoutes,
-  ...basicRoutes
-]
 
 // Create router instance
 const router = createRouter({
