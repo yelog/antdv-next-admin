@@ -15,6 +15,14 @@ import type {
   ProTableToolbar,
   SearchType,
 } from '@/types/pro'
+
+// Resize info type for column resizing
+interface ResizeInfo {
+  size: {
+    width: number
+    height: number
+  }
+}
 import {
   ColumnHeightOutlined,
   DownOutlined,

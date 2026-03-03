@@ -170,10 +170,10 @@ async function fetchDashboardData() {
       getRecentActivities(),
     ])
 
-    stats.value = statsRes
-    salesTrend.value = salesRes
-    userDistribution.value = userRes
-    activities.value = activitiesRes
+    stats.value = statsRes.data
+    salesTrend.value = salesRes.data
+    userDistribution.value = userRes.data
+    activities.value = activitiesRes.data
   }
   catch (error) {
     console.error('Failed to fetch dashboard data:', error)
