@@ -79,6 +79,7 @@ async function handleSubmit() {
         <a-form-item name="username">
           <a-input
             v-model:value="formState.username"
+            name="username"
             size="large"
             :placeholder="$t('login.usernamePlaceholder')"
           >
@@ -91,6 +92,7 @@ async function handleSubmit() {
         <a-form-item name="password">
           <a-input-password
             v-model:value="formState.password"
+            name="password"
             size="large"
             :placeholder="$t('login.passwordPlaceholder')"
           >
