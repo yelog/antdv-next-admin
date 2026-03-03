@@ -57,7 +57,7 @@ const availableLocaleSet = computed(() => new Set(availableLocales.value.map(ite
 
 const displayLocale = computed(() => {
   const locale = props.locale || getLocale()
-  if (availableLocaleSet.value.has(locale)) {
+  if (availableLocaleSet.value.has(locale as LocaleCode)) {
     return locale
   }
   return availableLocales.value[0]?.locale || locale

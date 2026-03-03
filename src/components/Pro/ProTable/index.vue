@@ -44,7 +44,8 @@ import ValueTypeRender from './ValueTypeRender.vue'
 
 interface Props {
   columns: ProTableColumn[]
-  request: ProTableRequest
+  request?: ProTableRequest
+  dataSource?: any[]
   toolbar?: ProTableToolbar
   search?: ProTableSearch | false
   headerFilter?: ProTableHeaderFilterConfig
@@ -57,6 +58,7 @@ interface Props {
   ellipsis?: boolean
   bordered?: boolean
   fixedHeader?: boolean
+  loading?: boolean
   // Built-in CRUD modal
   formItems?: ProFormItem[]
   formGrid?: ProFormGrid
