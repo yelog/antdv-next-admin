@@ -60,6 +60,5 @@ export default antfu({
     'no-prototype-builtins': 'off',
     'no-new': 'off',
     'no-throw-literal': 'off',
-    'no-throw-literal': 'off',
   },
 })
