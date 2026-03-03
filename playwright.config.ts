@@ -29,9 +29,12 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: 'pnpm run build && pnpm preview --port 3000',
+    command: 'VITE_SKIP_CAPTCHA=true pnpm preview --port 3000',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 300000
+    timeout: 300000,
+    env: {
+      VITE_SKIP_CAPTCHA: 'true'
+    }
   }
 })

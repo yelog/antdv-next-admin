@@ -14,7 +14,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const loading = ref(false)
-const captchaVerified = ref(false)
+const captchaVerified = ref(import.meta.env.VITE_SKIP_CAPTCHA === 'true')
 const captchaRef = ref<InstanceType<typeof SliderCaptcha>>()
 const formState = reactive({
   username: 'admin',

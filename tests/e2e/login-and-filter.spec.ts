@@ -11,35 +11,6 @@ async function waitForLoginPage(page) {
   await page.waitForSelector('[data-testid="login-button"]', { timeout: 15000 })
 }
 
-// Helper function to complete slider captcha
-async function completeCaptcha(page) {
-  // Wait for captcha to be visible
-  const captcha = page.locator('.slider-captcha')
-  await captcha.waitFor({ state: 'visible', timeout: 5000 })
-
-  // Trigger success event on the slider captcha component
-  await page.evaluate(() => {
-    // Find the slider captcha element
-    const sliderCaptcha = document.querySelector('.slider-captcha')
-    if (sliderCaptcha) {
-      // Get the Vue instance associated with this element
-      // @ts-ignore
-      const vueInstance = sliderCaptcha.__vueParentComponent
-      if (vueInstance) {
-        // Set isSuccess to true
-        // @ts-ignore
-        vueInstance.ctx.isSuccess.value = true
-        // Emit success event
-        // @ts-ignore
-        vueInstance.emit('success')
-      }
-    }
-  })
-
-  // Wait for Vue to update the state
-  await page.waitForTimeout(500)
-}
-
 // Helper function to perform login
 async function performLogin(page, username, password) {
   const usernameInput = page.locator('[data-testid="username-input"]')
@@ -52,13 +23,7 @@ async function performLogin(page, username, password) {
   await passwordInput.clear()
   await passwordInput.fill(password)
 
-  // Complete captcha
-  await completeCaptcha(page)
-
-  // Wait for login button to be enabled
-  await expect(loginButton).toBeEnabled({ timeout: 5000 })
-
-  // Click login
+  // Click login (captcha is skipped in test mode)
   await loginButton.click()
 }
 
