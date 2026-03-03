@@ -94,7 +94,7 @@ test.describe('Table Operations', () => {
     // Press enter or click search
     await searchInput.press('Enter')
 
-    // Should filter results
-    await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 10000 })
+    // Should filter results - exclude hidden measure rows
+    await expect(page.locator('table tbody tr:visible').first()).toBeVisible({ timeout: 10000 })
   })
 })
