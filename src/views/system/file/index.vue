@@ -80,7 +80,7 @@ const columns = computed<ProTableColumn[]>(() => [
   ] },
   { title: t('file.uploader'), dataIndex: 'uploader', key: 'uploader', width: 100 },
   { title: t('file.uploadTime'), dataIndex: 'createTime', key: 'createTime', width: 180 },
-  { title: t('file.action'), key: 'action', width: 100, fixed: 'right' },
+  { title: t('file.action'), dataIndex: 'action', key: 'action', width: 100, fixed: 'right' },
 ])
 
 async function loadFileList(params: any) {

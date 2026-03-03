@@ -44,30 +44,31 @@ onMounted(async () => {
   checkDarkTheme()
 
   const editor = await Editor.make()
-    .config((ctx) => {
+    .config(((ctx: any) => {
       ctx.set(rootCtx, editorRef.value)
       ctx.set(defaultValueCtx, props.modelValue)
 
       // 配置编辑器视图
-      ctx.update(editorViewOptionsCtx, prev => ({
+      ctx.update(editorViewOptionsCtx, (prev: any) => ({
         ...prev,
         editable: () => !props.readonly,
       }))
 
       // 监听内容变化
-      ctx.get(listenerCtx).markdownUpdated((_ctx, markdown, prevMarkdown) => {
+      ctx.get(listenerCtx).markdownUpdated((_ctx: any, markdown: any, prevMarkdown: any) => {
         if (markdown !== prevMarkdown) {
           emit('update:modelValue', markdown)
           emit('change', markdown)
         }
       })
-    })
+    }) as any)
+    // @ts-expect-error - Milkdown plugin type issue
     .use(nord)
     .use(commonmark)
     .use(gfm)
     .use(history)
     .use(clipboard)
-    .use(listener)
+    .use(listener as any)
     .use(prism)
     .create()
 

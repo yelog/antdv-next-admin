@@ -15,14 +15,6 @@ import type {
   ProTableToolbar,
   SearchType,
 } from '@/types/pro'
-
-// Resize info type for column resizing
-interface ResizeInfo {
-  size: {
-    width: number
-    height: number
-  }
-}
 import {
   ColumnHeightOutlined,
   DownOutlined,
@@ -41,6 +33,14 @@ import ProForm from '../ProForm/index.vue'
 import ProModal from '../ProModal/index.vue'
 import { MIN_COLUMN_WIDTH, ResizableTitle } from './ResizableTitle'
 import ValueTypeRender from './ValueTypeRender.vue'
+
+// Resize info type for column resizing
+interface ResizeInfo {
+  size: {
+    width: number
+    height: number
+  }
+}
 
 interface Props {
   columns: ProTableColumn[]

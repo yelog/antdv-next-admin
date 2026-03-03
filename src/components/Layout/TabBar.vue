@@ -71,7 +71,7 @@ const tabItems = computed(() => {
           menu: {
             items: getTabMenuItems(tab),
             onClick: ({ key }: { key: string | number }) => handleContextMenu({ key: String(key) }, tab),
-          },
+          } as any,
         },
         {
           default: () => {

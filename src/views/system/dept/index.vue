@@ -61,7 +61,7 @@ const childColumns = computed<ProTableColumn[]>(() => [
   { title: t('dept.leader'), dataIndex: 'leader', key: 'leader', width: 100 },
   { title: t('dept.sort'), dataIndex: 'sort', key: 'sort', width: 70 },
   { title: t('dept.status'), dataIndex: 'status', key: 'status', width: 80 },
-  { title: t('common.actions'), key: 'action', width: 120 },
+  { title: t('common.actions'), dataIndex: 'action', key: 'action', width: 120 },
 ])
 
 const deptDescColumns = computed<ProDescriptionItem[]>(() => [
