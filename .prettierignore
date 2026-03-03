@@ -3,3 +3,6 @@ dist
 coverage
 *.d.ts
 .DS_Store
+*.hbs
+pnpm-lock.yaml
+*.log

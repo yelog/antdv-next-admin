@@ -8,9 +8,17 @@ test.describe('Login and Basic Navigation', () => {
     await page.waitForLoadState('networkidle')
 
     // Wait for login form inputs to be visible (using name attribute)
-    const usernameInput = page.locator('input[name="username"]').or(page.locator('input[placeholder*="用户名"]')).or(page.locator('input[placeholder*="username"]'))
-    const passwordInput = page.locator('input[name="password"]').or(page.locator('input[type="password"]'))
-    const loginButton = page.locator('button[type="submit"]').or(page.locator('button:has-text("登录")')).or(page.locator('button:has-text("Login")'))
+    const usernameInput = page
+      .locator('input[name="username"]')
+      .or(page.locator('input[placeholder*="用户名"]'))
+      .or(page.locator('input[placeholder*="username"]'))
+    const passwordInput = page
+      .locator('input[name="password"]')
+      .or(page.locator('input[type="password"]'))
+    const loginButton = page
+      .locator('button[type="submit"]')
+      .or(page.locator('button:has-text("登录")'))
+      .or(page.locator('button:has-text("Login")'))
 
     // Wait for elements to be ready
     await expect(usernameInput).toBeVisible({ timeout: 10000 })
@@ -47,9 +55,17 @@ test.describe('Login and Basic Navigation', () => {
     await page.goto('/login')
     await page.waitForLoadState('networkidle')
 
-    const usernameInput = page.locator('input[name="username"]').or(page.locator('input[placeholder*="用户名"]')).or(page.locator('input[placeholder*="username"]'))
-    const passwordInput = page.locator('input[name="password"]').or(page.locator('input[type="password"]'))
-    const loginButton = page.locator('button[type="submit"]').or(page.locator('button:has-text("登录")')).or(page.locator('button:has-text("Login")'))
+    const usernameInput = page
+      .locator('input[name="username"]')
+      .or(page.locator('input[placeholder*="用户名"]'))
+      .or(page.locator('input[placeholder*="username"]'))
+    const passwordInput = page
+      .locator('input[name="password"]')
+      .or(page.locator('input[type="password"]'))
+    const loginButton = page
+      .locator('button[type="submit"]')
+      .or(page.locator('button:has-text("登录")'))
+      .or(page.locator('button:has-text("Login")'))
 
     await expect(usernameInput).toBeVisible({ timeout: 10000 })
     await expect(passwordInput).toBeVisible({ timeout: 10000 })
@@ -65,9 +81,17 @@ test.describe('Login and Basic Navigation', () => {
     await page.goto('/login')
     await page.waitForLoadState('networkidle')
 
-    const usernameInput = page.locator('input[name="username"]').or(page.locator('input[placeholder*="用户名"]')).or(page.locator('input[placeholder*="username"]'))
-    const passwordInput = page.locator('input[name="password"]').or(page.locator('input[type="password"]'))
-    const loginButton = page.locator('button[type="submit"]').or(page.locator('button:has-text("登录")')).or(page.locator('button:has-text("Login")'))
+    const usernameInput = page
+      .locator('input[name="username"]')
+      .or(page.locator('input[placeholder*="用户名"]'))
+      .or(page.locator('input[placeholder*="username"]'))
+    const passwordInput = page
+      .locator('input[name="password"]')
+      .or(page.locator('input[type="password"]'))
+    const loginButton = page
+      .locator('button[type="submit"]')
+      .or(page.locator('button:has-text("登录")'))
+      .or(page.locator('button:has-text("Login")'))
 
     await expect(usernameInput).toBeVisible({ timeout: 10000 })
 
@@ -76,7 +100,9 @@ test.describe('Login and Basic Navigation', () => {
     await loginButton.click()
 
     // Should show error message (wait for it with increased timeout)
-    await expect(page.locator('.ant-message-error, .ant-alert-error, .ant-notification-notice').first()).toBeVisible({ timeout: 10000 })
+    await expect(
+      page.locator('.ant-message-error, .ant-alert-error, .ant-notification-notice').first()
+    ).toBeVisible({ timeout: 10000 })
   })
 })
 
@@ -86,9 +112,17 @@ test.describe('Table Operations', () => {
     await page.goto('/login')
     await page.waitForLoadState('networkidle')
 
-    const usernameInput = page.locator('input[name="username"]').or(page.locator('input[placeholder*="用户名"]')).or(page.locator('input[placeholder*="username"]'))
-    const passwordInput = page.locator('input[name="password"]').or(page.locator('input[type="password"]'))
-    const loginButton = page.locator('button[type="submit"]').or(page.locator('button:has-text("登录")')).or(page.locator('button:has-text("Login")'))
+    const usernameInput = page
+      .locator('input[name="username"]')
+      .or(page.locator('input[placeholder*="用户名"]'))
+      .or(page.locator('input[placeholder*="username"]'))
+    const passwordInput = page
+      .locator('input[name="password"]')
+      .or(page.locator('input[type="password"]'))
+    const loginButton = page
+      .locator('button[type="submit"]')
+      .or(page.locator('button:has-text("登录")'))
+      .or(page.locator('button:has-text("Login")'))
 
     await expect(usernameInput).toBeVisible({ timeout: 10000 })
 
@@ -106,7 +140,9 @@ test.describe('Table Operations', () => {
     await page.waitForLoadState('networkidle')
 
     // Should show user list (using URL or table presence)
-    await expect(page.locator('table').or(page.locator('text=用户管理')).or(page.locator('text=User'))).toBeVisible({ timeout: 10000 })
+    await expect(
+      page.locator('table').or(page.locator('text=用户管理')).or(page.locator('text=User'))
+    ).toBeVisible({ timeout: 10000 })
   })
 
   test('should search in table', async ({ page }) => {
