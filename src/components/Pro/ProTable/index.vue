@@ -1144,6 +1144,11 @@ async function loadData() {
       params.pageSize = pageSize.value
     }
 
+    if (!props.request) {
+      loading.value = false
+      return
+    }
+
     const result = await props.request(params)
 
     if (result.success) {
