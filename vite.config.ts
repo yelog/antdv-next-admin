@@ -35,6 +35,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    host: '0.0.0.0',
     open: false, // 不自动打开浏览器，手动访问 http://localhost:3000
     proxy: {
       // Proxy API requests in production
