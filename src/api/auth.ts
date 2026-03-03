@@ -1,6 +1,6 @@
-import { request } from '@/utils/request'
-import type { LoginParams, LoginResult, User } from '@/types/auth'
 import type { ApiResponse } from '@/types/api'
+import type { LoginParams, LoginResult, User } from '@/types/auth'
+import { request } from '@/utils/request'
 
 /**
  * Login

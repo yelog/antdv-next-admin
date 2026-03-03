@@ -7,6 +7,6 @@
  * - async: Permission-filtered routes based on user roles/permissions
  */
 
-export { staticRoutes, demoRoutes, notFoundRoute } from './static'
-export { basicRoutes } from './basic'
 export { asyncRoutes } from './async'
+export { basicRoutes } from './basic'
+export { demoRoutes, notFoundRoute, staticRoutes } from './static'

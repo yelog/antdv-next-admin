@@ -1,25 +1,31 @@
+<script setup lang="ts">
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+function goHome() {
+  router.push('/')
+}
+</script>
+
 <template>
   <div class="error-page">
     <div class="error-content">
-      <div class="error-code">403</div>
-      <h1 class="error-title">{{ $t('error.403') }}</h1>
-      <p class="error-description">{{ $t('error.noPermission') }}</p>
+      <div class="error-code">
+        403
+      </div>
+      <h1 class="error-title">
+        {{ $t('error.403') }}
+      </h1>
+      <p class="error-description">
+        {{ $t('error.noPermission') }}
+      </p>
       <a-button type="primary" size="large" @click="goHome">
         {{ $t('error.backHome') }}
       </a-button>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
-const goHome = () => {
-  router.push('/')
-}
-</script>
 
 <style scoped lang="scss">
 .error-page {

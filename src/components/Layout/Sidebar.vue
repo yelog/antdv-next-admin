@@ -1,54 +1,17 @@
-<template>
-  <div
-    v-if="showMobileMask"
-    class="sidebar-mask"
-    @click="closeMobileSidebar"
-  />
-  <a-layout-sider
-    v-model:collapsed="layoutStore.collapsed"
-    :class="['admin-sidebar', `theme-${effectiveSidebarTheme}`, { mobile: layoutStore.isMobile }]"
-    :width="layoutStore.sidebarWidth"
-    :collapsed-width="siderCollapsedWidth"
-    :trigger="null"
-    collapsible
-  >
-    <!-- Logo -->
-    <div class="sidebar-logo">
-      <img :src="logoImg" alt="Logo" class="logo-img" />
-      <transition name="fade">
-        <span v-show="!layoutStore.collapsed" class="logo-title">
-          {{ $t('common.appName') }}
-        </span>
-      </transition>
-    </div>
-
-    <!-- Menu -->
-    <a-menu
-      v-model:selectedKeys="selectedKeys"
-      v-model:openKeys="openKeys"
-      mode="inline"
-      :theme="effectiveSidebarTheme"
-      :items="antMenuItems"
-      class="sidebar-menu"
-      @click="handleMenuClick"
-    />
-  </a-layout-sider>
-</template>
-
 <script setup lang="ts">
-import { ref, computed, watch, h, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import type { MenuProps } from 'antdv-next'
-import { useLayoutStore } from '@/stores/layout'
-import { useSettingsStore } from '@/stores/settings'
-import { usePermissionStore } from '@/stores/permission'
+import type { SidebarTheme } from '@/types/layout'
+import type { MenuItem as MenuItemType } from '@/types/router'
+import { computed, h, nextTick, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import logoImg from '@/assets/images/logo.png'
 import { basicRoutes } from '@/router/routes/index'
 import { routesToMenuTree } from '@/router/utils'
-import type { MenuItem as MenuItemType } from '@/types/router'
-import type { SidebarTheme } from '@/types/layout'
+import { useLayoutStore } from '@/stores/layout'
+import { usePermissionStore } from '@/stores/permission'
+import { useSettingsStore } from '@/stores/settings'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
-import logoImg from '@/assets/images/logo.png'
 
 const route = useRoute()
 const router = useRouter()
@@ -87,19 +50,19 @@ const showMobileMask = computed(() => {
 
 const antMenuItems = computed<MenuProps['items']>(() => {
   const convert = (menus: MenuItemType[]): NonNullable<MenuProps['items']> => {
-    return menus.map(menu => {
+    return menus.map((menu) => {
       const iconComponent = resolveIcon(menu.icon)
       const item = {
         key: menu.path || menu.id,
         label: resolveLocaleText(menu.label, menu.id),
-        icon: iconComponent ? h(iconComponent) : undefined
+        icon: iconComponent ? h(iconComponent) : undefined,
       }
 
       if (menu.children && menu.children.length > 0) {
         return {
           ...item,
           key: menu.id,
-          children: convert(menu.children)
+          children: convert(menu.children),
         }
       }
 
@@ -113,7 +76,7 @@ const antMenuItems = computed<MenuProps['items']>(() => {
 function findMenuOpenKeys(
   menus: MenuItemType[],
   targetPath: string,
-  parents: string[] = []
+  parents: string[] = [],
 ): string[] {
   for (const item of menus) {
     const menuKey = item.children && item.children.length > 0
@@ -157,37 +120,39 @@ function findMenuByPath(menus: MenuItemType[], targetPath: string): MenuItemType
   return null
 }
 
-const syncMenuState = () => {
+function syncMenuState() {
   // Find the menu item for current route
   const currentMenuItem = findMenuByPath(menuItems.value, route.path)
-  
+
   // Don't set selected state if current menu item is an external link
   if (currentMenuItem && currentMenuItem.path && isExternalLinkPath(currentMenuItem.path)) {
     selectedKeys.value = []
-  } else {
+  }
+  else {
     selectedKeys.value = [route.path]
   }
-  
+
   openKeys.value = findMenuOpenKeys(menuItems.value, route.path)
 }
 
-const closeMobileSidebar = () => {
+function closeMobileSidebar() {
   if (layoutStore.isMobile && !layoutStore.collapsed) {
     layoutStore.setSidebarCollapsed(true)
   }
 }
 
-const handleMenuClick = ({ key }: { key: string | number }) => {
-  if (typeof key !== 'string') return
+function handleMenuClick({ key }: { key: string | number }) {
+  if (typeof key !== 'string')
+    return
 
   // External links: open in a new tab
   if (key.startsWith('http://') || key.startsWith('https://')) {
     // Save current selected state before opening external link
     const currentSelected = [...selectedKeys.value]
-    
+
     window.open(key, '_blank', 'noopener,noreferrer')
     closeMobileSidebar()
-    
+
     // Restore selected state after Menu component updates
     // This prevents the external link menu item from being shown as selected
     nextTick(() => {
@@ -208,9 +173,46 @@ watch(
   () => {
     syncMenuState()
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 )
 </script>
+
+<template>
+  <div
+    v-if="showMobileMask"
+    class="sidebar-mask"
+    @click="closeMobileSidebar"
+  />
+  <a-layout-sider
+    v-model:collapsed="layoutStore.collapsed"
+    class="admin-sidebar" :class="[`theme-${effectiveSidebarTheme}`, { mobile: layoutStore.isMobile }]"
+    :width="layoutStore.sidebarWidth"
+    :collapsed-width="siderCollapsedWidth"
+    :trigger="null"
+    collapsible
+  >
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <img :src="logoImg" alt="Logo" class="logo-img">
+      <transition name="fade">
+        <span v-show="!layoutStore.collapsed" class="logo-title">
+          {{ $t('common.appName') }}
+        </span>
+      </transition>
+    </div>
+
+    <!-- Menu -->
+    <a-menu
+      v-model:selected-keys="selectedKeys"
+      v-model:open-keys="openKeys"
+      mode="inline"
+      :theme="effectiveSidebarTheme"
+      :items="antMenuItems"
+      class="sidebar-menu"
+      @click="handleMenuClick"
+    />
+  </a-layout-sider>
+</template>
 
 <style scoped lang="scss">
 .sidebar-mask {

@@ -19,16 +19,17 @@ function resolveRoutePath(path: string, basePath = ''): string {
  */
 export function filterRoutesByPermission(
   routes: AppRouteRecordRaw[],
-  permissions: string[]
+  permissions: string[],
 ): AppRouteRecordRaw[] {
   const hasAllPermission = permissions.includes('*')
 
-  return routes.filter(route => {
+  return routes.filter((route) => {
     if (route.meta?.requiredPermissions && !hasAllPermission) {
       const hasPermission = route.meta.requiredPermissions.some(perm =>
-        permissions.includes(perm)
+        permissions.includes(perm),
       )
-      if (!hasPermission) return false
+      if (!hasPermission)
+        return false
     }
 
     if (route.children) {
@@ -48,14 +49,15 @@ export function filterRoutesByPermission(
  */
 export function filterRoutesByRole(
   routes: AppRouteRecordRaw[],
-  roles: string[]
+  roles: string[],
 ): AppRouteRecordRaw[] {
-  return routes.filter(route => {
+  return routes.filter((route) => {
     if (route.meta?.requiredRoles) {
       const hasRole = route.meta.requiredRoles.some(role =>
-        roles.includes(role)
+        roles.includes(role),
       )
-      if (!hasRole) return false
+      if (!hasRole)
+        return false
     }
 
     if (route.children) {
@@ -76,7 +78,7 @@ export function filterRoutesByRole(
 export function routesToMenuTree(routes: AppRouteRecordRaw[], basePath = ''): MenuItem[] {
   return routes
     .filter(route => !route.meta?.hidden)
-    .map(route => {
+    .map((route) => {
       const fullPath = resolveRoutePath(route.path, basePath)
       const menu: MenuItem = {
         id: route.name as string || route.path,
@@ -88,7 +90,7 @@ export function routesToMenuTree(routes: AppRouteRecordRaw[], basePath = ''): Me
         badge: route.meta?.badge,
         requiredPermissions: route.meta?.requiredPermissions,
         requiredRoles: route.meta?.requiredRoles,
-        meta: route.meta
+        meta: route.meta,
       }
 
       if (route.children && route.children.length > 0) {
@@ -110,7 +112,7 @@ export function routesToMenuTree(routes: AppRouteRecordRaw[], basePath = ''): Me
 export function flattenRoutes(routes: AppRouteRecordRaw[]): AppRouteRecordRaw[] {
   let result: AppRouteRecordRaw[] = []
 
-  routes.forEach(route => {
+  routes.forEach((route) => {
     result.push(route)
     if (route.children) {
       result = result.concat(flattenRoutes(route.children))
@@ -125,7 +127,7 @@ export function flattenRoutes(routes: AppRouteRecordRaw[]): AppRouteRecordRaw[] 
  */
 export function findRouteByPath(
   routes: AppRouteRecordRaw[],
-  path: string
+  path: string,
 ): AppRouteRecordRaw | undefined {
   const flatRoutes = flattenRoutes(routes)
   return flatRoutes.find(route => route.path === path)
@@ -136,7 +138,7 @@ export function findRouteByPath(
  */
 export function findRouteByName(
   routes: AppRouteRecordRaw[],
-  name: string
+  name: string,
 ): AppRouteRecordRaw | undefined {
   const flatRoutes = flattenRoutes(routes)
   return flatRoutes.find(route => route.name === name)
@@ -150,7 +152,7 @@ export function convertBackendRouteConfig(config: RouteConfig): AppRouteRecordRa
     path: config.path,
     name: config.name,
     component: () => import(`@/views/${config.component}.vue`),
-    meta: config.meta
+    meta: config.meta,
   }
 
   if (config.redirect) {
@@ -167,14 +169,14 @@ export function convertBackendRouteConfig(config: RouteConfig): AppRouteRecordRa
 /**
  * Get breadcrumb from route
  */
-export function getBreadcrumbFromRoute(route: AppRouteRecordRaw): Array<{ label: string; path?: string }> {
-  const breadcrumb: Array<{ label: string; path?: string }> = []
+export function getBreadcrumbFromRoute(route: AppRouteRecordRaw): Array<{ label: string, path?: string }> {
+  const breadcrumb: Array<{ label: string, path?: string }> = []
 
   const addBreadcrumb = (r: AppRouteRecordRaw) => {
     if (r.meta?.title) {
       breadcrumb.push({
         label: r.meta.title,
-        path: r.path
+        path: r.path,
       })
     }
   }
@@ -191,7 +193,7 @@ export function getBreadcrumbFromRoute(route: AppRouteRecordRaw): Array<{ label:
  */
 export function hasRoutePermission(
   route: AppRouteRecordRaw,
-  permissions: string[]
+  permissions: string[],
 ): boolean {
   if (permissions.includes('*')) {
     return true
@@ -212,17 +214,17 @@ export function getAllMenuPaths(routes: AppRouteRecordRaw[]): Array<{
   title: string
   icon?: string
 }> {
-  const result: Array<{ path: string; title: string; icon?: string }> = []
+  const result: Array<{ path: string, title: string, icon?: string }> = []
 
   const traverse = (routes: AppRouteRecordRaw[], basePath = '') => {
-    routes.forEach(route => {
+    routes.forEach((route) => {
       const fullPath = resolveRoutePath(route.path, basePath)
 
       if (!route.meta?.hidden && route.meta?.title) {
         result.push({
           path: fullPath,
           title: route.meta.title,
-          icon: route.meta.icon
+          icon: route.meta.icon,
         })
       }
 

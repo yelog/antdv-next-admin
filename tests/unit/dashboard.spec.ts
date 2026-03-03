@@ -1,13 +1,13 @@
-import { describe, it, expect } from 'vitest'
 import type { DashboardStats, SalesTrendItem } from '@/api/dashboard'
+import { describe, expect, it } from 'vitest'
 
-describe('Dashboard API Types', () => {
+describe('dashboard API Types', () => {
   it('should have correct DashboardStats structure', () => {
     const stats: DashboardStats = {
       totalUsers: 1000,
       totalOrders: 500,
       totalRevenue: 9999.99,
-      conversionRate: 3.5
+      conversionRate: 3.5,
     }
 
     expect(stats.totalUsers).toBe(1000)
@@ -20,7 +20,7 @@ describe('Dashboard API Types', () => {
     const item: SalesTrendItem = {
       month: '2024-01',
       sales: 10000,
-      orders: 100
+      orders: 100,
     }
 
     expect(item.month).toBe('2024-01')
@@ -32,7 +32,7 @@ describe('Dashboard API Types', () => {
     const items: SalesTrendItem[] = [
       { month: 'Jan', sales: 100, orders: 10 },
       { month: 'Feb', sales: 200, orders: 20 },
-      { month: 'Mar', sales: 300, orders: 30 }
+      { month: 'Mar', sales: 300, orders: 30 },
     ]
 
     const totalSales = items.reduce((sum, item) => sum + item.sales, 0)

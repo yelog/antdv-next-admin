@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 
 export interface PrintOptions {
   /** Document title for the print window */
@@ -38,13 +38,13 @@ export function usePrint() {
    */
   const printElement = async (
     element: HTMLElement | string,
-    options: PrintOptions = {}
+    options: PrintOptions = {},
   ): Promise<void> => {
     const {
       title = document.title,
       styles = [],
       cssUrls = [],
-      timeout = 200
+      timeout = 200,
     } = options
 
     isPrinting.value = true
@@ -103,7 +103,8 @@ export function usePrint() {
       printWindow.focus()
       printWindow.print()
       printWindow.close()
-    } finally {
+    }
+    finally {
       isPrinting.value = false
     }
   }
@@ -115,7 +116,8 @@ export function usePrint() {
     isPrinting.value = true
     try {
       window.print()
-    } finally {
+    }
+    finally {
       isPrinting.value = false
     }
   }
@@ -147,7 +149,8 @@ export function usePrint() {
           }, options.timeout || 500)
         }
       })
-    } finally {
+    }
+    finally {
       isPrinting.value = false
     }
   }
@@ -171,6 +174,6 @@ export function usePrint() {
     printPage,
     printUrl,
     onPrintStart,
-    onPrintEnd
+    onPrintEnd,
   }
 }

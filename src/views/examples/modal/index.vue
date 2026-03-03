@@ -1,8 +1,50 @@
+<script setup lang="ts">
+import { message } from 'antdv-next'
+import { computed, ref } from 'vue'
+import ProModal from '@/components/Pro/ProModal/index.vue'
+import { $t } from '@/locales'
+
+const modalOpen = ref(false)
+const modalWidth = ref(760)
+const draggable = ref(true)
+const resizable = ref(true)
+const fullscreenable = ref(true)
+const mask = ref(true)
+const maskClosable = ref(true)
+const keyboard = ref(true)
+const dataCount = ref(24)
+
+const mockRows = computed(() => {
+  return Array.from({ length: dataCount.value }, (_, index) => index + 1)
+})
+
+function openDefaultModal() {
+  modalWidth.value = 760
+  modalOpen.value = true
+}
+
+function openWideModal() {
+  modalWidth.value = 980
+  modalOpen.value = true
+}
+
+function handleCancel() {
+  modalOpen.value = false
+}
+
+function handleConfirm() {
+  message.success($t('exampleModal.confirmSuccess'))
+  modalOpen.value = false
+}
+</script>
+
 <template>
   <div class="page-container">
     <div class="card">
       <h2>{{ $t('exampleModal.title') }}</h2>
-      <p class="mb-lg">{{ $t('exampleModal.description') }}</p>
+      <p class="mb-lg">
+        {{ $t('exampleModal.description') }}
+      </p>
 
       <a-space wrap :size="12" class="mb-lg">
         <a-button type="primary" @click="openDefaultModal">
@@ -120,53 +162,17 @@
 
       <template #footer>
         <a-space>
-          <a-button @click="handleCancel">{{ $t('common.cancel') }}</a-button>
-          <a-button type="primary" @click="handleConfirm">{{ $t('common.confirm') }}</a-button>
+          <a-button @click="handleCancel">
+            {{ $t('common.cancel') }}
+          </a-button>
+          <a-button type="primary" @click="handleConfirm">
+            {{ $t('common.confirm') }}
+          </a-button>
         </a-space>
       </template>
     </ProModal>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-import { message } from 'antdv-next'
-import { $t } from '@/locales'
-import ProModal from '@/components/Pro/ProModal/index.vue'
-
-const modalOpen = ref(false)
-const modalWidth = ref(760)
-const draggable = ref(true)
-const resizable = ref(true)
-const fullscreenable = ref(true)
-const mask = ref(true)
-const maskClosable = ref(true)
-const keyboard = ref(true)
-const dataCount = ref(24)
-
-const mockRows = computed(() => {
-  return Array.from({ length: dataCount.value }, (_, index) => index + 1)
-})
-
-const openDefaultModal = () => {
-  modalWidth.value = 760
-  modalOpen.value = true
-}
-
-const openWideModal = () => {
-  modalWidth.value = 980
-  modalOpen.value = true
-}
-
-const handleCancel = () => {
-  modalOpen.value = false
-}
-
-const handleConfirm = () => {
-  message.success($t('exampleModal.confirmSuccess'))
-  modalOpen.value = false
-}
-</script>
 
 <style scoped lang="scss">
 .mb-lg {

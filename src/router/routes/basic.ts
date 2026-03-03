@@ -11,7 +11,7 @@ export const basicRoutes: AppRouteRecordRaw[] = [
     component: () => import('@/components/Layout/AdminLayout.vue'),
     meta: {
       title: 'Dashboard',
-      requiresAuth: true
+      requiresAuth: true,
     },
     children: [
       {
@@ -20,8 +20,8 @@ export const basicRoutes: AppRouteRecordRaw[] = [
         component: () => import('@/views/redirect/index.vue'),
         meta: {
           title: 'Redirect',
-          hidden: true
-        }
+          hidden: true,
+        },
       },
       {
         path: 'dashboard',
@@ -32,8 +32,8 @@ export const basicRoutes: AppRouteRecordRaw[] = [
           icon: 'DashboardOutlined',
           requiresAuth: true,
           affix: true,
-          order: 1
-        }
+          order: 1,
+        },
       },
       {
         path: 'profile',
@@ -43,8 +43,8 @@ export const basicRoutes: AppRouteRecordRaw[] = [
           title: 'menu.profile',
           icon: 'UserOutlined',
           requiresAuth: true,
-          hidden: true
-        }
+          hidden: true,
+        },
       },
       {
         path: 'notifications',
@@ -54,8 +54,8 @@ export const basicRoutes: AppRouteRecordRaw[] = [
           title: 'layout.notifications',
           icon: 'BellOutlined',
           requiresAuth: true,
-          hidden: true
-        }
+          hidden: true,
+        },
       },
       {
         path: 'about',
@@ -65,9 +65,9 @@ export const basicRoutes: AppRouteRecordRaw[] = [
           title: 'menu.about',
           icon: 'InfoCircleOutlined',
           requiresAuth: true,
-          order: 5
-        }
-      }
-    ]
-  }
+          order: 5,
+        },
+      },
+    ],
+  },
 ]

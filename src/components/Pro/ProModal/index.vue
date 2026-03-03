@@ -1,3 +1,758 @@
+<script setup lang="ts">
+import type { ModalProps } from 'antdv-next'
+import type { CSSProperties, VNodeChild } from 'vue'
+import { CloseOutlined, FullscreenExitOutlined, FullscreenOutlined } from '@antdv-next/icons'
+import {
+  computed,
+  defineComponent,
+  h,
+  isVNode,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  useAttrs,
+  useSlots,
+  watch,
+} from 'vue'
+import { $t } from '@/locales'
+
+interface ProModalProps extends /* @vue-ignore */ ModalProps {
+  draggable?: boolean
+  resizable?: boolean
+  fullscreenable?: boolean
+  minWidth?: number
+  minHeight?: number
+}
+
+interface ModalRect {
+  left: number
+  top: number
+  width: number
+  height: number
+}
+
+type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw'
+
+interface DragState {
+  startX: number
+  startY: number
+  startRect: ModalRect
+}
+
+interface ResizeState {
+  direction: ResizeDirection
+  startX: number
+  startY: number
+  startRect: ModalRect
+}
+
+const props = withDefaults(defineProps<ProModalProps>(), {
+  draggable: true,
+  resizable: true,
+  fullscreenable: true,
+  minWidth: 360,
+  minHeight: 260,
+})
+const emit = defineEmits<{
+  (e: 'ok', event: MouseEvent): void
+  (e: 'cancel', event: MouseEvent): void
+  (e: 'update:open', open: boolean): void
+}>()
+const EDGE_SIZE = 8
+const DEFAULT_WIDTH = 520
+const DEFAULT_HEIGHT = 320
+const FULLSCREEN_TRANSITION_DURATION = 300
+
+const attrs = useAttrs()
+const slots = useSlots()
+
+const instanceWrapClassName = `pro-modal-wrap-${Math.random().toString(36).slice(2, 10)}`
+
+const viewport = reactive({
+  width: typeof window !== 'undefined' ? window.innerWidth : 0,
+  height: typeof window !== 'undefined' ? window.innerHeight : 0,
+})
+
+const rect = reactive<ModalRect>({
+  left: 0,
+  top: 0,
+  width: DEFAULT_WIDTH,
+  height: DEFAULT_HEIGHT,
+})
+
+const rectReady = ref(false)
+const isFullscreen = ref(false)
+const isAnimating = ref(false)
+// Track if the modal has been moved/resized by user
+const isMoved = ref(false)
+const restoreRect = ref<ModalRect | null>(null)
+const dragState = ref<DragState | null>(null)
+const resizeState = ref<ResizeState | null>(null)
+
+let boundModalElement: HTMLElement | null = null
+let isDocumentListening = false
+let bodyUserSelectCache = ''
+let fullscreenAnimationTimer: number | undefined
+
+const isOpen = computed(() => Boolean(props.open))
+const showCloseButton = computed(() => props.closable !== false)
+const isCloseButtonDisabled = computed(() => {
+  return typeof props.closable === 'object' && Boolean(props.closable.disabled)
+})
+
+const resolvedGetContainer = computed<ModalProps['getContainer']>(() => {
+  if (props.getContainer !== undefined) {
+    return props.getContainer
+  }
+
+  return () => {
+    if (typeof document === 'undefined') {
+      return false
+    }
+    return document.body
+  }
+})
+
+const titleRenderComponent = defineComponent({
+  name: 'ProModalTitleRender',
+  setup() {
+    return () => {
+      const slotNodes = slots.title?.()
+      if (slotNodes && slotNodes.length > 0) {
+        return slotNodes
+      }
+
+      const title = props.title
+      if (isVNode(title)) {
+        return title
+      }
+
+      if (typeof title === 'function') {
+        return (title as () => VNodeChild)()
+      }
+
+      if (title === null || title === undefined || title === false) {
+        return null
+      }
+
+      return h('span', String(title))
+    }
+  },
+})
+
+const modalPassThroughProps = computed<ModalProps>(() => {
+  const next = { ...props } as Record<string, unknown>
+  delete next.draggable
+  delete next.resizable
+  delete next.fullscreenable
+  delete next.minWidth
+  delete next.minHeight
+  delete next.open
+  delete next.wrapClassName
+  delete next.title
+  delete next.width
+  delete next.styles
+  delete next.closable
+  delete next.getContainer
+  return next as ModalProps
+})
+
+const mergedWrapClassName = computed(() => {
+  return [
+    props.wrapClassName,
+    'pro-modal-wrap',
+    instanceWrapClassName,
+    isFullscreen.value ? 'pro-modal-fullscreen' : '',
+    isAnimating.value ? 'pro-modal-animating' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+})
+
+const forwardedAttrs = computed(() => {
+  const next = { ...attrs } as Record<string, unknown>
+  delete next.style
+  delete next.wrapClassName
+  delete next['wrap-class-name']
+  return next
+})
+
+const managedModalStyle = computed<CSSProperties>(() => {
+  if (!isOpen.value || !isMoved.value || !rectReady.value) {
+    return {}
+  }
+
+  return {
+    position: 'fixed',
+    margin: '0',
+    maxWidth: `${viewport.width}px`,
+    paddingBottom: '0',
+    top: `${rect.top}px`,
+    left: `${rect.left}px`,
+    height: `${rect.height}px`,
+  }
+})
+
+const mergedModalStyle = computed(() => {
+  return [attrs.style as any, managedModalStyle.value]
+})
+
+const mergedModalBindings = computed(() => {
+  const controlledWidth = isMoved.value && rectReady.value
+    ? rect.width
+    : props.width
+
+  return {
+    ...modalPassThroughProps.value,
+    ...forwardedAttrs.value,
+    width: controlledWidth,
+    closable: false,
+    getContainer: resolvedGetContainer.value,
+  }
+})
+
+const mergedSemanticStyles = computed<ModalProps['styles']>(() => {
+  const inputStyles = props.styles || {}
+  return {
+    ...inputStyles,
+    container: {
+      ...inputStyles.container,
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      minHeight: 0,
+    },
+    body: {
+      ...inputStyles.body,
+      flex: 1,
+      minHeight: 0,
+      overflow: 'auto',
+    },
+  }
+})
+
+function updateViewport() {
+  viewport.width = window.innerWidth
+  viewport.height = window.innerHeight
+}
+
+function getModalElement() {
+  return document.querySelector(`.${instanceWrapClassName} .ant-modal`) as HTMLElement | null
+}
+
+function clearFullscreenAnimationTimer() {
+  if (fullscreenAnimationTimer === undefined) {
+    return
+  }
+
+  window.clearTimeout(fullscreenAnimationTimer)
+  fullscreenAnimationTimer = undefined
+}
+
+function getFullscreenTransitionDuration() {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return FULLSCREEN_TRANSITION_DURATION
+  }
+
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : FULLSCREEN_TRANSITION_DURATION
+}
+
+function scheduleFullscreenAnimationEnd(callback: () => void) {
+  clearFullscreenAnimationTimer()
+  fullscreenAnimationTimer = window.setTimeout(() => {
+    callback()
+    isAnimating.value = false
+    fullscreenAnimationTimer = undefined
+  }, getFullscreenTransitionDuration())
+}
+
+function getFullscreenRect(): ModalRect {
+  return {
+    left: 0,
+    top: 0,
+    width: viewport.width,
+    height: viewport.height,
+  }
+}
+
+function cloneRect(target: ModalRect): ModalRect {
+  return {
+    left: target.left,
+    top: target.top,
+    width: target.width,
+    height: target.height,
+  }
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
+}
+
+function getEffectiveMinWidth() {
+  return Math.max(220, Math.min(props.minWidth, viewport.width))
+}
+
+function getEffectiveMinHeight() {
+  return Math.max(180, Math.min(props.minHeight, viewport.height))
+}
+
+function clampRect(target: ModalRect): ModalRect {
+  const minWidth = getEffectiveMinWidth()
+  const minHeight = getEffectiveMinHeight()
+
+  const width = clamp(target.width, minWidth, viewport.width)
+  const height = clamp(target.height, minHeight, viewport.height)
+  const left = clamp(target.left, 0, Math.max(0, viewport.width - width))
+  const top = clamp(target.top, 0, Math.max(0, viewport.height - height))
+
+  return {
+    left,
+    top,
+    width,
+    height,
+  }
+}
+
+function parsePreferredWidth(width: ModalProps['width'], fallback: number) {
+  if (typeof width === 'number' && Number.isFinite(width)) {
+    return width
+  }
+
+  if (typeof width === 'string') {
+    const trimmed = width.trim()
+
+    if (trimmed.endsWith('%')) {
+      const ratio = Number.parseFloat(trimmed.slice(0, -1))
+      if (Number.isFinite(ratio)) {
+        return viewport.width * ratio / 100
+      }
+    }
+
+    const parsed = Number.parseFloat(trimmed)
+    if (Number.isFinite(parsed)) {
+      return parsed
+    }
+  }
+
+  return fallback
+}
+
+function syncRectFromDom(resetPosition = false) {
+  const element = getModalElement()
+  if (!element) {
+    return false
+  }
+
+  if (boundModalElement !== element) {
+    unbindModalResizeEvents()
+    bindModalResizeEvents(element)
+  }
+
+  // Always update viewport dimensions first
+  updateViewport()
+
+  const domRect = element.getBoundingClientRect()
+
+  // Initialize rect with current DOM position (which is handled by AntDV initially)
+  const nextRect: ModalRect = {
+    left: domRect.left,
+    top: domRect.top,
+    width: domRect.width || DEFAULT_WIDTH,
+    height: domRect.height || DEFAULT_HEIGHT,
+  }
+
+  // Only if we need to force reset (e.g. on manual reset), we calculate center
+  // Otherwise we trust AntDV's initial positioning
+  if (resetPosition && !rectReady.value) {
+    // We just read the position from DOM, no need to recalculate center manually
+    // This avoids the scrollbar-width shift issue because AntDV handles it correctly
+  }
+
+  Object.assign(rect, nextRect)
+  rectReady.value = true
+  return true
+}
+
+async function ensureRectReady(resetPosition = false) {
+  // Wait for Vue to render the modal into DOM
+  await nextTick()
+
+  // Give a small buffer for AntDV's transition/positioning to apply
+  if (resetPosition) {
+    await new Promise(resolve => setTimeout(resolve, 50))
+  }
+
+  let retryCount = 0
+  const trySync = () => {
+    const synced = syncRectFromDom(resetPosition)
+    if (!synced && retryCount < 10) {
+      retryCount += 1
+      requestAnimationFrame(trySync)
+    }
+  }
+
+  trySync()
+}
+
+function getResizeDirection(event: MouseEvent): ResizeDirection | null {
+  if (!boundModalElement) {
+    return null
+  }
+
+  const modalRect = boundModalElement.getBoundingClientRect()
+  const relativeX = event.clientX - modalRect.left
+  const relativeY = event.clientY - modalRect.top
+
+  const nearLeft = relativeX >= 0 && relativeX <= EDGE_SIZE
+  const nearRight = relativeX <= modalRect.width && relativeX >= modalRect.width - EDGE_SIZE
+  const nearTop = relativeY >= 0 && relativeY <= EDGE_SIZE
+  const nearBottom = relativeY <= modalRect.height && relativeY >= modalRect.height - EDGE_SIZE
+
+  if (!nearLeft && !nearRight && !nearTop && !nearBottom) {
+    return null
+  }
+
+  const vertical = nearTop ? 'n' : (nearBottom ? 's' : '')
+  const horizontal = nearLeft ? 'w' : (nearRight ? 'e' : '')
+
+  const direction = `${vertical}${horizontal}` as ResizeDirection
+  return direction || null
+}
+
+const directionCursorMap: Record<ResizeDirection, string> = {
+  n: 'ns-resize',
+  s: 'ns-resize',
+  e: 'ew-resize',
+  w: 'ew-resize',
+  ne: 'nesw-resize',
+  sw: 'nesw-resize',
+  nw: 'nwse-resize',
+  se: 'nwse-resize',
+}
+
+function updateModalCursor(direction: ResizeDirection | null) {
+  if (!boundModalElement) {
+    return
+  }
+
+  if (!direction || isFullscreen.value || !props.resizable) {
+    boundModalElement.style.cursor = ''
+    return
+  }
+
+  boundModalElement.style.cursor = directionCursorMap[direction]
+}
+
+function startDocumentListen() {
+  if (isDocumentListening) {
+    return
+  }
+
+  isDocumentListening = true
+  bodyUserSelectCache = document.body.style.userSelect
+  document.body.style.userSelect = 'none'
+  document.addEventListener('mousemove', handleDocumentMouseMove)
+  document.addEventListener('mouseup', handleDocumentMouseUp)
+}
+
+function stopDocumentListen() {
+  if (!isDocumentListening) {
+    return
+  }
+
+  isDocumentListening = false
+  document.body.style.userSelect = bodyUserSelectCache
+  document.removeEventListener('mousemove', handleDocumentMouseMove)
+  document.removeEventListener('mouseup', handleDocumentMouseUp)
+}
+
+function applyResize(state: ResizeState, deltaX: number, deltaY: number) {
+  const minWidth = getEffectiveMinWidth()
+  const minHeight = getEffectiveMinHeight()
+
+  let { left, top, width, height } = state.startRect
+
+  if (state.direction.includes('e')) {
+    width = clamp(state.startRect.width + deltaX, minWidth, viewport.width - state.startRect.left)
+  }
+
+  if (state.direction.includes('s')) {
+    height = clamp(state.startRect.height + deltaY, minHeight, viewport.height - state.startRect.top)
+  }
+
+  if (state.direction.includes('w')) {
+    const maxLeft = state.startRect.left + state.startRect.width - minWidth
+    left = clamp(state.startRect.left + deltaX, 0, maxLeft)
+    width = state.startRect.width + (state.startRect.left - left)
+  }
+
+  if (state.direction.includes('n')) {
+    const maxTop = state.startRect.top + state.startRect.height - minHeight
+    top = clamp(state.startRect.top + deltaY, 0, maxTop)
+    height = state.startRect.height + (state.startRect.top - top)
+  }
+
+  Object.assign(rect, clampRect({ left, top, width, height }))
+}
+
+function handleDocumentMouseMove(event: MouseEvent) {
+  if (dragState.value) {
+    const deltaX = event.clientX - dragState.value.startX
+    const deltaY = event.clientY - dragState.value.startY
+
+    Object.assign(rect, clampRect({
+      left: dragState.value.startRect.left + deltaX,
+      top: dragState.value.startRect.top + deltaY,
+      width: dragState.value.startRect.width,
+      height: dragState.value.startRect.height,
+    }))
+
+    return
+  }
+
+  if (resizeState.value) {
+    const deltaX = event.clientX - resizeState.value.startX
+    const deltaY = event.clientY - resizeState.value.startY
+    applyResize(resizeState.value, deltaX, deltaY)
+  }
+}
+
+function handleDocumentMouseUp() {
+  dragState.value = null
+  resizeState.value = null
+  stopDocumentListen()
+  updateModalCursor(null)
+}
+
+function handleModalMouseMove(event: MouseEvent) {
+  if (!props.resizable || isFullscreen.value || dragState.value || resizeState.value) {
+    updateModalCursor(null)
+    return
+  }
+
+  const direction = getResizeDirection(event)
+  updateModalCursor(direction)
+}
+
+function handleModalMouseLeave() {
+  if (!resizeState.value) {
+    updateModalCursor(null)
+  }
+}
+
+function handleModalMouseDown(event: MouseEvent) {
+  if (!props.resizable || isFullscreen.value || event.button !== 0) {
+    return
+  }
+
+  const direction = getResizeDirection(event)
+  if (!direction) {
+    return
+  }
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  // Ensure we start from the current visual position (which might be CSS-positioned)
+  syncRectFromDom()
+  isMoved.value = true
+
+  resizeState.value = {
+    direction,
+    startX: event.clientX,
+    startY: event.clientY,
+    startRect: cloneRect(rect),
+  }
+
+  startDocumentListen()
+}
+
+function bindModalResizeEvents(element: HTMLElement) {
+  boundModalElement = element
+  element.addEventListener('mousemove', handleModalMouseMove)
+  element.addEventListener('mouseleave', handleModalMouseLeave)
+  element.addEventListener('mousedown', handleModalMouseDown)
+}
+
+function unbindModalResizeEvents() {
+  if (!boundModalElement) {
+    return
+  }
+
+  boundModalElement.removeEventListener('mousemove', handleModalMouseMove)
+  boundModalElement.removeEventListener('mouseleave', handleModalMouseLeave)
+  boundModalElement.removeEventListener('mousedown', handleModalMouseDown)
+  boundModalElement.style.cursor = ''
+  boundModalElement = null
+}
+
+function handleTitleMouseDown(event: MouseEvent) {
+  if (!props.draggable || isFullscreen.value || isAnimating.value || event.button !== 0) {
+    return
+  }
+
+  const target = event.target as HTMLElement | null
+  if (target?.closest('.pro-modal-title-actions')) {
+    return
+  }
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  // Ensure we start from the current visual position and switch to manual mode
+  syncRectFromDom()
+  isMoved.value = true
+
+  dragState.value = {
+    startX: event.clientX,
+    startY: event.clientY,
+    startRect: cloneRect(rect),
+  }
+
+  startDocumentListen()
+}
+
+async function toggleFullscreen() {
+  if (!rectReady.value || isAnimating.value) {
+    return
+  }
+
+  // Ensure isMoved is true so style bindings (top/left/width/height) are active
+  if (!isMoved.value) {
+    syncRectFromDom()
+    isMoved.value = true
+    await nextTick()
+  }
+
+  const element = getModalElement()
+  if (!element)
+    return
+
+  // Force reflow to ensure current state is captured
+
+  element.getBoundingClientRect()
+
+  if (!isFullscreen.value) {
+    restoreRect.value = cloneRect(rect)
+    isAnimating.value = true
+
+    requestAnimationFrame(() => {
+      Object.assign(rect, getFullscreenRect())
+      scheduleFullscreenAnimationEnd(() => {
+        isFullscreen.value = true
+      })
+    })
+
+    return
+  }
+
+  isAnimating.value = true
+  const targetRect = restoreRect.value || {
+    left: (viewport.width - DEFAULT_WIDTH) / 2,
+    top: (viewport.height - DEFAULT_HEIGHT) / 2,
+    width: DEFAULT_WIDTH,
+    height: DEFAULT_HEIGHT,
+  }
+
+  requestAnimationFrame(() => {
+    Object.assign(rect, clampRect(targetRect))
+    scheduleFullscreenAnimationEnd(() => {
+      isFullscreen.value = false
+    })
+  })
+}
+
+function handleWindowResize() {
+  updateViewport()
+
+  if (!isOpen.value || !rectReady.value) {
+    return
+  }
+
+  if (isFullscreen.value && !isAnimating.value) {
+    Object.assign(rect, getFullscreenRect())
+    return
+  }
+
+  Object.assign(rect, clampRect(cloneRect(rect)))
+}
+
+function handleOk(event: MouseEvent) {
+  emit('ok', event)
+}
+
+function handleCancel(event: MouseEvent) {
+  emit('cancel', event)
+}
+
+function handleCloseClick(event: MouseEvent) {
+  if (!showCloseButton.value || isCloseButtonDisabled.value) {
+    return
+  }
+
+  if (typeof props.closable === 'object') {
+    props.closable.onClose?.()
+  }
+
+  emit('cancel', event)
+  emit('update:open', false)
+}
+
+function handleUpdateOpen(open: boolean) {
+  emit('update:open', open)
+}
+
+watch(
+  isOpen,
+  (open) => {
+    if (open) {
+      clearFullscreenAnimationTimer()
+      isAnimating.value = false
+      isFullscreen.value = false
+      restoreRect.value = null
+      isMoved.value = false
+      ensureRectReady(true)
+      return
+    }
+
+    clearFullscreenAnimationTimer()
+    isAnimating.value = false
+    dragState.value = null
+    resizeState.value = null
+    rectReady.value = false
+    stopDocumentListen()
+    unbindModalResizeEvents()
+  },
+  { immediate: true },
+)
+
+watch(
+  () => props.width,
+  () => {
+    if (!isOpen.value || !rectReady.value || isFullscreen.value) {
+      return
+    }
+
+    const nextWidth = parsePreferredWidth(props.width, rect.width)
+    Object.assign(rect, clampRect({ ...cloneRect(rect), width: nextWidth }))
+  },
+)
+
+onMounted(() => {
+  updateViewport()
+  window.addEventListener('resize', handleWindowResize)
+})
+
+onBeforeUnmount(() => {
+  clearFullscreenAnimationTimer()
+  stopDocumentListen()
+  unbindModalResizeEvents()
+  window.removeEventListener('resize', handleWindowResize)
+})
+</script>
+
 <template>
   <a-modal
     v-bind="mergedModalBindings"
@@ -75,758 +830,6 @@
     <slot />
   </a-modal>
 </template>
-
-<script setup lang="ts">
-import {
-  computed,
-  defineComponent,
-  h,
-  isVNode,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  reactive,
-  ref,
-  useAttrs,
-  useSlots,
-  watch
-} from 'vue'
-import type { CSSProperties, VNodeChild } from 'vue'
-import type { ModalProps } from 'antdv-next'
-import { CloseOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@antdv-next/icons'
-import { $t } from '@/locales'
-
-interface ProModalProps extends /* @vue-ignore */ ModalProps {
-  draggable?: boolean
-  resizable?: boolean
-  fullscreenable?: boolean
-  minWidth?: number
-  minHeight?: number
-}
-
-type ModalRect = {
-  left: number
-  top: number
-  width: number
-  height: number
-}
-
-type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw'
-
-type DragState = {
-  startX: number
-  startY: number
-  startRect: ModalRect
-}
-
-type ResizeState = {
-  direction: ResizeDirection
-  startX: number
-  startY: number
-  startRect: ModalRect
-}
-
-const EDGE_SIZE = 8
-const DEFAULT_WIDTH = 520
-const DEFAULT_HEIGHT = 320
-const FULLSCREEN_TRANSITION_DURATION = 300
-
-const props = withDefaults(defineProps<ProModalProps>(), {
-  draggable: true,
-  resizable: true,
-  fullscreenable: true,
-  minWidth: 360,
-  minHeight: 260
-})
-
-const emit = defineEmits<{
-  (e: 'ok', event: MouseEvent): void
-  (e: 'cancel', event: MouseEvent): void
-  (e: 'update:open', open: boolean): void
-}>()
-
-const attrs = useAttrs()
-const slots = useSlots()
-
-const instanceWrapClassName = `pro-modal-wrap-${Math.random().toString(36).slice(2, 10)}`
-
-const viewport = reactive({
-  width: typeof window !== 'undefined' ? window.innerWidth : 0,
-  height: typeof window !== 'undefined' ? window.innerHeight : 0
-})
-
-const rect = reactive<ModalRect>({
-  left: 0,
-  top: 0,
-  width: DEFAULT_WIDTH,
-  height: DEFAULT_HEIGHT
-})
-
-const rectReady = ref(false)
-const isFullscreen = ref(false)
-const isAnimating = ref(false)
-// Track if the modal has been moved/resized by user
-const isMoved = ref(false)
-const restoreRect = ref<ModalRect | null>(null)
-const dragState = ref<DragState | null>(null)
-const resizeState = ref<ResizeState | null>(null)
-
-let boundModalElement: HTMLElement | null = null
-let isDocumentListening = false
-let bodyUserSelectCache = ''
-let fullscreenAnimationTimer: number | undefined
-
-const isOpen = computed(() => Boolean(props.open))
-const showCloseButton = computed(() => props.closable !== false)
-const isCloseButtonDisabled = computed(() => {
-  return typeof props.closable === 'object' && Boolean(props.closable.disabled)
-})
-
-const resolvedGetContainer = computed<ModalProps['getContainer']>(() => {
-  if (props.getContainer !== undefined) {
-    return props.getContainer
-  }
-
-  return () => {
-    if (typeof document === 'undefined') {
-      return false
-    }
-    return document.body
-  }
-})
-
-const titleRenderComponent = defineComponent({
-  name: 'ProModalTitleRender',
-  setup() {
-    return () => {
-      const slotNodes = slots.title?.()
-      if (slotNodes && slotNodes.length > 0) {
-        return slotNodes
-      }
-
-      const title = props.title
-      if (isVNode(title)) {
-        return title
-      }
-
-      if (typeof title === 'function') {
-        return (title as () => VNodeChild)()
-      }
-
-      if (title === null || title === undefined || title === false) {
-        return null
-      }
-
-      return h('span', String(title))
-    }
-  }
-})
-
-const modalPassThroughProps = computed<ModalProps>(() => {
-  const next = { ...props } as Record<string, unknown>
-  delete next.draggable
-  delete next.resizable
-  delete next.fullscreenable
-  delete next.minWidth
-  delete next.minHeight
-  delete next.open
-  delete next.wrapClassName
-  delete next.title
-  delete next.width
-  delete next.styles
-  delete next.closable
-  delete next.getContainer
-  return next as ModalProps
-})
-
-const mergedWrapClassName = computed(() => {
-  return [
-    props.wrapClassName,
-    'pro-modal-wrap',
-    instanceWrapClassName,
-    isFullscreen.value ? 'pro-modal-fullscreen' : '',
-    isAnimating.value ? 'pro-modal-animating' : ''
-  ]
-    .filter(Boolean)
-    .join(' ')
-})
-
-const forwardedAttrs = computed(() => {
-  const next = { ...attrs } as Record<string, unknown>
-  delete next.style
-  delete next.wrapClassName
-  delete next['wrap-class-name']
-  return next
-})
-
-const managedModalStyle = computed<CSSProperties>(() => {
-  if (!isOpen.value || !isMoved.value || !rectReady.value) {
-    return {}
-  }
-
-  return {
-    position: 'fixed',
-    margin: '0',
-    maxWidth: `${viewport.width}px`,
-    paddingBottom: '0',
-    top: `${rect.top}px`,
-    left: `${rect.left}px`,
-    height: `${rect.height}px`
-  }
-})
-
-const mergedModalStyle = computed(() => {
-  return [attrs.style as any, managedModalStyle.value]
-})
-
-const mergedModalBindings = computed(() => {
-  const controlledWidth = isMoved.value && rectReady.value
-    ? rect.width
-    : props.width
-
-  return {
-    ...modalPassThroughProps.value,
-    ...forwardedAttrs.value,
-    width: controlledWidth,
-    closable: false,
-    getContainer: resolvedGetContainer.value
-  }
-})
-
-const mergedSemanticStyles = computed<ModalProps['styles']>(() => {
-  const inputStyles = props.styles || {}
-  return {
-    ...inputStyles,
-    container: {
-      ...inputStyles.container,
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      minHeight: 0
-    },
-    body: {
-      ...inputStyles.body,
-      flex: 1,
-      minHeight: 0,
-      overflow: 'auto'
-    }
-  }
-})
-
-const updateViewport = () => {
-  viewport.width = window.innerWidth
-  viewport.height = window.innerHeight
-}
-
-const getModalElement = () => {
-  return document.querySelector(`.${instanceWrapClassName} .ant-modal`) as HTMLElement | null
-}
-
-const clearFullscreenAnimationTimer = () => {
-  if (fullscreenAnimationTimer === undefined) {
-    return
-  }
-
-  window.clearTimeout(fullscreenAnimationTimer)
-  fullscreenAnimationTimer = undefined
-}
-
-const getFullscreenTransitionDuration = () => {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return FULLSCREEN_TRANSITION_DURATION
-  }
-
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : FULLSCREEN_TRANSITION_DURATION
-}
-
-const scheduleFullscreenAnimationEnd = (callback: () => void) => {
-  clearFullscreenAnimationTimer()
-  fullscreenAnimationTimer = window.setTimeout(() => {
-    callback()
-    isAnimating.value = false
-    fullscreenAnimationTimer = undefined
-  }, getFullscreenTransitionDuration())
-}
-
-const getFullscreenRect = (): ModalRect => ({
-  left: 0,
-  top: 0,
-  width: viewport.width,
-  height: viewport.height
-})
-
-const cloneRect = (target: ModalRect): ModalRect => ({
-  left: target.left,
-  top: target.top,
-  width: target.width,
-  height: target.height
-})
-
-const clamp = (value: number, min: number, max: number) => {
-  return Math.min(Math.max(value, min), max)
-}
-
-const getEffectiveMinWidth = () => {
-  return Math.max(220, Math.min(props.minWidth, viewport.width))
-}
-
-const getEffectiveMinHeight = () => {
-  return Math.max(180, Math.min(props.minHeight, viewport.height))
-}
-
-const clampRect = (target: ModalRect): ModalRect => {
-  const minWidth = getEffectiveMinWidth()
-  const minHeight = getEffectiveMinHeight()
-
-  const width = clamp(target.width, minWidth, viewport.width)
-  const height = clamp(target.height, minHeight, viewport.height)
-  const left = clamp(target.left, 0, Math.max(0, viewport.width - width))
-  const top = clamp(target.top, 0, Math.max(0, viewport.height - height))
-
-  return {
-    left,
-    top,
-    width,
-    height
-  }
-}
-
-const parsePreferredWidth = (width: ModalProps['width'], fallback: number) => {
-  if (typeof width === 'number' && Number.isFinite(width)) {
-    return width
-  }
-
-  if (typeof width === 'string') {
-    const trimmed = width.trim()
-
-    if (trimmed.endsWith('%')) {
-      const ratio = Number.parseFloat(trimmed.slice(0, -1))
-      if (Number.isFinite(ratio)) {
-        return viewport.width * ratio / 100
-      }
-    }
-
-    const parsed = Number.parseFloat(trimmed)
-    if (Number.isFinite(parsed)) {
-      return parsed
-    }
-  }
-
-  return fallback
-}
-
-const syncRectFromDom = (resetPosition = false) => {
-  const element = getModalElement()
-  if (!element) {
-    return false
-  }
-
-  if (boundModalElement !== element) {
-    unbindModalResizeEvents()
-    bindModalResizeEvents(element)
-  }
-
-  // Always update viewport dimensions first
-  updateViewport()
-
-  const domRect = element.getBoundingClientRect()
-
-  // Initialize rect with current DOM position (which is handled by AntDV initially)
-  const nextRect: ModalRect = {
-    left: domRect.left,
-    top: domRect.top,
-    width: domRect.width || DEFAULT_WIDTH,
-    height: domRect.height || DEFAULT_HEIGHT
-  }
-
-  // Only if we need to force reset (e.g. on manual reset), we calculate center
-  // Otherwise we trust AntDV's initial positioning
-  if (resetPosition && !rectReady.value) {
-    // We just read the position from DOM, no need to recalculate center manually
-    // This avoids the scrollbar-width shift issue because AntDV handles it correctly
-  }
-
-  Object.assign(rect, nextRect)
-  rectReady.value = true
-  return true
-}
-
-const ensureRectReady = async (resetPosition = false) => {
-  // Wait for Vue to render the modal into DOM
-  await nextTick()
-
-  // Give a small buffer for AntDV's transition/positioning to apply
-  if (resetPosition) {
-     await new Promise(resolve => setTimeout(resolve, 50))
-  }
-
-  let retryCount = 0
-  const trySync = () => {
-    const synced = syncRectFromDom(resetPosition)
-    if (!synced && retryCount < 10) {
-      retryCount += 1
-      requestAnimationFrame(trySync)
-    }
-  }
-
-  trySync()
-}
-
-const getResizeDirection = (event: MouseEvent): ResizeDirection | null => {
-  if (!boundModalElement) {
-    return null
-  }
-
-  const modalRect = boundModalElement.getBoundingClientRect()
-  const relativeX = event.clientX - modalRect.left
-  const relativeY = event.clientY - modalRect.top
-
-  const nearLeft = relativeX >= 0 && relativeX <= EDGE_SIZE
-  const nearRight = relativeX <= modalRect.width && relativeX >= modalRect.width - EDGE_SIZE
-  const nearTop = relativeY >= 0 && relativeY <= EDGE_SIZE
-  const nearBottom = relativeY <= modalRect.height && relativeY >= modalRect.height - EDGE_SIZE
-
-  if (!nearLeft && !nearRight && !nearTop && !nearBottom) {
-    return null
-  }
-
-  const vertical = nearTop ? 'n' : (nearBottom ? 's' : '')
-  const horizontal = nearLeft ? 'w' : (nearRight ? 'e' : '')
-
-  const direction = `${vertical}${horizontal}` as ResizeDirection
-  return direction || null
-}
-
-const directionCursorMap: Record<ResizeDirection, string> = {
-  n: 'ns-resize',
-  s: 'ns-resize',
-  e: 'ew-resize',
-  w: 'ew-resize',
-  ne: 'nesw-resize',
-  sw: 'nesw-resize',
-  nw: 'nwse-resize',
-  se: 'nwse-resize'
-}
-
-const updateModalCursor = (direction: ResizeDirection | null) => {
-  if (!boundModalElement) {
-    return
-  }
-
-  if (!direction || isFullscreen.value || !props.resizable) {
-    boundModalElement.style.cursor = ''
-    return
-  }
-
-  boundModalElement.style.cursor = directionCursorMap[direction]
-}
-
-const startDocumentListen = () => {
-  if (isDocumentListening) {
-    return
-  }
-
-  isDocumentListening = true
-  bodyUserSelectCache = document.body.style.userSelect
-  document.body.style.userSelect = 'none'
-  document.addEventListener('mousemove', handleDocumentMouseMove)
-  document.addEventListener('mouseup', handleDocumentMouseUp)
-}
-
-const stopDocumentListen = () => {
-  if (!isDocumentListening) {
-    return
-  }
-
-  isDocumentListening = false
-  document.body.style.userSelect = bodyUserSelectCache
-  document.removeEventListener('mousemove', handleDocumentMouseMove)
-  document.removeEventListener('mouseup', handleDocumentMouseUp)
-}
-
-const applyResize = (state: ResizeState, deltaX: number, deltaY: number) => {
-  const minWidth = getEffectiveMinWidth()
-  const minHeight = getEffectiveMinHeight()
-
-  let { left, top, width, height } = state.startRect
-
-  if (state.direction.includes('e')) {
-    width = clamp(state.startRect.width + deltaX, minWidth, viewport.width - state.startRect.left)
-  }
-
-  if (state.direction.includes('s')) {
-    height = clamp(state.startRect.height + deltaY, minHeight, viewport.height - state.startRect.top)
-  }
-
-  if (state.direction.includes('w')) {
-    const maxLeft = state.startRect.left + state.startRect.width - minWidth
-    left = clamp(state.startRect.left + deltaX, 0, maxLeft)
-    width = state.startRect.width + (state.startRect.left - left)
-  }
-
-  if (state.direction.includes('n')) {
-    const maxTop = state.startRect.top + state.startRect.height - minHeight
-    top = clamp(state.startRect.top + deltaY, 0, maxTop)
-    height = state.startRect.height + (state.startRect.top - top)
-  }
-
-  Object.assign(rect, clampRect({ left, top, width, height }))
-}
-
-const handleDocumentMouseMove = (event: MouseEvent) => {
-  if (dragState.value) {
-    const deltaX = event.clientX - dragState.value.startX
-    const deltaY = event.clientY - dragState.value.startY
-
-    Object.assign(rect, clampRect({
-      left: dragState.value.startRect.left + deltaX,
-      top: dragState.value.startRect.top + deltaY,
-      width: dragState.value.startRect.width,
-      height: dragState.value.startRect.height
-    }))
-
-    return
-  }
-
-  if (resizeState.value) {
-    const deltaX = event.clientX - resizeState.value.startX
-    const deltaY = event.clientY - resizeState.value.startY
-    applyResize(resizeState.value, deltaX, deltaY)
-  }
-}
-
-const handleDocumentMouseUp = () => {
-  dragState.value = null
-  resizeState.value = null
-  stopDocumentListen()
-  updateModalCursor(null)
-}
-
-const handleModalMouseMove = (event: MouseEvent) => {
-  if (!props.resizable || isFullscreen.value || dragState.value || resizeState.value) {
-    updateModalCursor(null)
-    return
-  }
-
-  const direction = getResizeDirection(event)
-  updateModalCursor(direction)
-}
-
-const handleModalMouseLeave = () => {
-  if (!resizeState.value) {
-    updateModalCursor(null)
-  }
-}
-
-const handleModalMouseDown = (event: MouseEvent) => {
-  if (!props.resizable || isFullscreen.value || event.button !== 0) {
-    return
-  }
-
-  const direction = getResizeDirection(event)
-  if (!direction) {
-    return
-  }
-
-  event.preventDefault()
-  event.stopPropagation()
-
-  // Ensure we start from the current visual position (which might be CSS-positioned)
-  syncRectFromDom()
-  isMoved.value = true
-
-  resizeState.value = {
-    direction,
-    startX: event.clientX,
-    startY: event.clientY,
-    startRect: cloneRect(rect)
-  }
-
-  startDocumentListen()
-}
-
-const bindModalResizeEvents = (element: HTMLElement) => {
-  boundModalElement = element
-  element.addEventListener('mousemove', handleModalMouseMove)
-  element.addEventListener('mouseleave', handleModalMouseLeave)
-  element.addEventListener('mousedown', handleModalMouseDown)
-}
-
-const unbindModalResizeEvents = () => {
-  if (!boundModalElement) {
-    return
-  }
-
-  boundModalElement.removeEventListener('mousemove', handleModalMouseMove)
-  boundModalElement.removeEventListener('mouseleave', handleModalMouseLeave)
-  boundModalElement.removeEventListener('mousedown', handleModalMouseDown)
-  boundModalElement.style.cursor = ''
-  boundModalElement = null
-}
-
-const handleTitleMouseDown = (event: MouseEvent) => {
-  if (!props.draggable || isFullscreen.value || isAnimating.value || event.button !== 0) {
-    return
-  }
-
-  const target = event.target as HTMLElement | null
-  if (target?.closest('.pro-modal-title-actions')) {
-    return
-  }
-
-  event.preventDefault()
-  event.stopPropagation()
-
-  // Ensure we start from the current visual position and switch to manual mode
-  syncRectFromDom()
-  isMoved.value = true
-
-  dragState.value = {
-    startX: event.clientX,
-    startY: event.clientY,
-    startRect: cloneRect(rect)
-  }
-
-  startDocumentListen()
-}
-
-const toggleFullscreen = async () => {
-  if (!rectReady.value || isAnimating.value) {
-    return
-  }
-
-  // Ensure isMoved is true so style bindings (top/left/width/height) are active
-  if (!isMoved.value) {
-    syncRectFromDom()
-    isMoved.value = true
-    await nextTick()
-  }
-
-  const element = getModalElement()
-  if (!element) return
-
-  // Force reflow to ensure current state is captured
-  // eslint-disable-next-line no-unused-expressions
-  element.getBoundingClientRect()
-
-  if (!isFullscreen.value) {
-    restoreRect.value = cloneRect(rect)
-    isAnimating.value = true
-
-    requestAnimationFrame(() => {
-      Object.assign(rect, getFullscreenRect())
-      scheduleFullscreenAnimationEnd(() => {
-        isFullscreen.value = true
-      })
-    })
-
-    return
-  }
-
-  isAnimating.value = true
-  const targetRect = restoreRect.value || {
-    left: (viewport.width - DEFAULT_WIDTH) / 2,
-    top: (viewport.height - DEFAULT_HEIGHT) / 2,
-    width: DEFAULT_WIDTH,
-    height: DEFAULT_HEIGHT
-  }
-
-  requestAnimationFrame(() => {
-    Object.assign(rect, clampRect(targetRect))
-    scheduleFullscreenAnimationEnd(() => {
-      isFullscreen.value = false
-    })
-  })
-}
-
-const handleWindowResize = () => {
-  updateViewport()
-
-  if (!isOpen.value || !rectReady.value) {
-    return
-  }
-
-  if (isFullscreen.value && !isAnimating.value) {
-    Object.assign(rect, getFullscreenRect())
-    return
-  }
-
-  Object.assign(rect, clampRect(cloneRect(rect)))
-}
-
-const handleOk = (event: MouseEvent) => {
-  emit('ok', event)
-}
-
-const handleCancel = (event: MouseEvent) => {
-  emit('cancel', event)
-}
-
-const handleCloseClick = (event: MouseEvent) => {
-  if (!showCloseButton.value || isCloseButtonDisabled.value) {
-    return
-  }
-
-  if (typeof props.closable === 'object') {
-    props.closable.onClose?.()
-  }
-
-  emit('cancel', event)
-  emit('update:open', false)
-}
-
-const handleUpdateOpen = (open: boolean) => {
-  emit('update:open', open)
-}
-
-watch(
-  isOpen,
-  (open) => {
-    if (open) {
-      clearFullscreenAnimationTimer()
-      isAnimating.value = false
-      isFullscreen.value = false
-      restoreRect.value = null
-      isMoved.value = false
-      ensureRectReady(true)
-      return
-    }
-
-    clearFullscreenAnimationTimer()
-    isAnimating.value = false
-    dragState.value = null
-    resizeState.value = null
-    rectReady.value = false
-    stopDocumentListen()
-    unbindModalResizeEvents()
-  },
-  { immediate: true }
-)
-
-watch(
-  () => props.width,
-  () => {
-    if (!isOpen.value || !rectReady.value || isFullscreen.value) {
-      return
-    }
-
-    const nextWidth = parsePreferredWidth(props.width, rect.width)
-    Object.assign(rect, clampRect({ ...cloneRect(rect), width: nextWidth }))
-  }
-)
-
-onMounted(() => {
-  updateViewport()
-  window.addEventListener('resize', handleWindowResize)
-})
-
-onBeforeUnmount(() => {
-  clearFullscreenAnimationTimer()
-  stopDocumentListen()
-  unbindModalResizeEvents()
-  window.removeEventListener('resize', handleWindowResize)
-})
-</script>
 
 <style lang="scss">
 .pro-modal-titlebar {

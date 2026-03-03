@@ -1,130 +1,31 @@
-<template>
-  <a-drawer
-    v-model:open="visible"
-    :title="$t('settings.title')"
-    placement="right"
-    :size="320"
-  >
-    <div class="settings-drawer">
-      <!-- Theme Color -->
-      <div class="settings-section">
-        <h4>{{ $t('settings.themeColor') }}</h4>
-        <div class="color-picker">
-          <div
-            v-for="color in PRESET_COLORS"
-            :key="color.value"
-            :class="['color-item', { active: settingsStore.primaryColor === color.value && !settingsStore.customPrimaryColor }]"
-            :style="{ backgroundColor: color.hex }"
-            @click="settingsStore.setPrimaryColor(color.value)"
-          >
-            <CheckOutlined v-if="settingsStore.primaryColor === color.value && !settingsStore.customPrimaryColor" />
-          </div>
-          <a-color-picker
-            v-model:value="customColor"
-            :presets="colorPresets"
-            @change="handleCustomColorChange"
-          >
-            <div :class="['color-item', 'color-picker-trigger', { active: !!settingsStore.customPrimaryColor }]">
-              <CheckOutlined v-if="settingsStore.customPrimaryColor" />
-              <span v-else class="picker-icon">+</span>
-            </div>
-          </a-color-picker>
-        </div>
-      </div>
-
-      <!-- Sidebar Theme -->
-      <div class="settings-section">
-        <h4>{{ $t('settings.sidebarTheme') }}</h4>
-        <a-radio-group v-model:value="settingsStore.sidebarTheme">
-          <a-radio value="light">{{ $t('settings.light') }}</a-radio>
-          <a-radio value="dark">{{ $t('settings.dark') }}</a-radio>
-        </a-radio-group>
-      </div>
-
-      <!-- Layout Mode -->
-      <div class="settings-section">
-        <h4>{{ $t('settings.layoutMode') }}</h4>
-        <a-radio-group v-model:value="settingsStore.layoutMode">
-          <a-radio value="vertical">{{ $t('settings.vertical') }}</a-radio>
-          <a-radio value="horizontal">{{ $t('settings.horizontal') }}</a-radio>
-        </a-radio-group>
-      </div>
-
-      <!-- Page Animation -->
-      <div class="settings-section">
-        <h4>{{ $t('settings.pageAnimation') }}</h4>
-        <a-select
-          v-model:value="settingsStore.pageAnimation"
-          :options="pageAnimationOptions"
-          style="width: 100%"
-        />
-      </div>
-
-      <!-- Gray Mode -->
-      <div class="settings-section">
-        <h4>{{ $t('settings.grayMode') }}</h4>
-        <a-switch v-model:checked="settingsStore.grayMode" />
-        <div class="hint">{{ $t('settings.grayModeHint') }}</div>
-      </div>
-
-      <!-- Remember Tab State -->
-      <div class="settings-section">
-        <h4>{{ $t('settings.rememberTabState') }}</h4>
-        <a-switch v-model:checked="settingsStore.rememberTabState" />
-        <div class="hint">{{ $t('settings.rememberTabStateHint') }}</div>
-      </div>
-
-      <!-- AI Chat Split Panel -->
-      <div class="settings-section">
-        <h4>{{ $t('settings.aiCollab') }}</h4>
-        <a-switch
-          :checked="layoutStore.aiEntryVisible"
-          :disabled="layoutStore.isMobile"
-          @change="handleAiEntryChange"
-        />
-        <div class="hint">
-          {{ layoutStore.isMobile ? $t('settings.aiCollabHintMobile') : $t('settings.aiCollabHint') }}
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="settings-actions">
-        <a-button block @click="handleReset">
-          {{ $t('settings.reset') }}
-        </a-button>
-      </div>
-    </div>
-  </a-drawer>
-</template>
-
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { CheckOutlined } from '@antdv-next/icons'
-import { useSettingsStore } from '@/stores/settings'
-import { useLayoutStore } from '@/stores/layout'
-import { Modal } from 'antdv-next'
-import { $t } from '@/locales'
 import type { PrimaryColor } from '@/types/layout'
+import { CheckOutlined } from '@antdv-next/icons'
+import { Modal } from 'antdv-next'
+import { computed, ref, watch } from 'vue'
+import { $t } from '@/locales'
+import { useLayoutStore } from '@/stores/layout'
+import { useSettingsStore } from '@/stores/settings'
 
 const visible = ref(false)
 const settingsStore = useSettingsStore()
 const layoutStore = useLayoutStore()
 const customColor = ref(settingsStore.customPrimaryColor || '#1890ff')
 
-const PRESET_COLORS: Array<{ value: PrimaryColor; hex: string }> = [
+const PRESET_COLORS: Array<{ value: PrimaryColor, hex: string }> = [
   { value: 'blue', hex: '#1890ff' },
   { value: 'green', hex: '#52c41a' },
   { value: 'purple', hex: '#722ed1' },
   { value: 'red', hex: '#f5222d' },
   { value: 'orange', hex: '#fa8c16' },
-  { value: 'cyan', hex: '#13c2c2' }
+  { value: 'cyan', hex: '#13c2c2' },
 ]
 
 const colorPresets = [
   {
     label: 'Preset Colors',
-    colors: PRESET_COLORS.map(c => c.hex)
-  }
+    colors: PRESET_COLORS.map(c => c.hex),
+  },
 ]
 
 const pageAnimationOptions = computed(() => [
@@ -135,10 +36,10 @@ const pageAnimationOptions = computed(() => [
   { label: $t('settings.slideDown'), value: 'slide-down' },
   { label: $t('settings.zoom'), value: 'zoom' },
   { label: $t('settings.zoomBig'), value: 'zoom-big' },
-  { label: $t('settings.none'), value: 'none' }
+  { label: $t('settings.none'), value: 'none' },
 ])
 
-const handleCustomColorChange = (value: any) => {
+function handleCustomColorChange(value: any) {
   const hex = typeof value === 'string' ? value : value.toHexString()
   settingsStore.setCustomPrimaryColor(hex)
 }
@@ -164,7 +65,7 @@ watch(() => settingsStore.rememberTabState, (value) => {
   settingsStore.setRememberTabState(value)
 })
 
-const handleReset = () => {
+function handleReset() {
   Modal.confirm({
     title: $t('settings.confirmReset'),
     onOk: () => {
@@ -172,24 +73,135 @@ const handleReset = () => {
       layoutStore.setAiEntryVisible(true)
       layoutStore.setAiCollabEnabled(false)
       customColor.value = '#1890ff'
-    }
+    },
   })
 }
 
-const handleAiEntryChange = (checked: boolean) => {
+function handleAiEntryChange(checked: boolean) {
   layoutStore.setAiEntryVisible(checked)
 }
 
-const open = () => {
+function open() {
   visible.value = true
 }
 
-const close = () => {
+function close() {
   visible.value = false
 }
 
 defineExpose({ open, close })
 </script>
+
+<template>
+  <a-drawer
+    v-model:open="visible"
+    :title="$t('settings.title')"
+    placement="right"
+    :size="320"
+  >
+    <div class="settings-drawer">
+      <!-- Theme Color -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.themeColor') }}</h4>
+        <div class="color-picker">
+          <div
+            v-for="color in PRESET_COLORS"
+            :key="color.value"
+            class="color-item" :class="[{ active: settingsStore.primaryColor === color.value && !settingsStore.customPrimaryColor }]"
+            :style="{ backgroundColor: color.hex }"
+            @click="settingsStore.setPrimaryColor(color.value)"
+          >
+            <CheckOutlined v-if="settingsStore.primaryColor === color.value && !settingsStore.customPrimaryColor" />
+          </div>
+          <a-color-picker
+            v-model:value="customColor"
+            :presets="colorPresets"
+            @change="handleCustomColorChange"
+          >
+            <div class="color-item color-picker-trigger" :class="[{ active: !!settingsStore.customPrimaryColor }]">
+              <CheckOutlined v-if="settingsStore.customPrimaryColor" />
+              <span v-else class="picker-icon">+</span>
+            </div>
+          </a-color-picker>
+        </div>
+      </div>
+
+      <!-- Sidebar Theme -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.sidebarTheme') }}</h4>
+        <a-radio-group v-model:value="settingsStore.sidebarTheme">
+          <a-radio value="light">
+            {{ $t('settings.light') }}
+          </a-radio>
+          <a-radio value="dark">
+            {{ $t('settings.dark') }}
+          </a-radio>
+        </a-radio-group>
+      </div>
+
+      <!-- Layout Mode -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.layoutMode') }}</h4>
+        <a-radio-group v-model:value="settingsStore.layoutMode">
+          <a-radio value="vertical">
+            {{ $t('settings.vertical') }}
+          </a-radio>
+          <a-radio value="horizontal">
+            {{ $t('settings.horizontal') }}
+          </a-radio>
+        </a-radio-group>
+      </div>
+
+      <!-- Page Animation -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.pageAnimation') }}</h4>
+        <a-select
+          v-model:value="settingsStore.pageAnimation"
+          :options="pageAnimationOptions"
+          style="width: 100%"
+        />
+      </div>
+
+      <!-- Gray Mode -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.grayMode') }}</h4>
+        <a-switch v-model:checked="settingsStore.grayMode" />
+        <div class="hint">
+          {{ $t('settings.grayModeHint') }}
+        </div>
+      </div>
+
+      <!-- Remember Tab State -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.rememberTabState') }}</h4>
+        <a-switch v-model:checked="settingsStore.rememberTabState" />
+        <div class="hint">
+          {{ $t('settings.rememberTabStateHint') }}
+        </div>
+      </div>
+
+      <!-- AI Chat Split Panel -->
+      <div class="settings-section">
+        <h4>{{ $t('settings.aiCollab') }}</h4>
+        <a-switch
+          :checked="layoutStore.aiEntryVisible"
+          :disabled="layoutStore.isMobile"
+          @change="handleAiEntryChange"
+        />
+        <div class="hint">
+          {{ layoutStore.isMobile ? $t('settings.aiCollabHintMobile') : $t('settings.aiCollabHint') }}
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="settings-actions">
+        <a-button block @click="handleReset">
+          {{ $t('settings.reset') }}
+        </a-button>
+      </div>
+    </div>
+  </a-drawer>
+</template>
 
 <style scoped lang="scss">
 .settings-drawer {

@@ -1,20 +1,6 @@
-<template>
-  <article class="pro-stat-card" :class="`tone-${tone}`">
-    <p class="stat-label">{{ label }}</p>
-    <p class="stat-value">{{ value }}</p>
-    <p v-if="trend" class="stat-trend" :class="{ 'trend-down': trendDirection === 'down' }">
-      <RiseOutlined v-if="trendDirection !== 'down'" />
-      <FallOutlined v-else />
-      <span>{{ trend }}</span>
-    </p>
-    <slot name="extra" />
-    <component :is="icon" v-if="icon" class="stat-watermark" />
-  </article>
-</template>
-
 <script setup lang="ts">
-import { RiseOutlined, FallOutlined } from '@antdv-next/icons'
 import type { ProStatCardTone } from '@/types/pro'
+import { FallOutlined, RiseOutlined } from '@antdv-next/icons'
 
 withDefaults(defineProps<{
   label: string
@@ -25,9 +11,27 @@ withDefaults(defineProps<{
   tone?: ProStatCardTone
 }>(), {
   trendDirection: 'up',
-  tone: 'blue'
+  tone: 'blue',
 })
 </script>
+
+<template>
+  <article class="pro-stat-card" :class="`tone-${tone}`">
+    <p class="stat-label">
+      {{ label }}
+    </p>
+    <p class="stat-value">
+      {{ value }}
+    </p>
+    <p v-if="trend" class="stat-trend" :class="{ 'trend-down': trendDirection === 'down' }">
+      <RiseOutlined v-if="trendDirection !== 'down'" />
+      <FallOutlined v-else />
+      <span>{{ trend }}</span>
+    </p>
+    <slot name="extra" />
+    <component :is="icon" v-if="icon" class="stat-watermark" />
+  </article>
+</template>
 
 <style scoped lang="scss">
 .pro-stat-card {

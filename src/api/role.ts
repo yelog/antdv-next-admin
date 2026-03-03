@@ -1,6 +1,6 @@
-import { request } from '@/utils/request'
-import type { Role } from '@/types/auth'
 import type { ApiResponse, PageParams, PageResult } from '@/types/api'
+import type { Role } from '@/types/auth'
+import { request } from '@/utils/request'
 
 /**
  * Get role list

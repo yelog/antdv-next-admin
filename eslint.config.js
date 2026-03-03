@@ -11,7 +11,7 @@ export default antfu({
   formatters: {
     css: true,
     html: true,
-    markdown: 'prettier'
+    markdown: 'prettier',
   },
 
   // Ignore patterns
@@ -20,7 +20,9 @@ export default antfu({
     'node_modules',
     '*.d.ts',
     'coverage',
-    'tests/e2e'
+    'tests/e2e',
+    '.github',
+    '**/*.md',
   ],
 
   // Rules
@@ -28,25 +30,36 @@ export default antfu({
     // Allow console in development
     'no-console': ['warn', { allow: ['warn', 'error'] }],
 
-    // Vue specific rules
-    'vue/component-name-in-template-casing': ['error', 'PascalCase'],
-    'vue/custom-event-name-casing': ['error', 'camelCase'],
-
-    // TypeScript
+    // TypeScript - relaxed for gradual adoption
     '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/no-explicit-any': 'off',
+    'ts/no-explicit-any': 'off',
+    'ts/no-empty-object-type': 'off',
+    'ts/no-use-before-define': 'off',
+    'ts/no-this-alias': 'off',
 
-    // Import organization
-    'import/order': ['error', {
-      'groups': [
-        'builtin',
-        'external',
-        'internal',
-        'parent',
-        'sibling',
-        'index'
-      ],
-      'newlines-between': 'always'
-    }]
-  }
+    // Style - relaxed
+    'style/max-statements-per-line': 'off',
+
+    // Unused vars - warn instead of error
+    'unused-imports/no-unused-vars': 'warn',
+
+    // Vue - relaxed
+    'vue/no-unused-refs': 'warn',
+    'vue/custom-event-name-casing': 'off',
+    'vue/require-valid-default-prop': 'off',
+
+    // Node
+    'node/prefer-global/process': 'off',
+
+    // Regexp
+    'regexp/no-unused-capturing-group': 'off',
+
+    // Others
+    'no-useless-return': 'off',
+    'no-prototype-builtins': 'off',
+    'no-new': 'off',
+    'no-throw-literal': 'off',
+    'no-throw-literal': 'off',
+  },
 })

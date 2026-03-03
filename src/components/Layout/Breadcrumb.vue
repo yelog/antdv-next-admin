@@ -1,14 +1,3 @@
-<template>
-  <a-breadcrumb class="breadcrumb">
-    <a-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="index">
-      <router-link v-if="item.path && index < breadcrumbs.length - 1" :to="item.path">
-        {{ item.label }}
-      </router-link>
-      <span v-else>{{ item.label }}</span>
-    </a-breadcrumb-item>
-  </a-breadcrumb>
-</template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -24,12 +13,23 @@ const breadcrumbs = computed(() => {
   return matched.map(item => ({
     label: resolveLocaleText(
       item.meta.title as string,
-      String(item.name || item.path || '-')
+      String(item.name || item.path || '-'),
     ),
-    path: item.path
+    path: item.path,
   }))
 })
 </script>
+
+<template>
+  <a-breadcrumb class="breadcrumb">
+    <a-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="index">
+      <router-link v-if="item.path && index < breadcrumbs.length - 1" :to="item.path">
+        {{ item.label }}
+      </router-link>
+      <span v-else>{{ item.label }}</span>
+    </a-breadcrumb-item>
+  </a-breadcrumb>
+</template>
 
 <style scoped lang="scss">
 .breadcrumb {

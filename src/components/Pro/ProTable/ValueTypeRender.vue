@@ -1,3 +1,62 @@
+<script setup lang="ts">
+import type { ValueType } from '@/types/pro'
+import { message } from 'antdv-next'
+import dayjs from 'dayjs'
+import { $t } from '@/locales'
+import { copyToClipboard } from '@/utils/helpers'
+
+interface Props {
+  value: any
+  type?: ValueType
+  enum?: Record<string, { text: string, status?: string, color?: string }>
+  record?: any
+  copyable?: boolean
+  valueTypeProps?: Record<string, any>
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  type: 'text',
+  copyable: false,
+  valueTypeProps: () => ({}),
+})
+
+function getEnumConfig(value: any) {
+  return props.enum?.[value]
+}
+
+function formatDate(value: any, format: string) {
+  if (!value)
+    return '-'
+  return dayjs(value).format(format)
+}
+
+function formatMoney(value: any, precision?: number) {
+  if (value === null || value === undefined)
+    return '0.00'
+  const p = precision ?? 2
+  return Number(value).toFixed(p).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+function formatPercent(value: any, precision?: number) {
+  if (value === null || value === undefined)
+    return '0'
+  const p = precision ?? 2
+  return Number(value).toFixed(p)
+}
+
+async function handleCopy() {
+  if (props.copyable && props.value) {
+    const success = await copyToClipboard(String(props.value))
+    if (success) {
+      message.success($t('common.copySuccess'))
+    }
+    else {
+      message.error($t('common.copyFailed'))
+    }
+  }
+}
+</script>
+
 <template>
   <span class="value-type-render">
     <!-- Text -->
@@ -60,61 +119,6 @@
     <span v-else>{{ value }}</span>
   </span>
 </template>
-
-<script setup lang="ts">
-import { message } from 'antdv-next'
-import dayjs from 'dayjs'
-import type { ValueType } from '@/types/pro'
-import { copyToClipboard } from '@/utils/helpers'
-import { $t } from '@/locales'
-
-interface Props {
-  value: any
-  type?: ValueType
-  enum?: Record<string, { text: string; status?: string; color?: string }>
-  record?: any
-  copyable?: boolean
-  valueTypeProps?: Record<string, any>
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  type: 'text',
-  copyable: false,
-  valueTypeProps: () => ({})
-})
-
-const getEnumConfig = (value: any) => {
-  return props.enum?.[value]
-}
-
-const formatDate = (value: any, format: string) => {
-  if (!value) return '-'
-  return dayjs(value).format(format)
-}
-
-const formatMoney = (value: any, precision?: number) => {
-  if (value === null || value === undefined) return '0.00'
-  const p = precision ?? 2
-  return Number(value).toFixed(p).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-}
-
-const formatPercent = (value: any, precision?: number) => {
-  if (value === null || value === undefined) return '0'
-  const p = precision ?? 2
-  return Number(value).toFixed(p)
-}
-
-const handleCopy = async () => {
-  if (props.copyable && props.value) {
-    const success = await copyToClipboard(String(props.value))
-    if (success) {
-      message.success($t('common.copySuccess'))
-    } else {
-      message.error($t('common.copyFailed'))
-    }
-  }
-}
-</script>
 
 <style scoped lang="scss">
 .value-type-render {

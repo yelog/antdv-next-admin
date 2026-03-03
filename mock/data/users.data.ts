@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { User } from '@/types/auth'
+import { faker } from '@faker-js/faker'
 
 // Generate mock users
 export const mockUsers: User[] = Array.from({ length: 50 }, (_, _index) => ({
@@ -16,7 +16,7 @@ export const mockUsers: User[] = Array.from({ length: 50 }, (_, _index) => ({
   createdAt: faker.date.past().toISOString(),
   updatedAt: faker.date.recent().toISOString(),
   roles: [],
-  permissions: []
+  permissions: [],
 }))
 
 // Admin user
@@ -41,8 +41,8 @@ export const adminUser: User = {
       description: 'System Administrator',
       permissions: [],
       createdAt: '2023-01-01T00:00:00.000Z',
-      updatedAt: '2023-01-01T00:00:00.000Z'
-    }
+      updatedAt: '2023-01-01T00:00:00.000Z',
+    },
   ],
   permissions: [
     {
@@ -52,9 +52,9 @@ export const adminUser: User = {
       description: 'Has all permissions',
       resource: '*',
       action: '*',
-      type: 'api'
-    }
-  ]
+      type: 'api',
+    },
+  ],
 }
 
 // Regular user
@@ -79,8 +79,8 @@ export const regularUser: User = {
       description: 'Regular User',
       permissions: [],
       createdAt: '2023-01-01T00:00:00.000Z',
-      updatedAt: '2023-01-01T00:00:00.000Z'
-    }
+      updatedAt: '2023-01-01T00:00:00.000Z',
+    },
   ],
   permissions: [
     {
@@ -90,9 +90,9 @@ export const regularUser: User = {
       description: 'Can view dashboard',
       resource: 'dashboard',
       action: 'view',
-      type: 'menu'
-    }
-  ]
+      type: 'menu',
+    },
+  ],
 }
 
 // Add admin and regular users to the beginning of the array

@@ -1,3 +1,212 @@
+<script setup lang="ts">
+import type { ActivityItem } from '@/api/dashboard'
+import {
+  ClockCircleOutlined,
+  DollarOutlined,
+  ReloadOutlined,
+  RiseOutlined,
+  ShoppingOutlined,
+  UserOutlined,
+} from '@antdv-next/icons'
+import { message } from 'antdv-next'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import {
+
+  getDashboardStats,
+  getRecentActivities,
+  getSalesTrend,
+  getUserDistribution,
+} from '@/api/dashboard'
+import ProChart from '@/components/Pro/ProChart/index.vue'
+import ProStatCard from '@/components/Pro/ProStatCard/index.vue'
+import i18n, { $t } from '@/locales'
+import { useAuthStore } from '@/stores/auth'
+
+// Initialize dayjs plugin
+dayjs.extend(relativeTime)
+
+const authStore = useAuthStore()
+
+const now = ref(new Date())
+let timer: number | null = null
+const loading = ref(false)
+
+// Data from API
+const stats = ref({
+  totalUsers: 0,
+  totalOrders: 0,
+  totalRevenue: 0,
+  conversionRate: 0,
+})
+const salesTrend = ref<Array<{ month: string, sales: number }>>([])
+const userDistribution = ref<Array<{ city: string, value: number }>>([])
+const activities = ref<ActivityItem[]>([])
+
+const displayName = computed(() => {
+  return authStore.user?.realName || authStore.user?.username || 'Administrator'
+})
+
+const greetingText = computed(() => {
+  const hour = now.value.getHours()
+  if (hour < 6) {
+    return $t('dashboard.goodNight')
+  }
+  if (hour < 12) {
+    return $t('dashboard.goodMorning')
+  }
+  if (hour < 18) {
+    return $t('dashboard.goodAfternoon')
+  }
+  return $t('dashboard.goodEvening')
+})
+
+const currentTimeText = computed(() => {
+  const targetLocale = String(i18n.global.locale.value || 'en-US')
+
+  try {
+    return new Intl.DateTimeFormat(targetLocale, {
+      month: 'short',
+      day: 'numeric',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(now.value)
+  }
+  catch {
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(now.value)
+  }
+})
+
+const statCards = computed(() => [
+  {
+    key: 'users',
+    tone: 'blue' as const,
+    label: $t('dashboard.totalUsers'),
+    value: stats.value.totalUsers.toLocaleString(),
+    trend: '+12.5%',
+    icon: UserOutlined,
+  },
+  {
+    key: 'orders',
+    tone: 'green' as const,
+    label: $t('dashboard.totalOrders'),
+    value: stats.value.totalOrders.toLocaleString(),
+    trend: '+8.2%',
+    icon: ShoppingOutlined,
+  },
+  {
+    key: 'revenue',
+    tone: 'orange' as const,
+    label: $t('dashboard.totalRevenue'),
+    value: `¥${stats.value.totalRevenue.toLocaleString()}`,
+    trend: '+15.3%',
+    icon: DollarOutlined,
+  },
+  {
+    key: 'conversion',
+    tone: 'purple' as const,
+    label: $t('dashboard.conversionRate'),
+    value: `${stats.value.conversionRate}%`,
+    trend: '+0.8%',
+    icon: RiseOutlined,
+  },
+])
+
+const salesChartData = computed(() => {
+  return salesTrend.value.map(item => ({
+    name: item.month,
+    value: item.sales,
+  }))
+})
+
+const userDistributionChartData = computed(() => {
+  return userDistribution.value.map(item => ({
+    name: item.city,
+    value: item.value,
+  }))
+})
+
+// Helper functions
+function formatTime(timestamp: string) {
+  return dayjs(timestamp).fromNow()
+}
+
+function getTagColor(type: string) {
+  const colorMap: Record<string, string> = {
+    success: 'green',
+    info: 'blue',
+    warning: 'orange',
+    error: 'red',
+  }
+  return colorMap[type] || 'default'
+}
+
+function getTagText(type: string) {
+  const textMap: Record<string, string> = {
+    success: $t('dashboard.activityTags.success'),
+    info: $t('dashboard.activityTags.info'),
+    warning: $t('dashboard.activityTags.warning'),
+    error: $t('dashboard.activityTags.error'),
+  }
+  return textMap[type] || type
+}
+
+// Fetch dashboard data
+async function fetchDashboardData() {
+  loading.value = true
+  try {
+    const [statsRes, salesRes, userRes, activitiesRes] = await Promise.all([
+      getDashboardStats(),
+      getSalesTrend(),
+      getUserDistribution(),
+      getRecentActivities(),
+    ])
+
+    stats.value = statsRes
+    salesTrend.value = salesRes
+    userDistribution.value = userRes
+    activities.value = activitiesRes
+  }
+  catch (error) {
+    console.error('Failed to fetch dashboard data:', error)
+    message.error($t('dashboard.fetchError'))
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+// Refresh data
+function refreshData() {
+  fetchDashboardData()
+  message.success($t('dashboard.refreshSuccess'))
+}
+
+onMounted(() => {
+  timer = window.setInterval(() => {
+    now.value = new Date()
+  }, 60000)
+
+  // Fetch initial data
+  fetchDashboardData()
+})
+
+onBeforeUnmount(() => {
+  if (timer !== null) {
+    window.clearInterval(timer)
+    timer = null
+  }
+})
+</script>
+
 <template>
   <div class="dashboard-container">
     <section class="card welcome-panel">
@@ -13,8 +222,12 @@
             <ClockCircleOutlined />
             <span>{{ currentTimeText }}</span>
           </p>
-          <h1 class="welcome-title">{{ greetingText }}，{{ displayName }}</h1>
-          <p class="welcome-subtitle">{{ $t('dashboard.subtitle') }}</p>
+          <h1 class="welcome-title">
+            {{ greetingText }}，{{ displayName }}
+          </h1>
+          <p class="welcome-subtitle">
+            {{ $t('dashboard.subtitle') }}
+          </p>
 
           <div class="welcome-metas">
             <span class="meta-chip meta-chip-primary">{{ $t('dashboard.systemStable') }}</span>
@@ -24,10 +237,10 @@
       </div>
 
       <div class="welcome-visual" aria-hidden="true">
-        <div class="orb orb-a"></div>
-        <div class="orb orb-b"></div>
-        <div class="orb orb-c"></div>
-        <div class="wave"></div>
+        <div class="orb orb-a" />
+        <div class="orb orb-b" />
+        <div class="orb orb-c" />
+        <div class="wave" />
       </div>
     </section>
 
@@ -74,7 +287,9 @@
 
     <section class="card activities-card">
       <div class="card-header">
-        <h3 class="card-title">{{ $t('dashboard.recentActivities') }}</h3>
+        <h3 class="card-title">
+          {{ $t('dashboard.recentActivities') }}
+        </h3>
         <a-button type="link" size="small" @click="refreshData">
           <ReloadOutlined />
           {{ $t('common.refresh') }}
@@ -86,221 +301,22 @@
           <li v-for="item in activities" :key="item.id" class="activity-item">
             <a-avatar :src="item.avatar" :size="40" />
             <div class="activity-content">
-              <p class="activity-title">{{ item.action }}</p>
-              <p class="activity-time">{{ formatTime(item.timestamp) }}</p>
+              <p class="activity-title">
+                {{ item.action }}
+              </p>
+              <p class="activity-time">
+                {{ formatTime(item.timestamp) }}
+              </p>
             </div>
-            <a-tag :color="getTagColor(item.type)">{{ getTagText(item.type) }}</a-tag>
+            <a-tag :color="getTagColor(item.type)">
+              {{ getTagText(item.type) }}
+            </a-tag>
           </li>
         </ul>
       </a-spin>
     </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import {
-  UserOutlined,
-  ShoppingOutlined,
-  DollarOutlined,
-  RiseOutlined,
-  ClockCircleOutlined,
-  ReloadOutlined
-} from '@antdv-next/icons'
-import { message } from 'antdv-next'
-import { useAuthStore } from '@/stores/auth'
-import ProChart from '@/components/Pro/ProChart/index.vue'
-import ProStatCard from '@/components/Pro/ProStatCard/index.vue'
-import i18n, { $t } from '@/locales'
-import {
-  getDashboardStats,
-  getSalesTrend,
-  getUserDistribution,
-  getRecentActivities,
-  type ActivityItem
-} from '@/api/dashboard'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-
-// Initialize dayjs plugin
-dayjs.extend(relativeTime)
-
-const authStore = useAuthStore()
-
-const now = ref(new Date())
-let timer: number | null = null
-const loading = ref(false)
-
-// Data from API
-const stats = ref({
-  totalUsers: 0,
-  totalOrders: 0,
-  totalRevenue: 0,
-  conversionRate: 0
-})
-const salesTrend = ref<Array<{ month: string; sales: number }>>([])
-const userDistribution = ref<Array<{ city: string; value: number }>>([])
-const activities = ref<ActivityItem[]>([])
-
-const displayName = computed(() => {
-  return authStore.user?.realName || authStore.user?.username || 'Administrator'
-})
-
-const greetingText = computed(() => {
-  const hour = now.value.getHours()
-  if (hour < 6) {
-    return $t('dashboard.goodNight')
-  }
-  if (hour < 12) {
-    return $t('dashboard.goodMorning')
-  }
-  if (hour < 18) {
-    return $t('dashboard.goodAfternoon')
-  }
-  return $t('dashboard.goodEvening')
-})
-
-const currentTimeText = computed(() => {
-  const targetLocale = String(i18n.global.locale.value || 'en-US')
-
-  try {
-    return new Intl.DateTimeFormat(targetLocale, {
-      month: 'short',
-      day: 'numeric',
-      weekday: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(now.value)
-  } catch {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      weekday: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(now.value)
-  }
-})
-
-const statCards = computed(() => [
-  {
-    key: 'users',
-    tone: 'blue' as const,
-    label: $t('dashboard.totalUsers'),
-    value: stats.value.totalUsers.toLocaleString(),
-    trend: '+12.5%',
-    icon: UserOutlined
-  },
-  {
-    key: 'orders',
-    tone: 'green' as const,
-    label: $t('dashboard.totalOrders'),
-    value: stats.value.totalOrders.toLocaleString(),
-    trend: '+8.2%',
-    icon: ShoppingOutlined
-  },
-  {
-    key: 'revenue',
-    tone: 'orange' as const,
-    label: $t('dashboard.totalRevenue'),
-    value: `¥${stats.value.totalRevenue.toLocaleString()}`,
-    trend: '+15.3%',
-    icon: DollarOutlined
-  },
-  {
-    key: 'conversion',
-    tone: 'purple' as const,
-    label: $t('dashboard.conversionRate'),
-    value: `${stats.value.conversionRate}%`,
-    trend: '+0.8%',
-    icon: RiseOutlined
-  }
-])
-
-const salesChartData = computed(() => {
-  return salesTrend.value.map(item => ({
-    name: item.month,
-    value: item.sales
-  }))
-})
-
-const userDistributionChartData = computed(() => {
-  return userDistribution.value.map(item => ({
-    name: item.city,
-    value: item.value
-  }))
-})
-
-// Helper functions
-const formatTime = (timestamp: string) => {
-  return dayjs(timestamp).fromNow()
-}
-
-const getTagColor = (type: string) => {
-  const colorMap: Record<string, string> = {
-    success: 'green',
-    info: 'blue',
-    warning: 'orange',
-    error: 'red'
-  }
-  return colorMap[type] || 'default'
-}
-
-const getTagText = (type: string) => {
-  const textMap: Record<string, string> = {
-    success: $t('dashboard.activityTags.success'),
-    info: $t('dashboard.activityTags.info'),
-    warning: $t('dashboard.activityTags.warning'),
-    error: $t('dashboard.activityTags.error')
-  }
-  return textMap[type] || type
-}
-
-// Fetch dashboard data
-const fetchDashboardData = async () => {
-  loading.value = true
-  try {
-    const [statsRes, salesRes, userRes, activitiesRes] = await Promise.all([
-      getDashboardStats(),
-      getSalesTrend(),
-      getUserDistribution(),
-      getRecentActivities()
-    ])
-
-    stats.value = statsRes
-    salesTrend.value = salesRes
-    userDistribution.value = userRes
-    activities.value = activitiesRes
-  } catch (error) {
-    console.error('Failed to fetch dashboard data:', error)
-    message.error($t('dashboard.fetchError'))
-  } finally {
-    loading.value = false
-  }
-}
-
-// Refresh data
-const refreshData = () => {
-  fetchDashboardData()
-  message.success($t('dashboard.refreshSuccess'))
-}
-
-onMounted(() => {
-  timer = window.setInterval(() => {
-    now.value = new Date()
-  }, 60000)
-
-  // Fetch initial data
-  fetchDashboardData()
-})
-
-onBeforeUnmount(() => {
-  if (timer !== null) {
-    window.clearInterval(timer)
-    timer = null
-  }
-})
-</script>
 
 <style scoped lang="scss">
 .dashboard-container {

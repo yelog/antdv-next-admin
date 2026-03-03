@@ -38,15 +38,15 @@ export const appDefaultSettings: AppDefaultSettings = {
     columnResizable: true,
     ellipsis: true,
     bordered: true,
-    fixedHeader: true
+    fixedHeader: true,
   },
   input: {
-    allowClear: true
+    allowClear: true,
   },
   select: {
-    allowClear: true
+    allowClear: true,
   },
   datePicker: {
-    allowClear: true
-  }
+    allowClear: true,
+  },
 }

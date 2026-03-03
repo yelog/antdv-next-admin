@@ -1,6 +1,6 @@
-import { request } from '@/utils/request'
 import type { ApiResponse } from '@/types/api'
-import type { DictType, DictData, DictQueryParams, DictTypeQueryParams } from '@/types/dict'
+import type { DictData, DictQueryParams, DictType, DictTypeQueryParams } from '@/types/dict'
+import { request } from '@/utils/request'
 
 /**
  * 获取所有字典类型

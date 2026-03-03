@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
 import type { Notification } from '@/types/layout'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 
 export const useNotificationStore = defineStore('notification', () => {
   // State
@@ -25,7 +25,7 @@ export const useNotificationStore = defineStore('notification', () => {
       id: Date.now().toString(),
       timestamp: Date.now(),
       read: false,
-      ...notification
+      ...notification,
     }
 
     notifications.value.unshift(newNotification)
@@ -39,7 +39,7 @@ export const useNotificationStore = defineStore('notification', () => {
   }
 
   const markAllAsRead = () => {
-    notifications.value.forEach(n => {
+    notifications.value.forEach((n) => {
       n.read = true
     })
   }
@@ -70,7 +70,7 @@ export const useNotificationStore = defineStore('notification', () => {
         category: 'system',
         timestamp: Date.now() - 1000 * 60 * 5, // 5分钟前
         read: false,
-        link: '/dashboard'
+        link: '/dashboard',
       },
       {
         id: '2',
@@ -80,7 +80,7 @@ export const useNotificationStore = defineStore('notification', () => {
         category: 'message',
         timestamp: Date.now() - 1000 * 60 * 30, // 30分钟前
         read: false,
-        link: '/profile'
+        link: '/profile',
       },
       {
         id: '3',
@@ -90,7 +90,7 @@ export const useNotificationStore = defineStore('notification', () => {
         category: 'security',
         timestamp: Date.now() - 1000 * 60 * 60 * 2, // 2小时前
         read: false,
-        link: '/profile'
+        link: '/profile',
       },
       {
         id: '4',
@@ -100,7 +100,7 @@ export const useNotificationStore = defineStore('notification', () => {
         category: 'task',
         timestamp: Date.now() - 1000 * 60 * 60 * 5, // 5小时前
         read: true,
-        link: '/examples/table'
+        link: '/examples/table',
       },
       {
         id: '5',
@@ -110,8 +110,8 @@ export const useNotificationStore = defineStore('notification', () => {
         category: 'system',
         timestamp: Date.now() - 1000 * 60 * 60 * 24, // 1天前
         read: true,
-        link: '/dashboard'
-      }
+        link: '/dashboard',
+      },
     ]
 
     notifications.value = mockNotifications
@@ -131,6 +131,6 @@ export const useNotificationStore = defineStore('notification', () => {
     removeNotification,
     clearAll,
     clearRead,
-    initNotifications
+    initNotifications,
   }
 })

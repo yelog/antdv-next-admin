@@ -1,5 +1,5 @@
+import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
 
 // Mock localStorage
@@ -15,30 +15,30 @@ const localStorageMock = (() => {
     }),
     clear: vi.fn(() => {
       store = {}
-    })
+    }),
   }
 })()
 
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 })
 
 // Mock import.meta.env
 vi.stubGlobal('import.meta', {
   env: {
     VITE_USE_MOCK: 'true',
-    VITE_API_BASE_URL: '/api'
-  }
+    VITE_API_BASE_URL: '/api',
+  },
 })
 
-describe('Auth Store', () => {
+describe('auth Store', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     localStorageMock.clear()
     vi.clearAllMocks()
   })
 
-  describe('Initial State', () => {
+  describe('initial State', () => {
     it('should have null token initially', () => {
       const store = useAuthStore()
       expect(store.token).toBeNull()
@@ -112,7 +112,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [{ id: '1', name: 'Admin', code: 'admin', description: '', permissions: [], createdAt: '', updatedAt: '' }],
-        permissions: []
+        permissions: [],
       }
 
       store.setUserInfo(userInfo)
@@ -132,7 +132,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [],
-        permissions: [{ id: '1', name: 'Create', code: 'user.create', description: '', resource: 'user', action: 'create', type: 'api' as const }]
+        permissions: [{ id: '1', name: 'Create', code: 'user.create', description: '', resource: 'user', action: 'create', type: 'api' as const }],
       }
 
       store.setUserInfo(userInfo)
@@ -153,7 +153,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [{ id: '1', name: 'Admin', code: 'admin', description: '', permissions: [], createdAt: '', updatedAt: '' }],
-        permissions: []
+        permissions: [],
       }
       store.setUserInfo(userInfo)
 
@@ -178,7 +178,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [{ id: '1', name: 'Admin', code: 'admin', description: '', permissions: [], createdAt: '', updatedAt: '' }],
-        permissions: []
+        permissions: [],
       }
       store.setUserInfo(userInfo)
 
@@ -196,7 +196,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [{ id: '1', name: 'User', code: 'user', description: '', permissions: [], createdAt: '', updatedAt: '' }],
-        permissions: []
+        permissions: [],
       }
       store.setUserInfo(userInfo)
 
@@ -216,7 +216,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [{ id: '1', name: 'Admin', code: 'admin', description: '', permissions: [], createdAt: '', updatedAt: '' }],
-        permissions: []
+        permissions: [],
       }
       store.setUserInfo(userInfo)
 
@@ -234,7 +234,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [{ id: '1', name: 'User', code: 'user', description: '', permissions: [], createdAt: '', updatedAt: '' }],
-        permissions: []
+        permissions: [],
       }
       store.setUserInfo(userInfo)
 
@@ -255,9 +255,9 @@ describe('Auth Store', () => {
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [
           { id: '1', name: 'Admin', code: 'admin', description: '', permissions: [], createdAt: '', updatedAt: '' },
-          { id: '2', name: 'Editor', code: 'editor', description: '', permissions: [], createdAt: '', updatedAt: '' }
+          { id: '2', name: 'Editor', code: 'editor', description: '', permissions: [], createdAt: '', updatedAt: '' },
         ],
-        permissions: []
+        permissions: [],
       }
       store.setUserInfo(userInfo)
 
@@ -275,7 +275,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [{ id: '1', name: 'Admin', code: 'admin', description: '', permissions: [], createdAt: '', updatedAt: '' }],
-        permissions: []
+        permissions: [],
       }
       store.setUserInfo(userInfo)
 
@@ -295,7 +295,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [],
-        permissions: [{ id: '1', name: 'Create', code: 'user.create', description: '', resource: 'user', action: 'create', type: 'api' as const }]
+        permissions: [{ id: '1', name: 'Create', code: 'user.create', description: '', resource: 'user', action: 'create', type: 'api' as const }],
       }
       store.setUserInfo(userInfo)
 
@@ -313,7 +313,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [],
-        permissions: [{ id: '1', name: 'All', code: '*', description: '', resource: '*', action: '*', type: 'api' as const }]
+        permissions: [{ id: '1', name: 'All', code: '*', description: '', resource: '*', action: '*', type: 'api' as const }],
       }
       store.setUserInfo(userInfo)
 
@@ -332,7 +332,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [],
-        permissions: [{ id: '1', name: 'View', code: 'user.view', description: '', resource: 'user', action: 'view', type: 'api' as const }]
+        permissions: [{ id: '1', name: 'View', code: 'user.view', description: '', resource: 'user', action: 'view', type: 'api' as const }],
       }
       store.setUserInfo(userInfo)
 
@@ -352,7 +352,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [],
-        permissions: [{ id: '1', name: 'Create', code: 'user.create', description: '', resource: 'user', action: 'create', type: 'api' as const }]
+        permissions: [{ id: '1', name: 'Create', code: 'user.create', description: '', resource: 'user', action: 'create', type: 'api' as const }],
       }
       store.setUserInfo(userInfo)
 
@@ -370,7 +370,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [],
-        permissions: [{ id: '1', name: 'View', code: 'user.view', description: '', resource: 'user', action: 'view', type: 'api' as const }]
+        permissions: [{ id: '1', name: 'View', code: 'user.view', description: '', resource: 'user', action: 'view', type: 'api' as const }],
       }
       store.setUserInfo(userInfo)
 
@@ -392,8 +392,8 @@ describe('Auth Store', () => {
         roles: [],
         permissions: [
           { id: '1', name: 'Create', code: 'user.create', description: '', resource: 'user', action: 'create', type: 'api' as const },
-          { id: '2', name: 'Edit', code: 'user.edit', description: '', resource: 'user', action: 'edit', type: 'api' as const }
-        ]
+          { id: '2', name: 'Edit', code: 'user.edit', description: '', resource: 'user', action: 'edit', type: 'api' as const },
+        ],
       }
       store.setUserInfo(userInfo)
 
@@ -411,7 +411,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [],
-        permissions: [{ id: '1', name: 'Create', code: 'user.create', description: '', resource: 'user', action: 'create', type: 'api' as const }]
+        permissions: [{ id: '1', name: 'Create', code: 'user.create', description: '', resource: 'user', action: 'create', type: 'api' as const }],
       }
       store.setUserInfo(userInfo)
 
@@ -434,7 +434,7 @@ describe('Auth Store', () => {
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
         roles: [{ id: '1', name: 'Admin', code: 'admin', description: '', permissions: [], createdAt: '', updatedAt: '' }],
-        permissions: []
+        permissions: [],
       }
       store.setUserInfo(userInfo)
 

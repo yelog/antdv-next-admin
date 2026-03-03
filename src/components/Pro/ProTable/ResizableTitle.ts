@@ -1,4 +1,5 @@
-import { ref, h, defineComponent, onBeforeUnmount, type PropType } from 'vue'
+import type { PropType } from 'vue'
+import { defineComponent, h, onBeforeUnmount, ref } from 'vue'
 
 interface ResizeInfo {
   size: {
@@ -28,7 +29,7 @@ export const ResizableTitle = defineComponent({
     resizable: Boolean,
     onResizeStart: Function as PropType<ResizableTitleProps['onResizeStart']>,
     onResizeEnd: Function as PropType<ResizableTitleProps['onResizeEnd']>,
-    onResize: Function as PropType<ResizableTitleProps['onResize']>
+    onResize: Function as PropType<ResizableTitleProps['onResize']>,
   },
   setup(props, { slots, attrs }) {
     const dragging = ref(false)
@@ -88,18 +89,18 @@ export const ResizableTitle = defineComponent({
         {
           ...attrs,
           class: ['pro-table-resizable-title', attrs.class],
-          style
+          style,
         },
         [
           slots.default?.(),
           h('span', {
             class: 'pro-table-resizable-handle',
-            onMousedown: onMouseDown
-          })
-        ]
+            onMousedown: onMouseDown,
+          }),
+        ],
       )
     }
-  }
+  },
 })
 
 export default ResizableTitle

@@ -1,63 +1,10 @@
-<template>
-  <div class="page-container">
-    <div class="card mb-lg">
-      <h2>{{ $t('examples.scaffold.stateCache.title') }}</h2>
-      <p class="text-secondary">
-        {{ $t('examples.scaffold.stateCache.description') }}
-      </p>
-    </div>
-
-    <div class="card mb-lg">
-      <div class="section-title">{{ $t('examples.scaffold.stateCache.piniaSection') }}</div>
-
-      <div class="form-grid">
-        <div>
-          <label>{{ $t('examples.scaffold.stateCache.keywordLabel') }}</label>
-          <a-input v-model:value="cacheStore.keyword" :placeholder="$t('examples.scaffold.stateCache.keywordPlaceholder')" />
-        </div>
-        <div>
-          <label>{{ $t('examples.scaffold.stateCache.counterLabel') }}</label>
-          <div class="counter-row">
-            <a-button size="small" @click="cacheStore.counter--">-1</a-button>
-            <a-input-number v-model:value="cacheStore.counter" :min="-9999" :max="9999" />
-            <a-button size="small" @click="cacheStore.counter++">+1</a-button>
-          </div>
-        </div>
-        <div class="full-row">
-          <label>{{ $t('examples.scaffold.stateCache.notesLabel') }}</label>
-          <a-textarea v-model:value="cacheStore.notes" :rows="3" :placeholder="$t('examples.scaffold.stateCache.notesPlaceholder')" />
-        </div>
-      </div>
-
-      <a-space class="mt-md">
-        <a-button @click="cacheStore.reset">{{ $t('examples.scaffold.stateCache.resetButton') }}</a-button>
-        <a-button @click="pinCurrentTab">{{ $t('examples.scaffold.stateCache.pinTabButton') }}</a-button>
-      </a-space>
-
-      <div class="persist-tip">{{ $t('examples.scaffold.stateCache.lastPersistTime') }}{{ cacheStore.updatedAt }}</div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">{{ $t('examples.scaffold.stateCache.keepAliveSection') }}</div>
-      <a-radio-group v-model:value="activePanel" button-style="solid" class="mb-md">
-        <a-radio-button value="panelA">{{ $t('examples.scaffold.stateCache.panelA') }}</a-radio-button>
-        <a-radio-button value="panelB">{{ $t('examples.scaffold.stateCache.panelB') }}</a-radio-button>
-      </a-radio-group>
-
-      <keep-alive>
-        <component :is="activeComponent" />
-      </keep-alive>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
+import { message } from 'antdv-next'
 import { computed, defineComponent, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { message } from 'antdv-next'
 import { $t } from '@/locales'
-import { useTabsStore } from '@/stores/tabs'
 import { useDemoStateCacheStore } from '@/stores/demoStateCache'
+import { useTabsStore } from '@/stores/tabs'
 
 const cacheStore = useDemoStateCacheStore()
 const tabsStore = useTabsStore()
@@ -73,7 +20,7 @@ const PanelA = defineComponent({
 
     return {
       localValue,
-      localCount
+      localCount,
     }
   },
   template: `
@@ -86,7 +33,7 @@ const PanelA = defineComponent({
         <a-button size="small" @click="localCount++">+</a-button>
       </a-space>
     </div>
-  `
+  `,
 })
 
 const PanelB = defineComponent({
@@ -97,7 +44,7 @@ const PanelB = defineComponent({
 
     return {
       checked,
-      text
+      text,
     }
   },
   template: `
@@ -106,18 +53,89 @@ const PanelB = defineComponent({
       <a-switch v-model:checked="checked" checked-children="ON" un-checked-children="OFF" />
       <a-textarea v-model:value="text" :rows="3" :placeholder="$t('examples.scaffold.stateCache.panelBTextPlaceholder')" />
     </div>
-  `
+  `,
 })
 
 const activeComponent = computed(() => {
   return activePanel.value === 'panelA' ? PanelA : PanelB
 })
 
-const pinCurrentTab = () => {
+function pinCurrentTab() {
   tabsStore.togglePinTab(route.path)
   message.success($t('examples.scaffold.stateCache.pinTabSuccess'))
 }
 </script>
+
+<template>
+  <div class="page-container">
+    <div class="card mb-lg">
+      <h2>{{ $t('examples.scaffold.stateCache.title') }}</h2>
+      <p class="text-secondary">
+        {{ $t('examples.scaffold.stateCache.description') }}
+      </p>
+    </div>
+
+    <div class="card mb-lg">
+      <div class="section-title">
+        {{ $t('examples.scaffold.stateCache.piniaSection') }}
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label>{{ $t('examples.scaffold.stateCache.keywordLabel') }}</label>
+          <a-input v-model:value="cacheStore.keyword" :placeholder="$t('examples.scaffold.stateCache.keywordPlaceholder')" />
+        </div>
+        <div>
+          <label>{{ $t('examples.scaffold.stateCache.counterLabel') }}</label>
+          <div class="counter-row">
+            <a-button size="small" @click="cacheStore.counter--">
+              -1
+            </a-button>
+            <a-input-number v-model:value="cacheStore.counter" :min="-9999" :max="9999" />
+            <a-button size="small" @click="cacheStore.counter++">
+              +1
+            </a-button>
+          </div>
+        </div>
+        <div class="full-row">
+          <label>{{ $t('examples.scaffold.stateCache.notesLabel') }}</label>
+          <a-textarea v-model:value="cacheStore.notes" :rows="3" :placeholder="$t('examples.scaffold.stateCache.notesPlaceholder')" />
+        </div>
+      </div>
+
+      <a-space class="mt-md">
+        <a-button @click="cacheStore.reset">
+          {{ $t('examples.scaffold.stateCache.resetButton') }}
+        </a-button>
+        <a-button @click="pinCurrentTab">
+          {{ $t('examples.scaffold.stateCache.pinTabButton') }}
+        </a-button>
+      </a-space>
+
+      <div class="persist-tip">
+        {{ $t('examples.scaffold.stateCache.lastPersistTime') }}{{ cacheStore.updatedAt }}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">
+        {{ $t('examples.scaffold.stateCache.keepAliveSection') }}
+      </div>
+      <a-radio-group v-model:value="activePanel" button-style="solid" class="mb-md">
+        <a-radio-button value="panelA">
+          {{ $t('examples.scaffold.stateCache.panelA') }}
+        </a-radio-button>
+        <a-radio-button value="panelB">
+          {{ $t('examples.scaffold.stateCache.panelB') }}
+        </a-radio-button>
+      </a-radio-group>
+
+      <keep-alive>
+        <component :is="activeComponent" />
+      </keep-alive>
+    </div>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .mb-lg {

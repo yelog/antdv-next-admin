@@ -1,47 +1,10 @@
-<template>
-  <div class="page-container">
-    <ProTable
-      :columns="columns"
-      :request="requestTableData"
-      :toolbar="toolbarConfig"
-      :search="{ labelWidth: 80, defaultCollapsed: true, collapsedRows: 1 }"
-      :row-selection="rowSelection"
-      row-key="id"
-    >
-      <template #toolbar-actions>
-        <a-space wrap>
-          <a-tag color="processing">{{ $t('examples.scaffold.proTableAdvanced.selectedCount', { count: selectedRowKeys.length }) }}</a-tag>
-          <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchSetStatus('inactive')">
-            {{ $t('examples.scaffold.proTableAdvanced.batchDisable') }}
-          </a-button>
-          <a-button danger :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
-            {{ $t('examples.scaffold.proTableAdvanced.batchDelete') }}
-          </a-button>
-          <a-button type="primary" @click="exportCsv">{{ $t('examples.scaffold.proTableAdvanced.export') }}</a-button>
-        </a-space>
-      </template>
-
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.dataIndex === 'status'">
-          <a-switch
-            :checked="record.status === 'active'"
-            :checked-children="$t('examples.scaffold.proTableAdvanced.statusActive')"
-            :un-checked-children="$t('examples.scaffold.proTableAdvanced.statusInactive')"
-            @change="handleStatusSwitchChange(record.id, $event as boolean)"
-          />
-        </template>
-      </template>
-    </ProTable>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import type { ProTableColumn } from '@/types/pro'
+import { DeleteOutlined, EditOutlined } from '@antdv-next/icons'
 import { message, Modal } from 'antdv-next'
-import { EditOutlined, DeleteOutlined } from '@antdv-next/icons'
+import { computed, ref } from 'vue'
 import ProTable from '@/components/Pro/ProTable/index.vue'
 import { $t } from '@/locales'
-import type { ProTableColumn } from '@/types/pro'
 
 interface DemoRow {
   id: string
@@ -53,7 +16,7 @@ interface DemoRow {
   createdAt: string
 }
 
-const createMockRows = (): DemoRow[] => {
+function createMockRows(): DemoRow[] {
   return Array.from({ length: 48 }, (_, index) => {
     const i = index + 1
     const isMale = i % 2 === 0
@@ -65,7 +28,7 @@ const createMockRows = (): DemoRow[] => {
       email: `user_${i}@example.com`,
       gender: isMale ? 'male' : 'female',
       status: i % 3 === 0 ? 'inactive' : 'active',
-      createdAt: new Date(Date.now() - i * 86400000).toISOString()
+      createdAt: new Date(Date.now() - i * 86400000).toISOString(),
     }
   })
 }
@@ -76,7 +39,7 @@ const selectedRowKeys = ref<string[]>([])
 const toolbarConfig = computed(() => ({
   title: $t('examples.scaffold.proTableAdvanced.title'),
   subTitle: $t('examples.scaffold.proTableAdvanced.description'),
-  actions: ['refresh', 'density', 'columnSetting'] as Array<'refresh' | 'density' | 'columnSetting'>
+  actions: ['refresh', 'density', 'columnSetting'] as Array<'refresh' | 'density' | 'columnSetting'>,
 }))
 
 const columns = computed<ProTableColumn[]>(() => [
@@ -85,21 +48,21 @@ const columns = computed<ProTableColumn[]>(() => [
     dataIndex: 'username',
     search: true,
     searchType: 'input',
-    width: 150
+    width: 150,
   },
   {
     title: $t('examples.scaffold.proTableAdvanced.realName'),
     dataIndex: 'realName',
     search: true,
     searchType: 'input',
-    width: 140
+    width: 140,
   },
   {
     title: $t('examples.scaffold.proTableAdvanced.email'),
     dataIndex: 'email',
     search: true,
     searchType: 'input',
-    width: 220
+    width: 220,
   },
   {
     title: $t('examples.scaffold.proTableAdvanced.gender'),
@@ -108,14 +71,14 @@ const columns = computed<ProTableColumn[]>(() => [
     searchType: 'select',
     searchOptions: [
       { label: $t('user.male'), value: 'male' },
-      { label: $t('user.female'), value: 'female' }
+      { label: $t('user.female'), value: 'female' },
     ],
     valueType: 'tag',
     valueEnum: {
       male: { text: $t('user.male'), color: 'blue' },
-      female: { text: $t('user.female'), color: 'pink' }
+      female: { text: $t('user.female'), color: 'pink' },
     },
-    width: 120
+    width: 120,
   },
   {
     title: $t('examples.scaffold.proTableAdvanced.status'),
@@ -125,14 +88,14 @@ const columns = computed<ProTableColumn[]>(() => [
     searchType: 'select',
     searchOptions: [
       { label: $t('examples.scaffold.proTableAdvanced.statusActive'), value: 'active' },
-      { label: $t('examples.scaffold.proTableAdvanced.statusInactive'), value: 'inactive' }
-    ]
+      { label: $t('examples.scaffold.proTableAdvanced.statusInactive'), value: 'inactive' },
+    ],
   },
   {
     title: $t('examples.scaffold.proTableAdvanced.createdAt'),
     dataIndex: 'createdAt',
     valueType: 'dateTime',
-    width: 190
+    width: 190,
   },
   {
     title: $t('common.actions'),
@@ -145,7 +108,7 @@ const columns = computed<ProTableColumn[]>(() => [
         icon: EditOutlined,
         onClick: (record) => {
           message.info($t('examples.scaffold.proTableAdvanced.editSimulation', { username: record.username }))
-        }
+        },
       },
       {
         label: $t('common.delete'),
@@ -156,20 +119,20 @@ const columns = computed<ProTableColumn[]>(() => [
           tableRows.value = tableRows.value.filter(item => item.id !== record.id)
           selectedRowKeys.value = selectedRowKeys.value.filter(id => id !== record.id)
           message.success($t('examples.scaffold.proTableAdvanced.deleteSuccess'))
-        }
-      }
-    ]
-  }
+        },
+      },
+    ],
+  },
 ])
 
 const rowSelection = computed(() => ({
   selectedRowKeys: selectedRowKeys.value,
   onChange: (keys: Array<string | number>) => {
     selectedRowKeys.value = keys.map(item => String(item))
-  }
+  },
 }))
 
-const requestTableData = async (params: Record<string, any>) => {
+async function requestTableData(params: Record<string, any>) {
   const current = Number(params.current || 1)
   const pageSize = Number(params.pageSize || 10)
 
@@ -204,38 +167,38 @@ const requestTableData = async (params: Record<string, any>) => {
   return {
     success: true,
     data: list,
-    total: filtered.length
+    total: filtered.length,
   }
 }
 
-const handleStatusChange = (id: string, checked: boolean) => {
+function handleStatusChange(id: string, checked: boolean) {
   const row = tableRows.value.find(item => item.id === id)
   if (!row) {
     return
   }
 
   row.status = checked ? 'active' : 'inactive'
-  message.success($t('examples.scaffold.proTableAdvanced.statusChangeSuccess', { 
-    status: checked ? $t('examples.scaffold.proTableAdvanced.statusActive') : $t('examples.scaffold.proTableAdvanced.statusInactive'), 
-    username: row.username 
+  message.success($t('examples.scaffold.proTableAdvanced.statusChangeSuccess', {
+    status: checked ? $t('examples.scaffold.proTableAdvanced.statusActive') : $t('examples.scaffold.proTableAdvanced.statusInactive'),
+    username: row.username,
   }))
 }
 
-const handleStatusSwitchChange = (id: string, checked: boolean) => {
+function handleStatusSwitchChange(id: string, checked: boolean) {
   handleStatusChange(id, checked)
 }
 
-const handleBatchSetStatus = (status: DemoRow['status']) => {
+function handleBatchSetStatus(status: DemoRow['status']) {
   if (selectedRowKeys.value.length === 0) {
     return
   }
 
   const set = new Set(selectedRowKeys.value)
-  tableRows.value = tableRows.value.map(item => {
+  tableRows.value = tableRows.value.map((item) => {
     if (set.has(item.id)) {
       return {
         ...item,
-        status
+        status,
       }
     }
     return item
@@ -244,7 +207,7 @@ const handleBatchSetStatus = (status: DemoRow['status']) => {
   message.success($t('examples.scaffold.proTableAdvanced.batchSetStatusSuccess', { count: selectedRowKeys.value.length }))
 }
 
-const handleBatchDelete = () => {
+function handleBatchDelete() {
   if (selectedRowKeys.value.length === 0) {
     return
   }
@@ -257,11 +220,11 @@ const handleBatchDelete = () => {
       tableRows.value = tableRows.value.filter(item => !set.has(item.id))
       selectedRowKeys.value = []
       message.success($t('examples.scaffold.proTableAdvanced.batchDeleteSuccess'))
-    }
+    },
   })
 }
 
-const exportCsv = () => {
+function exportCsv() {
   const headers = ['id', 'username', 'realName', 'email', 'gender', 'status', 'createdAt']
   const rows = tableRows.value.map(item => [
     item.id,
@@ -270,7 +233,7 @@ const exportCsv = () => {
     item.email,
     item.gender,
     item.status,
-    item.createdAt
+    item.createdAt,
   ])
 
   const csv = [headers, ...rows]
@@ -288,3 +251,44 @@ const exportCsv = () => {
   message.success($t('examples.scaffold.proTableAdvanced.exportSuccess'))
 }
 </script>
+
+<template>
+  <div class="page-container">
+    <ProTable
+      :columns="columns"
+      :request="requestTableData"
+      :toolbar="toolbarConfig"
+      :search="{ labelWidth: 80, defaultCollapsed: true, collapsedRows: 1 }"
+      :row-selection="rowSelection"
+      row-key="id"
+    >
+      <template #toolbar-actions>
+        <a-space wrap>
+          <a-tag color="processing">
+            {{ $t('examples.scaffold.proTableAdvanced.selectedCount', { count: selectedRowKeys.length }) }}
+          </a-tag>
+          <a-button :disabled="selectedRowKeys.length === 0" @click="handleBatchSetStatus('inactive')">
+            {{ $t('examples.scaffold.proTableAdvanced.batchDisable') }}
+          </a-button>
+          <a-button danger :disabled="selectedRowKeys.length === 0" @click="handleBatchDelete">
+            {{ $t('examples.scaffold.proTableAdvanced.batchDelete') }}
+          </a-button>
+          <a-button type="primary" @click="exportCsv">
+            {{ $t('examples.scaffold.proTableAdvanced.export') }}
+          </a-button>
+        </a-space>
+      </template>
+
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.dataIndex === 'status'">
+          <a-switch
+            :checked="record.status === 'active'"
+            :checked-children="$t('examples.scaffold.proTableAdvanced.statusActive')"
+            :un-checked-children="$t('examples.scaffold.proTableAdvanced.statusInactive')"
+            @change="handleStatusSwitchChange(record.id, $event as boolean)"
+          />
+        </template>
+      </template>
+    </ProTable>
+  </div>
+</template>

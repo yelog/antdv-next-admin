@@ -1,61 +1,26 @@
-<template>
-  <div class="tab-bar" v-if="tabsStore.tabs.length > 0">
-    <div class="tabs-container">
-      <a-tabs
-        v-model:activeKey="activeKey"
-        type="editable-card"
-        :hide-add="true"
-        :items="tabItems"
-        @edit="handleEdit"
-        @change="handleChange"
-      />
-    </div>
-    <div class="tab-actions">
-      <a-dropdown placement="bottomRight" :menu="activeTabMenuProps" :trigger="['click']">
-        <a-tooltip :title="$t('layout.tabs.moreActions')">
-          <a-button type="text" class="tab-action-btn">
-            <DownOutlined />
-          </a-button>
-        </a-tooltip>
-      </a-dropdown>
-      <a-tooltip :title="$t('layout.tabs.refresh')">
-        <a-button type="text" class="tab-action-btn" @click="refreshCurrentTab">
-          <ReloadOutlined />
-        </a-button>
-      </a-tooltip>
-      <a-tooltip :title="isFullscreen ? $t('layout.exitFullscreen') : $t('layout.fullscreen')">
-        <a-button type="text" class="tab-action-btn" @click="toggleFullscreen">
-          <FullscreenExitOutlined v-if="isFullscreen" />
-          <FullscreenOutlined v-else />
-        </a-button>
-      </a-tooltip>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed, h } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { Dropdown } from 'antdv-next'
+import type { Tab } from '@/types/layout'
 import {
-  ReloadOutlined,
-  FullscreenOutlined,
-  FullscreenExitOutlined,
-  DownOutlined,
-  CloseOutlined,
-  PushpinOutlined,
-  PushpinFilled,
   CloseCircleOutlined,
+  CloseOutlined,
   CloseSquareOutlined,
+  DownOutlined,
+  FullscreenExitOutlined,
+  FullscreenOutlined,
+  PushpinFilled,
+  PushpinOutlined,
+  ReloadOutlined,
+  StarFilled,
+  StarOutlined,
   VerticalLeftOutlined,
   VerticalRightOutlined,
-  StarOutlined,
-  StarFilled
 } from '@antdv-next/icons'
-import { useTabsStore } from '@/stores/tabs'
+import { Dropdown } from 'antdv-next'
+import { computed, h } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import { useLayoutStore } from '@/stores/layout'
-import type { Tab } from '@/types/layout'
+import { useTabsStore } from '@/stores/tabs'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
 
@@ -66,23 +31,23 @@ const tabsStore = useTabsStore()
 const layoutStore = useLayoutStore()
 
 const isFullscreen = computed(() => layoutStore.pageFullscreen)
-const toggleFullscreen = () => {
+function toggleFullscreen() {
   layoutStore.togglePageFullscreen()
 }
 
-type TabMenuKey =
-  | 'close'
-  | 'pin'
-  | 'favorite'
-  | 'refresh'
-  | 'closeLeft'
-  | 'closeRight'
-  | 'closeOthers'
-  | 'closeAll'
+type TabMenuKey
+  = | 'close'
+    | 'pin'
+    | 'favorite'
+    | 'refresh'
+    | 'closeLeft'
+    | 'closeRight'
+    | 'closeOthers'
+    | 'closeAll'
 
 const activeKey = computed({
   get: () => tabsStore.activeTabPath,
-  set: (value) => tabsStore.setActiveTab(value)
+  set: value => tabsStore.setActiveTab(value),
 })
 
 const currentTab = computed(() => {
@@ -94,19 +59,19 @@ const tabItems = computed(() => {
   const currentLocale = locale.value
   // Keep locale dependency but don't use it as a key to avoid forced remounts
   void currentLocale
-  
+
   return tabsStore.tabs.map(tab => ({
     key: tab.path,
     closable: tab.closable,
     label: h('span', { class: 'tab-label-wrapper' }, [
-        h(
-          Dropdown,
-          {
-            trigger: ['contextmenu'],
-            menu: {
+      h(
+        Dropdown,
+        {
+          trigger: ['contextmenu'],
+          menu: {
             items: getTabMenuItems(tab),
-            onClick: ({ key }: { key: string | number }) => handleContextMenu({ key: String(key) }, tab)
-          }
+            onClick: ({ key }: { key: string | number }) => handleContextMenu({ key: String(key) }, tab),
+          },
         },
         {
           default: () => {
@@ -115,42 +80,44 @@ const tabItems = computed(() => {
               icon ? h(icon, { class: 'tab-menu-icon' }) : null,
               h('span', { class: 'tab-text' }, getTabLabel(tab)),
               tab.favorite ? h(StarFilled, { class: 'tab-favorite-icon' }) : null,
-              isTabFixed(tab) ? h(PushpinFilled, { class: 'tab-pin-icon' }) : null
+              isTabFixed(tab) ? h(PushpinFilled, { class: 'tab-pin-icon' }) : null,
             ])
-          }
-        }
-      )
-    ])
+          },
+        },
+      ),
+    ]),
   }))
 })
 
 const isTabFixed = (tab: Tab) => Boolean(tab.affix || tab.pinned)
 
-const handleEdit = (targetKey: string) => {
+function handleEdit(targetKey: string) {
   tabsStore.closeTab(targetKey)
   syncRouteWithActiveTab()
 }
 
-const handleChange = (key: string) => {
+function handleChange(key: string) {
   const tab = tabsStore.tabs.find(t => t.path === key)
   if (tab) {
     router.push(tab.fullPath)
   }
 }
 
-const hasClosableLeftTabs = (tab: Tab) => {
+function hasClosableLeftTabs(tab: Tab) {
   const index = tabsStore.tabs.findIndex(item => item.path === tab.path)
-  if (index <= 0) return false
+  if (index <= 0)
+    return false
   return tabsStore.tabs.slice(0, index).some(item => item.closable)
 }
 
-const hasClosableRightTabs = (tab: Tab) => {
+function hasClosableRightTabs(tab: Tab) {
   const index = tabsStore.tabs.findIndex(item => item.path === tab.path)
-  if (index < 0 || index >= tabsStore.tabs.length - 1) return false
+  if (index < 0 || index >= tabsStore.tabs.length - 1)
+    return false
   return tabsStore.tabs.slice(index + 1).some(item => item.closable)
 }
 
-const hasClosableOtherTabs = (tab: Tab) => {
+function hasClosableOtherTabs(tab: Tab) {
   return tabsStore.tabs.some(item => item.path !== tab.path && item.closable)
 }
 
@@ -158,7 +125,7 @@ const hasClosableTabs = computed(() => {
   return tabsStore.tabs.some(tab => tab.closable)
 })
 
-const getTabMenuItems = (tab: Tab) => {
+function getTabMenuItems(tab: Tab) {
   // Get the latest tab state from store to ensure reactivity
   const latestTab = tabsStore.tabs.find(t => t.path === tab.path) || tab
   // Call t() function to get reactive translations
@@ -167,55 +134,55 @@ const getTabMenuItems = (tab: Tab) => {
       key: 'close',
       icon: h(CloseOutlined),
       label: t('layout.tabs.close'),
-      disabled: !latestTab.closable
+      disabled: !latestTab.closable,
     },
     {
       key: 'pin',
       icon: h(latestTab.pinned ? PushpinFilled : PushpinOutlined),
       label: latestTab.pinned ? t('layout.tabs.unpin') : t('layout.tabs.pin'),
-      disabled: Boolean(latestTab.affix)
+      disabled: Boolean(latestTab.affix),
     },
     {
       key: 'favorite',
       icon: h(latestTab.favorite ? StarFilled : StarOutlined),
-      label: latestTab.favorite ? t('layout.tabs.unfavorite') : t('layout.tabs.favorite')
+      label: latestTab.favorite ? t('layout.tabs.unfavorite') : t('layout.tabs.favorite'),
     },
     {
       key: 'refresh',
       icon: h(ReloadOutlined),
-      label: t('layout.tabs.refresh')
+      label: t('layout.tabs.refresh'),
     },
     {
-      type: 'divider'
+      type: 'divider',
     },
     {
       key: 'closeLeft',
       icon: h(VerticalLeftOutlined),
       label: t('layout.tabs.closeLeft'),
-      disabled: !hasClosableLeftTabs(tab)
+      disabled: !hasClosableLeftTabs(tab),
     },
     {
       key: 'closeRight',
       icon: h(VerticalRightOutlined),
       label: t('layout.tabs.closeRight'),
-      disabled: !hasClosableRightTabs(tab)
+      disabled: !hasClosableRightTabs(tab),
     },
     {
       key: 'closeOthers',
       icon: h(CloseCircleOutlined),
       label: t('layout.tabs.closeOthers'),
-      disabled: !hasClosableOtherTabs(tab)
+      disabled: !hasClosableOtherTabs(tab),
     },
     {
       key: 'closeAll',
       icon: h(CloseSquareOutlined),
       label: t('layout.tabs.closeAll'),
-      disabled: !hasClosableTabs.value
-    }
+      disabled: !hasClosableTabs.value,
+    },
   ]
 }
 
-const syncRouteWithActiveTab = () => {
+function syncRouteWithActiveTab() {
   const active = tabsStore.tabs.find(tab => tab.path === tabsStore.activeTabPath) || tabsStore.tabs[0]
   if (!active) {
     if (route.path !== '/dashboard') {
@@ -229,7 +196,7 @@ const syncRouteWithActiveTab = () => {
   }
 }
 
-const handleContextMenu = (e: { key: string }, tab: Tab) => {
+function handleContextMenu(e: { key: string }, tab: Tab) {
   const { key } = e
   switch (key as TabMenuKey) {
     case 'close':
@@ -264,12 +231,11 @@ const handleContextMenu = (e: { key: string }, tab: Tab) => {
   }
 }
 
-
 const activeTabMenuProps = computed(() => {
   // Access locale to establish reactivity dependency on language changes
   const currentLocale = locale.value
   void currentLocale // Ensure reactivity
-  
+
   const tab = currentTab.value
   return {
     items: tab ? getTabMenuItems(tab) : [],
@@ -277,24 +243,60 @@ const activeTabMenuProps = computed(() => {
       if (tab) {
         handleContextMenu({ key: String(key) }, tab)
       }
-    }
+    },
   }
 })
 
-const refreshCurrentTab = () => {
+function refreshCurrentTab() {
   const tab = currentTab.value
-  if (!tab) return
+  if (!tab)
+    return
   tabsStore.refreshTab(tab.path)
 }
 
-const getTabLabel = (tab: Tab) => {
+function getTabLabel(tab: Tab) {
   return resolveLocaleText(tab.title, tab.name)
 }
 
-const getTabIcon = (tab: Tab) => {
+function getTabIcon(tab: Tab) {
   return resolveIcon(tab.icon)
 }
 </script>
+
+<template>
+  <div v-if="tabsStore.tabs.length > 0" class="tab-bar">
+    <div class="tabs-container">
+      <a-tabs
+        v-model:active-key="activeKey"
+        type="editable-card"
+        :hide-add="true"
+        :items="tabItems"
+        @edit="handleEdit"
+        @change="handleChange"
+      />
+    </div>
+    <div class="tab-actions">
+      <a-dropdown placement="bottomRight" :menu="activeTabMenuProps" :trigger="['click']">
+        <a-tooltip :title="$t('layout.tabs.moreActions')">
+          <a-button type="text" class="tab-action-btn">
+            <DownOutlined />
+          </a-button>
+        </a-tooltip>
+      </a-dropdown>
+      <a-tooltip :title="$t('layout.tabs.refresh')">
+        <a-button type="text" class="tab-action-btn" @click="refreshCurrentTab">
+          <ReloadOutlined />
+        </a-button>
+      </a-tooltip>
+      <a-tooltip :title="isFullscreen ? $t('layout.exitFullscreen') : $t('layout.fullscreen')">
+        <a-button type="text" class="tab-action-btn" @click="toggleFullscreen">
+          <FullscreenExitOutlined v-if="isFullscreen" />
+          <FullscreenOutlined v-else />
+        </a-button>
+      </a-tooltip>
+    </div>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .tab-bar {

@@ -1,5 +1,5 @@
 export default {
-  common: {
+  'common': {
     appName: 'Antdv Next Admin',
     add: 'Add',
     edit: 'Edit',
@@ -69,10 +69,10 @@ export default {
     typeTags: 'Tags',
     typeArray: 'Array',
     typeObject: 'Object',
-    searchLabel: 'Search {label}'
+    searchLabel: 'Search {label}',
   },
 
-  menu: {
+  'menu': {
     dashboard: 'Dashboard',
     organization: 'Organization',
     system: 'System',
@@ -120,10 +120,10 @@ export default {
     exception404: '404',
     exception500: '500',
     profile: 'Profile',
-    about: 'About'
+    about: 'About',
   },
 
-  layout: {
+  'layout': {
     logout: 'Logout',
     logoutConfirm: 'Are you sure you want to logout?',
     profile: 'Profile',
@@ -165,7 +165,7 @@ export default {
       zhCN: 'Simplified Chinese',
       enUS: 'English',
       jaJP: 'Japanese',
-      koKR: 'Korean'
+      koKR: 'Korean',
     },
     tabs: {
       refresh: 'Refresh',
@@ -178,11 +178,11 @@ export default {
       closeAll: 'Close All',
       closeLeft: 'Close Left',
       closeRight: 'Close Right',
-      moreActions: 'More Tab Actions'
-    }
+      moreActions: 'More Tab Actions',
+    },
   },
 
-  settings: {
+  'settings': {
     title: 'Preferences',
     themeColor: 'Theme Color',
     sidebarTheme: 'Sidebar Theme',
@@ -215,18 +215,18 @@ export default {
       purple: 'Golden Purple',
       red: 'Dust Red',
       orange: 'Sunset Orange',
-      cyan: 'Cyan'
-    }
+      cyan: 'Cyan',
+    },
   },
 
-  login: {
+  'login': {
     title: 'User Login',
     username: 'Username',
     password: 'Password',
     remember: 'Remember me',
     login: 'Login',
     forgotPassword: 'Forgot password',
-    noAccount: "Don't have an account?",
+    noAccount: 'Don\'t have an account?',
     register: 'Register now',
     usernamePlaceholder: 'Please enter username',
     passwordPlaceholder: 'Please enter password',
@@ -235,10 +235,10 @@ export default {
     loginSuccess: 'Login successful',
     loginFailed: 'Login failed',
     slideToVerify: 'Slide to verify',
-    verifySuccess: 'Verified'
+    verifySuccess: 'Verified',
   },
 
-  dashboard: {
+  'dashboard': {
     welcome: 'Welcome Back',
     subtitle: 'Monitor your business metrics and system status in real time',
     systemStable: 'System Stable',
@@ -266,13 +266,13 @@ export default {
       permissionUpdated: 'Admin updated system menu permission settings',
       userCreated: 'Created user Sunny and assigned the operation role',
       orderTaskDone: 'Today\'s order statistics task has completed',
-      riskPolicyReleased: 'Risk control strategy version has been released to production'
+      riskPolicyReleased: 'Risk control strategy version has been released to production',
     },
     activityTags: {
       system: 'System',
       user: 'User',
       task: 'Task',
-      release: 'Release'
+      release: 'Release',
     },
     months: {
       jan: 'Jan',
@@ -282,11 +282,11 @@ export default {
       may: 'May',
       jun: 'Jun',
       jul: 'Jul',
-      aug: 'Aug'
-    }
+      aug: 'Aug',
+    },
   },
 
-  user: {
+  'user': {
     title: 'User Management',
     username: 'Username',
     email: 'Email',
@@ -327,10 +327,10 @@ export default {
     info: 'User Info',
     settings: 'Settings',
     theme: 'Theme',
-    language: 'Language'
+    language: 'Language',
   },
 
-  role: {
+  'role': {
     title: 'Role Management',
     name: 'Role Name',
     code: 'Role Code',
@@ -345,10 +345,10 @@ export default {
     codePattern: 'Role code only supports letters, numbers, underscores and hyphens',
     selectPermissions: 'Please select permissions',
     updateSuccess: 'Role updated successfully',
-    createSuccess: 'Role created successfully'
+    createSuccess: 'Role created successfully',
   },
 
-  permission: {
+  'permission': {
     title: 'Menu Management',
     name: 'Menu Name',
     code: 'Permission Code',
@@ -380,10 +380,10 @@ export default {
     iconPlaceholder: 'e.g. UserOutlined',
     visibleStatus: 'Visibility',
     updateSuccess: 'Menu updated successfully',
-    createSuccess: 'Menu created successfully'
+    createSuccess: 'Menu created successfully',
   },
 
-  dict: {
+  'dict': {
     title: 'Dictionary',
     dictType: 'Dictionary Type',
     dictData: 'Dictionary Data',
@@ -420,38 +420,38 @@ export default {
     loadTypeFailed: 'Failed to load dictionary types',
     loadDataFailed: 'Failed to load dictionary data',
     dictDataTitle: 'Dictionary Data - {name}',
-    confirmDelete: 'Confirm Delete'
+    confirmDelete: 'Confirm Delete',
   },
 
-  table: {
+  'table': {
     title: 'Table Example',
     total: 'Total {total} items',
     page: 'Page {page}',
     pageSize: '{size} items per page',
-    goTo: 'Go to'
+    goTo: 'Go to',
   },
 
-  form: {
+  'form': {
     title: 'Form Example',
     basicInfo: 'Basic Information',
     advancedInfo: 'Advanced Information',
     submit: 'Submit',
     reset: 'Reset',
     validateSuccess: 'Validation passed',
-    validateFailed: 'Validation failed'
+    validateFailed: 'Validation failed',
   },
 
-  exampleTable: {
+  'exampleTable': {
     userList: 'User List',
     subTitle: 'ProTable Example',
     createUser: 'Create User',
     editUser: 'Edit User',
     deleteSuccess: 'Deleted successfully',
     updateSuccess: 'Updated successfully',
-    createSuccess: 'Created successfully'
+    createSuccess: 'Created successfully',
   },
 
-  notificationCenter: {
+  'notificationCenter': {
     kicker: 'Notification Hub',
     title: 'Notification Center',
     subtitle: 'Track system updates, messages, and task outcomes in one place with fast filtering and detail tracing.',
@@ -462,7 +462,7 @@ export default {
     metrics: {
       total: 'Total Notifications',
       unread: 'Unread',
-      today: 'Today'
+      today: 'Today',
     },
     filters: {
       allStatus: 'All Status',
@@ -473,28 +473,28 @@ export default {
       message: 'Message',
       security: 'Security Alert',
       task: 'Task Done',
-      error: 'Error Alert'
+      error: 'Error Alert',
     },
     status: {
       read: 'Read',
-      unread: 'Unread'
+      unread: 'Unread',
     },
     meta: {
       type: 'Type',
-      receivedAt: 'Received At'
+      receivedAt: 'Received At',
     },
     actions: {
       markAsRead: 'Mark as read',
       openRelated: 'Open related page',
-      delete: 'Delete notification'
+      delete: 'Delete notification',
     },
     placeholder: {
       title: 'Select a notification to view details',
-      desc: 'Choose an item from the list on the left to see full content and related actions here.'
-    }
+      desc: 'Choose an item from the list on the left to see full content and related actions here.',
+    },
   },
 
-  exampleCaptcha: {
+  'exampleCaptcha': {
     title: 'Captcha Component Example',
     description: 'Common frontend captcha interaction components with customizable styles and callbacks.',
     slider: 'Slider Captcha',
@@ -502,10 +502,10 @@ export default {
     puzzle: 'Puzzle Captcha',
     point: 'Point Captcha',
     success: 'Verification passed!',
-    fail: 'Verification failed, please retry'
+    fail: 'Verification failed, please retry',
   },
 
-  exampleSpin: {
+  'exampleSpin': {
     title: 'Spin Example',
     description: 'Demonstrates various usages of the Spin component including basic loading, sizes, custom indicators, progress, delay and fullscreen.',
     basic: 'Basic & Sizes',
@@ -517,10 +517,10 @@ export default {
     customStyle: 'Custom Style',
     fullscreen: 'Fullscreen',
     showFullscreen: 'Show Fullscreen',
-    loadingState: 'Loading state:'
+    loadingState: 'Loading state:',
   },
 
-  exampleEditor: {
+  'exampleEditor': {
     title: 'Rich Text Editor Example',
     description: 'A rich text editor based on Tiptap, supporting image upload, link insertion, formatting and more.',
     basicUsage: 'Basic Usage',
@@ -535,10 +535,10 @@ export default {
     loadDemo: 'Load Demo',
     savedMessage: 'Content saved',
     clearedMessage: 'Content cleared',
-    demoLoadedMessage: 'Demo content loaded'
+    demoLoadedMessage: 'Demo content loaded',
   },
 
-  exampleForm: {
+  'exampleForm': {
     description: 'Advanced ProForm example demonstrating various form controls',
     age: 'Age',
     ageRange: 'Age must be between 1 and 150',
@@ -551,17 +551,17 @@ export default {
     roles: {
       admin: 'Administrator',
       user: 'Regular User',
-      guest: 'Guest'
+      guest: 'Guest',
     },
     interestOptions: {
       reading: 'Reading',
       sports: 'Sports',
       music: 'Music',
-      travel: 'Travel'
-    }
+      travel: 'Travel',
+    },
   },
 
-  exampleIcon: {
+  'exampleIcon': {
     title: 'Icon Showcase',
     subtitle: 'Unified demo for Icon component and IconPicker',
     capabilities: 'Supports: local SVG, antdv-next icons, Iconify (offline sets + online search)',
@@ -595,10 +595,10 @@ export default {
     modeSvg: 'SVG Sprite',
     modeAntdv: 'antdv-next',
     modeIconify: 'Iconify',
-    sampleHint: 'Click to apply'
+    sampleHint: 'Click to apply',
   },
 
-  exampleWatermark: {
+  'exampleWatermark': {
     title: 'Watermark Example',
     description: 'Global watermark feature - configure and preview watermark effects in real time',
     enableGlobal: 'Enable Global Watermark',
@@ -609,10 +609,10 @@ export default {
     gapX: 'Horizontal Gap',
     gapY: 'Vertical Gap',
     preview: 'Local Preview',
-    previewText: 'This area is for previewing the watermark effect'
+    previewText: 'This area is for previewing the watermark effect',
   },
 
-  exampleModal: {
+  'exampleModal': {
     title: 'ProModal Demo',
     description: 'An enhanced wrapper around antdv-next Modal with drag, fullscreen, edge resize and viewport constraints.',
     openDefault: 'Open Default Modal',
@@ -634,19 +634,19 @@ export default {
     formRemark: 'Remark',
     formRemarkPlaceholder: 'Please enter remark',
     rowText: 'Demo data row #{index}',
-    confirmSuccess: 'Confirmed successfully'
+    confirmSuccess: 'Confirmed successfully',
   },
 
-  exampleException: {
+  'exampleException': {
     '403title': '403',
     '403description': 'Sorry, you do not have permission to access this page',
     '404title': '404',
     '404description': 'Sorry, the page you visited does not exist',
     '500title': '500',
-    '500description': 'Sorry, the server is reporting an error'
+    '500description': 'Sorry, the server is reporting an error',
   },
 
-  editor: {
+  'editor': {
     insertLink: 'Insert Link',
     linkUrl: 'Link URL',
     linkText: 'Link Text',
@@ -656,22 +656,22 @@ export default {
     imageSizeLimit: 'Image size cannot exceed 5MB',
     imageInsertSuccess: 'Image inserted successfully',
     imageUploadFailed: 'Image upload failed',
-    enterLinkUrl: 'Please enter link URL'
+    enterLinkUrl: 'Please enter link URL',
   },
 
-  iconPicker: {
+  'iconPicker': {
     selectIcon: 'Select icon',
     searchPlaceholder: 'Search icon name...',
     onlineSearchFailed: 'Online search failed',
-    onlineSearchFailedDetail: 'Online search failed: {message}'
+    onlineSearchFailedDetail: 'Online search failed: {message}',
   },
 
-  captcha: {
+  'captcha': {
     clickInOrder: 'Click in order: ',
-    refresh: 'Refresh'
+    refresh: 'Refresh',
   },
 
-  about: {
+  'about': {
     description: 'A modern admin framework built on Vue 3 + TypeScript + Ant Design Vue. Production-ready, feature-rich, and easy to extend.',
     projectInfo: 'Project Info',
     projectName: 'Project Name',
@@ -697,29 +697,29 @@ export default {
     feature7: 'ProTable / ProForm Components',
     feature7Desc: 'Config-driven tables and forms covering common business scenarios',
     feature8: 'Mock Data Development Mode',
-    feature8Desc: 'Built-in mock system for parallel frontend and backend development'
+    feature8Desc: 'Built-in mock system for parallel frontend and backend development',
   },
 
-  proForm: {
+  'proForm': {
     enterPlaceholder: 'Please enter {label}',
     selectPlaceholder: 'Please select {label}',
-    uploadFile: 'Upload File'
+    uploadFile: 'Upload File',
   },
 
-  proUpload: {
+  'proUpload': {
     uploadFile: 'Upload File',
     uploadImage: 'Upload Image',
     dragHint: 'Click or drag file to this area to upload',
     fileSizeExceed: 'File size must not exceed {size}MB',
-    fileTypeNotAllowed: 'File type not allowed'
+    fileTypeNotAllowed: 'File type not allowed',
   },
 
-  proStepForm: {
+  'proStepForm': {
     prev: 'Previous',
-    next: 'Next'
+    next: 'Next',
   },
 
-  proTable: {
+  'proTable': {
     total: 'Total {total} items',
     density: 'Table Density',
     checkAll: 'Select All',
@@ -729,10 +729,10 @@ export default {
     densityLarge: 'Spacious',
     densityMiddle: 'Default',
     densitySmall: 'Compact',
-    loadDataFailed: 'Failed to load data'
+    loadDataFailed: 'Failed to load data',
   },
 
-  profile: {
+  'profile': {
     title: 'Profile',
     basicInfo: 'Basic Information',
     security: 'Security',
@@ -755,20 +755,20 @@ export default {
     passwordChangeFailed: 'Failed to change password',
     passwordTip: 'Tip: Password should be at least 6 characters, recommend including letters, numbers and special characters',
     updateSuccess: 'Update successful',
-    updateFailed: 'Update failed'
+    updateFailed: 'Update failed',
   },
 
-  error: {
+  'error': {
     404: 'Page Not Found',
     403: 'Access Forbidden',
     500: 'Server Error',
     backHome: 'Back to Home',
     pageNotFound: 'Sorry, the page you visited does not exist',
     noPermission: 'Sorry, you do not have permission to access this page',
-    serverError: 'Sorry, the server is reporting an error'
+    serverError: 'Sorry, the server is reporting an error',
   },
 
-  validation: {
+  'validation': {
     required: 'This field is required',
     email: 'Please enter a valid email address',
     phone: 'Please enter a valid phone number',
@@ -783,10 +783,10 @@ export default {
     pattern: 'Invalid format',
     usernamePattern: 'Username can only contain letters, numbers and underscores',
     passwordPattern: 'Password must be at least 8 characters and include letters and numbers',
-    confirmPassword: 'The two passwords do not match'
+    confirmPassword: 'The two passwords do not match',
   },
 
-  dept: {
+  'dept': {
     title: 'Department Management',
     organizationStructure: 'Organization',
     searchDept: 'Search department',
@@ -823,10 +823,10 @@ export default {
     pleaseEnterRemark: 'Please enter remark',
     loadDataFailed: 'Failed to load department data',
     createTime: 'Create Time',
-    updateTime: 'Update Time'
+    updateTime: 'Update Time',
   },
 
-  config: {
+  'config': {
     title: 'System Config',
     configGroups: 'Config Groups',
     configName: 'Config Name',
@@ -853,28 +853,28 @@ export default {
       string: 'String',
       number: 'Number',
       boolean: 'Boolean',
-      json: 'JSON'
+      json: 'JSON',
     },
     groups: {
       basic: 'Basic Config',
       security: 'Security Config',
       upload: 'Upload Config',
-      notification: 'Notification Config'
+      notification: 'Notification Config',
     },
     builtInTypes: {
       builtIn: 'Built-in',
-      custom: 'Custom'
+      custom: 'Custom',
     },
     placeholders: {
       configName: 'Please enter config name',
       configKey: 'e.g. site.name',
       configValue: 'Please enter config value',
       jsonFormat: 'JSON format',
-      description: 'Please enter description'
-    }
+      description: 'Please enter description',
+    },
   },
 
-  file: {
+  'file': {
     title: 'File Management',
     fileName: 'File Name',
     ext: 'Extension',
@@ -892,7 +892,7 @@ export default {
     storageType: {
       local: 'Local',
       oss: 'OSS',
-      cos: 'COS'
+      cos: 'COS',
     },
     extType: {
       imageJpg: 'Image(jpg)',
@@ -904,11 +904,11 @@ export default {
       video: 'Video',
       text: 'Text',
       ppt: 'PPT',
-      svg: 'SVG'
-    }
+      svg: 'SVG',
+    },
   },
 
-  log: {
+  'log': {
     title: 'System Log',
     operationLog: 'Operation Log',
     loginLog: 'Login Log',
@@ -941,7 +941,7 @@ export default {
       delete: 'Delete',
       export: 'Export',
       import: 'Import',
-      other: 'Other'
+      other: 'Other',
     },
     modules: {
       userManagement: 'User Management',
@@ -950,10 +950,10 @@ export default {
       dictionary: 'Dictionary',
       systemLogin: 'System Login',
       profile: 'Profile',
-      dashboard: 'Dashboard'
+      dashboard: 'Dashboard',
     },
     loadOperationLogFailed: 'Failed to load operation logs',
-    loadLoginLogFailed: 'Failed to load login logs'
+    loadLoginLogFailed: 'Failed to load login logs',
   },
 
   'menu.external': 'External Pages',
@@ -968,7 +968,7 @@ export default {
   'external.link.openVite': 'Open Vite',
   'external.link.openVue': 'Open Vue',
 
-  examples: {
+  'examples': {
     scaffold: {
       stateCache: {
         title: 'State & Cache Example',
@@ -990,7 +990,7 @@ export default {
         localCountLabel: 'Local count: ',
         panelBDesc: 'Panel B (also cached by keep-alive)',
         panelBTextPlaceholder: 'Input content, switch tabs and return - still retained',
-        pinTabSuccess: 'Tab pin status toggled'
+        pinTabSuccess: 'Tab pin status toggled',
       },
       uploadSystem: {
         title: 'Upload System Example',
@@ -1008,7 +1008,7 @@ export default {
         uploadSuccessMsg: 'Upload success: {name}',
         uploadFailedMsg: 'Upload failed: {name}',
         retryMsg: 'Retrying {count} failed files',
-        previewNotSupported: 'This file type does not support preview'
+        previewNotSupported: 'This file type does not support preview',
       },
       importExport: {
         title: 'Import/Export Flow Example',
@@ -1036,7 +1036,7 @@ export default {
         errorPrice: 'Price must be a number greater than or equal to 0',
         errorStock: 'Stock must be an integer greater than or equal to 0',
         importDone: 'Import finished: {success} success, {failed} failed',
-        parseFailed: 'CSV parse failed, please check file format'
+        parseFailed: 'CSV parse failed, please check file format',
       },
       testing: {
         title: 'Testing Example',
@@ -1050,7 +1050,7 @@ export default {
         step2Title: 'Then add e2e tests',
         step2Description: 'Cover critical user paths like login, search, and list operations.',
         step3Title: 'Integrate with CI',
-        step3Description: 'Chain type-check + unit + e2e into pipeline, execute automatically before merge.'
+        step3Description: 'Chain type-check + unit + e2e into pipeline, execute automatically before merge.',
       },
       proTableAdvanced: {
         title: 'ProTable Advanced Example',
@@ -1075,7 +1075,7 @@ export default {
         batchDeleteTitle: 'Batch Delete Confirmation',
         batchDeleteContent: 'Confirm to delete the selected {count} rows?',
         batchDeleteSuccess: 'Batch delete completed',
-        exportSuccess: 'CSV exported successfully'
+        exportSuccess: 'CSV exported successfully',
       },
       complexForm: {
         title: 'Complex Form Example',
@@ -1120,7 +1120,7 @@ export default {
         draftSaved: 'Draft saved',
         serverValidationError: 'Server validation failed: project name cannot contain "fail"',
         submitFailed: 'Submit failed, server field error mapped',
-        submitSuccess: 'Submit successful'
+        submitSuccess: 'Submit successful',
       },
       advancedFilter: {
         title: 'Advanced Filter Builder Example',
@@ -1155,7 +1155,7 @@ export default {
         opLte: 'Less or equal',
         opBetween: 'Between',
         opBefore: 'Before',
-        opAfter: 'After'
+        opAfter: 'After',
       },
       virtualTable: {
         title: 'Virtual Scroll Table Example',
@@ -1177,7 +1177,7 @@ export default {
         colEmail: 'Email',
         colDepartment: 'Department',
         colStatus: 'Status',
-        colUpdatedAt: 'Updated At'
+        colUpdatedAt: 'Updated At',
       },
       masterDetail: {
         title: 'Master-Detail Example',
@@ -1206,7 +1206,7 @@ export default {
         colOwner: 'Owner',
         colPriority: 'Priority',
         colStatus: 'Status',
-        colCreatedAt: 'Created At'
+        colCreatedAt: 'Created At',
       },
       rbac: {
         title: 'RBAC Full-Chain Example',
@@ -1243,7 +1243,7 @@ export default {
         missingPermission: '403: Missing permission {permission}',
         apiSuccess: '{action} successful',
         apiFailed: '{action} failed: {error}',
-        noPermission: 'No permission'
+        noPermission: 'No permission',
       },
       observability: {
         title: 'Observability & Exception Example',
@@ -1270,7 +1270,7 @@ export default {
         eventEmpty: 'Request successful but returned empty data',
         eventSuccess: 'Request successful and returned data',
         unknownError: 'Unknown error',
-        eventError: 'Request failed ({type}): {message}'
+        eventError: 'Request failed ({type}): {message}',
       },
       requestAuth: {
         title: 'Request & Auth Loop Example',
@@ -1307,8 +1307,8 @@ export default {
         concurrentPartialFail: 'Concurrent requests completed, {count} failed',
         concurrentAllSuccess: 'All concurrent requests successful',
         logRefreshWillFail: 'Next refresh will be forced to fail',
-        refreshFailTriggered: 'Refresh failure scenario triggered'
-      }
+        refreshFailTriggered: 'Refresh failure scenario triggered',
+      },
     },
     jsonInput: {
       title: 'JSON Input Example',
@@ -1323,10 +1323,10 @@ export default {
       stock: 'Stock',
       productDescription: 'Description',
       selectProduct: 'Select Product',
-advancedUsage: 'Advanced Usage',
-withI18nKeys: 'Key Internationalization Support',
-i18nKeysHint: 'Use label-map prop to provide i18n labels for keys',
-withDisabledFields: 'With Disabled Fields',
+      advancedUsage: 'Advanced Usage',
+      withI18nKeys: 'Key Internationalization Support',
+      i18nKeysHint: 'Use label-map prop to provide i18n labels for keys',
+      withDisabledFields: 'With Disabled Fields',
       apiKey: 'API Key',
       endpoint: 'Endpoint',
       timeout: 'Timeout (seconds)',
@@ -1339,7 +1339,7 @@ withDisabledFields: 'With Disabled Fields',
       language: 'Language',
       nestedData: 'Nested Data Structure',
       emptyObject: 'Empty Object (Create New)',
-      createNew: 'Create New Configuration'
+      createNew: 'Create New Configuration',
     },
     i18nInput: {
       description: 'Internationalized input component supporting multi-language content editing. Built on top of JsonInput, it automatically generates form fields based on system-supported languages.',
@@ -1358,7 +1358,7 @@ withDisabledFields: 'With Disabled Fields',
       showAsString: 'Show as String',
       showAsObject: 'Show as Object',
       stringValue: 'String Format',
-      objectValue: 'Object Format'
-    }
-  }
+      objectValue: 'Object Format',
+    },
+  },
 }

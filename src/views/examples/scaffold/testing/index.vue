@@ -1,37 +1,3 @@
-<template>
-  <div class="page-container">
-    <div class="card mb-lg">
-      <h2>{{ $t('examples.scaffold.testing.title') }}</h2>
-      <p class="text-secondary">{{ $t('examples.scaffold.testing.description') }}</p>
-
-      <a-alert
-        type="info"
-        show-icon
-        :message="$t('examples.scaffold.testing.alertMessage')"
-      />
-    </div>
-
-    <div class="card mb-lg">
-      <div class="section-title">{{ $t('examples.scaffold.testing.unitTestTitle') }}</div>
-      <pre class="code-block"><code>{{ unitCode }}</code></pre>
-    </div>
-
-    <div class="card mb-lg">
-      <div class="section-title">{{ $t('examples.scaffold.testing.e2eTestTitle') }}</div>
-      <pre class="code-block"><code>{{ e2eCode }}</code></pre>
-    </div>
-
-    <div class="card">
-      <div class="section-title">{{ $t('examples.scaffold.testing.implementationTitle') }}</div>
-      <a-steps direction="vertical" size="small">
-        <a-step :title="$t('examples.scaffold.testing.step1Title')" :description="$t('examples.scaffold.testing.step1Description')" />
-        <a-step :title="$t('examples.scaffold.testing.step2Title')" :description="$t('examples.scaffold.testing.step2Description')" />
-        <a-step :title="$t('examples.scaffold.testing.step3Title')" :description="$t('examples.scaffold.testing.step3Description')" />
-      </a-steps>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 const unitCode = `import { describe, expect, it } from 'vitest'
 
@@ -67,6 +33,48 @@ test('login and filter users by keyword', async ({ page }) => {
   await expect(page.locator('table')).toContainText('admin')
 })`
 </script>
+
+<template>
+  <div class="page-container">
+    <div class="card mb-lg">
+      <h2>{{ $t('examples.scaffold.testing.title') }}</h2>
+      <p class="text-secondary">
+        {{ $t('examples.scaffold.testing.description') }}
+      </p>
+
+      <a-alert
+        type="info"
+        show-icon
+        :message="$t('examples.scaffold.testing.alertMessage')"
+      />
+    </div>
+
+    <div class="card mb-lg">
+      <div class="section-title">
+        {{ $t('examples.scaffold.testing.unitTestTitle') }}
+      </div>
+      <pre class="code-block"><code>{{ unitCode }}</code></pre>
+    </div>
+
+    <div class="card mb-lg">
+      <div class="section-title">
+        {{ $t('examples.scaffold.testing.e2eTestTitle') }}
+      </div>
+      <pre class="code-block"><code>{{ e2eCode }}</code></pre>
+    </div>
+
+    <div class="card">
+      <div class="section-title">
+        {{ $t('examples.scaffold.testing.implementationTitle') }}
+      </div>
+      <a-steps direction="vertical" size="small">
+        <a-step :title="$t('examples.scaffold.testing.step1Title')" :description="$t('examples.scaffold.testing.step1Description')" />
+        <a-step :title="$t('examples.scaffold.testing.step2Title')" :description="$t('examples.scaffold.testing.step2Description')" />
+        <a-step :title="$t('examples.scaffold.testing.step3Title')" :description="$t('examples.scaffold.testing.step3Description')" />
+      </a-steps>
+    </div>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .mb-lg {

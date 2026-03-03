@@ -1,24 +1,5 @@
-<template>
-  <div class="puzzle-captcha" ref="containerRef" :style="{ width: typeof width === 'number' ? width + 'px' : width }">
-    <div class="puzzle-img-wrapper" :style="{ height: currentHeight + 'px' }">
-      <canvas ref="mainCanvasRef" :width="currentWidth" :height="currentHeight" class="puzzle-main"></canvas>
-      <canvas ref="moveCanvasRef" class="puzzle-move" :style="{ left: `${sliderLeft}px`, height: `${currentHeight}px` }"></canvas>
-      <div v-if="loading" class="loading-mask">Loading...</div>
-      <div v-if="isSuccess" class="success-mask">
-        <span class="success-icon">✔</span>
-      </div>
-    </div>
-    <div class="puzzle-slider" ref="sliderContainerRef">
-      <div class="slider-track"></div>
-      <div class="slider-handle" :style="{ left: `${sliderLeft}px` }" @mousedown="handleMouseDown">
-        <span>→</span>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 interface Props {
   width?: number | string
@@ -31,7 +12,7 @@ const props = withDefaults(defineProps<Props>(), {
   width: '100%',
   height: 160,
   src: 'https://picsum.photos/320/160',
-  tolerance: 5
+  tolerance: 5,
 })
 
 const emit = defineEmits(['success', 'fail'])
@@ -53,7 +34,7 @@ const l = 42
 const r = 9
 const PI = Math.PI
 
-const drawPuzzleShape = (ctx: CanvasRenderingContext2D, x: number, y: number, operation: 'fill' | 'clip') => {
+function drawPuzzleShape(ctx: CanvasRenderingContext2D, x: number, y: number, operation: 'fill' | 'clip') {
   ctx.beginPath()
   ctx.moveTo(x, y)
   ctx.lineTo(x + l / 2, y)
@@ -71,16 +52,19 @@ const drawPuzzleShape = (ctx: CanvasRenderingContext2D, x: number, y: number, op
   ctx.globalCompositeOperation = 'destination-over'
   if (operation === 'fill') {
     ctx.fill()
-  } else {
+  }
+  else {
     ctx.clip()
   }
 }
 
-const init = () => {
-  if (!mainCanvasRef.value || !moveCanvasRef.value) return
+function init() {
+  if (!mainCanvasRef.value || !moveCanvasRef.value)
+    return
   const mainCtx = mainCanvasRef.value.getContext('2d')
   const moveCtx = moveCanvasRef.value.getContext('2d')
-  if (!mainCtx || !moveCtx) return
+  if (!mainCtx || !moveCtx)
+    return
 
   loading.value = true
   isSuccess.value = false
@@ -96,7 +80,8 @@ const init = () => {
       // If props.height is a number, use it. If string/auto, calculate from ratio
       if (typeof props.height === 'number') {
         currentHeight.value = props.height
-      } else {
+      }
+      else {
         currentHeight.value = Math.floor(w * ratio)
       }
     }
@@ -119,7 +104,7 @@ const init = () => {
 
   const img = new Image()
   img.crossOrigin = 'Anonymous'
-  img.src = props.src + '?t=' + new Date().getTime()
+  img.src = `${props.src}?t=${new Date().getTime()}`
   img.onload = () => {
     // Draw puzzle piece
     drawPuzzleShape(moveCtx, targetX.value, targetY, 'clip')
@@ -158,14 +143,16 @@ onBeforeUnmount(() => {
   }
 })
 
-const handleMouseDown = (e: MouseEvent) => {
-  if (isSuccess.value || loading.value) return
+function handleMouseDown(e: MouseEvent) {
+  if (isSuccess.value || loading.value)
+    return
   isMoving.value = true
   const startX = e.clientX
   const startLeft = sliderLeft.value
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (!isMoving.value) return
+    if (!isMoving.value)
+      return
     const deltaX = e.clientX - startX
     let newLeft = startLeft + deltaX
     // Limit range
@@ -184,7 +171,8 @@ const handleMouseDown = (e: MouseEvent) => {
     if (Math.abs(sliderLeft.value - realTarget) <= props.tolerance) {
       isSuccess.value = true
       emit('success')
-    } else {
+    }
+    else {
       emit('fail')
       // Reset animation
       const animate = () => {
@@ -201,12 +189,33 @@ const handleMouseDown = (e: MouseEvent) => {
   document.addEventListener('mouseup', handleMouseUp)
 }
 
-const reset = () => {
+function reset() {
   init()
 }
 
 defineExpose({ reset })
 </script>
+
+<template>
+  <div ref="containerRef" class="puzzle-captcha" :style="{ width: typeof width === 'number' ? `${width}px` : width }">
+    <div class="puzzle-img-wrapper" :style="{ height: `${currentHeight}px` }">
+      <canvas ref="mainCanvasRef" :width="currentWidth" :height="currentHeight" class="puzzle-main" />
+      <canvas ref="moveCanvasRef" class="puzzle-move" :style="{ left: `${sliderLeft}px`, height: `${currentHeight}px` }" />
+      <div v-if="loading" class="loading-mask">
+        Loading...
+      </div>
+      <div v-if="isSuccess" class="success-mask">
+        <span class="success-icon">✔</span>
+      </div>
+    </div>
+    <div ref="sliderContainerRef" class="puzzle-slider">
+      <div class="slider-track" />
+      <div class="slider-handle" :style="{ left: `${sliderLeft}px` }" @mousedown="handleMouseDown">
+        <span>→</span>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .puzzle-captcha {
@@ -269,7 +278,7 @@ defineExpose({ reset })
   height: 40px;
   background-color: var(--color-bg-container);
   border: 1px solid var(--color-border);
-  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   cursor: grab;
   display: flex;
   align-items: center;

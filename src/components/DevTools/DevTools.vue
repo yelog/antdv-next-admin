@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { BugOutlined } from '@antdv-next/icons'
+import { ref } from 'vue'
 import DebugPanel from './DebugPanel.vue'
 
 const visible = ref(false)

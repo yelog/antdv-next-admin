@@ -7,14 +7,15 @@
  */
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null
 
   return function (this: any, ...args: Parameters<T>) {
     const context = this
 
-    if (timeout) clearTimeout(timeout)
+    if (timeout)
+      clearTimeout(timeout)
 
     timeout = setTimeout(() => {
       func.apply(context, args)
@@ -27,7 +28,7 @@ export function debounce<T extends (...args: any[]) => any>(
  */
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null
   let previous = 0
@@ -43,7 +44,8 @@ export function throttle<T extends (...args: any[]) => any>(
       }
       func.apply(context, args)
       previous = now
-    } else if (!timeout) {
+    }
+    else if (!timeout) {
       timeout = setTimeout(() => {
         func.apply(context, args)
         previous = Date.now()
@@ -65,7 +67,7 @@ export function deepClone<T>(obj: T): T {
     return new Date(obj.getTime()) as any
   }
 
-  if (obj instanceof Array) {
+  if (Array.isArray(obj)) {
     return obj.map(item => deepClone(item)) as any
   }
 
@@ -86,13 +88,14 @@ export function deepClone<T>(obj: T): T {
  * Format file size
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
+  if (bytes === 0)
+    return '0 B'
 
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
+  return `${Math.round((bytes / k ** i) * 100) / 100} ${sizes[i]}`
 }
 
 /**
@@ -118,7 +121,7 @@ export function randomString(length: number = 8): string {
  * Generate UUID
  */
 export function uuid(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0
     const v = c === 'x' ? r : (r & 0x3) | 0x8
     return v.toString(16)
@@ -129,10 +132,14 @@ export function uuid(): string {
  * Check if value is empty
  */
 export function isEmpty(value: any): boolean {
-  if (value === null || value === undefined) return true
-  if (typeof value === 'string') return value.trim().length === 0
-  if (Array.isArray(value)) return value.length === 0
-  if (typeof value === 'object') return Object.keys(value).length === 0
+  if (value === null || value === undefined)
+    return true
+  if (typeof value === 'string')
+    return value.trim().length === 0
+  if (Array.isArray(value))
+    return value.length === 0
+  if (typeof value === 'object')
+    return Object.keys(value).length === 0
   return false
 }
 
@@ -143,9 +150,10 @@ export function parseQuery(url: string): Record<string, string> {
   const query: Record<string, string> = {}
   const queryString = url.split('?')[1]
 
-  if (!queryString) return query
+  if (!queryString)
+    return query
 
-  queryString.split('&').forEach(param => {
+  queryString.split('&').forEach((param) => {
     const [key, value] = param.split('=')
     query[decodeURIComponent(key)] = decodeURIComponent(value || '')
   })
@@ -187,7 +195,8 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(text)
       return true
-    } else {
+    }
+    else {
       // Fallback for older browsers
       const textarea = document.createElement('textarea')
       textarea.value = text
@@ -199,7 +208,8 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       document.body.removeChild(textarea)
       return success
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Failed to copy to clipboard:', error)
     return false
   }
@@ -218,12 +228,14 @@ export function sleep(ms: number): Promise<void> {
 export async function retry<T>(
   fn: () => Promise<T>,
   retries: number = 3,
-  delay: number = 1000
+  delay: number = 1000,
 ): Promise<T> {
   try {
     return await fn()
-  } catch (error) {
-    if (retries === 0) throw error
+  }
+  catch (error) {
+    if (retries === 0)
+      throw error
     await sleep(delay)
     return retry(fn, retries - 1, delay * 2)
   }
@@ -240,7 +252,7 @@ export function getFileExtension(filename: string): string {
  * Validate email
  */
 export function isValidEmail(email: string): boolean {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const re = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/
   return re.test(email)
 }
 
@@ -259,7 +271,8 @@ export function isValidURL(url: string): boolean {
   try {
     new URL(url)
     return true
-  } catch {
+  }
+  catch {
     return false
   }
 }
@@ -268,7 +281,8 @@ export function isValidURL(url: string): boolean {
  * Truncate text with ellipsis
  */
 export function truncate(text: string, length: number, suffix: string = '...'): string {
-  if (text.length <= length) return text
+  if (text.length <= length)
+    return text
   return text.slice(0, length) + suffix
 }
 
@@ -303,9 +317,9 @@ export function camelCase(text: string): string {
  */
 export function getContrastColor(hexColor: string): string {
   const hex = hexColor.replace('#', '')
-  const r = parseInt(hex.substr(0, 2), 16)
-  const g = parseInt(hex.substr(2, 2), 16)
-  const b = parseInt(hex.substr(4, 2), 16)
+  const r = Number.parseInt(hex.substr(0, 2), 16)
+  const g = Number.parseInt(hex.substr(2, 2), 16)
+  const b = Number.parseInt(hex.substr(4, 2), 16)
   const brightness = (r * 299 + g * 587 + b * 114) / 1000
   return brightness > 128 ? '#000000' : '#ffffff'
 }

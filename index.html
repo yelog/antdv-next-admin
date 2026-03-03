@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
@@ -7,13 +7,13 @@
     <title>Antdv Next Admin</title>
     <!-- GitHub Pages SPA 路由重定向处理 -->
     <script>
-      (function() {
-        var redirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
+      ;(function () {
+        var redirect = sessionStorage.redirect
+        delete sessionStorage.redirect
         if (redirect && redirect !== location.href) {
-          history.replaceState(null, null, redirect);
+          history.replaceState(null, null, redirect)
         }
-      })();
+      })()
     </script>
   </head>
   <body>

@@ -1,65 +1,10 @@
-<template>
-  <div class="page-container">
-    <div class="card">
-      <h2>{{ $t('examples.scaffold.uploadSystem.title') }}</h2>
-      <p class="text-secondary mb-lg">{{ $t('examples.scaffold.uploadSystem.description') }}</p>
-
-      <a-space wrap class="mb-md">
-        <a-tag color="processing">{{ $t('examples.scaffold.uploadSystem.uploading') }} {{ uploadingCount }}</a-tag>
-        <a-tag color="success">{{ $t('examples.scaffold.uploadSystem.success') }} {{ doneCount }}</a-tag>
-        <a-tag color="error">{{ $t('examples.scaffold.uploadSystem.failed') }} {{ errorCount }}</a-tag>
-      </a-space>
-
-      <a-upload-dragger
-        class="upload-system-dragger"
-        v-model:file-list="fileList"
-        name="file"
-        multiple
-        :custom-request="customRequest"
-        :accept="'.png,.jpg,.jpeg,.pdf,.csv'"
-        @preview="handlePreview"
-      >
-        <p class="ant-upload-drag-icon">
-          <InboxOutlined />
-        </p>
-        <p class="ant-upload-text">{{ $t('examples.scaffold.uploadSystem.dragText') }}</p>
-        <p class="ant-upload-hint">{{ $t('examples.scaffold.uploadSystem.dragHint') }}</p>
-      </a-upload-dragger>
-
-      <div class="toolbar">
-        <a-space>
-          <a-button :disabled="errorCount === 0" @click="retryFailed">{{ $t('examples.scaffold.uploadSystem.retryButton') }}</a-button>
-          <a-button danger :disabled="fileList.length === 0" @click="clearAll">{{ $t('examples.scaffold.uploadSystem.clearButton') }}</a-button>
-        </a-space>
-        <div class="text-secondary">{{ $t('examples.scaffold.uploadSystem.failureRate') }}{{ Math.round(failureRate * 100) }}%</div>
-      </div>
-
-      <a-slider
-        v-model:value="failureRate"
-        :min="0"
-        :max="0.9"
-        :step="0.05"
-      />
-    </div>
-
-    <a-modal
-      v-model:open="previewOpen"
-      :title="previewTitle"
-      :footer="null"
-      width="720px"
-    >
-      <img :src="previewSrc" alt="preview" class="preview-image" />
-    </a-modal>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed, ref } from 'vue'
 import { InboxOutlined } from '@antdv-next/icons'
 import { message } from 'antdv-next'
+import { computed, ref } from 'vue'
 import { $t } from '@/locales'
 
-type UploadFileItem = {
+interface UploadFileItem {
   uid: string
   name: string
   status?: 'error' | 'success' | 'done' | 'uploading' | 'removed'
@@ -80,7 +25,7 @@ const uploadingCount = computed(() => fileList.value.filter(item => item.status 
 const doneCount = computed(() => fileList.value.filter(item => item.status === 'done' || item.status === 'success').length)
 const errorCount = computed(() => fileList.value.filter(item => item.status === 'error').length)
 
-const getBase64 = (file: File): Promise<string> => {
+function getBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.readAsDataURL(file)
@@ -89,7 +34,7 @@ const getBase64 = (file: File): Promise<string> => {
   })
 }
 
-const markFileState = (uid: string, updater: (item: UploadFileItem) => void) => {
+function markFileState(uid: string, updater: (item: UploadFileItem) => void) {
   const file = fileList.value.find(item => item.uid === uid)
   if (!file) {
     return
@@ -98,14 +43,11 @@ const markFileState = (uid: string, updater: (item: UploadFileItem) => void) => 
   fileList.value = [...fileList.value]
 }
 
-const runUploadTask = (
-  uid: string,
-  callbacks?: {
-    onProgress?: (event: { percent: number }) => void
-    onSuccess?: (response: any) => void
-    onError?: (error: Error) => void
-  }
-) => {
+function runUploadTask(uid: string, callbacks?: {
+  onProgress?: (event: { percent: number }) => void
+  onSuccess?: (response: any) => void
+  onError?: (error: Error) => void
+}) {
   let percent = 0
 
   const timer = window.setInterval(() => {
@@ -152,7 +94,7 @@ const runUploadTask = (
   }, 1400 + Math.round(Math.random() * 900))
 }
 
-const customRequest = (options: any) => {
+function customRequest(options: any) {
   const uid = options.file.uid
 
   runUploadTask(uid, {
@@ -166,11 +108,11 @@ const customRequest = (options: any) => {
     onError: (error) => {
       options.onError?.(error)
       message.error($t('examples.scaffold.uploadSystem.uploadFailedMsg', { name: options.file.name }))
-    }
+    },
   })
 }
 
-const retryFailed = () => {
+function retryFailed() {
   const failedFiles = fileList.value.filter(item => item.status === 'error')
   if (failedFiles.length === 0) {
     return
@@ -183,16 +125,18 @@ const retryFailed = () => {
   message.info($t('examples.scaffold.uploadSystem.retryMsg', { count: failedFiles.length }))
 }
 
-const clearAll = () => {
+function clearAll() {
   fileList.value = []
 }
 
-const handlePreview = async (file: UploadFileItem) => {
+async function handlePreview(file: UploadFileItem) {
   if (file.url) {
     previewSrc.value = file.url
-  } else if (file.originFileObj) {
+  }
+  else if (file.originFileObj) {
     previewSrc.value = await getBase64(file.originFileObj)
-  } else {
+  }
+  else {
     message.warning($t('examples.scaffold.uploadSystem.previewNotSupported'))
     return
   }
@@ -201,6 +145,79 @@ const handlePreview = async (file: UploadFileItem) => {
   previewOpen.value = true
 }
 </script>
+
+<template>
+  <div class="page-container">
+    <div class="card">
+      <h2>{{ $t('examples.scaffold.uploadSystem.title') }}</h2>
+      <p class="text-secondary mb-lg">
+        {{ $t('examples.scaffold.uploadSystem.description') }}
+      </p>
+
+      <a-space wrap class="mb-md">
+        <a-tag color="processing">
+          {{ $t('examples.scaffold.uploadSystem.uploading') }} {{ uploadingCount }}
+        </a-tag>
+        <a-tag color="success">
+          {{ $t('examples.scaffold.uploadSystem.success') }} {{ doneCount }}
+        </a-tag>
+        <a-tag color="error">
+          {{ $t('examples.scaffold.uploadSystem.failed') }} {{ errorCount }}
+        </a-tag>
+      </a-space>
+
+      <a-upload-dragger
+        v-model:file-list="fileList"
+        class="upload-system-dragger"
+        name="file"
+        multiple
+        :custom-request="customRequest"
+        accept=".png,.jpg,.jpeg,.pdf,.csv"
+        @preview="handlePreview"
+      >
+        <p class="ant-upload-drag-icon">
+          <InboxOutlined />
+        </p>
+        <p class="ant-upload-text">
+          {{ $t('examples.scaffold.uploadSystem.dragText') }}
+        </p>
+        <p class="ant-upload-hint">
+          {{ $t('examples.scaffold.uploadSystem.dragHint') }}
+        </p>
+      </a-upload-dragger>
+
+      <div class="toolbar">
+        <a-space>
+          <a-button :disabled="errorCount === 0" @click="retryFailed">
+            {{ $t('examples.scaffold.uploadSystem.retryButton') }}
+          </a-button>
+          <a-button danger :disabled="fileList.length === 0" @click="clearAll">
+            {{ $t('examples.scaffold.uploadSystem.clearButton') }}
+          </a-button>
+        </a-space>
+        <div class="text-secondary">
+          {{ $t('examples.scaffold.uploadSystem.failureRate') }}{{ Math.round(failureRate * 100) }}%
+        </div>
+      </div>
+
+      <a-slider
+        v-model:value="failureRate"
+        :min="0"
+        :max="0.9"
+        :step="0.05"
+      />
+    </div>
+
+    <a-modal
+      v-model:open="previewOpen"
+      :title="previewTitle"
+      :footer="null"
+      width="720px"
+    >
+      <img :src="previewSrc" alt="preview" class="preview-image">
+    </a-modal>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .mb-lg {

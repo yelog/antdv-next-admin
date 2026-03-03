@@ -2,16 +2,14 @@
 
 :root {
   /* ========== Typography ========== */
-  --font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+  --font-family:
+    'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     'Noto Color Emoji';
-  --font-family-number: 'DIN Alternate', 'Bahnschrift', 'Inter', 'Roboto',
-    -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-number:
+    'DIN Alternate', 'Bahnschrift', 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --font-family-code: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono',
-    Consolas, 'Courier New', monospace;
+  --font-family-code: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 
   /* Font Sizes */
   --font-size-xs: 12px;
@@ -104,7 +102,7 @@
   --color-border-secondary: #f0f0f0;
 
   --color-bg-container: #ffffff;
-  --color-bg-layout: #F5F7FA;
+  --color-bg-layout: #f5f7fa;
   --color-bg-mask: rgba(0, 0, 0, 0.45);
 
   /* ========== Z-Index ========== */
@@ -131,7 +129,7 @@
 /* ========== Primary Color Themes ========== */
 
 /* Blue Theme (Default) */
-:root[data-primary-color="blue"] {
+:root[data-primary-color='blue'] {
   --color-primary-1: #e6f7ff;
   --color-primary-2: #bae7ff;
   --color-primary-3: #91d5ff;
@@ -146,7 +144,7 @@
 }
 
 /* Green Theme */
-:root[data-primary-color="green"] {
+:root[data-primary-color='green'] {
   --color-primary-1: #f6ffed;
   --color-primary-2: #d9f7be;
   --color-primary-3: #b7eb8f;
@@ -161,7 +159,7 @@
 }
 
 /* Purple Theme */
-:root[data-primary-color="purple"] {
+:root[data-primary-color='purple'] {
   --color-primary-1: #f9f0ff;
   --color-primary-2: #efdbff;
   --color-primary-3: #d3adf7;
@@ -176,7 +174,7 @@
 }
 
 /* Red Theme */
-:root[data-primary-color="red"] {
+:root[data-primary-color='red'] {
   --color-primary-1: #fff1f0;
   --color-primary-2: #ffccc7;
   --color-primary-3: #ffa39e;
@@ -191,7 +189,7 @@
 }
 
 /* Orange Theme */
-:root[data-primary-color="orange"] {
+:root[data-primary-color='orange'] {
   --color-primary-1: #fff7e6;
   --color-primary-2: #ffe7ba;
   --color-primary-3: #ffd591;
@@ -206,7 +204,7 @@
 }
 
 /* Cyan Theme */
-:root[data-primary-color="cyan"] {
+:root[data-primary-color='cyan'] {
   --color-primary-1: #e6fffb;
   --color-primary-2: #b5f5ec;
   --color-primary-3: #87e8de;

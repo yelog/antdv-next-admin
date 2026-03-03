@@ -20,7 +20,7 @@ class Storage {
    */
   set<T>(key: string, value: T, expire?: number): void {
     const data: StorageData<T> = {
-      value
+      value,
     }
 
     if (expire) {
@@ -47,9 +47,9 @@ class Storage {
 
       // Compatible with wrapped storage format: { value, expire }
       if (
-        typeof data === 'object' &&
-        data !== null &&
-        'value' in data
+        typeof data === 'object'
+        && data !== null
+        && 'value' in data
       ) {
         const wrappedData = data as StorageData<T>
 
@@ -64,7 +64,8 @@ class Storage {
 
       // Compatible with plain values stored by native localStorage APIs
       return data as T
-    } catch (error) {
+    }
+    catch (error) {
       // Compatible with plain string values (e.g. legacy token format)
       return item as unknown as T
     }
@@ -119,7 +120,7 @@ class EncryptedStorage extends Storage {
     let result = ''
     for (let i = 0; i < text.length; i++) {
       result += String.fromCharCode(
-        text.charCodeAt(i) ^ this.encryptionKey.charCodeAt(i % this.encryptionKey.length)
+        text.charCodeAt(i) ^ this.encryptionKey.charCodeAt(i % this.encryptionKey.length),
       )
     }
     return btoa(result)
@@ -131,11 +132,12 @@ class EncryptedStorage extends Storage {
       let result = ''
       for (let i = 0; i < text.length; i++) {
         result += String.fromCharCode(
-          text.charCodeAt(i) ^ this.encryptionKey.charCodeAt(i % this.encryptionKey.length)
+          text.charCodeAt(i) ^ this.encryptionKey.charCodeAt(i % this.encryptionKey.length),
         )
       }
       return result
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Decryption failed:', error)
       return ''
     }
@@ -143,7 +145,7 @@ class EncryptedStorage extends Storage {
 
   set<T>(key: string, value: T, expire?: number): void {
     const data: StorageData<T> = {
-      value
+      value,
     }
 
     if (expire) {
@@ -172,7 +174,8 @@ class EncryptedStorage extends Storage {
       }
 
       return data.value
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Failed to parse encrypted storage item:', error)
       return defaultValue ?? null
     }

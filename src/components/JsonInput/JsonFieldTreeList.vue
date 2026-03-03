@@ -1,3 +1,168 @@
+<script setup lang="ts">
+import type { PropType } from 'vue'
+import {
+  CaretDownOutlined,
+  CaretRightOutlined,
+  DeleteOutlined,
+  HolderOutlined,
+  PlusOutlined,
+} from '@antdv-next/icons'
+import { computed } from 'vue'
+import draggable from 'vuedraggable'
+
+defineOptions({
+  name: 'JsonFieldTreeList',
+})
+
+const props = defineProps({
+  path: {
+    type: Array as PropType<string[]>,
+    required: true,
+  },
+  depth: {
+    type: Number,
+    default: 0,
+  },
+  allowAdd: {
+    type: Boolean,
+    default: true,
+  },
+  allowDelete: {
+    type: Boolean,
+    default: true,
+  },
+  allowSort: {
+    type: Boolean,
+    default: true,
+  },
+  hoveredPathKey: {
+    type: String,
+    default: '',
+  },
+  draggingPathKey: {
+    type: String,
+    default: '',
+  },
+  api: {
+    type: Object as PropType<JsonTreeEditorApi>,
+    required: true,
+  },
+})
+
+const emit = defineEmits<{
+  (e: 'hover-change', pathKey: string): void
+  (e: 'request-add-field', path: string[]): void
+  (e: 'remove-field', payload: RemoveFieldPayload): void
+  (e: 'drag-start', payload: DragStartPayload): void
+  (e: 'drag-end'): void
+}>()
+
+export type FieldType = 'string' | 'number' | 'boolean' | 'tags' | 'array' | 'object'
+
+export interface JsonObject {
+  [key: string]: unknown
+}
+
+export interface FieldConfig {
+  type?: FieldType
+  component?: 'input' | 'textarea'
+  label?: string
+  min?: number
+  max?: number
+  maxLength?: number
+  activeLabel?: string
+  inactiveLabel?: string
+}
+
+export interface JsonTreeEditorApi {
+  getObjectByPath: (path: string[]) => JsonObject | null
+  getFieldOrderByPath: (path: string[]) => string[]
+  setFieldOrderByPath: (path: string[], order: string[]) => void
+  getFieldPath: (path: string[], key: string) => string[]
+  getFieldPathKey: (path: string[], key: string) => string
+  getFieldLabelByPath: (path: string[], key: string) => string
+  hasLabelMapByPath: (path: string[], key: string) => boolean
+  getFieldTypeByPath: (path: string[], key: string) => FieldType
+  getFieldConfigByPath: (path: string[], key: string) => FieldConfig | undefined
+  isLongTextFieldByPath: (path: string[], key: string) => boolean
+  isFieldDisabledByPath: (path: string[], key: string) => boolean
+  isFieldReadonlyByPath: (path: string[], key: string) => boolean
+  getObjectSummaryByPath: (path: string[], key: string) => string
+  getArrayFieldTextByPath: (path: string[], key: string) => string
+  onArrayTextChangeByPath: (path: string[], key: string, value: string) => void
+  validateArrayByPath: (path: string[], key: string) => void
+  isPathExpanded: (path: string[]) => boolean
+  togglePathExpanded: (path: string[]) => void
+}
+
+interface RemoveFieldPayload {
+  path: string[]
+  key: string
+}
+
+interface DragStartPayload {
+  path: string[]
+  oldIndex?: number
+}
+
+const currentObject = computed<JsonObject | null>(() => props.api.getObjectByPath(props.path))
+
+const fieldOrder = computed<string[]>({
+  get: () => props.api.getFieldOrderByPath(props.path),
+  set: order => props.api.setFieldOrderByPath(props.path, order),
+})
+
+function getFieldItemKey(key: string): string {
+  return key
+}
+
+function getFieldPath(key: string): string[] {
+  return props.api.getFieldPath(props.path, key)
+}
+
+function getFieldPathKey(key: string): string {
+  return props.api.getFieldPathKey(props.path, key)
+}
+
+function isObjectField(key: string): boolean {
+  return props.api.getFieldTypeByPath(props.path, key) === 'object'
+}
+
+function isFieldExpanded(key: string): boolean {
+  return props.api.isPathExpanded(getFieldPath(key))
+}
+
+function toggleFieldExpand(key: string) {
+  props.api.togglePathExpanded(getFieldPath(key))
+}
+
+function removeField(key: string) {
+  emit('remove-field', {
+    path: [...props.path],
+    key,
+  })
+}
+
+function requestAddField() {
+  emit('request-add-field', [...props.path])
+}
+
+function handleHover(pathKey: string) {
+  emit('hover-change', pathKey)
+}
+
+function handleDragStart(event: { oldIndex?: number }) {
+  emit('drag-start', {
+    path: [...props.path],
+    oldIndex: event.oldIndex,
+  })
+}
+
+function handleDragEnd() {
+  emit('drag-end')
+}
+</script>
+
 <template>
   <div class="field-tree-level">
     <draggable
@@ -14,13 +179,13 @@
             class="field-row"
             :class="{
               'is-dragging': draggingPathKey === getFieldPathKey(key),
-              'is-hovered': hoveredPathKey === getFieldPathKey(key)
+              'is-hovered': hoveredPathKey === getFieldPathKey(key),
             }"
             :style="{ paddingLeft: `${12 + depth * 20}px` }"
             @mouseenter="handleHover(getFieldPathKey(key))"
             @mouseleave="handleHover('')"
           >
-            <div class="drag-handle" v-if="allowSort">
+            <div v-if="allowSort" class="drag-handle">
               <HolderOutlined />
             </div>
 
@@ -37,8 +202,12 @@
             <div v-else class="expand-placeholder" />
 
             <div class="field-label-section">
-              <div class="field-label">{{ api.getFieldLabelByPath(path, key) }}</div>
-              <div v-if="api.hasLabelMapByPath(path, key)" class="field-key">{{ key }}</div>
+              <div class="field-label">
+                {{ api.getFieldLabelByPath(path, key) }}
+              </div>
+              <div v-if="api.hasLabelMapByPath(path, key)" class="field-key">
+                {{ key }}
+              </div>
             </div>
 
             <div class="field-input-section">
@@ -168,170 +337,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, type PropType } from 'vue'
-import {
-  HolderOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-  CaretDownOutlined,
-  CaretRightOutlined
-} from '@antdv-next/icons'
-import draggable from 'vuedraggable'
-
-defineOptions({
-  name: 'JsonFieldTreeList'
-})
-
-export type FieldType = 'string' | 'number' | 'boolean' | 'tags' | 'array' | 'object'
-
-export interface JsonObject {
-  [key: string]: unknown
-}
-
-export interface FieldConfig {
-  type?: FieldType
-  component?: 'input' | 'textarea'
-  label?: string
-  min?: number
-  max?: number
-  maxLength?: number
-  activeLabel?: string
-  inactiveLabel?: string
-}
-
-export interface JsonTreeEditorApi {
-  getObjectByPath: (path: string[]) => JsonObject | null
-  getFieldOrderByPath: (path: string[]) => string[]
-  setFieldOrderByPath: (path: string[], order: string[]) => void
-  getFieldPath: (path: string[], key: string) => string[]
-  getFieldPathKey: (path: string[], key: string) => string
-  getFieldLabelByPath: (path: string[], key: string) => string
-  hasLabelMapByPath: (path: string[], key: string) => boolean
-  getFieldTypeByPath: (path: string[], key: string) => FieldType
-  getFieldConfigByPath: (path: string[], key: string) => FieldConfig | undefined
-  isLongTextFieldByPath: (path: string[], key: string) => boolean
-  isFieldDisabledByPath: (path: string[], key: string) => boolean
-  isFieldReadonlyByPath: (path: string[], key: string) => boolean
-  getObjectSummaryByPath: (path: string[], key: string) => string
-  getArrayFieldTextByPath: (path: string[], key: string) => string
-  onArrayTextChangeByPath: (path: string[], key: string, value: string) => void
-  validateArrayByPath: (path: string[], key: string) => void
-  isPathExpanded: (path: string[]) => boolean
-  togglePathExpanded: (path: string[]) => void
-}
-
-interface RemoveFieldPayload {
-  path: string[]
-  key: string
-}
-
-interface DragStartPayload {
-  path: string[]
-  oldIndex?: number
-}
-
-const props = defineProps({
-  path: {
-    type: Array as PropType<string[]>,
-    required: true
-  },
-  depth: {
-    type: Number,
-    default: 0
-  },
-  allowAdd: {
-    type: Boolean,
-    default: true
-  },
-  allowDelete: {
-    type: Boolean,
-    default: true
-  },
-  allowSort: {
-    type: Boolean,
-    default: true
-  },
-  hoveredPathKey: {
-    type: String,
-    default: ''
-  },
-  draggingPathKey: {
-    type: String,
-    default: ''
-  },
-  api: {
-    type: Object as PropType<JsonTreeEditorApi>,
-    required: true
-  }
-})
-
-const emit = defineEmits<{
-  (e: 'hover-change', pathKey: string): void
-  (e: 'request-add-field', path: string[]): void
-  (e: 'remove-field', payload: RemoveFieldPayload): void
-  (e: 'drag-start', payload: DragStartPayload): void
-  (e: 'drag-end'): void
-}>()
-
-const currentObject = computed<JsonObject | null>(() => props.api.getObjectByPath(props.path))
-
-const fieldOrder = computed<string[]>({
-  get: () => props.api.getFieldOrderByPath(props.path),
-  set: (order) => props.api.setFieldOrderByPath(props.path, order)
-})
-
-function getFieldItemKey(key: string): string {
-  return key
-}
-
-function getFieldPath(key: string): string[] {
-  return props.api.getFieldPath(props.path, key)
-}
-
-function getFieldPathKey(key: string): string {
-  return props.api.getFieldPathKey(props.path, key)
-}
-
-function isObjectField(key: string): boolean {
-  return props.api.getFieldTypeByPath(props.path, key) === 'object'
-}
-
-function isFieldExpanded(key: string): boolean {
-  return props.api.isPathExpanded(getFieldPath(key))
-}
-
-function toggleFieldExpand(key: string) {
-  props.api.togglePathExpanded(getFieldPath(key))
-}
-
-function removeField(key: string) {
-  emit('remove-field', {
-    path: [...props.path],
-    key
-  })
-}
-
-function requestAddField() {
-  emit('request-add-field', [...props.path])
-}
-
-function handleHover(pathKey: string) {
-  emit('hover-change', pathKey)
-}
-
-function handleDragStart(event: { oldIndex?: number }) {
-  emit('drag-start', {
-    path: [...props.path],
-    oldIndex: event.oldIndex
-  })
-}
-
-function handleDragEnd() {
-  emit('drag-end')
-}
-</script>
 
 <style scoped lang="scss">
 .field-tree-level {

@@ -1,3 +1,215 @@
+<script setup lang="ts">
+import type { Department } from '@/types/dept'
+import type { ProDescriptionItem, ProStatusMap, ProTableColumn } from '@/types/pro'
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@antdv-next/icons'
+import { message, Modal } from 'antdv-next'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { createDept, deleteDept, getDeptList, getDeptTree, updateDept } from '@/api/dept'
+import ProDescriptions from '@/components/Pro/ProDescriptions/index.vue'
+import ProSplitLayout from '@/components/Pro/ProSplitLayout/index.vue'
+import ProStatus from '@/components/Pro/ProStatus/index.vue'
+import ProTable from '@/components/Pro/ProTable/index.vue'
+
+const { t } = useI18n()
+
+const deptStatusMap = computed<ProStatusMap>(() => ({
+  enabled: { text: t('dept.enabled'), color: '#52c41a' },
+  disabled: { text: t('dept.disabled'), color: '#bfbfbf' },
+}))
+
+const searchText = ref('')
+const treeData = ref<Department[]>([])
+const flatList = ref<Department[]>([])
+const selectedKeys = ref<string[]>([])
+
+const selectedDept = computed(() => {
+  if (!selectedKeys.value.length)
+    return null
+  return flatList.value.find(d => d.id === selectedKeys.value[0]) || null
+})
+
+const childDepts = computed(() => {
+  if (!selectedDept.value)
+    return []
+  return flatList.value
+    .filter(d => d.parentId === selectedDept.value!.id)
+    .sort((a, b) => a.sort - b.sort)
+})
+
+const parentTreeData = computed(() => {
+  const root: Department = { id: '', name: t('dept.noneTopLevelDept'), parentId: null, sort: 0, status: 'enabled', createTime: '', updateTime: '' }
+  return [{ ...root, children: treeData.value }]
+})
+
+// modal
+const modalVisible = ref(false)
+const modalTitle = computed(() => form.value.id ? t('dept.editDept') : t('dept.createDept'))
+const form = ref<Partial<Department>>({
+  name: '',
+  parentId: null,
+  leader: '',
+  phone: '',
+  email: '',
+  sort: 0,
+  status: 'enabled',
+  remark: '',
+})
+
+const childColumns = computed<ProTableColumn[]>(() => [
+  { title: t('dept.deptName'), dataIndex: 'name', key: 'name' },
+  { title: t('dept.leader'), dataIndex: 'leader', key: 'leader', width: 100 },
+  { title: t('dept.sort'), dataIndex: 'sort', key: 'sort', width: 70 },
+  { title: t('dept.status'), dataIndex: 'status', key: 'status', width: 80 },
+  { title: t('common.actions'), key: 'action', width: 120 },
+])
+
+const deptDescColumns = computed<ProDescriptionItem[]>(() => [
+  { label: t('dept.deptName'), dataIndex: 'name' },
+  { label: t('dept.parentDept'), dataIndex: 'parentName' },
+  { label: t('dept.leader'), dataIndex: 'leader' },
+  { label: t('dept.phone'), dataIndex: 'phone' },
+  { label: t('dept.email'), dataIndex: 'email' },
+  { label: t('dept.sort'), dataIndex: 'sort' },
+  { label: t('dept.createTime'), dataIndex: 'createTime' },
+  { label: t('dept.updateTime'), dataIndex: 'updateTime' },
+  { label: t('dept.remark'), dataIndex: 'remark', span: 2 },
+])
+
+const deptDescData = computed(() => {
+  if (!selectedDept.value)
+    return {}
+  return {
+    ...selectedDept.value,
+    parentName: getParentName(selectedDept.value.parentId),
+  }
+})
+
+function getParentName(parentId: string | null) {
+  if (!parentId)
+    return t('dept.noneTopLevel')
+  return flatList.value.find(d => d.id === parentId)?.name || '-'
+}
+
+function selectDept(id: string) {
+  selectedKeys.value = [id]
+}
+
+async function loadChildDepts() {
+  return {
+    data: childDepts.value,
+    total: childDepts.value.length,
+    success: true,
+  }
+}
+
+async function loadDeptTree() {
+  try {
+    const params: any = {}
+    if (searchText.value)
+      params.name = searchText.value
+    const [treeRes, listRes] = await Promise.all([
+      getDeptTree(params) as any,
+      getDeptList() as any,
+    ])
+    if (treeRes.code === 200)
+      treeData.value = treeRes.data
+    if (listRes.code === 200)
+      flatList.value = listRes.data
+    // select first by default
+    if (!selectedKeys.value.length && treeData.value.length) {
+      selectedKeys.value = [treeData.value[0].id]
+    }
+  }
+  catch (error) {
+    console.error(t('dept.loadDataFailed'), error)
+  }
+}
+
+function handleTreeSelect(keys: string[]) {
+  if (keys.length)
+    selectedKeys.value = keys
+}
+
+function handleAdd(parentId: string | null) {
+  form.value = {
+    name: '',
+    parentId,
+    leader: '',
+    phone: '',
+    email: '',
+    sort: 0,
+    status: 'enabled',
+    remark: '',
+  }
+  modalVisible.value = true
+}
+
+function handleEdit(dept: Department) {
+  form.value = { ...dept }
+  modalVisible.value = true
+}
+
+function handleDelete(dept: Department) {
+  const hasChildren = flatList.value.some(d => d.parentId === dept.id)
+  if (hasChildren) {
+    message.warning(t('dept.hasChildrenWarning'))
+    return
+  }
+  Modal.confirm({
+    title: t('dept.confirmDelete'),
+    content: t('dept.confirmDeleteContent', { name: dept.name }),
+    onOk: async () => {
+      try {
+        const response = await deleteDept(dept.id) as any
+        if (response.code === 200) {
+          message.success(t('dept.deleteSuccess'))
+          selectedKeys.value = []
+          loadDeptTree()
+        }
+        else {
+          message.error(response.message || t('dept.deleteFailed'))
+        }
+      }
+      catch (error) {
+        message.error(t('dept.deleteFailed'))
+      }
+    },
+  })
+}
+
+async function handleSubmit() {
+  if (!form.value.name) {
+    message.warning(t('dept.pleaseEnterDeptName'))
+    return
+  }
+  try {
+    if (form.value.id) {
+      const response = await updateDept(form.value.id, form.value) as any
+      if (response.code === 200) {
+        message.success(t('dept.updateSuccess'))
+        modalVisible.value = false
+        loadDeptTree()
+      }
+    }
+    else {
+      const response = await createDept(form.value) as any
+      if (response.code === 200) {
+        message.success(t('dept.createSuccess'))
+        modalVisible.value = false
+        loadDeptTree()
+      }
+    }
+  }
+  catch (error) {
+    message.error(t('dept.operateFailed'))
+  }
+}
+
+// init
+loadDeptTree()
+</script>
+
 <template>
   <div class="page-container">
     <ProSplitLayout :side-width="280">
@@ -6,7 +218,9 @@
         <div class="dept-tree-header">
           <h3>{{ t('dept.organizationStructure') }}</h3>
           <a-button type="primary" size="small" @click="handleAdd(null)">
-            <template #icon><PlusOutlined /></template>
+            <template #icon>
+              <PlusOutlined />
+            </template>
             {{ t('common.add') }}
           </a-button>
         </div>
@@ -49,15 +263,21 @@
             </div>
             <a-space>
               <a-button type="primary" size="small" @click="handleAdd(selectedDept.id)">
-                <template #icon><PlusOutlined /></template>
+                <template #icon>
+                  <PlusOutlined />
+                </template>
                 {{ t('dept.addChildDept') }}
               </a-button>
               <a-button size="small" @click="handleEdit(selectedDept)">
-                <template #icon><EditOutlined /></template>
+                <template #icon>
+                  <EditOutlined />
+                </template>
                 {{ t('common.edit') }}
               </a-button>
               <a-button size="small" danger @click="handleDelete(selectedDept)">
-                <template #icon><DeleteOutlined /></template>
+                <template #icon>
+                  <DeleteOutlined />
+                </template>
                 {{ t('common.delete') }}
               </a-button>
             </a-space>
@@ -80,7 +300,7 @@
               :search="false"
               :pagination="false"
               :toolbar="{
-                title: `${t('dept.childDepts')} (${childDepts.length})`
+                title: `${t('dept.childDepts')} (${childDepts.length})`,
               }"
             >
               <template #bodyCell="{ column, record }">
@@ -89,8 +309,12 @@
                 </template>
                 <template v-if="column.key === 'action'">
                   <a-space :size="4">
-                    <a-button type="link" size="small" @click="selectDept(record.id)">{{ t('common.view') }}</a-button>
-                    <a-button type="link" size="small" @click="handleEdit(record)">{{ t('common.edit') }}</a-button>
+                    <a-button type="link" size="small" @click="selectDept(record.id)">
+                      {{ t('common.view') }}
+                    </a-button>
+                    <a-button type="link" size="small" @click="handleEdit(record)">
+                      {{ t('common.edit') }}
+                    </a-button>
                   </a-space>
                 </template>
               </template>
@@ -107,8 +331,8 @@
     <a-modal
       v-model:open="modalVisible"
       :title="modalTitle"
-      @ok="handleSubmit"
       :width="520"
+      @ok="handleSubmit"
     >
       <a-form :model="form" :label-col="{ span: 6 }" style="margin-top: 16px">
         <a-form-item :label="t('dept.parentDept')">
@@ -138,8 +362,12 @@
         </a-form-item>
         <a-form-item :label="t('dept.status')">
           <a-radio-group v-model:value="form.status">
-            <a-radio value="enabled">{{ t('dept.enabled') }}</a-radio>
-            <a-radio value="disabled">{{ t('dept.disabled') }}</a-radio>
+            <a-radio value="enabled">
+              {{ t('dept.enabled') }}
+            </a-radio>
+            <a-radio value="disabled">
+              {{ t('dept.disabled') }}
+            </a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item :label="t('dept.remark')">
@@ -149,205 +377,6 @@
     </a-modal>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { message, Modal } from 'antdv-next'
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
-import { useI18n } from 'vue-i18n'
-import ProTable from '@/components/Pro/ProTable/index.vue'
-import ProDescriptions from '@/components/Pro/ProDescriptions/index.vue'
-import ProStatus from '@/components/Pro/ProStatus/index.vue'
-import ProSplitLayout from '@/components/Pro/ProSplitLayout/index.vue'
-import type { ProTableColumn, ProDescriptionItem, ProStatusMap } from '@/types/pro'
-import type { Department } from '@/types/dept'
-import { getDeptTree, getDeptList, createDept, updateDept, deleteDept } from '@/api/dept'
-
-const { t } = useI18n()
-
-const deptStatusMap = computed<ProStatusMap>(() => ({
-  enabled: { text: t('dept.enabled'), color: '#52c41a' },
-  disabled: { text: t('dept.disabled'), color: '#bfbfbf' }
-}))
-
-const searchText = ref('')
-const treeData = ref<Department[]>([])
-const flatList = ref<Department[]>([])
-const selectedKeys = ref<string[]>([])
-
-const selectedDept = computed(() => {
-  if (!selectedKeys.value.length) return null
-  return flatList.value.find(d => d.id === selectedKeys.value[0]) || null
-})
-
-const childDepts = computed(() => {
-  if (!selectedDept.value) return []
-  return flatList.value
-    .filter(d => d.parentId === selectedDept.value!.id)
-    .sort((a, b) => a.sort - b.sort)
-})
-
-const parentTreeData = computed(() => {
-  const root: Department = { id: '', name: t('dept.noneTopLevelDept'), parentId: null, sort: 0, status: 'enabled', createTime: '', updateTime: '' }
-  return [{ ...root, children: treeData.value }]
-})
-
-// modal
-const modalVisible = ref(false)
-const modalTitle = computed(() => form.value.id ? t('dept.editDept') : t('dept.createDept'))
-const form = ref<Partial<Department>>({
-  name: '',
-  parentId: null,
-  leader: '',
-  phone: '',
-  email: '',
-  sort: 0,
-  status: 'enabled',
-  remark: ''
-})
-
-const childColumns = computed<ProTableColumn[]>(() => [
-  { title: t('dept.deptName'), dataIndex: 'name', key: 'name' },
-  { title: t('dept.leader'), dataIndex: 'leader', key: 'leader', width: 100 },
-  { title: t('dept.sort'), dataIndex: 'sort', key: 'sort', width: 70 },
-  { title: t('dept.status'), dataIndex: 'status', key: 'status', width: 80 },
-  { title: t('common.actions'), key: 'action', width: 120 }
-])
-
-const deptDescColumns = computed<ProDescriptionItem[]>(() => [
-  { label: t('dept.deptName'), dataIndex: 'name' },
-  { label: t('dept.parentDept'), dataIndex: 'parentName' },
-  { label: t('dept.leader'), dataIndex: 'leader' },
-  { label: t('dept.phone'), dataIndex: 'phone' },
-  { label: t('dept.email'), dataIndex: 'email' },
-  { label: t('dept.sort'), dataIndex: 'sort' },
-  { label: t('dept.createTime'), dataIndex: 'createTime' },
-  { label: t('dept.updateTime'), dataIndex: 'updateTime' },
-  { label: t('dept.remark'), dataIndex: 'remark', span: 2 }
-])
-
-const deptDescData = computed(() => {
-  if (!selectedDept.value) return {}
-  return {
-    ...selectedDept.value,
-    parentName: getParentName(selectedDept.value.parentId)
-  }
-})
-
-const getParentName = (parentId: string | null) => {
-  if (!parentId) return t('dept.noneTopLevel')
-  return flatList.value.find(d => d.id === parentId)?.name || '-'
-}
-
-const selectDept = (id: string) => {
-  selectedKeys.value = [id]
-}
-
-const loadChildDepts = async () => {
-  return {
-    data: childDepts.value,
-    total: childDepts.value.length,
-    success: true
-  }
-}
-
-const loadDeptTree = async () => {
-  try {
-    const params: any = {}
-    if (searchText.value) params.name = searchText.value
-    const [treeRes, listRes] = await Promise.all([
-      getDeptTree(params) as any,
-      getDeptList() as any
-    ])
-    if (treeRes.code === 200) treeData.value = treeRes.data
-    if (listRes.code === 200) flatList.value = listRes.data
-    // select first by default
-    if (!selectedKeys.value.length && treeData.value.length) {
-      selectedKeys.value = [treeData.value[0].id]
-    }
-  } catch (error) {
-    console.error(t('dept.loadDataFailed'), error)
-  }
-}
-
-const handleTreeSelect = (keys: string[]) => {
-  if (keys.length) selectedKeys.value = keys
-}
-
-const handleAdd = (parentId: string | null) => {
-  form.value = {
-    name: '',
-    parentId,
-    leader: '',
-    phone: '',
-    email: '',
-    sort: 0,
-    status: 'enabled',
-    remark: ''
-  }
-  modalVisible.value = true
-}
-
-const handleEdit = (dept: Department) => {
-  form.value = { ...dept }
-  modalVisible.value = true
-}
-
-const handleDelete = (dept: Department) => {
-  const hasChildren = flatList.value.some(d => d.parentId === dept.id)
-  if (hasChildren) {
-    message.warning(t('dept.hasChildrenWarning'))
-    return
-  }
-  Modal.confirm({
-    title: t('dept.confirmDelete'),
-    content: t('dept.confirmDeleteContent', { name: dept.name }),
-    onOk: async () => {
-      try {
-        const response = await deleteDept(dept.id) as any
-        if (response.code === 200) {
-          message.success(t('dept.deleteSuccess'))
-          selectedKeys.value = []
-          loadDeptTree()
-        } else {
-          message.error(response.message || t('dept.deleteFailed'))
-        }
-      } catch (error) {
-        message.error(t('dept.deleteFailed'))
-      }
-    }
-  })
-}
-
-const handleSubmit = async () => {
-  if (!form.value.name) {
-    message.warning(t('dept.pleaseEnterDeptName'))
-    return
-  }
-  try {
-    if (form.value.id) {
-      const response = await updateDept(form.value.id, form.value) as any
-      if (response.code === 200) {
-        message.success(t('dept.updateSuccess'))
-        modalVisible.value = false
-        loadDeptTree()
-      }
-    } else {
-      const response = await createDept(form.value) as any
-      if (response.code === 200) {
-        message.success(t('dept.createSuccess'))
-        modalVisible.value = false
-        loadDeptTree()
-      }
-    }
-  } catch (error) {
-    message.error(t('dept.operateFailed'))
-  }
-}
-
-// init
-loadDeptTree()
-</script>
 
 <style scoped lang="scss">
 // dept tree content

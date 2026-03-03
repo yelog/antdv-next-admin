@@ -1,8 +1,8 @@
-import type { Router, RouteLocationNormalized } from 'vue-router'
+import type { RouteLocationNormalized, Router } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useDictStore } from '@/stores/dict'
 import { usePermissionStore } from '@/stores/permission'
 import { useTabsStore } from '@/stores/tabs'
-import { useDictStore } from '@/stores/dict'
 import { isLoggedIn } from '@/utils/auth'
 import { resolveLocaleText } from '@/utils/i18n'
 import { basicRoutes } from './routes/index'
@@ -28,13 +28,14 @@ function recordMenuHistory(route: RouteLocationNormalized) {
       path: route.path,
       title,
       icon: route.meta?.icon as string,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
 
     const trimmed = filtered.slice(0, MAX_HISTORY_ITEMS)
 
     localStorage.setItem(MENU_HISTORY_KEY, JSON.stringify(trimmed))
-  } catch {
+  }
+  catch {
   }
 }
 
@@ -50,7 +51,8 @@ export function setupRouterGuards(router: Router) {
     const dictStore = useDictStore()
 
     const generateDynamicRoutes = async () => {
-      if (permissionStore.isRoutesGenerated) return
+      if (permissionStore.isRoutesGenerated)
+        return
 
       if (!authStore.user) {
         authStore.initAuth()
@@ -58,10 +60,10 @@ export function setupRouterGuards(router: Router) {
 
       const accessRoutes = await permissionStore.generateRoutes(
         authStore.userRoles,
-        authStore.userPermissions
+        authStore.userPermissions,
       )
 
-      accessRoutes.forEach(route => {
+      accessRoutes.forEach((route) => {
         const routeName = route.name ? String(route.name) : ''
         if (routeName && router.hasRoute(routeName)) {
           return
@@ -74,11 +76,12 @@ export function setupRouterGuards(router: Router) {
     }
 
     const initTabsIfNeeded = () => {
-      if (tabsStore.tabs.length > 0) return
+      if (tabsStore.tabs.length > 0)
+        return
 
       const routeSources = [
         ...basicRoutes,
-        ...(permissionStore.routes as any[])
+        ...(permissionStore.routes as any[]),
       ]
 
       tabsStore.restoreTabsState(routeSources)
@@ -92,7 +95,7 @@ export function setupRouterGuards(router: Router) {
     if (to.meta.title) {
       const title = resolveLocaleText(
         to.meta.title as string,
-        String(to.name || to.path || 'Dashboard')
+        String(to.name || to.path || 'Dashboard'),
       )
       document.title = `${title} - ${import.meta.env.VITE_APP_TITLE || 'Antdv Next Admin'}`
     }
@@ -101,11 +104,11 @@ export function setupRouterGuards(router: Router) {
     // restore dynamic routes first, then retry the original target.
     const redirectedFromPath = to.redirectedFrom?.fullPath
     const shouldRecoverFromNotFound = (
-      to.path === '/404' &&
-      !!redirectedFromPath &&
-      redirectedFromPath !== '/404' &&
-      isLoggedIn() &&
-      !permissionStore.isRoutesGenerated
+      to.path === '/404'
+      && !!redirectedFromPath
+      && redirectedFromPath !== '/404'
+      && isLoggedIn()
+      && !permissionStore.isRoutesGenerated
     )
 
     if (shouldRecoverFromNotFound) {
@@ -114,7 +117,8 @@ export function setupRouterGuards(router: Router) {
         initTabsIfNeeded()
         next({ path: redirectedFromPath, replace: true })
         return
-      } catch (error) {
+      }
+      catch (error) {
         console.error('Failed to recover routes from not found redirect:', error)
         next('/403')
         return
@@ -124,10 +128,10 @@ export function setupRouterGuards(router: Router) {
     // If catch-all redirected to 404 but user is not logged in,
     // redirect to login instead of showing 404
     if (
-      to.path === '/404' &&
-      !!redirectedFromPath &&
-      redirectedFromPath !== '/404' &&
-      !isLoggedIn()
+      to.path === '/404'
+      && !!redirectedFromPath
+      && redirectedFromPath !== '/404'
+      && !isLoggedIn()
     ) {
       next({ path: '/login', query: { redirect: redirectedFromPath } })
       return
@@ -142,7 +146,7 @@ export function setupRouterGuards(router: Router) {
         // Redirect to login page
         next({
           path: '/login',
-          query: { redirect: to.fullPath }
+          query: { redirect: to.fullPath },
         })
         return
       }
@@ -156,7 +160,8 @@ export function setupRouterGuards(router: Router) {
           // Continue to the target route
           next({ ...to, replace: true })
           return
-        } catch (error) {
+        }
+        catch (error) {
           console.error('Failed to generate routes:', error)
           next('/403')
           return

@@ -1,7 +1,7 @@
+import type { Permission } from '@/types/auth'
+import { faker } from '@faker-js/faker'
 import { defineMock } from 'vite-plugin-mock-dev-server'
 import { mockPermissions } from '../data/permissions.data'
-import { faker } from '@faker-js/faker'
-import type { Permission } from '@/types/auth'
 
 const permissionStore: Permission[] = JSON.parse(JSON.stringify(mockPermissions))
 
@@ -10,8 +10,8 @@ const deepClone = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 function findPermissionById(
   permissions: Permission[],
   id: string,
-  parent: Permission | null = null
-): { permission: Permission | null; parent: Permission | null } {
+  parent: Permission | null = null,
+): { permission: Permission | null, parent: Permission | null } {
   for (const permission of permissions) {
     if (permission.id === id) {
       return { permission, parent }
@@ -35,7 +35,7 @@ function removePermissionById(permissions: Permission[], id: string): boolean {
     return true
   }
 
-  return permissions.some(permission => {
+  return permissions.some((permission) => {
     if (!permission.children || permission.children.length === 0) {
       return false
     }
@@ -70,7 +70,7 @@ function filterPermissionTree(
   permissions: Permission[],
   keyword?: string,
   type?: string,
-  status?: string
+  status?: string,
 ): Permission[] {
   const normalizedKeyword = keyword?.toLowerCase().trim()
 
@@ -79,10 +79,10 @@ function filterPermissionTree(
       ? filterPermissionTree(permission.children, keyword, type, status)
       : []
 
-    const matchedKeyword = !normalizedKeyword ||
-      permission.name.toLowerCase().includes(normalizedKeyword) ||
-      String(permission.code || '').toLowerCase().includes(normalizedKeyword) ||
-      (permission.path || '').toLowerCase().includes(normalizedKeyword)
+    const matchedKeyword = !normalizedKeyword
+      || permission.name.toLowerCase().includes(normalizedKeyword)
+      || String(permission.code || '').toLowerCase().includes(normalizedKeyword)
+      || (permission.path || '').toLowerCase().includes(normalizedKeyword)
 
     const matchedType = !type || permission.type === type
     const matchedStatus = !status || (permission.status || 'active') === status
@@ -91,7 +91,7 @@ function filterPermissionTree(
     if (matchedSelf || children.length > 0) {
       result.push({
         ...permission,
-        children: children.length > 0 ? children : undefined
+        children: children.length > 0 ? children : undefined,
       })
     }
 
@@ -109,7 +109,7 @@ function normalizeQueryValue(value: unknown): string | undefined {
   }
 
   const trimmed = value.trim()
-  return trimmed ? trimmed : undefined
+  return trimmed || undefined
 }
 
 export default defineMock([
@@ -128,9 +128,9 @@ export default defineMock([
         code: 200,
         message: 'Success',
         data: deepClone(filtered),
-        success: true
+        success: true,
       }
-    }
+    },
   },
 
   // Get permission tree (for menu)
@@ -142,9 +142,9 @@ export default defineMock([
         code: 200,
         message: 'Success',
         data: deepClone(permissionStore),
-        success: true
+        success: true,
       }
-    }
+    },
   },
 
   // Get permission by ID
@@ -160,7 +160,7 @@ export default defineMock([
           code: 404,
           message: 'Permission not found',
           data: null,
-          success: false
+          success: false,
         }
       }
 
@@ -168,9 +168,9 @@ export default defineMock([
         code: 200,
         message: 'Success',
         data: deepClone(permission),
-        success: true
+        success: true,
       }
-    }
+    },
   },
 
   // Create permission
@@ -194,7 +194,7 @@ export default defineMock([
         sort: payload.sort ?? 0,
         status: payload.status || 'active',
         visible: payload.visible ?? true,
-        children: payload.children && payload.children.length > 0 ? payload.children : undefined
+        children: payload.children && payload.children.length > 0 ? payload.children : undefined,
       }
 
       const appended = appendPermission(permissionStore, permission, payload.parentId)
@@ -203,7 +203,7 @@ export default defineMock([
           code: 400,
           message: 'Parent permission not found',
           data: null,
-          success: false
+          success: false,
         }
       }
 
@@ -211,9 +211,9 @@ export default defineMock([
         code: 200,
         message: 'Permission created successfully',
         data: deepClone(permission),
-        success: true
+        success: true,
       }
-    }
+    },
   },
 
   // Update permission
@@ -230,13 +230,13 @@ export default defineMock([
           code: 404,
           message: 'Permission not found',
           data: null,
-          success: false
+          success: false,
         }
       }
 
       if (
-        payload.parentId !== undefined &&
-        payload.parentId !== permission.parentId
+        payload.parentId !== undefined
+        && payload.parentId !== permission.parentId
       ) {
         const movedPermission = deepClone(permission)
         removePermissionById(permissionStore, id)
@@ -249,7 +249,7 @@ export default defineMock([
             code: 400,
             message: 'Parent permission not found',
             data: null,
-            success: false
+            success: false,
           }
         }
       }
@@ -260,7 +260,7 @@ export default defineMock([
           code: 404,
           message: 'Permission not found',
           data: null,
-          success: false
+          success: false,
         }
       }
 
@@ -271,9 +271,9 @@ export default defineMock([
         code: 200,
         message: 'Permission updated successfully',
         data: deepClone(nextPermission),
-        success: true
+        success: true,
       }
-    }
+    },
   },
 
   // Delete permission
@@ -289,7 +289,7 @@ export default defineMock([
           code: 404,
           message: 'Permission not found',
           data: null,
-          success: false
+          success: false,
         }
       }
 
@@ -297,9 +297,9 @@ export default defineMock([
         code: 200,
         message: 'Permission deleted successfully',
         data: null,
-        success: true
+        success: true,
       }
-    }
+    },
   },
 
   // Get user permissions
@@ -318,17 +318,18 @@ export default defineMock([
           code: 200,
           message: 'Success',
           data: deepClone(permissionStore),
-          success: true
+          success: true,
         }
-      } else {
+      }
+      else {
         // Regular user - limited permissions
         return {
           code: 200,
           message: 'Success',
           data: deepClone(permissionStore.filter(permission => permission.code === 'dashboard.view')),
-          success: true
+          success: true,
         }
       }
-    }
-  }
+    },
+  },
 ])

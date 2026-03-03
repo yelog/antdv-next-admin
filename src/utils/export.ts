@@ -16,17 +16,17 @@ export interface ExportColumn {
 export function exportToCSV(
   columns: ExportColumn[],
   data: any[],
-  filename: string = 'export'
+  filename: string = 'export',
 ) {
   const BOM = '\uFEFF'
   const header = columns.map(col => `"${col.title}"`).join(',')
   const rows = data.map(record =>
-    columns.map(col => {
+    columns.map((col) => {
       const value = col.render
         ? col.render(record[col.dataIndex], record)
         : record[col.dataIndex] ?? ''
       return `"${String(value).replace(/"/g, '""')}"`
-    }).join(',')
+    }).join(','),
   )
 
   const csv = BOM + [header, ...rows].join('\n')
@@ -44,7 +44,7 @@ export function parseCSV(file: File): Promise<string[][]> {
       try {
         const text = (e.target?.result as string).replace(/^\uFEFF/, '')
         const rows = text.split('\n').filter(row => row.trim())
-        const result = rows.map(row => {
+        const result = rows.map((row) => {
           const cells: string[] = []
           let current = ''
           let inQuotes = false
@@ -54,18 +54,23 @@ export function parseCSV(file: File): Promise<string[][]> {
               if (char === '"' && row[i + 1] === '"') {
                 current += '"'
                 i++
-              } else if (char === '"') {
+              }
+              else if (char === '"') {
                 inQuotes = false
-              } else {
+              }
+              else {
                 current += char
               }
-            } else {
+            }
+            else {
               if (char === '"') {
                 inQuotes = true
-              } else if (char === ',') {
+              }
+              else if (char === ',') {
                 cells.push(current.trim())
                 current = ''
-              } else {
+              }
+              else {
                 current += char
               }
             }
@@ -74,7 +79,8 @@ export function parseCSV(file: File): Promise<string[][]> {
           return cells
         })
         resolve(result)
-      } catch (err) {
+      }
+      catch (err) {
         reject(err)
       }
     }

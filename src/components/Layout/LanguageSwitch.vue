@@ -1,25 +1,17 @@
-<template>
-  <a-dropdown :trigger="['click']" placement="bottomRight" :menu="menuProps">
-    <a-button type="text" class="header-action">
-      <GlobalOutlined />
-    </a-button>
-  </a-dropdown>
-</template>
-
 <script setup lang="ts">
-import { computed } from 'vue'
 import { GlobalOutlined } from '@antdv-next/icons'
-import i18n, { setLocale, LOCALE_NATIVE_LABELS } from '@/locales'
+import { computed } from 'vue'
+import i18n, { LOCALE_NATIVE_LABELS, setLocale } from '@/locales'
 
 const currentLocale = computed(() => String(i18n.global.locale.value))
 const localeOptions = computed(() => ([
   { label: LOCALE_NATIVE_LABELS['zh-CN'], value: 'zh-CN' },
   { label: LOCALE_NATIVE_LABELS['en-US'], value: 'en-US' },
   { label: LOCALE_NATIVE_LABELS['ja-JP'], value: 'ja-JP' },
-  { label: LOCALE_NATIVE_LABELS['ko-KR'], value: 'ko-KR' }
+  { label: LOCALE_NATIVE_LABELS['ko-KR'], value: 'ko-KR' },
 ]))
 
-const handleLanguageChange = ({ key }: { key: string | number }) => {
+function handleLanguageChange({ key }: { key: string | number }) {
   const nextLocale = String(key)
   if (!localeOptions.value.some(item => item.value === nextLocale)) {
     return
@@ -33,12 +25,20 @@ const handleLanguageChange = ({ key }: { key: string | number }) => {
 const menuProps = computed(() => ({
   items: localeOptions.value.map(item => ({
     key: item.value,
-    label: item.label
+    label: item.label,
   })),
   selectedKeys: [currentLocale.value],
-  onClick: handleLanguageChange
+  onClick: handleLanguageChange,
 }))
 </script>
+
+<template>
+  <a-dropdown :trigger="['click']" placement="bottomRight" :menu="menuProps">
+    <a-button type="text" class="header-action">
+      <GlobalOutlined />
+    </a-button>
+  </a-dropdown>
+</template>
 
 <style scoped lang="scss">
 :deep(.ant-menu-item-selected) {

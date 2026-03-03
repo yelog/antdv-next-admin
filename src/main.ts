@@ -1,11 +1,11 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
 import AntdvNext from 'antdv-next'
+import { createPinia } from 'pinia'
+import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router'
-import i18n from './locales'
-import { setupDirectives } from './directives'
 import { registerDefaultComponentProps } from './components/Global/defaultComponentProps'
+import { setupDirectives } from './directives'
+import i18n from './locales'
+import router from './router'
 
 // Import global styles
 import 'antdv-next/dist/reset.css'

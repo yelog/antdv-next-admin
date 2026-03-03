@@ -1,11 +1,49 @@
+<script setup lang="ts">
+import type { ProDescriptionItem, ProDetailTab } from '@/types/pro'
+import { ref, watch } from 'vue'
+import ProDescriptions from '../ProDescriptions/index.vue'
+
+interface Props {
+  title?: string
+  subTitle?: string
+  tags?: Array<{ text: string, color?: string }>
+  descriptions?: ProDescriptionItem[]
+  data?: Record<string, any>
+  descriptionColumn?: number
+  tabs?: ProDetailTab[]
+  activeTab?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  descriptionColumn: 2,
+})
+
+const emit = defineEmits(['update:activeTab'])
+
+const currentTab = ref(props.activeTab || props.tabs?.[0]?.key || '')
+
+watch(() => props.activeTab, (val) => {
+  if (val)
+    currentTab.value = val
+})
+
+watch(currentTab, (val) => {
+  emit('update:activeTab', val)
+})
+</script>
+
 <template>
   <div class="pro-detail">
     <!-- Header -->
     <div v-if="title || subTitle || tags?.length || $slots.extra" class="pro-detail-header">
       <div class="pro-detail-header-main">
-        <h3 v-if="title" class="pro-detail-title">{{ title }}</h3>
+        <h3 v-if="title" class="pro-detail-title">
+          {{ title }}
+        </h3>
         <span v-if="subTitle" class="pro-detail-subtitle">{{ subTitle }}</span>
-        <a-tag v-for="tag in tags" :key="tag.text" :color="tag.color">{{ tag.text }}</a-tag>
+        <a-tag v-for="tag in tags" :key="tag.text" :color="tag.color">
+          {{ tag.text }}
+        </a-tag>
       </div>
       <div v-if="$slots.extra" class="pro-detail-extra">
         <slot name="extra" />
@@ -41,39 +79,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import ProDescriptions from '../ProDescriptions/index.vue'
-import type { ProDescriptionItem, ProDetailTab } from '@/types/pro'
-
-interface Props {
-  title?: string
-  subTitle?: string
-  tags?: Array<{ text: string; color?: string }>
-  descriptions?: ProDescriptionItem[]
-  data?: Record<string, any>
-  descriptionColumn?: number
-  tabs?: ProDetailTab[]
-  activeTab?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  descriptionColumn: 2
-})
-
-const emit = defineEmits(['update:activeTab'])
-
-const currentTab = ref(props.activeTab || props.tabs?.[0]?.key || '')
-
-watch(() => props.activeTab, (val) => {
-  if (val) currentTab.value = val
-})
-
-watch(currentTab, (val) => {
-  emit('update:activeTab', val)
-})
-</script>
 
 <style scoped lang="scss">
 .pro-detail {

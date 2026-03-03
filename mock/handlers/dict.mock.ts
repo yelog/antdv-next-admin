@@ -1,6 +1,6 @@
+import type { DictData, DictType } from '@/types/dict'
 import { defineMock } from 'vite-plugin-mock-dev-server'
-import { dictTypes, dictData } from '../data/dict.data'
-import type { DictType, DictData } from '@/types/dict'
+import { dictData, dictTypes } from '../data/dict.data'
 
 export default defineMock([
   // 获取所有字典类型
@@ -11,9 +11,9 @@ export default defineMock([
       return {
         code: 200,
         message: 'success',
-        data: dictTypes
+        data: dictTypes,
       }
-    }
+    },
   },
 
   // 获取字典类型列表（分页）
@@ -46,10 +46,10 @@ export default defineMock([
           list,
           total: filtered.length,
           page: Number(page),
-          pageSize: Number(pageSize)
-        }
+          pageSize: Number(pageSize),
+        },
       }
-    }
+    },
   },
 
   // 创建字典类型
@@ -61,15 +61,15 @@ export default defineMock([
         id: String(Date.now()),
         ...req.body,
         createTime: new Date().toISOString(),
-        updateTime: new Date().toISOString()
+        updateTime: new Date().toISOString(),
       }
       dictTypes.push(newType)
       return {
         code: 200,
         message: '创建成功',
-        data: newType
+        data: newType,
       }
-    }
+    },
   },
 
   // 更新字典类型
@@ -83,19 +83,19 @@ export default defineMock([
         dictTypes[index] = {
           ...dictTypes[index],
           ...req.body,
-          updateTime: new Date().toISOString()
+          updateTime: new Date().toISOString(),
         }
         return {
           code: 200,
           message: '更新成功',
-          data: dictTypes[index]
+          data: dictTypes[index],
         }
       }
       return {
         code: 404,
-        message: '字典类型不存在'
+        message: '字典类型不存在',
       }
-    }
+    },
   },
 
   // 删除字典类型
@@ -109,14 +109,14 @@ export default defineMock([
         dictTypes.splice(index, 1)
         return {
           code: 200,
-          message: '删除成功'
+          message: '删除成功',
         }
       }
       return {
         code: 404,
-        message: '字典类型不存在'
+        message: '字典类型不存在',
       }
-    }
+    },
   },
 
   // 获取所有字典数据
@@ -127,9 +127,9 @@ export default defineMock([
       return {
         code: 200,
         message: 'success',
-        data: dictData
+        data: dictData,
       }
-    }
+    },
   },
 
   // 获取字典数据列表（分页） - 必须在 :typeCode 之前，避免被参数路由匹配
@@ -165,10 +165,10 @@ export default defineMock([
           list,
           total: filtered.length,
           page: Number(page),
-          pageSize: Number(pageSize)
-        }
+          pageSize: Number(pageSize),
+        },
       }
-    }
+    },
   },
 
   // 根据类型获取字典数据
@@ -181,9 +181,9 @@ export default defineMock([
       return {
         code: 200,
         message: 'success',
-        data: filtered
+        data: filtered,
       }
-    }
+    },
   },
 
   // 创建字典数据
@@ -195,15 +195,15 @@ export default defineMock([
         id: String(Date.now()),
         ...req.body,
         createTime: new Date().toISOString(),
-        updateTime: new Date().toISOString()
+        updateTime: new Date().toISOString(),
       }
       dictData.push(newData)
       return {
         code: 200,
         message: '创建成功',
-        data: newData
+        data: newData,
       }
-    }
+    },
   },
 
   // 更新字典数据
@@ -217,19 +217,19 @@ export default defineMock([
         dictData[index] = {
           ...dictData[index],
           ...req.body,
-          updateTime: new Date().toISOString()
+          updateTime: new Date().toISOString(),
         }
         return {
           code: 200,
           message: '更新成功',
-          data: dictData[index]
+          data: dictData[index],
         }
       }
       return {
         code: 404,
-        message: '字典数据不存在'
+        message: '字典数据不存在',
       }
-    }
+    },
   },
 
   // 删除字典数据
@@ -243,13 +243,13 @@ export default defineMock([
         dictData.splice(index, 1)
         return {
           code: 200,
-          message: '删除成功'
+          message: '删除成功',
         }
       }
       return {
         code: 404,
-        message: '字典数据不存在'
+        message: '字典数据不存在',
       }
-    }
-  }
+    },
+  },
 ])

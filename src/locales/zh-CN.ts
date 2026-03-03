@@ -1,5 +1,5 @@
 export default {
-  common: {
+  'common': {
     appName: 'Antdv Next Admin',
     add: '新增',
     edit: '编辑',
@@ -69,10 +69,10 @@ export default {
     typeTags: '标签',
     typeArray: '数组',
     typeObject: '对象',
-    searchLabel: '搜索{label}'
+    searchLabel: '搜索{label}',
   },
 
-  menu: {
+  'menu': {
     dashboard: '数据看板',
     organization: '组织权限',
     system: '系统管理',
@@ -121,10 +121,10 @@ export default {
     exception404: '404',
     exception500: '500',
     profile: '个人中心',
-    about: '关于'
+    about: '关于',
   },
 
-  layout: {
+  'layout': {
     logout: '退出登录',
     logoutConfirm: '确定要退出登录吗？',
     profile: '个人中心',
@@ -166,7 +166,7 @@ export default {
       zhCN: '简体中文',
       enUS: 'English',
       jaJP: '日本語',
-      koKR: '한국어'
+      koKR: '한국어',
     },
     tabs: {
       refresh: '刷新当前',
@@ -179,11 +179,11 @@ export default {
       closeAll: '关闭所有',
       closeLeft: '关闭左侧',
       closeRight: '关闭右侧',
-      moreActions: '更多标签操作'
-    }
+      moreActions: '更多标签操作',
+    },
   },
 
-  settings: {
+  'settings': {
     title: '偏好设置',
     themeColor: '主题色',
     sidebarTheme: '左侧菜单栏样式',
@@ -216,11 +216,11 @@ export default {
       purple: '酱紫',
       red: '薄暮红',
       orange: '日暮橙',
-      cyan: '明青'
-    }
+      cyan: '明青',
+    },
   },
 
-  login: {
+  'login': {
     title: '用户登录',
     username: '用户名',
     password: '密码',
@@ -236,10 +236,10 @@ export default {
     loginSuccess: '登录成功',
     loginFailed: '登录失败',
     slideToVerify: '滑动验证身份',
-    verifySuccess: '验证成功'
+    verifySuccess: '验证成功',
   },
 
-  dashboard: {
+  'dashboard': {
     welcome: '欢迎回来',
     subtitle: '实时监控您的业务数据和系统运行状态',
     systemStable: '系统运行稳定',
@@ -267,13 +267,13 @@ export default {
       permissionUpdated: '管理员更新了系统菜单权限配置',
       userCreated: '新增用户 Sunny 并分配运营角色',
       orderTaskDone: '今日订单统计任务执行完成',
-      riskPolicyReleased: '风控策略版本已发布到生产环境'
+      riskPolicyReleased: '风控策略版本已发布到生产环境',
     },
     activityTags: {
       system: '系统',
       user: '用户',
       task: '任务',
-      release: '发布'
+      release: '发布',
     },
     months: {
       jan: '1月',
@@ -283,11 +283,11 @@ export default {
       may: '5月',
       jun: '6月',
       jul: '7月',
-      aug: '8月'
-    }
+      aug: '8月',
+    },
   },
 
-  user: {
+  'user': {
     title: '用户管理',
     username: '用户名',
     email: '邮箱',
@@ -328,10 +328,10 @@ export default {
     importSuccess: '成功导入 {count} 条数据',
     importFailed: '导入失败，请检查文件格式',
     importEmpty: '文件为空或格式不正确',
-    importFormatError: 'CSV 格式不正确，需包含"用户名"、"姓名"、"邮箱"列'
+    importFormatError: 'CSV 格式不正确，需包含"用户名"、"姓名"、"邮箱"列',
   },
 
-  role: {
+  'role': {
     title: '角色管理',
     name: '角色名称',
     code: '角色代码',
@@ -346,10 +346,10 @@ export default {
     codePattern: '角色编码仅支持字母、数字、下划线和中划线',
     selectPermissions: '请选择权限',
     updateSuccess: '角色更新成功',
-    createSuccess: '角色创建成功'
+    createSuccess: '角色创建成功',
   },
 
-  permission: {
+  'permission': {
     title: '菜单管理',
     name: '菜单名称',
     code: '权限代码',
@@ -381,10 +381,10 @@ export default {
     iconPlaceholder: '例如：UserOutlined',
     visibleStatus: '显示状态',
     updateSuccess: '菜单更新成功',
-    createSuccess: '菜单创建成功'
+    createSuccess: '菜单创建成功',
   },
 
-  dict: {
+  'dict': {
     title: '数据字典',
     dictType: '字典类型',
     dictData: '字典数据',
@@ -421,38 +421,38 @@ export default {
     loadTypeFailed: '加载字典类型失败',
     loadDataFailed: '加载字典数据失败',
     dictDataTitle: '字典数据 - {name}',
-    confirmDelete: '确认删除'
+    confirmDelete: '确认删除',
   },
 
-  table: {
+  'table': {
     title: '表格示例',
     total: '共 {total} 条',
     page: '第 {page} 页',
     pageSize: '每页 {size} 条',
-    goTo: '跳至'
+    goTo: '跳至',
   },
 
-  form: {
+  'form': {
     title: '表单示例',
     basicInfo: '基本信息',
     advancedInfo: '高级信息',
     submit: '提交',
     reset: '重置',
     validateSuccess: '验证通过',
-    validateFailed: '验证失败'
+    validateFailed: '验证失败',
   },
 
-  exampleTable: {
+  'exampleTable': {
     userList: '用户列表',
     subTitle: 'ProTable 示例',
     createUser: '新建用户',
     editUser: '编辑用户',
     deleteSuccess: '删除成功',
     updateSuccess: '更新成功',
-    createSuccess: '创建成功'
+    createSuccess: '创建成功',
   },
 
-  notificationCenter: {
+  'notificationCenter': {
     kicker: 'Notification Hub',
     title: '通知中心',
     subtitle: '统一查看系统动态、消息提醒与任务结果，支持快速筛选与详情追踪。',
@@ -463,7 +463,7 @@ export default {
     metrics: {
       total: '通知总数',
       unread: '未读通知',
-      today: '今日新增'
+      today: '今日新增',
     },
     filters: {
       allStatus: '全部状态',
@@ -474,28 +474,28 @@ export default {
       message: '新消息',
       security: '安全提醒',
       task: '任务完成',
-      error: '异常告警'
+      error: '异常告警',
     },
     status: {
       read: '已读',
-      unread: '未读'
+      unread: '未读',
     },
     meta: {
       type: '通知类型',
-      receivedAt: '接收时间'
+      receivedAt: '接收时间',
     },
     actions: {
       markAsRead: '标记为已读',
       openRelated: '前往相关页面',
-      delete: '删除通知'
+      delete: '删除通知',
     },
     placeholder: {
       title: '选择一条通知查看详情',
-      desc: '从左侧通知列表中选择任意一条，即可在此查看完整内容与关联操作。'
-    }
+      desc: '从左侧通知列表中选择任意一条，即可在此查看完整内容与关联操作。',
+    },
   },
 
-  exampleCaptcha: {
+  'exampleCaptcha': {
     title: '验证码组件示例',
     description: '封装了常见的几种前端验证码交互组件，支持自定义样式和回调。',
     slider: '滑块验证 (Slider)',
@@ -503,10 +503,10 @@ export default {
     puzzle: '拼图验证 (Puzzle)',
     point: '点选验证 (Point)',
     success: '验证通过！',
-    fail: '验证失败，请重试'
+    fail: '验证失败，请重试',
   },
 
-  exampleSpin: {
+  'exampleSpin': {
     title: 'Spin 加载示例',
     description: '演示 Spin 组件的多种用法，包括基础加载、不同尺寸、自定义指示符、进度展示、延迟加载和全屏加载。',
     basic: '基本用法 & 尺寸',
@@ -518,10 +518,10 @@ export default {
     customStyle: '自定义样式',
     fullscreen: '全屏加载',
     showFullscreen: '显示全屏加载',
-    loadingState: '加载状态：'
+    loadingState: '加载状态：',
   },
 
-  exampleEditor: {
+  'exampleEditor': {
     title: '富文本编辑器示例',
     description: '基于 Tiptap 封装的富文本编辑器，支持图片上传、链接插入、格式化等功能。',
     basicUsage: '基础用法',
@@ -536,10 +536,10 @@ export default {
     loadDemo: '加载示例',
     savedMessage: '内容已保存',
     clearedMessage: '内容已清空',
-    demoLoadedMessage: '示例内容已加载'
+    demoLoadedMessage: '示例内容已加载',
   },
 
-  exampleForm: {
+  'exampleForm': {
     description: 'ProForm 高级表单示例 - 展示各种表单控件',
     age: '年龄',
     ageRange: '年龄必须在1-150之间',
@@ -552,17 +552,17 @@ export default {
     roles: {
       admin: '管理员',
       user: '普通用户',
-      guest: '访客'
+      guest: '访客',
     },
     interestOptions: {
       reading: '阅读',
       sports: '运动',
       music: '音乐',
-      travel: '旅游'
-    }
+      travel: '旅游',
+    },
   },
 
-  exampleIcon: {
+  'exampleIcon': {
     title: '图标演示',
     subtitle: '统一展示 Icon 组件与 IconPicker 的完整用法',
     capabilities: '支持：本地 SVG、antdv-next 图标、Iconify（离线库 + 在线搜索）',
@@ -596,10 +596,10 @@ export default {
     modeSvg: 'SVG Sprite',
     modeAntdv: 'antdv-next',
     modeIconify: 'Iconify',
-    sampleHint: '点击示例即应用'
+    sampleHint: '点击示例即应用',
   },
 
-  exampleWatermark: {
+  'exampleWatermark': {
     title: '水印示例',
     description: '全局水印功能 - 可在此配置并即时预览水印效果',
     enableGlobal: '启用全局水印',
@@ -610,10 +610,10 @@ export default {
     gapX: '水平间距',
     gapY: '垂直间距',
     preview: '本地预览',
-    previewText: '此区域用于预览水印效果'
+    previewText: '此区域用于预览水印效果',
   },
 
-  exampleModal: {
+  'exampleModal': {
     title: 'ProModal 示例',
     description: '基于 antdv-next Modal 的增强封装，支持拖拽、全屏、边缘缩放与边界约束。',
     openDefault: '打开默认弹窗',
@@ -635,19 +635,19 @@ export default {
     formRemark: '备注',
     formRemarkPlaceholder: '请输入备注信息',
     rowText: '演示数据行 #{index}',
-    confirmSuccess: '确认操作成功'
+    confirmSuccess: '确认操作成功',
   },
 
-  exampleException: {
+  'exampleException': {
     '403title': '403',
     '403description': '抱歉，您没有权限访问此页面',
     '404title': '404',
     '404description': '抱歉，您访问的页面不存在',
     '500title': '500',
-    '500description': '抱歉，服务器出现错误'
+    '500description': '抱歉，服务器出现错误',
   },
 
-  editor: {
+  'editor': {
     insertLink: '插入链接',
     linkUrl: '链接地址',
     linkText: '链接文本',
@@ -657,22 +657,22 @@ export default {
     imageSizeLimit: '图片大小不能超过 5MB',
     imageInsertSuccess: '图片插入成功',
     imageUploadFailed: '图片上传失败',
-    enterLinkUrl: '请输入链接地址'
+    enterLinkUrl: '请输入链接地址',
   },
 
-  iconPicker: {
+  'iconPicker': {
     selectIcon: '请选择图标',
     searchPlaceholder: '搜索图标名称...',
     onlineSearchFailed: '在线搜索失败',
-    onlineSearchFailedDetail: '在线搜索失败：{message}'
+    onlineSearchFailedDetail: '在线搜索失败：{message}',
   },
 
-  captcha: {
+  'captcha': {
     clickInOrder: '请依次点击：',
-    refresh: '刷新'
+    refresh: '刷新',
   },
 
-  about: {
+  'about': {
     description: '一个基于 Vue 3 + TypeScript + Ant Design Vue 的现代化后台管理框架，开箱即用、功能完备、易于扩展。',
     projectInfo: '项目信息',
     projectName: '项目名称',
@@ -698,29 +698,29 @@ export default {
     feature7: 'ProTable / ProForm 高阶组件',
     feature7Desc: '配置驱动的表格与表单，覆盖常见业务场景',
     feature8: 'Mock 数据开发模式',
-    feature8Desc: '内置完整 Mock 体系，前后端并行开发无阻塞'
+    feature8Desc: '内置完整 Mock 体系，前后端并行开发无阻塞',
   },
 
-  proForm: {
+  'proForm': {
     enterPlaceholder: '请输入{label}',
     selectPlaceholder: '请选择{label}',
-    uploadFile: '上传文件'
+    uploadFile: '上传文件',
   },
 
-  proUpload: {
+  'proUpload': {
     uploadFile: '上传文件',
     uploadImage: '上传图片',
     dragHint: '点击或拖拽文件到此区域上传',
     fileSizeExceed: '文件大小不能超过 {size}MB',
-    fileTypeNotAllowed: '不支持该文件类型'
+    fileTypeNotAllowed: '不支持该文件类型',
   },
 
-  proStepForm: {
+  'proStepForm': {
     prev: '上一步',
-    next: '下一步'
+    next: '下一步',
   },
 
-  proTable: {
+  'proTable': {
     total: '共 {total} 条',
     density: '表格密度',
     checkAll: '全部勾选',
@@ -730,10 +730,10 @@ export default {
     densityLarge: '宽松',
     densityMiddle: '默认',
     densitySmall: '紧凑',
-    loadDataFailed: '加载数据失败'
+    loadDataFailed: '加载数据失败',
   },
 
-  profile: {
+  'profile': {
     title: '个人中心',
     basicInfo: '基本信息',
     security: '安全设置',
@@ -756,20 +756,20 @@ export default {
     passwordChangeFailed: '密码修改失败',
     passwordTip: '提示：密码长度至少6位，建议包含字母、数字和特殊字符',
     updateSuccess: '更新成功',
-    updateFailed: '更新失败'
+    updateFailed: '更新失败',
   },
 
-  error: {
+  'error': {
     404: '页面不存在',
     403: '无权限访问',
     500: '服务器错误',
     backHome: '返回首页',
     pageNotFound: '抱歉，您访问的页面不存在',
     noPermission: '抱歉，您没有权限访问此页面',
-    serverError: '抱歉，服务器出现错误'
+    serverError: '抱歉，服务器出现错误',
   },
 
-  validation: {
+  'validation': {
     required: '此项为必填项',
     email: '请输入有效的邮箱地址',
     phone: '请输入有效的手机号',
@@ -784,10 +784,10 @@ export default {
     pattern: '格式不正确',
     usernamePattern: '用户名只能包含字母、数字和下划线',
     passwordPattern: '密码至少8位，包含字母和数字',
-    confirmPassword: '两次输入的密码不一致'
+    confirmPassword: '两次输入的密码不一致',
   },
 
-  dept: {
+  'dept': {
     title: '部门管理',
     organizationStructure: '组织架构',
     searchDept: '搜索部门',
@@ -824,10 +824,10 @@ export default {
     pleaseEnterRemark: '请输入备注',
     loadDataFailed: '加载部门数据失败',
     createTime: '创建时间',
-    updateTime: '更新时间'
+    updateTime: '更新时间',
   },
 
-  config: {
+  'config': {
     title: '系统配置',
     configGroups: '配置分组',
     configName: '配置名称',
@@ -854,28 +854,28 @@ export default {
       string: '字符串',
       number: '数字',
       boolean: '布尔值',
-      json: 'JSON'
+      json: 'JSON',
     },
     groups: {
       basic: '基础配置',
       security: '安全配置',
       upload: '上传配置',
-      notification: '通知配置'
+      notification: '通知配置',
     },
     builtInTypes: {
       builtIn: '内置',
-      custom: '自定义'
+      custom: '自定义',
     },
     placeholders: {
       configName: '请输入配置名称',
       configKey: '如 site.name',
       configValue: '请输入配置值',
       jsonFormat: 'JSON 格式',
-      description: '请输入描述'
-    }
+      description: '请输入描述',
+    },
   },
 
-  file: {
+  'file': {
     title: '文件管理',
     fileName: '文件名',
     ext: '扩展名',
@@ -893,7 +893,7 @@ export default {
     storageType: {
       local: '本地',
       oss: 'OSS',
-      cos: 'COS'
+      cos: 'COS',
     },
     extType: {
       imageJpg: '图片(jpg)',
@@ -905,11 +905,11 @@ export default {
       video: '视频',
       text: '文本',
       ppt: 'PPT',
-      svg: 'SVG'
-    }
+      svg: 'SVG',
+    },
   },
 
-  log: {
+  'log': {
     title: '系统日志',
     operationLog: '操作日志',
     loginLog: '登录日志',
@@ -942,7 +942,7 @@ export default {
       delete: '删除',
       export: '导出',
       import: '导入',
-      other: '其他'
+      other: '其他',
     },
     modules: {
       userManagement: '用户管理',
@@ -951,10 +951,10 @@ export default {
       dictionary: '数据字典',
       systemLogin: '系统登录',
       profile: '个人中心',
-      dashboard: '数据看板'
+      dashboard: '数据看板',
     },
     loadOperationLogFailed: '加载操作日志失败',
-    loadLoginLogFailed: '加载登录日志失败'
+    loadLoginLogFailed: '加载登录日志失败',
   },
 
   'menu.external': '外部页面',
@@ -969,7 +969,7 @@ export default {
   'external.link.openVite': '打开 Vite 官网',
   'external.link.openVue': '打开 Vue 官网',
 
-  examples: {
+  'examples': {
     scaffold: {
       stateCache: {
         title: '状态与缓存示例',
@@ -991,7 +991,7 @@ export default {
         localCountLabel: '局部计数：',
         panelBDesc: '面板 B（也会被 keep-alive 缓存）',
         panelBTextPlaceholder: '输入内容后切换标签再回来仍保留',
-        pinTabSuccess: '已切换当前标签固定状态'
+        pinTabSuccess: '已切换当前标签固定状态',
       },
       uploadSystem: {
         title: '上传体系示例',
@@ -1009,7 +1009,7 @@ export default {
         uploadSuccessMsg: '上传成功：{name}',
         uploadFailedMsg: '上传失败：{name}',
         retryMsg: '开始重试 {count} 个失败文件',
-        previewNotSupported: '该文件暂不支持预览'
+        previewNotSupported: '该文件暂不支持预览',
       },
       importExport: {
         title: '导入导出闭环示例',
@@ -1037,7 +1037,7 @@ export default {
         errorPrice: '价格必须是大于等于 0 的数字',
         errorStock: '库存必须是大于等于 0 的整数',
         importDone: '导入完成：成功 {success} 条，失败 {failed} 条',
-        parseFailed: 'CSV 解析失败，请检查文件格式'
+        parseFailed: 'CSV 解析失败，请检查文件格式',
       },
       testing: {
         title: '测试示例',
@@ -1051,7 +1051,7 @@ export default {
         step2Title: '再补 e2e',
         step2Description: '覆盖登录、搜索、列表操作等关键用户路径。',
         step3Title: '接入 CI',
-        step3Description: '将 type-check + unit + e2e 串成流水线，合并前自动执行。'
+        step3Description: '将 type-check + unit + e2e 串成流水线，合并前自动执行。',
       },
       proTableAdvanced: {
         title: 'ProTable 高阶示例',
@@ -1076,7 +1076,7 @@ export default {
         batchDeleteTitle: '批量删除确认',
         batchDeleteContent: '确认删除已选的 {count} 条数据吗？',
         batchDeleteSuccess: '批量删除完成',
-        exportSuccess: 'CSV 导出成功'
+        exportSuccess: 'CSV 导出成功',
       },
       complexForm: {
         title: '复杂表单示例',
@@ -1121,7 +1121,7 @@ export default {
         draftSaved: '草稿已保存',
         serverValidationError: '服务端校验失败：项目名称不能包含 fail',
         submitFailed: '提交失败，已映射服务端字段错误',
-        submitSuccess: '提交成功'
+        submitSuccess: '提交成功',
       },
       advancedFilter: {
         title: '高级筛选构建器示例',
@@ -1156,7 +1156,7 @@ export default {
         opLte: '小于等于',
         opBetween: '区间',
         opBefore: '早于',
-        opAfter: '晚于'
+        opAfter: '晚于',
       },
       virtualTable: {
         title: '虚拟滚动表格示例',
@@ -1178,7 +1178,7 @@ export default {
         colEmail: '邮箱',
         colDepartment: '部门',
         colStatus: '状态',
-        colUpdatedAt: '更新时间'
+        colUpdatedAt: '更新时间',
       },
       masterDetail: {
         title: '列表-详情示例',
@@ -1207,7 +1207,7 @@ export default {
         colOwner: '负责人',
         colPriority: '优先级',
         colStatus: '状态',
-        colCreatedAt: '创建时间'
+        colCreatedAt: '创建时间',
       },
       rbac: {
         title: 'RBAC 全链路示例',
@@ -1244,7 +1244,7 @@ export default {
         missingPermission: '403: 缺少权限 {permission}',
         apiSuccess: '{action} 成功',
         apiFailed: '{action} 失败：{error}',
-        noPermission: '无权限'
+        noPermission: '无权限',
       },
       observability: {
         title: '可观测性与异常示例',
@@ -1271,7 +1271,7 @@ export default {
         eventEmpty: '请求成功但返回空数据',
         eventSuccess: '请求成功并返回数据',
         unknownError: '未知错误',
-        eventError: '请求失败（{type}）：{message}'
+        eventError: '请求失败（{type}）：{message}',
       },
       requestAuth: {
         title: '请求与鉴权闭环示例',
@@ -1308,8 +1308,8 @@ export default {
         concurrentPartialFail: '并发请求完成，失败 {count} 个',
         concurrentAllSuccess: '并发请求全部成功',
         logRefreshWillFail: '下一次刷新将被强制失败',
-        refreshFailTriggered: '刷新失败场景已触发'
-      }
+        refreshFailTriggered: '刷新失败场景已触发',
+      },
     },
     jsonInput: {
       title: 'JSON 输入示例',
@@ -1340,7 +1340,7 @@ export default {
       language: '语言',
       nestedData: '嵌套数据结构',
       emptyObject: '空对象（创建新的）',
-      createNew: '创建新配置'
+      createNew: '创建新配置',
     },
     i18nInput: {
       description: '国际化输入组件，支持多语言内容编辑。基于 JsonInput 封装，自动根据系统支持的语言生成表单字段。',
@@ -1359,7 +1359,7 @@ export default {
       showAsString: '显示为字符串',
       showAsObject: '显示为对象',
       stringValue: '字符串格式',
-      objectValue: '对象格式'
-    }
-  }
+      objectValue: '对象格式',
+    },
+  },
 }

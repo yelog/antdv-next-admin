@@ -1,8 +1,28 @@
+<script setup lang="ts">
+import { message } from 'antdv-next'
+import { useI18n } from 'vue-i18n'
+import { PointCaptcha, PuzzleCaptcha, RotateCaptcha, SliderCaptcha } from '@/components/Captcha'
+
+const { t } = useI18n()
+
+function onSuccess() {
+  message.success(t('exampleCaptcha.success'))
+}
+
+function onFail() {
+  message.error(t('exampleCaptcha.fail'))
+}
+</script>
+
 <template>
   <div class="page-container">
     <div class="card mb-md">
-      <h2 class="text-xl font-bold mb-sm">{{ t('exampleCaptcha.title') }}</h2>
-      <p class="text-secondary">{{ t('exampleCaptcha.description') }}</p>
+      <h2 class="text-xl font-bold mb-sm">
+        {{ t('exampleCaptcha.title') }}
+      </h2>
+      <p class="text-secondary">
+        {{ t('exampleCaptcha.description') }}
+      </p>
     </div>
 
     <a-row :gutter="[16, 16]">
@@ -29,22 +49,6 @@
     </a-row>
   </div>
 </template>
-
-<script setup lang="ts">
-import { message } from 'antdv-next'
-import { useI18n } from 'vue-i18n'
-import { SliderCaptcha, RotateCaptcha, PuzzleCaptcha, PointCaptcha } from '@/components/Captcha'
-
-const { t } = useI18n()
-
-const onSuccess = () => {
-  message.success(t('exampleCaptcha.success'))
-}
-
-const onFail = () => {
-  message.error(t('exampleCaptcha.fail'))
-}
-</script>
 
 <style scoped>
 .mb-md {

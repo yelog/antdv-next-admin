@@ -1,3 +1,40 @@
+<script setup lang="ts">
+import type { ProStatusMap, ProStatusMode } from '@/types/pro'
+import { computed } from 'vue'
+
+interface Props {
+  value: string | number
+  statusMap: ProStatusMap
+  mode?: ProStatusMode
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  mode: 'dot',
+})
+
+const config = computed(() => props.statusMap[String(props.value)])
+const statusText = computed(() => config.value?.text ?? String(props.value))
+const statusColor = computed(() => config.value?.color ?? '#8c8c8c')
+
+const dotStyle = computed(() => {
+  const c = statusColor.value
+  return {
+    '--pro-status-color': c,
+    '--pro-status-bg': hexToRgba(c, 0.1),
+  }
+})
+
+function hexToRgba(hex: string, alpha: number): string {
+  // Handle named colors by returning a light background
+  if (!hex.startsWith('#'))
+    return `color-mix(in srgb, ${hex} ${alpha * 100}%, transparent)`
+  const r = Number.parseInt(hex.slice(1, 3), 16)
+  const g = Number.parseInt(hex.slice(3, 5), 16)
+  const b = Number.parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+</script>
+
 <template>
   <!-- Dot mode -->
   <span v-if="mode === 'dot'" class="pro-status pro-status-dot" :style="dotStyle">
@@ -13,42 +50,6 @@
   <!-- Badge mode -->
   <a-badge v-else :color="statusColor" :text="statusText" />
 </template>
-
-<script setup lang="ts">
-import { computed } from 'vue'
-import type { ProStatusMode, ProStatusMap } from '@/types/pro'
-
-interface Props {
-  value: string | number
-  statusMap: ProStatusMap
-  mode?: ProStatusMode
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  mode: 'dot'
-})
-
-const config = computed(() => props.statusMap[String(props.value)])
-const statusText = computed(() => config.value?.text ?? String(props.value))
-const statusColor = computed(() => config.value?.color ?? '#8c8c8c')
-
-const dotStyle = computed(() => {
-  const c = statusColor.value
-  return {
-    '--pro-status-color': c,
-    '--pro-status-bg': hexToRgba(c, 0.1)
-  }
-})
-
-function hexToRgba(hex: string, alpha: number): string {
-  // Handle named colors by returning a light background
-  if (!hex.startsWith('#')) return `color-mix(in srgb, ${hex} ${alpha * 100}%, transparent)`
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`
-}
-</script>
 
 <style scoped lang="scss">
 .pro-status-dot {

@@ -1,8 +1,82 @@
+<script setup lang="ts">
+import { LoadingOutlined } from '@antdv-next/icons'
+import { computed, onUnmounted, ref, watch } from 'vue'
+
+// Nested loading
+const nestedLoading = ref(false)
+
+// Delay loading
+const delayLoading = ref(false)
+
+// Percent / Progress
+const autoPercent = ref(false)
+const percent = ref(-50)
+let percentTimer: ReturnType<typeof setTimeout> | null = null
+
+const mergedPercent = computed(() => autoPercent.value ? 'auto' : percent.value)
+
+function updatePercent() {
+  percentTimer = setTimeout(() => {
+    const next = percent.value + 5
+    percent.value = next > 150 ? -50 : next
+  }, 100)
+}
+
+watch(percent, (_n, _o, onCleanup) => {
+  updatePercent()
+  onCleanup(() => {
+    if (percentTimer) {
+      clearTimeout(percentTimer)
+      percentTimer = null
+    }
+  })
+}, { immediate: true })
+
+watch(autoPercent, () => {
+  percent.value = -50
+})
+
+// Custom style shared props
+const sharedStyleProps = {
+  spinning: true,
+  percent: 0,
+}
+
+// Fullscreen
+const fullscreenSpinning = ref(false)
+const fullscreenPercent = ref(0)
+
+function showFullscreen() {
+  fullscreenSpinning.value = true
+  let ptg = -10
+  const interval = setInterval(() => {
+    ptg += 5
+    fullscreenPercent.value = ptg
+    if (ptg > 120) {
+      clearInterval(interval)
+      fullscreenSpinning.value = false
+      fullscreenPercent.value = 0
+    }
+  }, 100)
+}
+
+onUnmounted(() => {
+  if (percentTimer) {
+    clearTimeout(percentTimer)
+    percentTimer = null
+  }
+})
+</script>
+
 <template>
   <div class="page-container">
     <div class="card mb-md">
-      <h2 class="text-xl font-bold mb-sm">{{ $t('exampleSpin.title') }}</h2>
-      <p class="text-secondary">{{ $t('exampleSpin.description') }}</p>
+      <h2 class="text-xl font-bold mb-sm">
+        {{ $t('exampleSpin.title') }}
+      </h2>
+      <p class="text-secondary">
+        {{ $t('exampleSpin.description') }}
+      </p>
     </div>
 
     <a-row :gutter="[16, 16]">
@@ -57,7 +131,9 @@
       <a-col :span="24" :lg="12">
         <a-card :title="$t('exampleSpin.delay')" :bordered="false">
           <template #extra>
-            <a-tag color="blue">delay=500ms</a-tag>
+            <a-tag color="blue">
+              delay=500ms
+            </a-tag>
           </template>
           <a-flex gap="middle" vertical>
             <a-spin :spinning="delayLoading" :delay="500">
@@ -153,76 +229,6 @@
     </a-row>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from 'vue'
-import { LoadingOutlined } from '@antdv-next/icons'
-
-// Nested loading
-const nestedLoading = ref(false)
-
-// Delay loading
-const delayLoading = ref(false)
-
-// Percent / Progress
-const autoPercent = ref(false)
-const percent = ref(-50)
-let percentTimer: ReturnType<typeof setTimeout> | null = null
-
-const mergedPercent = computed(() => autoPercent.value ? 'auto' : percent.value)
-
-function updatePercent() {
-  percentTimer = setTimeout(() => {
-    const next = percent.value + 5
-    percent.value = next > 150 ? -50 : next
-  }, 100)
-}
-
-watch(percent, (_n, _o, onCleanup) => {
-  updatePercent()
-  onCleanup(() => {
-    if (percentTimer) {
-      clearTimeout(percentTimer)
-      percentTimer = null
-    }
-  })
-}, { immediate: true })
-
-watch(autoPercent, () => {
-  percent.value = -50
-})
-
-// Custom style shared props
-const sharedStyleProps = {
-  spinning: true,
-  percent: 0,
-}
-
-// Fullscreen
-const fullscreenSpinning = ref(false)
-const fullscreenPercent = ref(0)
-
-function showFullscreen() {
-  fullscreenSpinning.value = true
-  let ptg = -10
-  const interval = setInterval(() => {
-    ptg += 5
-    fullscreenPercent.value = ptg
-    if (ptg > 120) {
-      clearInterval(interval)
-      fullscreenSpinning.value = false
-      fullscreenPercent.value = 0
-    }
-  }, 100)
-}
-
-onUnmounted(() => {
-  if (percentTimer) {
-    clearTimeout(percentTimer)
-    percentTimer = null
-  }
-})
-</script>
 
 <style scoped lang="scss">
 .page-container {

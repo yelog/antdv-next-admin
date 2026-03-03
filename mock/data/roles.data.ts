@@ -8,7 +8,7 @@ export const mockRoles: Role[] = [
     description: 'System administrator with full access',
     permissions: [],
     createdAt: '2023-01-01T00:00:00.000Z',
-    updatedAt: '2023-01-01T00:00:00.000Z'
+    updatedAt: '2023-01-01T00:00:00.000Z',
   },
   {
     id: '2',
@@ -17,7 +17,7 @@ export const mockRoles: Role[] = [
     description: 'Department manager with management permissions',
     permissions: [],
     createdAt: '2023-01-01T00:00:00.000Z',
-    updatedAt: '2023-01-01T00:00:00.000Z'
+    updatedAt: '2023-01-01T00:00:00.000Z',
   },
   {
     id: '3',
@@ -26,7 +26,7 @@ export const mockRoles: Role[] = [
     description: 'Regular user with basic permissions',
     permissions: [],
     createdAt: '2023-01-01T00:00:00.000Z',
-    updatedAt: '2023-01-01T00:00:00.000Z'
+    updatedAt: '2023-01-01T00:00:00.000Z',
   },
   {
     id: '4',
@@ -35,6 +35,6 @@ export const mockRoles: Role[] = [
     description: 'Guest user with read-only access',
     permissions: [],
     createdAt: '2023-01-01T00:00:00.000Z',
-    updatedAt: '2023-01-01T00:00:00.000Z'
-  }
+    updatedAt: '2023-01-01T00:00:00.000Z',
+  },
 ]

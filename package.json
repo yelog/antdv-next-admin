@@ -1,7 +1,7 @@
 {
   "name": "antdv-next-admin",
-  "version": "1.0.0",
   "type": "module",
+  "version": "1.0.0",
   "description": "A modern Vue 3 admin scaffold based on antdv-next",
   "scripts": {
     "dev": "vite",
@@ -72,6 +72,7 @@
     "@vue/test-utils": "^2.4.6",
     "commander": "^14.0.0",
     "eslint": "^10.0.2",
+    "eslint-plugin-format": "^2.0.1",
     "eslint-plugin-vue": "^10.8.0",
     "handlebars": "^4.7.8",
     "jsdom": "^28.1.0",

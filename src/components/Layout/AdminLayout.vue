@@ -1,165 +1,23 @@
-<template>
-  <a-watermark v-bind="watermarkStore.watermarkProps" class="global-watermark">
-  <a-layout class="admin-layout" :class="[settingsStore.layoutMode, { mobile: layoutStore.isMobile }]">
-    <!-- Vertical Layout -->
-    <template v-if="settingsStore.layoutMode === 'vertical'">
-      <!-- Sidebar -->
-      <Sidebar v-if="!layoutStore.pageFullscreen" />
-
-      <!-- Main Content -->
-      <a-layout
-        class="layout-main"
-        :style="{ marginLeft: layoutStore.isMobile || layoutStore.pageFullscreen ? '0px' : `${layoutStore.getCurrentSidebarWidth()}px` }"
-      >
-        <!-- Header -->
-        <Header v-if="!layoutStore.pageFullscreen" />
-
-        <!-- Tabs -->
-        <TabBar />
-
-        <!-- Page Content -->
-        <a-layout-content class="page-content" :class="{ 'is-iframe-page': isIframePage }">
-          <div ref="workspaceRef" class="page-workspace" :class="{ 'is-ai-active': isAICollabActive }">
-            <div class="page-workspace-main">
-              <div class="page-scroll">
-                <router-view v-slot="{ Component }">
-                  <transition :name="settingsStore.pageAnimation" mode="out-in">
-                    <keep-alive :include="cachedTabs">
-                      <component :is="Component" :key="pageViewKey" />
-                    </keep-alive>
-                  </transition>
-                </router-view>
-              </div>
-            </div>
-
-            <Transition name="ai-panel">
-              <div v-if="isAICollabActive" class="page-workspace-side" :style="{ '--ai-side-width': `${effectiveAiPanelWidth + 14}px` }">
-                <div
-                  class="page-workspace-resizer"
-                  role="separator"
-                  aria-orientation="vertical"
-                  @mousedown="startAiResize"
-                />
-                <AICollabPanel
-                  class="page-workspace-ai"
-                  :style="{ width: `${effectiveAiPanelWidth}px` }"
-                  @close="layoutStore.setAiCollabEnabled(false)"
-                />
-              </div>
-            </Transition>
-          </div>
-        </a-layout-content>
-      </a-layout>
-    </template>
-
-    <!-- Horizontal Layout -->
-    <template v-else>
-      <a-layout-header v-if="!layoutStore.pageFullscreen" class="horizontal-header">
-        <div class="header-left">
-          <div class="logo">
-            <img :src="logoImg" alt="Logo" />
-            <span class="logo-title">{{ $t('common.appName') || 'Antdv Next Admin' }}</span>
-          </div>
-
-          <div ref="menuAreaRef" class="horizontal-menu-area">
-            <a-menu
-              class="horizontal-main-menu"
-              mode="horizontal"
-              :disabled-overflow="true"
-              :selected-keys="horizontalSelectedKeys"
-              :items="visibleHorizontalMenuItems"
-              trigger-sub-menu-action="hover"
-              @click="handleHorizontalMenuClick"
-            />
-            <a-dropdown
-              v-if="overflowHorizontalMenuItems.length > 0"
-              :menu="overflowMenuProps"
-              :trigger="['hover']"
-              placement="bottomRight"
-            >
-              <a-button type="text" class="horizontal-overflow-trigger">
-                <EllipsisOutlined />
-              </a-button>
-            </a-dropdown>
-          </div>
-        </div>
-        <div class="header-right">
-          <Header :show-breadcrumb="false" :show-collapse-button="false" />
-        </div>
-        <div ref="measureMenuWrapRef" class="horizontal-menu-measure-wrap" aria-hidden="true">
-          <a-menu
-            class="horizontal-menu-measure"
-            mode="horizontal"
-            :disabled-overflow="true"
-            :items="horizontalMenuItems"
-          />
-        </div>
-      </a-layout-header>
-
-      <a-layout>
-        <a-layout-content class="horizontal-content">
-          <!-- Tabs -->
-          <TabBar />
-
-          <!-- Page Content -->
-          <div class="page-content" :class="{ 'is-iframe-page': isIframePage }">
-            <div ref="workspaceRef" class="page-workspace" :class="{ 'is-ai-active': isAICollabActive }">
-              <div class="page-workspace-main">
-                <div class="page-scroll">
-                  <router-view v-slot="{ Component }">
-                    <transition :name="settingsStore.pageAnimation" mode="out-in">
-                      <keep-alive :include="cachedTabs">
-                        <component :is="Component" :key="pageViewKey" />
-                      </keep-alive>
-                    </transition>
-                  </router-view>
-                </div>
-              </div>
-
-              <Transition name="ai-panel">
-                <div v-if="isAICollabActive" class="page-workspace-side" :style="{ '--ai-side-width': `${effectiveAiPanelWidth + 14}px` }">
-                  <div
-                    class="page-workspace-resizer"
-                    role="separator"
-                    aria-orientation="vertical"
-                    @mousedown="startAiResize"
-                  />
-                  <AICollabPanel
-                    class="page-workspace-ai"
-                    :style="{ width: `${effectiveAiPanelWidth}px` }"
-                    @close="layoutStore.setAiCollabEnabled(false)"
-                  />
-                </div>
-              </Transition>
-            </div>
-          </div>
-        </a-layout-content>
-      </a-layout>
-    </template>
-  </a-layout>
-  </a-watermark>
-</template>
-
 <script setup lang="ts">
+import type { MenuProps } from 'antdv-next'
+import type { MenuItem as MenuItemType } from '@/types/router'
+import { DownOutlined, EllipsisOutlined } from '@antdv-next/icons'
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { MenuProps } from 'antdv-next'
-import { DownOutlined, EllipsisOutlined } from '@antdv-next/icons'
-import { useLayoutStore } from '@/stores/layout'
-import { useSettingsStore } from '@/stores/settings'
-import { useTabsStore } from '@/stores/tabs'
-import { usePermissionStore } from '@/stores/permission'
-import { useWatermarkStore } from '@/stores/watermark'
+import logoImg from '@/assets/images/logo.png'
 import { basicRoutes } from '@/router/routes/index'
 import { routesToMenuTree } from '@/router/utils'
-import type { MenuItem as MenuItemType } from '@/types/router'
+import { useLayoutStore } from '@/stores/layout'
+import { usePermissionStore } from '@/stores/permission'
+import { useSettingsStore } from '@/stores/settings'
+import { useTabsStore } from '@/stores/tabs'
+import { useWatermarkStore } from '@/stores/watermark'
 import { resolveLocaleText } from '@/utils/i18n'
 import { resolveIcon } from '@/utils/icon'
-import logoImg from '@/assets/images/logo.png'
-import Sidebar from './Sidebar.vue'
-import Header from './Header.vue'
-import TabBar from './TabBar.vue'
 import AICollabPanel from './AICollabPanel.vue'
+import Header from './Header.vue'
+import Sidebar from './Sidebar.vue'
+import TabBar from './TabBar.vue'
 
 type HorizontalMenuItems = NonNullable<MenuProps['items']>
 
@@ -210,7 +68,7 @@ const maxAiPanelWidth = computed(() => {
 const effectiveAiPanelWidth = computed(() => {
   return Math.max(
     MIN_AI_PANEL_WIDTH,
-    Math.min(layoutStore.aiPanelWidth, maxAiPanelWidth.value)
+    Math.min(layoutStore.aiPanelWidth, maxAiPanelWidth.value),
   )
 })
 
@@ -226,34 +84,31 @@ const menuItems = computed(() => {
   return fallbackMenuItems.value
 })
 
-const convertHorizontalMenus = (
-  menus: MenuItemType[],
-  showCustomSubmenuArrow: boolean
-): HorizontalMenuItems => {
+function convertHorizontalMenus(menus: MenuItemType[], showCustomSubmenuArrow: boolean): HorizontalMenuItems {
   const convert = (list: MenuItemType[]): HorizontalMenuItems => {
-    return list.map(menu => {
+    return list.map((menu) => {
       const iconComponent = resolveIcon(menu.icon)
       const text = resolveLocaleText(menu.label, menu.id)
       const childMenus = menu.children || []
       const hasChildren = childMenus.length > 0
       const label = hasChildren && showCustomSubmenuArrow
         ? h('span', { class: 'horizontal-submenu-label' }, [
-          h('span', { class: 'horizontal-submenu-text' }, text),
-          h(DownOutlined, { class: 'horizontal-submenu-arrow' })
-        ])
+            h('span', { class: 'horizontal-submenu-text' }, text),
+            h(DownOutlined, { class: 'horizontal-submenu-arrow' }),
+          ])
         : text
 
       const item = {
         key: menu.path || menu.id,
         label,
-        icon: iconComponent ? h(iconComponent) : undefined
+        icon: iconComponent ? h(iconComponent) : undefined,
       }
 
       if (hasChildren) {
         return {
           ...item,
           key: menu.id,
-          children: convert(childMenus)
+          children: convert(childMenus),
         }
       }
 
@@ -295,12 +150,12 @@ function findMenuByPath(menus: MenuItemType[], targetPath: string): MenuItemType
 
 const horizontalSelectedKeys = computed(() => {
   const currentMenuItem = findMenuByPath(menuItems.value, route.path)
-  
+
   // Don't set selected state if current menu item is an external link
   if (currentMenuItem && currentMenuItem.path && isExternalLinkPath(currentMenuItem.path)) {
     return []
   }
-  
+
   return [route.path]
 })
 const normalizedVisibleMenuCount = computed(() => {
@@ -315,8 +170,9 @@ const overflowHorizontalMenuItems = computed<HorizontalMenuItems>(() => {
   return dropdownOverflowMenuItems.value.slice(normalizedVisibleMenuCount.value)
 })
 
-const handleHorizontalMenuClick = ({ key }: { key: string | number }) => {
-  if (typeof key !== 'string') return
+function handleHorizontalMenuClick({ key }: { key: string | number }) {
+  if (typeof key !== 'string')
+    return
 
   // External links: open in a new tab
   // No need to change selectedKeys as horizontalSelectedKeys is a computed property
@@ -335,28 +191,28 @@ const handleHorizontalMenuClick = ({ key }: { key: string | number }) => {
 const overflowMenuProps = computed(() => ({
   items: overflowHorizontalMenuItems.value,
   triggerSubMenuAction: 'hover' as const,
-  onClick: handleHorizontalMenuClick
+  onClick: handleHorizontalMenuClick,
 }))
 
-const updateWorkspaceWidth = () => {
+function updateWorkspaceWidth() {
   workspaceWidth.value = workspaceRef.value?.getBoundingClientRect().width || 0
 }
 
-const syncAiPanelWidth = () => {
+function syncAiPanelWidth() {
   if (!layoutStore.aiCollabEnabled) {
     return
   }
 
   const clamped = Math.max(
     MIN_AI_PANEL_WIDTH,
-    Math.min(layoutStore.aiPanelWidth, maxAiPanelWidth.value)
+    Math.min(layoutStore.aiPanelWidth, maxAiPanelWidth.value),
   )
   if (clamped !== layoutStore.aiPanelWidth) {
     layoutStore.setAiPanelWidth(clamped)
   }
 }
 
-const stopAiResize = () => {
+function stopAiResize() {
   if (!isAiResizing.value) {
     return
   }
@@ -364,7 +220,7 @@ const stopAiResize = () => {
   document.body.classList.remove('is-ai-panel-resizing')
 }
 
-const handleAiResizeMove = (event: MouseEvent) => {
+function handleAiResizeMove(event: MouseEvent) {
   if (!isAiResizing.value || !workspaceRef.value) {
     return
   }
@@ -373,12 +229,12 @@ const handleAiResizeMove = (event: MouseEvent) => {
   const nextWidth = rect.right - event.clientX
   const clampedWidth = Math.max(
     MIN_AI_PANEL_WIDTH,
-    Math.min(nextWidth, maxAiPanelWidth.value)
+    Math.min(nextWidth, maxAiPanelWidth.value),
   )
   layoutStore.setAiPanelWidth(clampedWidth)
 }
 
-const startAiResize = (event: MouseEvent) => {
+function startAiResize(event: MouseEvent) {
   if (!isAICollabActive.value) {
     return
   }
@@ -388,7 +244,7 @@ const startAiResize = (event: MouseEvent) => {
   document.body.classList.add('is-ai-panel-resizing')
 }
 
-const measureHorizontalMenuItemWidths = () => {
+function measureHorizontalMenuItemWidths() {
   const wrap = measureMenuWrapRef.value
   if (!wrap) {
     measuredTopMenuWidths.value = []
@@ -401,7 +257,7 @@ const measureHorizontalMenuItemWidths = () => {
   })
 }
 
-const recalculateVisibleMenuCount = () => {
+function recalculateVisibleMenuCount() {
   const totalCount = horizontalMenuItems.value.length
   if (totalCount === 0) {
     visibleMenuCount.value = 0
@@ -440,7 +296,7 @@ const recalculateVisibleMenuCount = () => {
   visibleMenuCount.value = count
 }
 
-const scheduleMenuLayout = () => {
+function scheduleMenuLayout() {
   if (rafId) {
     cancelAnimationFrame(rafId)
   }
@@ -471,9 +327,12 @@ onMounted(() => {
       syncAiPanelWidth()
     })
 
-    if (menuAreaRef.value) resizeObserver.observe(menuAreaRef.value)
-    if (measureMenuWrapRef.value) resizeObserver.observe(measureMenuWrapRef.value)
-    if (workspaceRef.value) workspaceResizeObserver.observe(workspaceRef.value)
+    if (menuAreaRef.value)
+      resizeObserver.observe(menuAreaRef.value)
+    if (measureMenuWrapRef.value)
+      resizeObserver.observe(measureMenuWrapRef.value)
+    if (workspaceRef.value)
+      workspaceResizeObserver.observe(workspaceRef.value)
   }
 })
 
@@ -496,7 +355,7 @@ watch(
   () => {
     scheduleMenuLayout()
   },
-  { deep: true }
+  { deep: true },
 )
 
 watch(
@@ -513,14 +372,14 @@ watch(
       updateWorkspaceWidth()
       syncAiPanelWidth()
     })
-  }
+  },
 )
 
 watch(
   () => route.path,
   () => {
     scheduleMenuLayout()
-  }
+  },
 )
 
 watch(
@@ -529,7 +388,7 @@ watch(
     if (isMobile && layoutStore.aiCollabEnabled) {
       layoutStore.setAiCollabEnabled(false)
     }
-  }
+  },
 )
 
 watch(
@@ -538,7 +397,7 @@ watch(
     if (isFullscreen && layoutStore.aiCollabEnabled) {
       layoutStore.setAiCollabEnabled(false)
     }
-  }
+  },
 )
 
 watch(
@@ -549,12 +408,155 @@ watch(
         updateWorkspaceWidth()
         syncAiPanelWidth()
       })
-    } else {
+    }
+    else {
       stopAiResize()
     }
-  }
+  },
 )
 </script>
+
+<template>
+  <a-watermark v-bind="watermarkStore.watermarkProps" class="global-watermark">
+    <a-layout class="admin-layout" :class="[settingsStore.layoutMode, { mobile: layoutStore.isMobile }]">
+      <!-- Vertical Layout -->
+      <template v-if="settingsStore.layoutMode === 'vertical'">
+        <!-- Sidebar -->
+        <Sidebar v-if="!layoutStore.pageFullscreen" />
+
+        <!-- Main Content -->
+        <a-layout
+          class="layout-main"
+          :style="{ marginLeft: layoutStore.isMobile || layoutStore.pageFullscreen ? '0px' : `${layoutStore.getCurrentSidebarWidth()}px` }"
+        >
+          <!-- Header -->
+          <Header v-if="!layoutStore.pageFullscreen" />
+
+          <!-- Tabs -->
+          <TabBar />
+
+          <!-- Page Content -->
+          <a-layout-content class="page-content" :class="{ 'is-iframe-page': isIframePage }">
+            <div ref="workspaceRef" class="page-workspace" :class="{ 'is-ai-active': isAICollabActive }">
+              <div class="page-workspace-main">
+                <div class="page-scroll">
+                  <router-view v-slot="{ Component }">
+                    <transition :name="settingsStore.pageAnimation" mode="out-in">
+                      <keep-alive :include="cachedTabs">
+                        <component :is="Component" :key="pageViewKey" />
+                      </keep-alive>
+                    </transition>
+                  </router-view>
+                </div>
+              </div>
+
+              <Transition name="ai-panel">
+                <div v-if="isAICollabActive" class="page-workspace-side" :style="{ '--ai-side-width': `${effectiveAiPanelWidth + 14}px` }">
+                  <div
+                    class="page-workspace-resizer"
+                    role="separator"
+                    aria-orientation="vertical"
+                    @mousedown="startAiResize"
+                  />
+                  <AICollabPanel
+                    class="page-workspace-ai"
+                    :style="{ width: `${effectiveAiPanelWidth}px` }"
+                    @close="layoutStore.setAiCollabEnabled(false)"
+                  />
+                </div>
+              </Transition>
+            </div>
+          </a-layout-content>
+        </a-layout>
+      </template>
+
+      <!-- Horizontal Layout -->
+      <template v-else>
+        <a-layout-header v-if="!layoutStore.pageFullscreen" class="horizontal-header">
+          <div class="header-left">
+            <div class="logo">
+              <img :src="logoImg" alt="Logo">
+              <span class="logo-title">{{ $t('common.appName') || 'Antdv Next Admin' }}</span>
+            </div>
+
+            <div ref="menuAreaRef" class="horizontal-menu-area">
+              <a-menu
+                class="horizontal-main-menu"
+                mode="horizontal"
+                :disabled-overflow="true"
+                :selected-keys="horizontalSelectedKeys"
+                :items="visibleHorizontalMenuItems"
+                trigger-sub-menu-action="hover"
+                @click="handleHorizontalMenuClick"
+              />
+              <a-dropdown
+                v-if="overflowHorizontalMenuItems.length > 0"
+                :menu="overflowMenuProps"
+                :trigger="['hover']"
+                placement="bottomRight"
+              >
+                <a-button type="text" class="horizontal-overflow-trigger">
+                  <EllipsisOutlined />
+                </a-button>
+              </a-dropdown>
+            </div>
+          </div>
+          <div class="header-right">
+            <Header :show-breadcrumb="false" :show-collapse-button="false" />
+          </div>
+          <div ref="measureMenuWrapRef" class="horizontal-menu-measure-wrap" aria-hidden="true">
+            <a-menu
+              class="horizontal-menu-measure"
+              mode="horizontal"
+              :disabled-overflow="true"
+              :items="horizontalMenuItems"
+            />
+          </div>
+        </a-layout-header>
+
+        <a-layout>
+          <a-layout-content class="horizontal-content">
+            <!-- Tabs -->
+            <TabBar />
+
+            <!-- Page Content -->
+            <div class="page-content" :class="{ 'is-iframe-page': isIframePage }">
+              <div ref="workspaceRef" class="page-workspace" :class="{ 'is-ai-active': isAICollabActive }">
+                <div class="page-workspace-main">
+                  <div class="page-scroll">
+                    <router-view v-slot="{ Component }">
+                      <transition :name="settingsStore.pageAnimation" mode="out-in">
+                        <keep-alive :include="cachedTabs">
+                          <component :is="Component" :key="pageViewKey" />
+                        </keep-alive>
+                      </transition>
+                    </router-view>
+                  </div>
+                </div>
+
+                <Transition name="ai-panel">
+                  <div v-if="isAICollabActive" class="page-workspace-side" :style="{ '--ai-side-width': `${effectiveAiPanelWidth + 14}px` }">
+                    <div
+                      class="page-workspace-resizer"
+                      role="separator"
+                      aria-orientation="vertical"
+                      @mousedown="startAiResize"
+                    />
+                    <AICollabPanel
+                      class="page-workspace-ai"
+                      :style="{ width: `${effectiveAiPanelWidth}px` }"
+                      @close="layoutStore.setAiCollabEnabled(false)"
+                    />
+                  </div>
+                </Transition>
+              </div>
+            </div>
+          </a-layout-content>
+        </a-layout>
+      </template>
+    </a-layout>
+  </a-watermark>
+</template>
 
 <style scoped lang="scss">
 .admin-layout {
@@ -785,12 +787,16 @@ watch(
   }
 
   .ai-panel-enter-active {
-    transition: width var(--duration-slow) var(--ease-out), opacity var(--duration-slow) var(--ease-out);
+    transition:
+      width var(--duration-slow) var(--ease-out),
+      opacity var(--duration-slow) var(--ease-out);
     overflow: hidden;
   }
 
   .ai-panel-leave-active {
-    transition: width var(--duration-slow) var(--ease-in), opacity var(--duration-base) var(--ease-in);
+    transition:
+      width var(--duration-slow) var(--ease-in),
+      opacity var(--duration-base) var(--ease-in);
     overflow: hidden;
   }
 

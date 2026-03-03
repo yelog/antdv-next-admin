@@ -1,19 +1,8 @@
-<template>
-  <a-tooltip :title="tooltipTitle">
-    <a-button type="text" class="header-action" @click="handleThemeToggle">
-      <span class="theme-icon-wrapper" :class="{ rotating: isRotating }">
-        <MoonOutlined class="theme-icon theme-icon-dark" :class="{ active: themeStore.isDark }" />
-        <SunOutlined class="theme-icon theme-icon-light" :class="{ active: !themeStore.isDark }" />
-      </span>
-    </a-button>
-  </a-tooltip>
-</template>
-
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
 import { MoonOutlined, SunOutlined } from '@antdv-next/icons'
-import { useThemeStore } from '@/stores/theme'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { $t } from '@/locales'
+import { useThemeStore } from '@/stores/theme'
 
 const themeStore = useThemeStore()
 const isRotating = ref(false)
@@ -23,7 +12,7 @@ const tooltipTitle = computed(() => {
   return themeStore.isDark ? `${$t('layout.theme')} (Light)` : `${$t('layout.theme')} (Dark)`
 })
 
-const resetRotateState = () => {
+function resetRotateState() {
   if (rotateTimer !== null) {
     window.clearTimeout(rotateTimer)
     rotateTimer = null
@@ -31,7 +20,7 @@ const resetRotateState = () => {
   isRotating.value = false
 }
 
-const handleThemeToggle = (event: MouseEvent) => {
+function handleThemeToggle(event: MouseEvent) {
   resetRotateState()
   isRotating.value = true
   rotateTimer = window.setTimeout(() => {
@@ -42,13 +31,24 @@ const handleThemeToggle = (event: MouseEvent) => {
   themeStore.setTheme(themeStore.isDark ? 'light' : 'dark', {
     origin: {
       x: event.clientX,
-      y: event.clientY
-    }
+      y: event.clientY,
+    },
   })
 }
 
 onBeforeUnmount(resetRotateState)
 </script>
+
+<template>
+  <a-tooltip :title="tooltipTitle">
+    <a-button type="text" class="header-action" @click="handleThemeToggle">
+      <span class="theme-icon-wrapper" :class="{ rotating: isRotating }">
+        <MoonOutlined class="theme-icon theme-icon-dark" :class="{ active: themeStore.isDark }" />
+        <SunOutlined class="theme-icon theme-icon-light" :class="{ active: !themeStore.isDark }" />
+      </span>
+    </a-button>
+  </a-tooltip>
+</template>
 
 <style scoped lang="scss">
 .theme-icon-wrapper {
@@ -68,7 +68,9 @@ onBeforeUnmount(resetRotateState)
   justify-content: center;
   opacity: 0;
   transform: scale(0.85);
-  transition: opacity 0.22s ease, transform 0.3s ease;
+  transition:
+    opacity 0.22s ease,
+    transform 0.3s ease;
 }
 
 .theme-icon.active {

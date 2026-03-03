@@ -1,3 +1,62 @@
+<script setup lang="ts">
+import type { ProFormItem } from '@/types/pro'
+import { computed, ref, watch } from 'vue'
+import { $t } from '@/locales'
+import ProUpload from '../ProUpload/index.vue'
+
+interface Props {
+  value?: any
+  item: ProFormItem
+  formData?: Record<string, any>
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  formData: () => ({}),
+})
+const emit = defineEmits(['update:value', 'change'])
+
+const modelValue = ref(props.value ?? props.item.initialValue)
+
+const resolvedOptions = computed(() => {
+  if (typeof props.item.options === 'function') {
+    return props.item.options(props.formData)
+  }
+  return props.item.options
+})
+
+watch(
+  () => props.value,
+  (val) => {
+    modelValue.value = val
+  },
+)
+
+watch(
+  modelValue,
+  (val) => {
+    emit('update:value', val)
+    emit('change', val)
+  },
+)
+
+function handleChange(value: any) {
+  emit('update:value', value)
+  emit('change', value)
+}
+
+function resolveLabel() {
+  return String(props.item.label ?? '')
+}
+
+function resolveInputPlaceholder() {
+  return props.item.placeholder || $t('proForm.enterPlaceholder', { label: resolveLabel() })
+}
+
+function resolveSelectPlaceholder() {
+  return props.item.placeholder || $t('proForm.selectPlaceholder', { label: resolveLabel() })
+}
+</script>
+
 <template>
   <div class="form-item-render">
     <!-- Input -->
@@ -172,8 +231,8 @@
 
     <!-- Custom -->
     <component
-      v-else-if="item.type === 'custom' && item.render"
       :is="item.render"
+      v-else-if="item.type === 'custom' && item.render"
       v-model:value="modelValue"
       @update:value="handleChange"
     />
@@ -188,62 +247,3 @@
     />
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, watch, computed } from 'vue'
-import { $t } from '@/locales'
-import ProUpload from '../ProUpload/index.vue'
-import type { ProFormItem } from '@/types/pro'
-
-interface Props {
-  value?: any
-  item: ProFormItem
-  formData?: Record<string, any>
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  formData: () => ({})
-})
-const emit = defineEmits(['update:value', 'change'])
-
-const modelValue = ref(props.value ?? props.item.initialValue)
-
-const resolvedOptions = computed(() => {
-  if (typeof props.item.options === 'function') {
-    return props.item.options(props.formData)
-  }
-  return props.item.options
-})
-
-watch(
-  () => props.value,
-  (val) => {
-    modelValue.value = val
-  }
-)
-
-watch(
-  modelValue,
-  (val) => {
-    emit('update:value', val)
-    emit('change', val)
-  }
-)
-
-const handleChange = (value: any) => {
-  emit('update:value', value)
-  emit('change', value)
-}
-
-const resolveLabel = () => {
-  return String(props.item.label ?? '')
-}
-
-const resolveInputPlaceholder = () => {
-  return props.item.placeholder || $t('proForm.enterPlaceholder', { label: resolveLabel() })
-}
-
-const resolveSelectPlaceholder = () => {
-  return props.item.placeholder || $t('proForm.selectPlaceholder', { label: resolveLabel() })
-}
-</script>

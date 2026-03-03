@@ -3,14 +3,14 @@ import { ref, watch } from 'vue'
 
 const STORAGE_KEY = 'demo-state-cache'
 
-type PersistedState = {
+interface PersistedState {
   keyword: string
   counter: number
   notes: string
   updatedAt: string
 }
 
-const loadPersistedState = (): PersistedState => {
+function loadPersistedState(): PersistedState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) {
@@ -18,7 +18,7 @@ const loadPersistedState = (): PersistedState => {
         keyword: '',
         counter: 0,
         notes: '',
-        updatedAt: '-'
+        updatedAt: '-',
       }
     }
 
@@ -27,14 +27,15 @@ const loadPersistedState = (): PersistedState => {
       keyword: parsed.keyword || '',
       counter: Number(parsed.counter || 0),
       notes: parsed.notes || '',
-      updatedAt: parsed.updatedAt || '-'
+      updatedAt: parsed.updatedAt || '-',
     }
-  } catch {
+  }
+  catch {
     return {
       keyword: '',
       counter: 0,
       notes: '',
-      updatedAt: '-'
+      updatedAt: '-',
     }
   }
 }
@@ -53,7 +54,7 @@ export const useDemoStateCacheStore = defineStore('demoStateCache', () => {
       keyword: keyword.value,
       counter: counter.value,
       notes: notes.value,
-      updatedAt: updatedAt.value
+      updatedAt: updatedAt.value,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot))
   }
@@ -72,6 +73,6 @@ export const useDemoStateCacheStore = defineStore('demoStateCache', () => {
     counter,
     notes,
     updatedAt,
-    reset
+    reset,
   }
 })

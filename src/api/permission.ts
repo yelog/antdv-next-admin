@@ -1,6 +1,6 @@
-import { request } from '@/utils/request'
-import type { Permission } from '@/types/auth'
 import type { ApiResponse } from '@/types/api'
+import type { Permission } from '@/types/auth'
+import { request } from '@/utils/request'
 
 /**
  * Get permission list

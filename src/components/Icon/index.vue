@@ -1,33 +1,8 @@
-<template>
-  <component
-    :is="antdvComp"
-    v-if="resolvedKind === 'antdv-next'"
-    class="app-icon"
-    :style="[baseStyle, props.style]"
-  />
-
-  <svg
-    v-else-if="resolvedKind === 'svg'"
-    class="app-icon app-icon-svg"
-    :style="[baseStyle, props.style]"
-    aria-hidden="true"
-  >
-    <use :href="`#${svgId}`" />
-  </svg>
-
-  <IconifyIcon
-    v-else
-    class="app-icon"
-    :icon="iconifyIcon"
-    :style="[baseStyle, props.style]"
-  />
-</template>
-
 <script setup lang="ts">
 import type { StyleValue } from 'vue'
-import { computed } from 'vue'
-import { Icon as IconifyIcon } from '@iconify/vue'
 import * as AntdvIcons from '@antdv-next/icons'
+import { Icon as IconifyIcon } from '@iconify/vue'
+import { computed } from 'vue'
 
 type NormalizedIconKind = 'iconify' | 'antdv-next' | 'svg'
 type IconKind = NormalizedIconKind | 'antdvNext' | 'antd'
@@ -40,14 +15,14 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  size: 16
+  size: 16,
 })
 
-const stripPrefix = (value: string, prefix: string) => {
+function stripPrefix(value: string, prefix: string) {
   return value.startsWith(prefix) ? value.slice(prefix.length) : value
 }
 
-const normalizeKind = (kind?: IconKind): NormalizedIconKind | undefined => {
+function normalizeKind(kind?: IconKind): NormalizedIconKind | undefined {
   if (!kind) {
     return undefined
   }
@@ -99,9 +74,34 @@ const baseStyle = computed(() => ({
   lineHeight: sizeCss.value,
   display: 'inline-flex',
   alignItems: 'center',
-  justifyContent: 'center'
+  justifyContent: 'center',
 }))
 </script>
+
+<template>
+  <component
+    :is="antdvComp"
+    v-if="resolvedKind === 'antdv-next'"
+    class="app-icon"
+    :style="[baseStyle, props.style]"
+  />
+
+  <svg
+    v-else-if="resolvedKind === 'svg'"
+    class="app-icon app-icon-svg"
+    :style="[baseStyle, props.style]"
+    aria-hidden="true"
+  >
+    <use :href="`#${svgId}`" />
+  </svg>
+
+  <IconifyIcon
+    v-else
+    class="app-icon"
+    :icon="iconifyIcon"
+    :style="[baseStyle, props.style]"
+  />
+</template>
 
 <style scoped lang="scss">
 .app-icon {

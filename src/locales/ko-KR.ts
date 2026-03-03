@@ -1,5 +1,5 @@
 export default {
-  common: {
+  'common': {
     appName: 'Antdv Next Admin',
     add: '추가하다',
     edit: '편집하다',
@@ -69,9 +69,9 @@ export default {
     typeTags: '태그',
     typeArray: '정렬',
     typeObject: '물체',
-    searchLabel: '{label} 검색'
+    searchLabel: '{label} 검색',
   },
-  menu: {
+  'menu': {
     dashboard: '계기반',
     organization: '조직',
     system: '체계',
@@ -119,9 +119,9 @@ export default {
     exception404: '404',
     exception500: '500',
     profile: '윤곽',
-    about: '에 대한'
+    about: '에 대한',
   },
-  layout: {
+  'layout': {
     logout: '로그아웃',
     logoutConfirm: '정말로 로그아웃하시겠습니까?',
     profile: '윤곽',
@@ -163,7 +163,7 @@ export default {
       zhCN: '중국어(간체)',
       enUS: '영어',
       jaJP: '일본어',
-      koKR: '한국어'
+      koKR: '한국어',
     },
     tabs: {
       refresh: '새로 고치다',
@@ -176,10 +176,10 @@ export default {
       closeAll: '모두 닫기',
       closeLeft: '왼쪽 닫기',
       closeRight: '오른쪽 닫기',
-      moreActions: '추가 탭 작업'
-    }
+      moreActions: '추가 탭 작업',
+    },
   },
-  settings: {
+  'settings': {
     title: '환경설정',
     themeColor: '테마 색상',
     sidebarTheme: '사이드바 테마',
@@ -212,10 +212,10 @@ export default {
       purple: '골든 퍼플',
       red: '더스트 레드',
       orange: '선셋 오렌지',
-      cyan: '청록색'
-    }
+      cyan: '청록색',
+    },
   },
-  login: {
+  'login': {
     title: '사용자 로그인',
     username: '사용자 이름',
     password: '비밀번호',
@@ -231,9 +231,9 @@ export default {
     loginSuccess: '로그인 성공',
     loginFailed: '로그인 실패',
     slideToVerify: '슬라이드하여 확인',
-    verifySuccess: '확인됨'
+    verifySuccess: '확인됨',
   },
-  dashboard: {
+  'dashboard': {
     welcome: '돌아온 것을 환영합니다',
     subtitle: '비즈니스 지표와 시스템 상태를 실시간으로 모니터링하세요',
     systemStable: '시스템 안정',
@@ -261,13 +261,13 @@ export default {
       permissionUpdated: '관리자가 시스템 메뉴 권한 설정을 업데이트했습니다.',
       userCreated: 'Sunny라는 사용자를 생성하고 운영 역할을 할당했습니다.',
       orderTaskDone: '오늘의 주문통계 작업이 완료되었습니다.',
-      riskPolicyReleased: '위험 관리 전략 버전이 프로덕션으로 출시되었습니다.'
+      riskPolicyReleased: '위험 관리 전략 버전이 프로덕션으로 출시되었습니다.',
     },
     activityTags: {
       system: '체계',
       user: '사용자',
       task: '일',
-      release: '풀어 주다'
+      release: '풀어 주다',
     },
     months: {
       jan: '1월',
@@ -277,10 +277,10 @@ export default {
       may: '5월',
       jun: '준',
       jul: '7월',
-      aug: '8월'
-    }
+      aug: '8월',
+    },
   },
-  user: {
+  'user': {
     title: '사용자 관리',
     username: '사용자 이름',
     email: '이메일',
@@ -321,9 +321,9 @@ export default {
     info: '사용자 정보',
     settings: '설정',
     theme: '주제',
-    language: '언어'
+    language: '언어',
   },
-  role: {
+  'role': {
     title: '역할 관리',
     name: '역할 이름',
     code: '역할 코드',
@@ -338,9 +338,9 @@ export default {
     codePattern: '역할 코드는 문자, 숫자, 밑줄, 하이픈만 지원합니다.',
     selectPermissions: '권한을 선택해주세요',
     updateSuccess: '역할이 업데이트되었습니다.',
-    createSuccess: '역할이 성공적으로 생성되었습니다.'
+    createSuccess: '역할이 성공적으로 생성되었습니다.',
   },
-  permission: {
+  'permission': {
     title: '메뉴 관리',
     name: '메뉴명',
     code: '허가 코드',
@@ -372,9 +372,9 @@ export default {
     iconPlaceholder: '예를 들어 사용자개요',
     visibleStatus: '시계',
     updateSuccess: '메뉴가 업데이트되었습니다.',
-    createSuccess: '메뉴가 성공적으로 생성되었습니다'
+    createSuccess: '메뉴가 성공적으로 생성되었습니다',
   },
-  dict: {
+  'dict': {
     title: '사전',
     dictType: '사전 유형',
     dictData: '사전 데이터',
@@ -411,34 +411,34 @@ export default {
     loadTypeFailed: '사전 유형을 로드하지 못했습니다.',
     loadDataFailed: '사전 데이터를 로드하지 못했습니다.',
     dictDataTitle: '사전 데이터 - {name}',
-    confirmDelete: '삭제 확인'
+    confirmDelete: '삭제 확인',
   },
-  table: {
+  'table': {
     title: '테이블 예',
     total: '총 {total} 항목',
     page: '페이지 {page}',
     pageSize: '{size} 페이지당 항목',
-    goTo: '이동'
+    goTo: '이동',
   },
-  form: {
+  'form': {
     title: '양식 예',
     basicInfo: '기본정보',
     advancedInfo: '고급정보',
     submit: '제출하다',
     reset: '다시 놓기',
     validateSuccess: '유효성 검사가 통과되었습니다.',
-    validateFailed: '검증 실패'
+    validateFailed: '검증 실패',
   },
-  exampleTable: {
+  'exampleTable': {
     userList: '사용자 목록',
     subTitle: 'ProTable 예시',
     createUser: '사용자 생성',
     editUser: '사용자 편집',
     deleteSuccess: '삭제되었습니다.',
     updateSuccess: '업데이트되었습니다.',
-    createSuccess: '성공적으로 생성되었습니다'
+    createSuccess: '성공적으로 생성되었습니다',
   },
-  notificationCenter: {
+  'notificationCenter': {
     kicker: '알림 허브',
     title: '알림 센터',
     subtitle: '빠른 필터링과 세부 추적을 통해 시스템 업데이트, 메시지, 작업 결과를 한 곳에서 추적하세요.',
@@ -449,7 +449,7 @@ export default {
     metrics: {
       total: '총 알림',
       unread: '읽히지 않는',
-      today: '오늘'
+      today: '오늘',
     },
     filters: {
       allStatus: '모든 상태',
@@ -460,27 +460,27 @@ export default {
       message: '메시지',
       security: '보안 경고',
       task: '작업 완료',
-      error: '오류 경고'
+      error: '오류 경고',
     },
     status: {
       read: '읽다',
-      unread: '읽히지 않는'
+      unread: '읽히지 않는',
     },
     meta: {
       type: '유형',
-      receivedAt: '수신 시간'
+      receivedAt: '수신 시간',
     },
     actions: {
       markAsRead: '읽음으로 표시',
       openRelated: '관련 페이지 열기',
-      delete: '알림 삭제'
+      delete: '알림 삭제',
     },
     placeholder: {
       title: '세부정보를 보려면 알림을 선택하세요.',
-      desc: '여기에서 전체 콘텐츠와 관련 작업을 보려면 왼쪽 목록에서 항목을 선택하세요.'
-    }
+      desc: '여기에서 전체 콘텐츠와 관련 작업을 보려면 왼쪽 목록에서 항목을 선택하세요.',
+    },
   },
-  exampleCaptcha: {
+  'exampleCaptcha': {
     title: '보안 문자 구성 요소 예',
     description: '사용자 정의 가능한 스타일과 콜백을 포함하는 일반적인 프런트엔드 보안 문자 상호 작용 구성 요소입니다.',
     slider: '슬라이더 보안문자',
@@ -488,9 +488,9 @@ export default {
     puzzle: '퍼즐 보안 문자',
     point: '포인트 보안 문자',
     success: '확인이 통과되었습니다!',
-    fail: '확인에 실패했습니다. 다시 시도해 주세요.'
+    fail: '확인에 실패했습니다. 다시 시도해 주세요.',
   },
-  exampleSpin: {
+  'exampleSpin': {
     title: '스핀 예시',
     description: '기본 로딩, 크기, 사용자 정의 표시기, 진행률, 지연 및 전체 화면을 포함하여 Spin 구성 요소의 다양한 사용법을 보여줍니다.',
     basic: '기본 및 사이즈',
@@ -502,9 +502,9 @@ export default {
     customStyle: '맞춤 스타일',
     fullscreen: '전체 화면',
     showFullscreen: '전체 화면 표시',
-    loadingState: '로드 상태:'
+    loadingState: '로드 상태:',
   },
-  exampleEditor: {
+  'exampleEditor': {
     title: '리치 텍스트 편집기 예',
     description: '이미지 업로드, 링크 삽입, 서식 지정 등을 지원하는 Tiptap 기반의 서식 있는 텍스트 편집기입니다.',
     basicUsage: '기본 사용법',
@@ -519,9 +519,9 @@ export default {
     loadDemo: '데모 로드',
     savedMessage: '저장된 콘텐츠',
     clearedMessage: '콘텐츠가 삭제되었습니다.',
-    demoLoadedMessage: '데모 콘텐츠가 로드되었습니다.'
+    demoLoadedMessage: '데모 콘텐츠가 로드되었습니다.',
   },
-  exampleForm: {
+  'exampleForm': {
     description: '다양한 양식 컨트롤을 보여주는 고급 ProForm 예제',
     age: '나이',
     ageRange: '연령은 1~150세 사이여야 합니다.',
@@ -534,16 +534,16 @@ export default {
     roles: {
       admin: '관리자',
       user: '일반 사용자',
-      guest: '손님'
+      guest: '손님',
     },
     interestOptions: {
       reading: '독서',
       sports: '스포츠',
       music: '음악',
-      travel: '여행하다'
-    }
+      travel: '여행하다',
+    },
   },
-  exampleIcon: {
+  'exampleIcon': {
     title: '아이콘 쇼케이스',
     subtitle: 'Icon 구성 요소 및 IconPicker에 대한 통합 데모',
     capabilities: '지원: 로컬 SVG, antdv-next 아이콘, Iconify(오프라인 세트 + 온라인 검색)',
@@ -577,9 +577,9 @@ export default {
     modeSvg: 'SVG 스프라이트',
     modeAntdv: 'antdv-다음',
     modeIconify: '아이콘화하다',
-    sampleHint: '신청하려면 클릭하세요'
+    sampleHint: '신청하려면 클릭하세요',
   },
-  exampleWatermark: {
+  'exampleWatermark': {
     title: '워터마크 예',
     description: '글로벌 워터마크 기능 - 실시간으로 워터마크 효과 구성 및 미리보기',
     enableGlobal: '글로벌 워터마크 활성화',
@@ -590,9 +590,9 @@ export default {
     gapX: '수평 간격',
     gapY: '수직 간격',
     preview: '로컬 미리보기',
-    previewText: '워터마크 효과를 미리보기 위한 영역입니다.'
+    previewText: '워터마크 효과를 미리보기 위한 영역입니다.',
   },
-  exampleModal: {
+  'exampleModal': {
     title: '프로모달 데모',
     description: '드래그, 전체 화면, 가장자리 크기 조정 및 뷰포트 제약 조건을 갖춘 antdv-next Modal에 대한 향상된 래퍼입니다.',
     openDefault: '기본 모달 열기',
@@ -614,17 +614,17 @@ export default {
     formRemark: '주목',
     formRemarkPlaceholder: '비고를 입력해주세요',
     rowText: '데모 데이터 행 #{index}',
-    confirmSuccess: '성공적으로 확인되었습니다'
+    confirmSuccess: '성공적으로 확인되었습니다',
   },
-  exampleException: {
+  'exampleException': {
     '403title': '403',
     '403description': '죄송합니다. 이 페이지에 액세스할 수 있는 권한이 없습니다.',
     '404title': '404',
     '404description': '죄송합니다. 방문한 페이지가 존재하지 않습니다.',
     '500title': '500',
-    '500description': '죄송합니다. 서버에서 오류를 보고하고 있습니다.'
+    '500description': '죄송합니다. 서버에서 오류를 보고하고 있습니다.',
   },
-  editor: {
+  'editor': {
     insertLink: '링크 삽입',
     linkUrl: '링크 URL',
     linkText: '링크 텍스트',
@@ -634,19 +634,19 @@ export default {
     imageSizeLimit: '이미지 크기는 5MB를 초과할 수 없습니다.',
     imageInsertSuccess: '이미지가 성공적으로 삽입되었습니다.',
     imageUploadFailed: '이미지 업로드 실패',
-    enterLinkUrl: '링크 URL을 입력하세요.'
+    enterLinkUrl: '링크 URL을 입력하세요.',
   },
-  iconPicker: {
+  'iconPicker': {
     selectIcon: '아이콘 선택',
     searchPlaceholder: '아이콘 이름 검색...',
     onlineSearchFailed: '온라인 검색 실패',
-    onlineSearchFailedDetail: '온라인 검색 실패: {message}'
+    onlineSearchFailedDetail: '온라인 검색 실패: {message}',
   },
-  captcha: {
+  'captcha': {
     clickInOrder: '순서대로 클릭하세요.',
-    refresh: '새로 고치다'
+    refresh: '새로 고치다',
   },
-  about: {
+  'about': {
     description: 'Vue 3 + TypeScript + Ant Design Vue를 기반으로 구축된 최신 관리 프레임워크입니다. 프로덕션 준비가 되어 있고 기능이 풍부하며 확장이 쉽습니다.',
     projectInfo: '프로젝트 정보',
     projectName: '프로젝트 이름',
@@ -672,25 +672,25 @@ export default {
     feature7: 'ProTable / ProForm 구성요소',
     feature7Desc: '일반적인 비즈니스 시나리오를 다루는 구성 기반 테이블 및 양식',
     feature8: '모의 데이터 개발 모드',
-    feature8Desc: '병렬 프런트엔드 및 백엔드 개발을 위한 내장형 모의 시스템'
+    feature8Desc: '병렬 프런트엔드 및 백엔드 개발을 위한 내장형 모의 시스템',
   },
-  proForm: {
+  'proForm': {
     enterPlaceholder: '{label}을 입력하세요.',
     selectPlaceholder: '{label}을 선택하세요.',
-    uploadFile: '파일 업로드'
+    uploadFile: '파일 업로드',
   },
-  proUpload: {
+  'proUpload': {
     uploadFile: '파일 업로드',
     uploadImage: '이미지 업로드',
     dragHint: '업로드하려면 파일을 클릭하거나 이 영역으로 드래그하세요.',
     fileSizeExceed: '파일 크기는 {size}MB를 초과할 수 없습니다.',
-    fileTypeNotAllowed: '허용되지 않는 파일 형식'
+    fileTypeNotAllowed: '허용되지 않는 파일 형식',
   },
-  proStepForm: {
+  'proStepForm': {
     prev: '이전의',
-    next: '다음'
+    next: '다음',
   },
-  proTable: {
+  'proTable': {
     total: '총 {total} 항목',
     density: '테이블 밀도',
     checkAll: '모두 선택',
@@ -700,9 +700,9 @@ export default {
     densityLarge: '넓다',
     densityMiddle: '기본',
     densitySmall: '콤팩트',
-    loadDataFailed: '데이터를 로드하지 못했습니다.'
+    loadDataFailed: '데이터를 로드하지 못했습니다.',
   },
-  profile: {
+  'profile': {
     title: '윤곽',
     basicInfo: '기본정보',
     security: '보안',
@@ -725,18 +725,18 @@ export default {
     passwordChangeFailed: '비밀번호를 변경하지 못했습니다.',
     passwordTip: '팁: 비밀번호는 6자 이상이어야 하며 문자, 숫자, 특수 문자를 포함하는 것이 좋습니다.',
     updateSuccess: '업데이트 성공',
-    updateFailed: '업데이트 실패'
+    updateFailed: '업데이트 실패',
   },
-  error: {
-    '403': '접근금지',
-    '404': '페이지를 찾을 수 없음',
-    '500': '서버 오류',
+  'error': {
+    403: '접근금지',
+    404: '페이지를 찾을 수 없음',
+    500: '서버 오류',
     backHome: '홈으로 돌아가기',
     pageNotFound: '죄송합니다. 방문한 페이지가 존재하지 않습니다.',
     noPermission: '죄송합니다. 이 페이지에 액세스할 수 있는 권한이 없습니다.',
-    serverError: '죄송합니다. 서버에서 오류를 보고하고 있습니다.'
+    serverError: '죄송합니다. 서버에서 오류를 보고하고 있습니다.',
   },
-  validation: {
+  'validation': {
     required: '이 필드는 필수입니다',
     email: '유효한 이메일 주소를 입력하세요.',
     phone: '유효한 전화번호를 입력하세요.',
@@ -751,9 +751,9 @@ export default {
     pattern: '잘못된 형식',
     usernamePattern: '사용자 이름에는 문자, 숫자, 밑줄만 포함할 수 있습니다.',
     passwordPattern: '비밀번호는 8자 이상이어야 하며 문자와 숫자를 포함해야 합니다.',
-    confirmPassword: '두 비밀번호가 일치하지 않습니다.'
+    confirmPassword: '두 비밀번호가 일치하지 않습니다.',
   },
-  dept: {
+  'dept': {
     title: '부서 관리',
     organizationStructure: '조직',
     searchDept: '검색부서',
@@ -790,9 +790,9 @@ export default {
     pleaseEnterRemark: '비고를 입력해주세요',
     loadDataFailed: '부서 데이터를 로드하지 못했습니다.',
     createTime: '시간 만들기',
-    updateTime: '업데이트 시간'
+    updateTime: '업데이트 시간',
   },
-  config: {
+  'config': {
     title: '시스템 구성',
     configGroups: '구성 그룹',
     configName: '구성 이름',
@@ -819,27 +819,27 @@ export default {
       string: '끈',
       number: '숫자',
       boolean: '부울',
-      json: 'JSON'
+      json: 'JSON',
     },
     groups: {
       basic: '기본 구성',
       security: '보안 구성',
       upload: '구성 업로드',
-      notification: '알림 구성'
+      notification: '알림 구성',
     },
     builtInTypes: {
       builtIn: '내장',
-      custom: '관습'
+      custom: '관습',
     },
     placeholders: {
       configName: '구성 이름을 입력하세요.',
       configKey: '예를 들어 사이트.이름',
       configValue: '구성 값을 입력하세요.',
       jsonFormat: 'JSON 형식',
-      description: '설명을 입력해주세요'
-    }
+      description: '설명을 입력해주세요',
+    },
   },
-  file: {
+  'file': {
     title: '파일 관리',
     fileName: '파일 이름',
     ext: '확대',
@@ -857,7 +857,7 @@ export default {
     storageType: {
       local: '현지의',
       oss: 'OSS',
-      cos: '코사인'
+      cos: '코사인',
     },
     extType: {
       imageJpg: '이미지(jpg)',
@@ -869,10 +869,10 @@ export default {
       video: '동영상',
       text: '텍스트',
       ppt: '피피티',
-      svg: 'SVG'
-    }
+      svg: 'SVG',
+    },
   },
-  log: {
+  'log': {
     title: '시스템 로그',
     operationLog: '작업 로그',
     loginLog: '로그인 로그',
@@ -905,7 +905,7 @@ export default {
       delete: '삭제',
       export: '내보내다',
       import: '수입',
-      other: '다른'
+      other: '다른',
     },
     modules: {
       userManagement: '사용자 관리',
@@ -914,10 +914,10 @@ export default {
       dictionary: '사전',
       systemLogin: '시스템 로그인',
       profile: '윤곽',
-      dashboard: '계기반'
+      dashboard: '계기반',
     },
     loadOperationLogFailed: '작업 로그를 로드하지 못했습니다.',
-    loadLoginLogFailed: '로그인 로그를 로드하지 못했습니다.'
+    loadLoginLogFailed: '로그인 로그를 로드하지 못했습니다.',
   },
   'menu.external': '외부 페이지',
   'menu.externalIframe': '아이프레임',
@@ -930,7 +930,7 @@ export default {
   'external.link.openedSubTitle': '브라우저에서 팝업을 차단한 경우 아래 버튼을 클릭하여 다시 열어주세요.',
   'external.link.openVite': '오픈 바이트',
   'external.link.openVue': '오픈뷰',
-  examples: {
+  'examples': {
     scaffold: {
       stateCache: {
         title: '상태 및 캐시 예',
@@ -952,7 +952,7 @@ export default {
         localCountLabel: '지역 수:',
         panelBDesc: '패널 B(또한 연결 유지에 의해 캐시됨)',
         panelBTextPlaceholder: '콘텐츠 입력, 탭 전환 및 복귀 - 여전히 유지됨',
-        pinTabSuccess: '탭 핀 상태가 전환됨'
+        pinTabSuccess: '탭 핀 상태가 전환됨',
       },
       uploadSystem: {
         title: '업로드 시스템 예시',
@@ -970,7 +970,7 @@ export default {
         uploadSuccessMsg: '업로드 성공: {name}',
         uploadFailedMsg: '업로드 실패: {name}',
         retryMsg: '{count} 실패한 파일을 다시 시도하는 중',
-        previewNotSupported: '이 파일 형식은 미리보기를 지원하지 않습니다.'
+        previewNotSupported: '이 파일 형식은 미리보기를 지원하지 않습니다.',
       },
       importExport: {
         title: '가져오기/내보내기 흐름 예',
@@ -998,7 +998,7 @@ export default {
         errorPrice: '가격은 0보다 크거나 같은 숫자여야 합니다.',
         errorStock: '재고는 0보다 크거나 같은 정수여야 합니다.',
         importDone: '가져오기 완료: {success} 성공, {failed} 실패',
-        parseFailed: 'CSV 구문 분석에 실패했습니다. 파일 형식을 확인하세요.'
+        parseFailed: 'CSV 구문 분석에 실패했습니다. 파일 형식을 확인하세요.',
       },
       testing: {
         title: '테스트 예',
@@ -1012,7 +1012,7 @@ export default {
         step2Title: '그런 다음 e2e 테스트를 추가하세요.',
         step2Description: '로그인, 검색, 목록 작업과 같은 중요한 사용자 경로를 다룹니다.',
         step3Title: 'CI와 통합',
-        step3Description: '체인 유형 확인 + 유닛 + e2e를 파이프라인에 추가하고 병합하기 전에 자동으로 실행합니다.'
+        step3Description: '체인 유형 확인 + 유닛 + e2e를 파이프라인에 추가하고 병합하기 전에 자동으로 실행합니다.',
       },
       proTableAdvanced: {
         title: 'ProTable 고급 예시',
@@ -1037,7 +1037,7 @@ export default {
         batchDeleteTitle: '일괄 삭제 확인',
         batchDeleteContent: '선택한 {count} 행을 삭제하시겠습니까?',
         batchDeleteSuccess: '일괄 삭제 완료',
-        exportSuccess: 'CSV를 성공적으로 내보냈습니다.'
+        exportSuccess: 'CSV를 성공적으로 내보냈습니다.',
       },
       complexForm: {
         title: '복잡한 형태의 예',
@@ -1082,7 +1082,7 @@ export default {
         draftSaved: '초안이 저장되었습니다.',
         serverValidationError: '서버 유효성 검사 실패: 프로젝트 이름에 "fail"을 포함할 수 없습니다.',
         submitFailed: '제출 실패, 서버 필드 오류 매핑됨',
-        submitSuccess: '제출 성공'
+        submitSuccess: '제출 성공',
       },
       advancedFilter: {
         title: '고급 필터 빌더 예',
@@ -1117,7 +1117,7 @@ export default {
         opLte: '작거나 같음',
         opBetween: '사이',
         opBefore: '전에',
-        opAfter: '후에'
+        opAfter: '후에',
       },
       virtualTable: {
         title: '가상 스크롤 테이블 예',
@@ -1139,7 +1139,7 @@ export default {
         colEmail: '이메일',
         colDepartment: '부서',
         colStatus: '상태',
-        colUpdatedAt: '업데이트 날짜'
+        colUpdatedAt: '업데이트 날짜',
       },
       masterDetail: {
         title: '마스터-디테일 예',
@@ -1168,7 +1168,7 @@ export default {
         colOwner: '소유자',
         colPriority: '우선 사항',
         colStatus: '상태',
-        colCreatedAt: '생성 날짜'
+        colCreatedAt: '생성 날짜',
       },
       rbac: {
         title: 'RBAC 풀체인 예시',
@@ -1205,7 +1205,7 @@ export default {
         missingPermission: '403: 권한 누락 {permission}',
         apiSuccess: '{action} 성공',
         apiFailed: '{action} 실패: {error}',
-        noPermission: '허가 없음'
+        noPermission: '허가 없음',
       },
       observability: {
         title: '관찰 가능성 및 예외 예',
@@ -1232,7 +1232,7 @@ export default {
         eventEmpty: '요청이 성공했지만 빈 데이터가 반환되었습니다.',
         eventSuccess: '요청 성공 및 반환된 데이터',
         unknownError: '알 수 없는 오류',
-        eventError: '요청 실패({type}): {message}'
+        eventError: '요청 실패({type}): {message}',
       },
       requestAuth: {
         title: '요청 및 인증 루프 예',
@@ -1269,8 +1269,8 @@ export default {
         concurrentPartialFail: '동시 요청 완료, {count} 실패',
         concurrentAllSuccess: '모든 동시 요청이 성공했습니다.',
         logRefreshWillFail: '다음 새로 고침이 강제로 실패합니다.',
-        refreshFailTriggered: '새로 고침 실패 시나리오가 트리거됨'
-      }
+        refreshFailTriggered: '새로 고침 실패 시나리오가 트리거됨',
+      },
     },
     jsonInput: {
       title: 'JSON 입력 예',
@@ -1300,7 +1300,7 @@ export default {
       language: '언어',
       nestedData: '중첩된 데이터 구조',
       emptyObject: '빈 개체(새로 만들기)',
-      createNew: '새 구성 만들기'
+      createNew: '새 구성 만들기',
     },
     i18nInput: {
       description: '다국어 컨텐츠 편집을 지원하는 국제화된 입력 구성요소입니다. JsonInput을 기반으로 구축되어 시스템 지원 언어를 기반으로 양식 필드를 자동으로 생성합니다.',
@@ -1319,7 +1319,7 @@ export default {
       showAsString: '문자열로 표시',
       showAsObject: '개체로 표시',
       stringValue: '문자열 형식',
-      objectValue: '개체 형식'
-    }
-  }
+      objectValue: '개체 형식',
+    },
+  },
 }

@@ -1,12 +1,68 @@
+<script setup lang="ts">
+import {
+  ApartmentOutlined,
+  ApiOutlined,
+  BgColorsOutlined,
+  BookOutlined,
+  BulbOutlined,
+  CloudOutlined,
+  CodeOutlined,
+  GithubOutlined,
+  GlobalOutlined,
+  LinkOutlined,
+  MailOutlined,
+  ProfileOutlined,
+  SafetyOutlined,
+  TableOutlined,
+} from '@antdv-next/icons'
+import logoImg from '@/assets/images/logo.png'
+import { $t } from '@/locales'
+
+const version = __APP_VERSION__
+
+const heroBadges = [
+  { label: 'Vue 3', bg: 'rgba(66, 184, 131, 0.25)' },
+  { label: 'TypeScript', bg: 'rgba(49, 120, 198, 0.25)' },
+  { label: 'Vite', bg: 'rgba(100, 108, 255, 0.25)' },
+  { label: 'Ant Design Vue', bg: 'rgba(255, 255, 255, 0.15)' },
+]
+
+const techList = [
+  { name: 'Vue', version: '3.4', color: '#42b883', url: 'https://vuejs.org' },
+  { name: 'TypeScript', version: '5.3', color: '#3178c6', url: 'https://www.typescriptlang.org' },
+  { name: 'Vite', version: '5.0', color: '#646cff', url: 'https://vite.dev' },
+  { name: 'Ant Design Vue', version: 'Next', color: '#1677ff', url: 'https://antdv-next.com' },
+  { name: 'Pinia', version: '2.1', color: '#ffd859', url: 'https://pinia.vuejs.org' },
+  { name: 'Vue Router', version: '4.2', color: '#42b883', url: 'https://router.vuejs.org' },
+  { name: 'Vue I18n', version: '11.0', color: '#42b883', url: 'https://vue-i18n.intlify.dev' },
+  { name: 'Axios', version: '1.6', color: '#5a29e4', url: 'https://axios-http.com' },
+  { name: 'ECharts', version: '5.4', color: '#e43961', url: 'https://echarts.apache.org' },
+  { name: 'Iconify', version: '5.0', color: '#1769aa', url: 'https://iconify.design' },
+  { name: 'Tiptap', version: '3.19', color: '#68cef8', url: 'https://tiptap.dev' },
+  { name: 'Day.js', version: '1.11', color: '#ff6f61', url: 'https://day.js.org' },
+]
+
+const features = [
+  { title: $t('about.feature1'), desc: $t('about.feature1Desc'), icon: ApiOutlined, color: '#42b883' },
+  { title: $t('about.feature2'), desc: $t('about.feature2Desc'), icon: SafetyOutlined, color: '#3178c6' },
+  { title: $t('about.feature3'), desc: $t('about.feature3Desc'), icon: SafetyOutlined, color: '#e43961' },
+  { title: $t('about.feature4'), desc: $t('about.feature4Desc'), icon: ApartmentOutlined, color: '#646cff' },
+  { title: $t('about.feature5'), desc: $t('about.feature5Desc'), icon: GlobalOutlined, color: '#1677ff' },
+  { title: $t('about.feature6'), desc: $t('about.feature6Desc'), icon: BgColorsOutlined, color: '#fa8c16' },
+  { title: $t('about.feature7'), desc: $t('about.feature7Desc'), icon: TableOutlined, color: '#13c2c2' },
+  { title: $t('about.feature8'), desc: $t('about.feature8Desc'), icon: CloudOutlined, color: '#722ed1' },
+]
+</script>
+
 <template>
   <div class="about-page">
     <!-- Hero Banner -->
     <section class="hero">
       <div class="hero-bg" aria-hidden="true">
-        <div class="grid-overlay"></div>
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
+        <div class="grid-overlay" />
+        <div class="orb orb-1" />
+        <div class="orb orb-2" />
+        <div class="orb orb-3" />
         <div class="code-symbols">
           <span class="sym sym-1">&lt;/&gt;</span>
           <span class="sym sym-2">{ }</span>
@@ -17,12 +73,16 @@
       </div>
       <div class="hero-content">
         <div class="hero-icon">
-          <img :src="logoImg" alt="Logo" class="hero-logo" />
+          <img :src="logoImg" alt="Logo" class="hero-logo">
         </div>
-        <h1 class="hero-title">Antdv Next Admin</h1>
-        <p class="hero-desc">{{ $t('about.description') }}</p>
+        <h1 class="hero-title">
+          Antdv Next Admin
+        </h1>
+        <p class="hero-desc">
+          {{ $t('about.description') }}
+        </p>
         <div class="hero-badges">
-          <span class="hero-badge" v-for="b in heroBadges" :key="b.label" :style="{ '--badge-bg': b.bg }">
+          <span v-for="b in heroBadges" :key="b.label" class="hero-badge" :style="{ '--badge-bg': b.bg }">
             {{ b.label }}
           </span>
         </div>
@@ -126,7 +186,7 @@
               class="tech-item"
               :style="{ '--tech-color': tech.color }"
             >
-              <div class="tech-dot"></div>
+              <div class="tech-dot" />
               <div class="tech-info">
                 <span class="tech-name">{{ tech.name }}</span>
                 <span class="tech-version">{{ tech.version }}</span>
@@ -163,62 +223,6 @@
     </a-row>
   </div>
 </template>
-
-<script setup lang="ts">
-import {
-  ProfileOutlined,
-  CodeOutlined,
-  BulbOutlined,
-  GithubOutlined,
-  MailOutlined,
-  LinkOutlined,
-  BookOutlined,
-  ApiOutlined,
-  SafetyOutlined,
-  ApartmentOutlined,
-  GlobalOutlined,
-  BgColorsOutlined,
-  TableOutlined,
-  CloudOutlined
-} from '@antdv-next/icons'
-import { $t } from '@/locales'
-import logoImg from '@/assets/images/logo.png'
-
-const version = __APP_VERSION__
-
-const heroBadges = [
-  { label: 'Vue 3', bg: 'rgba(66, 184, 131, 0.25)' },
-  { label: 'TypeScript', bg: 'rgba(49, 120, 198, 0.25)' },
-  { label: 'Vite', bg: 'rgba(100, 108, 255, 0.25)' },
-  { label: 'Ant Design Vue', bg: 'rgba(255, 255, 255, 0.15)' },
-]
-
-const techList = [
-  { name: 'Vue', version: '3.4', color: '#42b883', url: 'https://vuejs.org' },
-  { name: 'TypeScript', version: '5.3', color: '#3178c6', url: 'https://www.typescriptlang.org' },
-  { name: 'Vite', version: '5.0', color: '#646cff', url: 'https://vite.dev' },
-  { name: 'Ant Design Vue', version: 'Next', color: '#1677ff', url: 'https://antdv-next.com' },
-  { name: 'Pinia', version: '2.1', color: '#ffd859', url: 'https://pinia.vuejs.org' },
-  { name: 'Vue Router', version: '4.2', color: '#42b883', url: 'https://router.vuejs.org' },
-  { name: 'Vue I18n', version: '11.0', color: '#42b883', url: 'https://vue-i18n.intlify.dev' },
-  { name: 'Axios', version: '1.6', color: '#5a29e4', url: 'https://axios-http.com' },
-  { name: 'ECharts', version: '5.4', color: '#e43961', url: 'https://echarts.apache.org' },
-  { name: 'Iconify', version: '5.0', color: '#1769aa', url: 'https://iconify.design' },
-  { name: 'Tiptap', version: '3.19', color: '#68cef8', url: 'https://tiptap.dev' },
-  { name: 'Day.js', version: '1.11', color: '#ff6f61', url: 'https://day.js.org' },
-]
-
-const features = [
-  { title: $t('about.feature1'), desc: $t('about.feature1Desc'), icon: ApiOutlined, color: '#42b883' },
-  { title: $t('about.feature2'), desc: $t('about.feature2Desc'), icon: SafetyOutlined, color: '#3178c6' },
-  { title: $t('about.feature3'), desc: $t('about.feature3Desc'), icon: SafetyOutlined, color: '#e43961' },
-  { title: $t('about.feature4'), desc: $t('about.feature4Desc'), icon: ApartmentOutlined, color: '#646cff' },
-  { title: $t('about.feature5'), desc: $t('about.feature5Desc'), icon: GlobalOutlined, color: '#1677ff' },
-  { title: $t('about.feature6'), desc: $t('about.feature6Desc'), icon: BgColorsOutlined, color: '#fa8c16' },
-  { title: $t('about.feature7'), desc: $t('about.feature7Desc'), icon: TableOutlined, color: '#13c2c2' },
-  { title: $t('about.feature8'), desc: $t('about.feature8Desc'), icon: CloudOutlined, color: '#722ed1' },
-]
-</script>
 
 <style scoped lang="scss">
 .about-page {
@@ -290,11 +294,36 @@ const features = [
       user-select: none;
     }
 
-    .sym-1 { top: 18%; left: 8%;   font-size: 32px; transform: rotate(-12deg); }
-    .sym-2 { top: 25%; right: 12%; font-size: 28px; transform: rotate(8deg); }
-    .sym-3 { bottom: 20%; left: 15%;  font-size: 24px; transform: rotate(-6deg); }
-    .sym-4 { bottom: 28%; right: 8%;  font-size: 26px; transform: rotate(15deg); }
-    .sym-5 { top: 60%; left: 40%;  font-size: 22px; transform: rotate(-4deg); }
+    .sym-1 {
+      top: 18%;
+      left: 8%;
+      font-size: 32px;
+      transform: rotate(-12deg);
+    }
+    .sym-2 {
+      top: 25%;
+      right: 12%;
+      font-size: 28px;
+      transform: rotate(8deg);
+    }
+    .sym-3 {
+      bottom: 20%;
+      left: 15%;
+      font-size: 24px;
+      transform: rotate(-6deg);
+    }
+    .sym-4 {
+      bottom: 28%;
+      right: 8%;
+      font-size: 26px;
+      transform: rotate(15deg);
+    }
+    .sym-5 {
+      top: 60%;
+      left: 40%;
+      font-size: 22px;
+      transform: rotate(-4deg);
+    }
   }
 }
 

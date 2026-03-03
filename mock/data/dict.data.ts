@@ -1,4 +1,4 @@
-import type { DictType, DictData } from '@/types/dict'
+import type { DictData, DictType } from '@/types/dict'
 
 /**
  * 字典类型数据
@@ -11,7 +11,7 @@ export const dictTypes: DictType[] = [
     description: '用户账号状态',
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '2',
@@ -20,7 +20,7 @@ export const dictTypes: DictType[] = [
     description: '用户性别',
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '3',
@@ -29,7 +29,7 @@ export const dictTypes: DictType[] = [
     description: '订单状态',
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '4',
@@ -38,7 +38,7 @@ export const dictTypes: DictType[] = [
     description: '支付方式',
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '5',
@@ -47,8 +47,8 @@ export const dictTypes: DictType[] = [
     description: '系统通知类型',
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
-  }
+    updateTime: '2024-01-01 10:00:00',
+  },
 ]
 
 /**
@@ -64,7 +64,7 @@ export const dictData: DictData[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '2',
@@ -74,7 +74,7 @@ export const dictData: DictData[] = [
     sort: 2,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '3',
@@ -84,7 +84,7 @@ export const dictData: DictData[] = [
     sort: 3,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   // 性别
   {
@@ -95,7 +95,7 @@ export const dictData: DictData[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '5',
@@ -105,7 +105,7 @@ export const dictData: DictData[] = [
     sort: 2,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '6',
@@ -115,7 +115,7 @@ export const dictData: DictData[] = [
     sort: 3,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   // 订单状态
   {
@@ -126,7 +126,7 @@ export const dictData: DictData[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '8',
@@ -136,7 +136,7 @@ export const dictData: DictData[] = [
     sort: 2,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '9',
@@ -146,7 +146,7 @@ export const dictData: DictData[] = [
     sort: 3,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '10',
@@ -156,7 +156,7 @@ export const dictData: DictData[] = [
     sort: 4,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '11',
@@ -166,7 +166,7 @@ export const dictData: DictData[] = [
     sort: 5,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   // 支付方式
   {
@@ -177,7 +177,7 @@ export const dictData: DictData[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '13',
@@ -187,7 +187,7 @@ export const dictData: DictData[] = [
     sort: 2,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '14',
@@ -197,7 +197,7 @@ export const dictData: DictData[] = [
     sort: 3,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   // 通知类型
   {
@@ -208,7 +208,7 @@ export const dictData: DictData[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '16',
@@ -218,7 +218,7 @@ export const dictData: DictData[] = [
     sort: 2,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
+    updateTime: '2024-01-01 10:00:00',
   },
   {
     id: '17',
@@ -228,6 +228,6 @@ export const dictData: DictData[] = [
     sort: 3,
     status: 'enabled',
     createTime: '2024-01-01 10:00:00',
-    updateTime: '2024-01-01 10:00:00'
-  }
+    updateTime: '2024-01-01 10:00:00',
+  },
 ]

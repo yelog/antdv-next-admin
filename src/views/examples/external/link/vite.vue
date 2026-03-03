@@ -1,13 +1,3 @@
-<template>
-  <a-result status="info" :title="$t('external.link.openedTitle')" :sub-title="$t('external.link.openedSubTitle')">
-    <template #extra>
-      <a-button type="primary" @click="open">
-        {{ $t('external.link.openVite') }}
-      </a-button>
-    </template>
-  </a-result>
-</template>
-
 <script setup lang="ts">
 import { onMounted } from 'vue'
 
@@ -19,3 +9,13 @@ onMounted(() => {
   open()
 })
 </script>
+
+<template>
+  <a-result status="info" :title="$t('external.link.openedTitle')" :sub-title="$t('external.link.openedSubTitle')">
+    <template #extra>
+      <a-button type="primary" @click="open">
+        {{ $t('external.link.openVite') }}
+      </a-button>
+    </template>
+  </a-result>
+</template>

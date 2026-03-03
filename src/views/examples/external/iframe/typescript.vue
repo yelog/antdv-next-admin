@@ -1,3 +1,5 @@
+<script setup lang="ts"></script>
+
 <template>
   <iframe
     class="iframe"
@@ -7,8 +9,6 @@
     referrerpolicy="no-referrer"
   />
 </template>
-
-<script setup lang="ts"></script>
 
 <style scoped lang="scss">
 .iframe {

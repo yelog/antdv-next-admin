@@ -1,3 +1,132 @@
+<script setup lang="ts">
+import type { SysConfig } from '@/types/config'
+import type { ProTableColumn } from '@/types/pro'
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@antdv-next/icons'
+import { message, Modal } from 'antdv-next'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { createConfig, deleteConfig, getConfigList, updateConfig } from '@/api/config'
+import ProSplitLayout from '@/components/Pro/ProSplitLayout/index.vue'
+import ProTable from '@/components/Pro/ProTable/index.vue'
+
+const { t } = useI18n()
+
+const groups = ref<string[]>(['basic', 'security', 'upload', 'notification'])
+const selectedGroup = ref('basic')
+const allConfigs = ref<SysConfig[]>([])
+const refreshKey = ref(0)
+
+const getGroupCount = (group: string) => allConfigs.value.filter(c => c.group === group).length
+
+// modal
+const modalVisible = ref(false)
+const modalTitle = computed(() => form.value.id ? t('config.editConfig') : t('config.createConfig'))
+const form = ref<Partial<SysConfig>>({
+  name: '',
+  key: '',
+  value: '',
+  valueType: 'string',
+  group: 'basic',
+  sort: 0,
+  description: '',
+})
+const boolValue = computed({
+  get: () => form.value.value === 'true',
+  set: (v: boolean) => { form.value.value = String(v) },
+})
+
+const columns: ProTableColumn[] = [
+  { title: computed(() => t('config.configName')), dataIndex: 'name', key: 'name', width: 160 },
+  { title: computed(() => t('config.configKey')), dataIndex: 'key', key: 'key', width: 200 },
+  { title: computed(() => t('config.configValue')), dataIndex: 'value', key: 'value', ellipsis: true },
+  { title: computed(() => t('config.valueType')), dataIndex: 'valueType', key: 'valueType', width: 90 },
+  { title: computed(() => t('config.builtIn')), dataIndex: 'builtIn', key: 'builtIn', width: 90 },
+  { title: computed(() => t('config.description')), dataIndex: 'description', key: 'description', ellipsis: true },
+  { title: computed(() => t('common.actions')), key: 'action', width: 150, fixed: 'right' },
+]
+
+async function loadConfigList(params: any) {
+  try {
+    const response = await getConfigList({
+      group: selectedGroup.value,
+      page: params.current,
+      pageSize: params.pageSize,
+    }) as any
+    if (response.code === 200) {
+      return { data: response.data.list, total: response.data.total, success: true }
+    }
+  }
+  catch (error) {
+    console.error(t('config.loadConfigFailed'), error)
+  }
+  return { data: [], total: 0, success: false }
+}
+
+// load all configs for group count
+async function loadAllConfigs() {
+  try {
+    const response = await getConfigList({ page: 1, pageSize: 100 }) as any
+    if (response.code === 200)
+      allConfigs.value = response.data.list
+  }
+  catch {}
+}
+
+function handleAdd() {
+  form.value = { name: '', key: '', value: '', valueType: 'string', group: selectedGroup.value, sort: 0, description: '' }
+  modalVisible.value = true
+}
+
+function handleEdit(record: SysConfig) {
+  form.value = { ...record }
+  modalVisible.value = true
+}
+
+function handleDelete(record: SysConfig) {
+  Modal.confirm({
+    title: t('config.confirmDelete'),
+    content: t('config.confirmDeleteContent', { name: record.name }),
+    onOk: async () => {
+      try {
+        const response = await deleteConfig(record.id) as any
+        if (response.code === 200) {
+          message.success(t('config.deleteSuccess'))
+          refreshKey.value++
+          loadAllConfigs()
+        }
+        else {
+          message.error(response.message || t('config.deleteFailed'))
+        }
+      }
+      catch { message.error(t('config.deleteFailed')) }
+    },
+  })
+}
+
+async function handleSubmit() {
+  if (!form.value.name || !form.value.key) {
+    message.warning(t('config.requiredFields'))
+    return
+  }
+  try {
+    if (form.value.id) {
+      const response = await updateConfig(form.value.id, form.value) as any
+      if (response.code === 200) { message.success(t('config.updateSuccess')); modalVisible.value = false; refreshKey.value++; loadAllConfigs() }
+    }
+    else {
+      const response = await createConfig(form.value) as any
+      if (response.code === 200) { message.success(t('config.createSuccess')); modalVisible.value = false; refreshKey.value++; loadAllConfigs() }
+      else {
+        message.error(response.message || t('config.operateFailed'))
+      }
+    }
+  }
+  catch { message.error(t('config.operateFailed')) }
+}
+
+loadAllConfigs()
+</script>
+
 <template>
   <div class="page-container">
     <ProSplitLayout :side-width="200">
@@ -58,7 +187,9 @@
             <template v-if="column.key === 'action'">
               <a-space :size="4">
                 <a-button type="link" size="small" @click="handleEdit(record)">
-                  <template #icon><EditOutlined /></template>
+                  <template #icon>
+                    <EditOutlined />
+                  </template>
                   {{ $t('common.edit') }}
                 </a-button>
                 <a-button
@@ -68,7 +199,9 @@
                   danger
                   @click="handleDelete(record)"
                 >
-                  <template #icon><DeleteOutlined /></template>
+                  <template #icon>
+                    <DeleteOutlined />
+                  </template>
                   {{ $t('common.delete') }}
                 </a-button>
               </a-space>
@@ -79,7 +212,7 @@
     </ProSplitLayout>
 
     <!-- add/edit modal -->
-    <a-modal v-model:open="modalVisible" :title="modalTitle" @ok="handleSubmit" :width="520">
+    <a-modal v-model:open="modalVisible" :title="modalTitle" :width="520" @ok="handleSubmit">
       <a-form :model="form" :label-col="{ span: 6 }" style="margin-top: 16px">
         <a-form-item :label="$t('config.configName')" required>
           <a-input v-model:value="form.name" :placeholder="$t('config.placeholders.configName')" />
@@ -95,15 +228,25 @@
         </a-form-item>
         <a-form-item :label="$t('config.valueType')">
           <a-select v-model:value="form.valueType" :disabled="!!form.id">
-            <a-select-option value="string">{{ $t('config.valueTypes.string') }}</a-select-option>
-            <a-select-option value="number">{{ $t('config.valueTypes.number') }}</a-select-option>
-            <a-select-option value="boolean">{{ $t('config.valueTypes.boolean') }}</a-select-option>
-            <a-select-option value="json">{{ $t('config.valueTypes.json') }}</a-select-option>
+            <a-select-option value="string">
+              {{ $t('config.valueTypes.string') }}
+            </a-select-option>
+            <a-select-option value="number">
+              {{ $t('config.valueTypes.number') }}
+            </a-select-option>
+            <a-select-option value="boolean">
+              {{ $t('config.valueTypes.boolean') }}
+            </a-select-option>
+            <a-select-option value="json">
+              {{ $t('config.valueTypes.json') }}
+            </a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item :label="$t('config.group')">
           <a-select v-model:value="form.group" allow-clear>
-            <a-select-option v-for="g in groups" :key="g" :value="g">{{ $t(`config.groups.${g}`) }}</a-select-option>
+            <a-select-option v-for="g in groups" :key="g" :value="g">
+              {{ $t(`config.groups.${g}`) }}
+            </a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item :label="$t('config.sort')">
@@ -116,120 +259,6 @@
     </a-modal>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { message, Modal } from 'antdv-next'
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@antdv-next/icons'
-import { useI18n } from 'vue-i18n'
-import ProTable from '@/components/Pro/ProTable/index.vue'
-import ProSplitLayout from '@/components/Pro/ProSplitLayout/index.vue'
-import type { ProTableColumn } from '@/types/pro'
-import type { SysConfig } from '@/types/config'
-import { getConfigList, createConfig, updateConfig, deleteConfig } from '@/api/config'
-
-const { t } = useI18n()
-
-const groups = ref<string[]>(['basic', 'security', 'upload', 'notification'])
-const selectedGroup = ref('basic')
-const allConfigs = ref<SysConfig[]>([])
-const refreshKey = ref(0)
-
-const getGroupCount = (group: string) => allConfigs.value.filter(c => c.group === group).length
-
-// modal
-const modalVisible = ref(false)
-const modalTitle = computed(() => form.value.id ? t('config.editConfig') : t('config.createConfig'))
-const form = ref<Partial<SysConfig>>({
-  name: '', key: '', value: '', valueType: 'string', group: 'basic', sort: 0, description: ''
-})
-const boolValue = computed({
-  get: () => form.value.value === 'true',
-  set: (v: boolean) => { form.value.value = String(v) }
-})
-
-const columns: ProTableColumn[] = [
-  { title: computed(() => t('config.configName')), dataIndex: 'name', key: 'name', width: 160 },
-  { title: computed(() => t('config.configKey')), dataIndex: 'key', key: 'key', width: 200 },
-  { title: computed(() => t('config.configValue')), dataIndex: 'value', key: 'value', ellipsis: true },
-  { title: computed(() => t('config.valueType')), dataIndex: 'valueType', key: 'valueType', width: 90 },
-  { title: computed(() => t('config.builtIn')), dataIndex: 'builtIn', key: 'builtIn', width: 90 },
-  { title: computed(() => t('config.description')), dataIndex: 'description', key: 'description', ellipsis: true },
-  { title: computed(() => t('common.actions')), key: 'action', width: 150, fixed: 'right' }
-]
-
-const loadConfigList = async (params: any) => {
-  try {
-    const response = await getConfigList({
-      group: selectedGroup.value,
-      page: params.current,
-      pageSize: params.pageSize
-    }) as any
-    if (response.code === 200) {
-      return { data: response.data.list, total: response.data.total, success: true }
-    }
-  } catch (error) {
-    console.error(t('config.loadConfigFailed'), error)
-  }
-  return { data: [], total: 0, success: false }
-}
-
-// load all configs for group count
-const loadAllConfigs = async () => {
-  try {
-    const response = await getConfigList({ page: 1, pageSize: 100 }) as any
-    if (response.code === 200) allConfigs.value = response.data.list
-  } catch {}
-}
-
-const handleAdd = () => {
-  form.value = { name: '', key: '', value: '', valueType: 'string', group: selectedGroup.value, sort: 0, description: '' }
-  modalVisible.value = true
-}
-
-const handleEdit = (record: SysConfig) => {
-  form.value = { ...record }
-  modalVisible.value = true
-}
-
-const handleDelete = (record: SysConfig) => {
-  Modal.confirm({
-    title: t('config.confirmDelete'),
-    content: t('config.confirmDeleteContent', { name: record.name }),
-    onOk: async () => {
-      try {
-        const response = await deleteConfig(record.id) as any
-        if (response.code === 200) {
-          message.success(t('config.deleteSuccess'))
-          refreshKey.value++
-          loadAllConfigs()
-        } else {
-          message.error(response.message || t('config.deleteFailed'))
-        }
-      } catch { message.error(t('config.deleteFailed')) }
-    }
-  })
-}
-
-const handleSubmit = async () => {
-  if (!form.value.name || !form.value.key) {
-    message.warning(t('config.requiredFields'))
-    return
-  }
-  try {
-    if (form.value.id) {
-      const response = await updateConfig(form.value.id, form.value) as any
-      if (response.code === 200) { message.success(t('config.updateSuccess')); modalVisible.value = false; refreshKey.value++; loadAllConfigs() }
-    } else {
-      const response = await createConfig(form.value) as any
-      if (response.code === 200) { message.success(t('config.createSuccess')); modalVisible.value = false; refreshKey.value++; loadAllConfigs() }
-      else message.error(response.message || t('config.operateFailed'))
-    }
-  } catch { message.error(t('config.operateFailed')) }
-}
-
-loadAllConfigs()
-</script>
 
 <style scoped lang="scss">
 .config-container {
@@ -284,15 +313,24 @@ loadAllConfigs()
         transition: height 0.2s;
       }
 
-      &:hover { background: var(--color-fill-quaternary, #fafafa); }
+      &:hover {
+        background: var(--color-fill-quaternary, #fafafa);
+      }
 
       &.active {
         background: var(--ant-primary-color-deprecated-l-50, rgba(22, 119, 255, 0.06));
-        &::before { height: 60%; }
-        .group-name { color: var(--ant-primary-color); font-weight: 600; }
+        &::before {
+          height: 60%;
+        }
+        .group-name {
+          color: var(--ant-primary-color);
+          font-weight: 600;
+        }
       }
 
-      .group-name { font-size: 14px; }
+      .group-name {
+        font-size: 14px;
+      }
       .group-count {
         font-size: 12px;
         color: var(--color-text-quaternary, #bfbfbf);
@@ -314,7 +352,9 @@ loadAllConfigs()
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   min-width: 0;
 
-  :deep(.ant-table-thead > tr > th) { background: #fafafa; }
+  :deep(.ant-table-thead > tr > th) {
+    background: #fafafa;
+  }
 
   .config-value {
     font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;

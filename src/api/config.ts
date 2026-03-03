@@ -1,6 +1,6 @@
-import { request } from '@/utils/request'
 import type { ApiResponse } from '@/types/api'
 import type { SysConfig, SysConfigQueryParams } from '@/types/config'
+import { request } from '@/utils/request'
 
 export async function getConfigList(params: SysConfigQueryParams): Promise<ApiResponse<{
   list: SysConfig[]

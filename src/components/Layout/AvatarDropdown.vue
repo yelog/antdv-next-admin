@@ -1,33 +1,21 @@
-<template>
-  <a-dropdown :trigger="['click']" placement="bottomRight" :menu="menuProps">
-    <div class="avatar-dropdown">
-      <a-avatar :src="authStore.user?.avatar" :size="32">
-        {{ authStore.user?.username?.charAt(0).toUpperCase() }}
-      </a-avatar>
-      <span class="username desktop-only">{{ authStore.user?.realName || authStore.user?.username }}</span>
-      <DownOutlined class="dropdown-icon desktop-only" />
-    </div>
-  </a-dropdown>
-</template>
-
 <script setup lang="ts">
+import {
+  BookOutlined,
+  DownOutlined,
+  GithubOutlined,
+  LogoutOutlined,
+  UserOutlined,
+} from '@antdv-next/icons'
+import { Modal } from 'antdv-next'
 import { computed, h } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  DownOutlined,
-  UserOutlined,
-  GithubOutlined,
-  BookOutlined,
-  LogoutOutlined
-} from '@antdv-next/icons'
-import { useAuthStore } from '@/stores/auth'
-import { Modal } from 'antdv-next'
 import { $t } from '@/locales'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const handleMenuClick = ({ key }: { key: string }) => {
+function handleMenuClick({ key }: { key: string }) {
   switch (key) {
     case 'profile':
       router.push('/profile')
@@ -47,7 +35,7 @@ const handleMenuClick = ({ key }: { key: string }) => {
         onOk: () => {
           authStore.logout()
           router.push('/login')
-        }
+        },
       })
       break
   }
@@ -58,30 +46,42 @@ const menuProps = computed(() => ({
     {
       key: 'profile',
       label: $t('layout.profile'),
-      icon: h(UserOutlined)
+      icon: h(UserOutlined),
     },
     {
       key: 'github',
       label: 'GitHub',
-      icon: h(GithubOutlined)
+      icon: h(GithubOutlined),
     },
     {
       key: 'docs',
       label: $t('layout.documentation'),
-      icon: h(BookOutlined)
+      icon: h(BookOutlined),
     },
     {
-      type: 'divider'
+      type: 'divider',
     },
     {
       key: 'logout',
       label: $t('layout.logout'),
-      icon: h(LogoutOutlined)
-    }
+      icon: h(LogoutOutlined),
+    },
   ],
-  onClick: handleMenuClick
+  onClick: handleMenuClick,
 }))
 </script>
+
+<template>
+  <a-dropdown :trigger="['click']" placement="bottomRight" :menu="menuProps">
+    <div class="avatar-dropdown">
+      <a-avatar :src="authStore.user?.avatar" :size="32">
+        {{ authStore.user?.username?.charAt(0).toUpperCase() }}
+      </a-avatar>
+      <span class="username desktop-only">{{ authStore.user?.realName || authStore.user?.username }}</span>
+      <DownOutlined class="dropdown-icon desktop-only" />
+    </div>
+  </a-dropdown>
+</template>
 
 <style scoped lang="scss">
 .avatar-dropdown {

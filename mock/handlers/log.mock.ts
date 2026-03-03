@@ -1,5 +1,5 @@
 import { defineMock } from 'vite-plugin-mock-dev-server'
-import { operationLogs, loginLogs } from '../data/log.data'
+import { loginLogs, operationLogs } from '../data/log.data'
 
 export default defineMock([
   // operation log list
@@ -37,9 +37,9 @@ export default defineMock([
       return {
         code: 200,
         message: 'success',
-        data: { list, total: filtered.length, page: Number(page), pageSize: Number(pageSize) }
+        data: { list, total: filtered.length, page: Number(page), pageSize: Number(pageSize) },
       }
-    }
+    },
   },
 
   // login log list
@@ -74,9 +74,9 @@ export default defineMock([
       return {
         code: 200,
         message: 'success',
-        data: { list, total: filtered.length, page: Number(page), pageSize: Number(pageSize) }
+        data: { list, total: filtered.length, page: Number(page), pageSize: Number(pageSize) },
       }
-    }
+    },
   },
 
   // clear operation log
@@ -86,7 +86,7 @@ export default defineMock([
     body: () => {
       operationLogs.length = 0
       return { code: 200, message: 'success' }
-    }
+    },
   },
 
   // clear login log
@@ -96,6 +96,6 @@ export default defineMock([
     body: () => {
       loginLogs.length = 0
       return { code: 200, message: 'success' }
-    }
-  }
+    },
+  },
 ])

@@ -1,3 +1,36 @@
+<script setup lang="ts">
+import type { ProDescriptionItem } from '@/types/pro'
+import ValueTypeRender from '../ProTable/ValueTypeRender.vue'
+
+interface Props {
+  columns: ProDescriptionItem[]
+  data: Record<string, any>
+  column?: number
+  bordered?: boolean
+  size?: 'default' | 'middle' | 'small'
+  title?: string
+  layout?: 'horizontal' | 'vertical'
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  column: 2,
+  bordered: false,
+  size: 'default',
+  layout: 'horizontal',
+})
+
+function getValue(item: ProDescriptionItem) {
+  const keys = item.dataIndex.split('.')
+  let val: any = props.data
+  for (const key of keys) {
+    if (val == null)
+      return undefined
+    val = val[key]
+  }
+  return val
+}
+</script>
+
 <template>
   <a-descriptions
     :column="column"
@@ -31,35 +64,3 @@
     </a-descriptions-item>
   </a-descriptions>
 </template>
-
-<script setup lang="ts">
-import type { ProDescriptionItem } from '@/types/pro'
-import ValueTypeRender from '../ProTable/ValueTypeRender.vue'
-
-interface Props {
-  columns: ProDescriptionItem[]
-  data: Record<string, any>
-  column?: number
-  bordered?: boolean
-  size?: 'default' | 'middle' | 'small'
-  title?: string
-  layout?: 'horizontal' | 'vertical'
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  column: 2,
-  bordered: false,
-  size: 'default',
-  layout: 'horizontal'
-})
-
-const getValue = (item: ProDescriptionItem) => {
-  const keys = item.dataIndex.split('.')
-  let val: any = props.data
-  for (const key of keys) {
-    if (val == null) return undefined
-    val = val[key]
-  }
-  return val
-}
-</script>

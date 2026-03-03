@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { PrinterOutlined } from '@antdv-next/icons'
-import { usePrint } from '@/composables/usePrint'
 import type { PrintOptions } from '@/composables/usePrint'
+import { PrinterOutlined } from '@antdv-next/icons'
+import { computed } from 'vue'
+import { usePrint } from '@/composables/usePrint'
 
 interface Props {
   /** Element selector or HTMLElement to print */
@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<Props>(), {
   text: 'Print',
   type: 'default',
   disabled: false,
-  options: () => ({})
+  options: () => ({}),
 })
 
 const emit = defineEmits<{
@@ -31,15 +31,17 @@ const emit = defineEmits<{
 
 const { isPrinting, printElement, printPage } = usePrint()
 
-const handleClick = async () => {
+async function handleClick() {
   try {
     if (props.target) {
       await printElement(props.target, props.options)
-    } else {
+    }
+    else {
       printPage()
     }
     emit('success')
-  } catch (error) {
+  }
+  catch (error) {
     emit('error', error as Error)
   }
 }

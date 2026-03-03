@@ -11,8 +11,8 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     meta: {
       title: 'login.title',
       requiresAuth: false,
-      hidden: true
-    }
+      hidden: true,
+    },
   },
   {
     path: '/404',
@@ -21,8 +21,8 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     meta: {
       title: 'error.404',
       requiresAuth: false,
-      hidden: true
-    }
+      hidden: true,
+    },
   },
   {
     path: '/403',
@@ -31,8 +31,8 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     meta: {
       title: 'error.403',
       requiresAuth: false,
-      hidden: true
-    }
+      hidden: true,
+    },
   },
   {
     path: '/500',
@@ -41,9 +41,9 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     meta: {
       title: 'error.500',
       requiresAuth: false,
-      hidden: true
-    }
-  }
+      hidden: true,
+    },
+  },
 ]
 
 /**
@@ -57,7 +57,7 @@ export const demoRoutes: AppRouteRecordRaw[] = [
     meta: {
       title: 'Demo',
       requiresAuth: false,
-      hidden: true
+      hidden: true,
     },
     children: [
       {
@@ -67,11 +67,11 @@ export const demoRoutes: AppRouteRecordRaw[] = [
         meta: {
           title: 'ProTable Demo',
           requiresAuth: false,
-          hidden: true
-        }
-      }
-    ]
-  }
+          hidden: true,
+        },
+      },
+    ],
+  },
 ]
 
 /**
@@ -84,6 +84,6 @@ export const notFoundRoute: AppRouteRecordRaw = {
   meta: {
     title: 'Not Found',
     requiresAuth: false,
-    hidden: true
-  }
+    hidden: true,
+  },
 }

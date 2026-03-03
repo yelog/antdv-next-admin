@@ -1,209 +1,21 @@
-<template>
-  <div class="notification-center page-container">
-    <section class="hero-panel card">
-      <div class="hero-glow hero-glow-a"></div>
-      <div class="hero-glow hero-glow-b"></div>
-
-      <div class="hero-main">
-        <p class="hero-kicker">{{ $t('notificationCenter.kicker') }}</p>
-        <h1 class="hero-title">{{ $t('notificationCenter.title') }}</h1>
-        <p class="hero-subtitle">{{ $t('notificationCenter.subtitle') }}</p>
-      </div>
-
-      <div class="hero-metrics">
-        <div class="metric-card">
-          <span class="metric-label">{{ $t('notificationCenter.metrics.total') }}</span>
-          <strong class="metric-value">{{ notifications.length }}</strong>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">{{ $t('notificationCenter.metrics.unread') }}</span>
-          <strong class="metric-value">{{ unreadCount }}</strong>
-        </div>
-        <div class="metric-card">
-          <span class="metric-label">{{ $t('notificationCenter.metrics.today') }}</span>
-          <strong class="metric-value">{{ todayCount }}</strong>
-        </div>
-      </div>
-
-      <div class="hero-toolbar">
-        <a-input
-          v-model:value="keyword"
-          allow-clear
-          class="search-input"
-          :placeholder="$t('notificationCenter.searchPlaceholder')"
-        >
-          <template #prefix>
-            <SearchOutlined />
-          </template>
-        </a-input>
-
-        <a-radio-group v-model:value="readFilter" size="small">
-          <a-radio-button value="all">{{ $t('notificationCenter.filters.allStatus') }}</a-radio-button>
-          <a-radio-button value="unread">{{ $t('notificationCenter.filters.unread') }}</a-radio-button>
-          <a-radio-button value="read">{{ $t('notificationCenter.filters.read') }}</a-radio-button>
-        </a-radio-group>
-
-        <a-select v-model:value="toneFilter" size="small" class="tone-select">
-          <a-select-option value="all">{{ $t('notificationCenter.filters.allTypes') }}</a-select-option>
-          <a-select-option value="system">{{ $t('notificationCenter.filters.system') }}</a-select-option>
-          <a-select-option value="message">{{ $t('notificationCenter.filters.message') }}</a-select-option>
-          <a-select-option value="security">{{ $t('notificationCenter.filters.security') }}</a-select-option>
-          <a-select-option value="task">{{ $t('notificationCenter.filters.task') }}</a-select-option>
-          <a-select-option value="error">{{ $t('notificationCenter.filters.error') }}</a-select-option>
-        </a-select>
-      </div>
-    </section>
-
-    <section class="center-content">
-      <article class="list-panel card">
-        <header class="panel-header">
-          <div>
-            <h2 class="panel-title">{{ $t('notificationCenter.listTitle') }}</h2>
-            <p class="panel-subtitle">{{ $t('notificationCenter.listSubtitle', { count: filteredNotifications.length }) }}</p>
-          </div>
-
-          <a-button
-            type="link"
-            size="small"
-            :disabled="unreadCount === 0"
-            @click="notificationStore.markAllAsRead()"
-          >
-            {{ $t('layout.markAllRead') }}
-          </a-button>
-        </header>
-
-        <div v-if="filteredNotifications.length > 0" class="notice-list">
-          <button
-            v-for="notification in filteredNotifications"
-            :key="notification.id"
-            type="button"
-            :class="[
-              'notice-item',
-              `tone-${resolveTone(notification)}`,
-              {
-                active: selectedNotificationId === notification.id,
-                unread: !notification.read
-              }
-            ]"
-            @click="handleSelectNotification(notification)"
-          >
-            <div class="notice-icon">
-              <component :is="getToneIcon(resolveTone(notification))" />
-              <span v-if="!notification.read" class="notice-unread-dot" />
-            </div>
-
-            <div class="notice-main">
-              <div class="notice-head">
-                <h3 class="notice-title">{{ notification.title }}</h3>
-                <span class="notice-time">{{ formatRelativeTime(notification.timestamp) }}</span>
-              </div>
-              <p class="notice-message">{{ notification.message }}</p>
-            </div>
-          </button>
-        </div>
-
-        <div v-else class="list-empty">
-          <a-empty :description="$t('notificationCenter.emptyFiltered')" />
-        </div>
-      </article>
-
-      <article class="detail-panel card">
-        <template v-if="selectedNotification">
-          <header class="detail-header">
-            <div class="detail-title-wrap">
-              <div :class="['detail-icon', `tone-${selectedTone}`]">
-                <component :is="getToneIcon(selectedTone)" />
-              </div>
-              <div class="detail-title-content">
-                <h2 class="detail-title">{{ selectedNotification.title }}</h2>
-                <p class="detail-time">
-                  {{ formatAbsoluteTime(selectedNotification.timestamp) }}
-                  <span class="detail-time-divider">·</span>
-                  {{ formatRelativeTime(selectedNotification.timestamp) }}
-                </p>
-              </div>
-            </div>
-
-            <div class="detail-header-actions">
-              <a-tooltip v-if="!selectedNotification.read" :title="$t('notificationCenter.actions.markAsRead')">
-                <a-button
-                  type="text"
-                  size="small"
-                  @click="handleMarkAsRead(selectedNotification.id)"
-                >
-                  <template #icon><CheckCircleOutlined /></template>
-                </a-button>
-              </a-tooltip>
-              <a-tooltip :title="$t('notificationCenter.actions.delete')">
-                <a-button
-                  type="text"
-                  size="small"
-                  danger
-                  @click="handleDeleteNotification(selectedNotification.id)"
-                >
-                  <template #icon><DeleteOutlined /></template>
-                </a-button>
-              </a-tooltip>
-            </div>
-          </header>
-
-          <div class="detail-body">
-            <p class="detail-message">{{ selectedNotification.message }}</p>
-
-            <div class="detail-meta">
-              <div class="meta-item">
-                <span class="meta-label">{{ $t('notificationCenter.meta.type') }}</span>
-                <span class="meta-value">{{ getToneLabel(selectedTone) }}</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">{{ $t('notificationCenter.meta.receivedAt') }}</span>
-                <span class="meta-value">{{ formatAbsoluteTime(selectedNotification.timestamp) }}</span>
-              </div>
-            </div>
-          </div>
-
-          <footer v-if="selectedNotification.link" class="detail-actions">
-            <a-button
-              type="primary"
-              size="large"
-              block
-              @click="handleOpenRelated(selectedNotification)"
-            >
-              {{ $t('notificationCenter.actions.openRelated') }}
-            </a-button>
-          </footer>
-        </template>
-
-        <template v-else>
-          <div class="detail-placeholder">
-            <BellOutlined class="placeholder-icon" />
-            <h3 class="placeholder-title">{{ $t('notificationCenter.placeholder.title') }}</h3>
-            <p class="placeholder-desc">{{ $t('notificationCenter.placeholder.desc') }}</p>
-          </div>
-        </template>
-      </article>
-    </section>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import type { Notification } from '@/types/layout'
 import {
   BellOutlined,
-  RocketOutlined,
-  MailOutlined,
-  SafetyCertificateOutlined,
   CheckCircleOutlined,
+  DeleteOutlined,
   ExclamationCircleOutlined,
+  MailOutlined,
+  RocketOutlined,
+  SafetyCertificateOutlined,
   SearchOutlined,
-  DeleteOutlined
 } from '@antdv-next/icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { $t } from '@/locales'
 import { useNotificationStore } from '@/stores/notification'
-import type { Notification } from '@/types/layout'
 
 dayjs.extend(relativeTime)
 
@@ -234,7 +46,7 @@ const selectedNotificationId = computed(() => {
 
 const normalizeText = (value: string) => value.trim().toLowerCase()
 
-const resolveTone = (notification: Notification): NotificationTone => {
+function resolveTone(notification: Notification): NotificationTone {
   // Use category if explicitly set
   if (notification.category) {
     return notification.category
@@ -257,13 +69,17 @@ const filteredNotifications = computed(() => {
   const query = normalizeText(keyword.value)
 
   return notifications.value.filter((notification) => {
-    if (readFilter.value === 'unread' && notification.read) return false
-    if (readFilter.value === 'read' && !notification.read) return false
+    if (readFilter.value === 'unread' && notification.read)
+      return false
+    if (readFilter.value === 'read' && !notification.read)
+      return false
 
     const tone = resolveTone(notification)
-    if (toneFilter.value !== 'all' && tone !== toneFilter.value) return false
+    if (toneFilter.value !== 'all' && tone !== toneFilter.value)
+      return false
 
-    if (!query) return true
+    if (!query)
+      return true
 
     const merged = `${notification.title} ${notification.message}`.toLowerCase()
     return merged.includes(query)
@@ -291,30 +107,39 @@ watch(
       notificationStore.markAsRead(notification.id)
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
-const getToneIcon = (tone: NotificationTone) => {
-  if (tone === 'system') return RocketOutlined
-  if (tone === 'message') return MailOutlined
-  if (tone === 'security') return SafetyCertificateOutlined
-  if (tone === 'task') return CheckCircleOutlined
-  if (tone === 'error') return ExclamationCircleOutlined
+function getToneIcon(tone: NotificationTone) {
+  if (tone === 'system')
+    return RocketOutlined
+  if (tone === 'message')
+    return MailOutlined
+  if (tone === 'security')
+    return SafetyCertificateOutlined
+  if (tone === 'task')
+    return CheckCircleOutlined
+  if (tone === 'error')
+    return ExclamationCircleOutlined
   return BellOutlined
 }
 
-const getToneLabel = (tone: NotificationTone) => {
-  if (tone === 'system') return $t('notificationCenter.filters.system')
-  if (tone === 'message') return $t('notificationCenter.filters.message')
-  if (tone === 'security') return $t('notificationCenter.filters.security')
-  if (tone === 'task') return $t('notificationCenter.filters.task')
+function getToneLabel(tone: NotificationTone) {
+  if (tone === 'system')
+    return $t('notificationCenter.filters.system')
+  if (tone === 'message')
+    return $t('notificationCenter.filters.message')
+  if (tone === 'security')
+    return $t('notificationCenter.filters.security')
+  if (tone === 'task')
+    return $t('notificationCenter.filters.task')
   return $t('notificationCenter.filters.error')
 }
 
 const formatRelativeTime = (timestamp: number) => dayjs(timestamp).fromNow()
 const formatAbsoluteTime = (timestamp: number) => dayjs(timestamp).format('YYYY-MM-DD HH:mm')
 
-const handleSelectNotification = (notification: Notification) => {
+function handleSelectNotification(notification: Notification) {
   if (!notification.read) {
     notificationStore.markAsRead(notification.id)
   }
@@ -325,15 +150,15 @@ const handleSelectNotification = (notification: Notification) => {
 
   router.replace({
     path: '/notifications',
-    query: { id: notification.id }
+    query: { id: notification.id },
   })
 }
 
-const handleMarkAsRead = (id: string) => {
+function handleMarkAsRead(id: string) {
   notificationStore.markAsRead(id)
 }
 
-const handleDeleteNotification = (id: string) => {
+function handleDeleteNotification(id: string) {
   notificationStore.removeNotification(id)
 
   if (selectedNotificationId.value === id) {
@@ -341,7 +166,7 @@ const handleDeleteNotification = (id: string) => {
   }
 }
 
-const handleOpenRelated = (notification: Notification) => {
+function handleOpenRelated(notification: Notification) {
   if (!notification.link) {
     return
   }
@@ -355,6 +180,237 @@ const handleOpenRelated = (notification: Notification) => {
 }
 </script>
 
+<template>
+  <div class="notification-center page-container">
+    <section class="hero-panel card">
+      <div class="hero-glow hero-glow-a" />
+      <div class="hero-glow hero-glow-b" />
+
+      <div class="hero-main">
+        <p class="hero-kicker">
+          {{ $t('notificationCenter.kicker') }}
+        </p>
+        <h1 class="hero-title">
+          {{ $t('notificationCenter.title') }}
+        </h1>
+        <p class="hero-subtitle">
+          {{ $t('notificationCenter.subtitle') }}
+        </p>
+      </div>
+
+      <div class="hero-metrics">
+        <div class="metric-card">
+          <span class="metric-label">{{ $t('notificationCenter.metrics.total') }}</span>
+          <strong class="metric-value">{{ notifications.length }}</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ $t('notificationCenter.metrics.unread') }}</span>
+          <strong class="metric-value">{{ unreadCount }}</strong>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">{{ $t('notificationCenter.metrics.today') }}</span>
+          <strong class="metric-value">{{ todayCount }}</strong>
+        </div>
+      </div>
+
+      <div class="hero-toolbar">
+        <a-input
+          v-model:value="keyword"
+          allow-clear
+          class="search-input"
+          :placeholder="$t('notificationCenter.searchPlaceholder')"
+        >
+          <template #prefix>
+            <SearchOutlined />
+          </template>
+        </a-input>
+
+        <a-radio-group v-model:value="readFilter" size="small">
+          <a-radio-button value="all">
+            {{ $t('notificationCenter.filters.allStatus') }}
+          </a-radio-button>
+          <a-radio-button value="unread">
+            {{ $t('notificationCenter.filters.unread') }}
+          </a-radio-button>
+          <a-radio-button value="read">
+            {{ $t('notificationCenter.filters.read') }}
+          </a-radio-button>
+        </a-radio-group>
+
+        <a-select v-model:value="toneFilter" size="small" class="tone-select">
+          <a-select-option value="all">
+            {{ $t('notificationCenter.filters.allTypes') }}
+          </a-select-option>
+          <a-select-option value="system">
+            {{ $t('notificationCenter.filters.system') }}
+          </a-select-option>
+          <a-select-option value="message">
+            {{ $t('notificationCenter.filters.message') }}
+          </a-select-option>
+          <a-select-option value="security">
+            {{ $t('notificationCenter.filters.security') }}
+          </a-select-option>
+          <a-select-option value="task">
+            {{ $t('notificationCenter.filters.task') }}
+          </a-select-option>
+          <a-select-option value="error">
+            {{ $t('notificationCenter.filters.error') }}
+          </a-select-option>
+        </a-select>
+      </div>
+    </section>
+
+    <section class="center-content">
+      <article class="list-panel card">
+        <header class="panel-header">
+          <div>
+            <h2 class="panel-title">
+              {{ $t('notificationCenter.listTitle') }}
+            </h2>
+            <p class="panel-subtitle">
+              {{ $t('notificationCenter.listSubtitle', { count: filteredNotifications.length }) }}
+            </p>
+          </div>
+
+          <a-button
+            type="link"
+            size="small"
+            :disabled="unreadCount === 0"
+            @click="notificationStore.markAllAsRead()"
+          >
+            {{ $t('layout.markAllRead') }}
+          </a-button>
+        </header>
+
+        <div v-if="filteredNotifications.length > 0" class="notice-list">
+          <button
+            v-for="notification in filteredNotifications"
+            :key="notification.id"
+            type="button"
+            class="notice-item" :class="[
+              `tone-${resolveTone(notification)}`,
+              {
+                active: selectedNotificationId === notification.id,
+                unread: !notification.read,
+              },
+            ]"
+            @click="handleSelectNotification(notification)"
+          >
+            <div class="notice-icon">
+              <component :is="getToneIcon(resolveTone(notification))" />
+              <span v-if="!notification.read" class="notice-unread-dot" />
+            </div>
+
+            <div class="notice-main">
+              <div class="notice-head">
+                <h3 class="notice-title">
+                  {{ notification.title }}
+                </h3>
+                <span class="notice-time">{{ formatRelativeTime(notification.timestamp) }}</span>
+              </div>
+              <p class="notice-message">
+                {{ notification.message }}
+              </p>
+            </div>
+          </button>
+        </div>
+
+        <div v-else class="list-empty">
+          <a-empty :description="$t('notificationCenter.emptyFiltered')" />
+        </div>
+      </article>
+
+      <article class="detail-panel card">
+        <template v-if="selectedNotification">
+          <header class="detail-header">
+            <div class="detail-title-wrap">
+              <div class="detail-icon" :class="[`tone-${selectedTone}`]">
+                <component :is="getToneIcon(selectedTone)" />
+              </div>
+              <div class="detail-title-content">
+                <h2 class="detail-title">
+                  {{ selectedNotification.title }}
+                </h2>
+                <p class="detail-time">
+                  {{ formatAbsoluteTime(selectedNotification.timestamp) }}
+                  <span class="detail-time-divider">·</span>
+                  {{ formatRelativeTime(selectedNotification.timestamp) }}
+                </p>
+              </div>
+            </div>
+
+            <div class="detail-header-actions">
+              <a-tooltip v-if="!selectedNotification.read" :title="$t('notificationCenter.actions.markAsRead')">
+                <a-button
+                  type="text"
+                  size="small"
+                  @click="handleMarkAsRead(selectedNotification.id)"
+                >
+                  <template #icon>
+                    <CheckCircleOutlined />
+                  </template>
+                </a-button>
+              </a-tooltip>
+              <a-tooltip :title="$t('notificationCenter.actions.delete')">
+                <a-button
+                  type="text"
+                  size="small"
+                  danger
+                  @click="handleDeleteNotification(selectedNotification.id)"
+                >
+                  <template #icon>
+                    <DeleteOutlined />
+                  </template>
+                </a-button>
+              </a-tooltip>
+            </div>
+          </header>
+
+          <div class="detail-body">
+            <p class="detail-message">
+              {{ selectedNotification.message }}
+            </p>
+
+            <div class="detail-meta">
+              <div class="meta-item">
+                <span class="meta-label">{{ $t('notificationCenter.meta.type') }}</span>
+                <span class="meta-value">{{ getToneLabel(selectedTone) }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">{{ $t('notificationCenter.meta.receivedAt') }}</span>
+                <span class="meta-value">{{ formatAbsoluteTime(selectedNotification.timestamp) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <footer v-if="selectedNotification.link" class="detail-actions">
+            <a-button
+              type="primary"
+              size="large"
+              block
+              @click="handleOpenRelated(selectedNotification)"
+            >
+              {{ $t('notificationCenter.actions.openRelated') }}
+            </a-button>
+          </footer>
+        </template>
+
+        <template v-else>
+          <div class="detail-placeholder">
+            <BellOutlined class="placeholder-icon" />
+            <h3 class="placeholder-title">
+              {{ $t('notificationCenter.placeholder.title') }}
+            </h3>
+            <p class="placeholder-desc">
+              {{ $t('notificationCenter.placeholder.desc') }}
+            </p>
+          </div>
+        </template>
+      </article>
+    </section>
+  </div>
+</template>
+
 <style scoped lang="scss">
 .notification-center {
   display: grid;
@@ -366,7 +422,12 @@ const handleOpenRelated = (notification: Notification) => {
   overflow: hidden;
   padding: 24px;
   border-radius: 18px;
-  background: linear-gradient(135deg, var(--color-bg-container) 0%, var(--color-primary-1) 58%, var(--color-bg-container) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-container) 0%,
+    var(--color-primary-1) 58%,
+    var(--color-bg-container) 100%
+  );
 
   .hero-glow {
     position: absolute;
@@ -796,7 +857,12 @@ const handleOpenRelated = (notification: Notification) => {
 /* ===== Dark Mode ===== */
 :root.dark {
   .hero-panel {
-    background: linear-gradient(135deg, var(--color-bg-container) 0%, color-mix(in srgb, var(--color-primary) 12%, var(--color-bg-container)) 58%, var(--color-bg-container) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-bg-container) 0%,
+      color-mix(in srgb, var(--color-primary) 12%, var(--color-bg-container)) 58%,
+      var(--color-bg-container) 100%
+    );
   }
 
   .metric-card {

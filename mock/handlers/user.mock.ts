@@ -1,6 +1,6 @@
+import { faker } from '@faker-js/faker'
 import { defineMock } from 'vite-plugin-mock-dev-server'
 import { mockUsers } from '../data/users.data'
-import { faker } from '@faker-js/faker'
 
 export default defineMock([
   // Get user list (with pagination and search)
@@ -15,13 +15,13 @@ export default defineMock([
 
       if (username) {
         filteredUsers = filteredUsers.filter(user =>
-          user.username.toLowerCase().includes(username.toLowerCase())
+          user.username.toLowerCase().includes(username.toLowerCase()),
         )
       }
 
       if (email) {
         filteredUsers = filteredUsers.filter(user =>
-          user.email.toLowerCase().includes(email.toLowerCase())
+          user.email.toLowerCase().includes(email.toLowerCase()),
         )
       }
 
@@ -50,11 +50,11 @@ export default defineMock([
           list,
           total: filteredUsers.length,
           current: Number(current),
-          pageSize: Number(pageSize)
+          pageSize: Number(pageSize),
         },
-        success: true
+        success: true,
       }
-    }
+    },
   },
 
   // Get user by ID
@@ -70,17 +70,18 @@ export default defineMock([
           code: 200,
           message: 'Success',
           data: user,
-          success: true
+          success: true,
         }
-      } else {
+      }
+      else {
         return {
           code: 404,
           message: 'User not found',
           data: null,
-          success: false
+          success: false,
         }
       }
-    }
+    },
   },
 
   // Create user
@@ -104,7 +105,7 @@ export default defineMock([
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         roles: userData.roles || [],
-        permissions: userData.permissions || []
+        permissions: userData.permissions || [],
       }
 
       mockUsers.push(newUser)
@@ -113,9 +114,9 @@ export default defineMock([
         code: 200,
         message: 'User created successfully',
         data: newUser,
-        success: true
+        success: true,
       }
-    }
+    },
   },
 
   // Update user
@@ -132,24 +133,25 @@ export default defineMock([
         mockUsers[index] = {
           ...mockUsers[index],
           ...userData,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         }
 
         return {
           code: 200,
           message: 'User updated successfully',
           data: mockUsers[index],
-          success: true
+          success: true,
         }
-      } else {
+      }
+      else {
         return {
           code: 404,
           message: 'User not found',
           data: null,
-          success: false
+          success: false,
         }
       }
-    }
+    },
   },
 
   // Delete user
@@ -167,16 +169,17 @@ export default defineMock([
           code: 200,
           message: 'User deleted successfully',
           data: null,
-          success: true
+          success: true,
         }
-      } else {
+      }
+      else {
         return {
           code: 404,
           message: 'User not found',
           data: null,
-          success: false
+          success: false,
         }
       }
-    }
-  }
+    },
+  },
 ])

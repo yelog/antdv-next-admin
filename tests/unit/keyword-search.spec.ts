@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-const splitKeywords = (keyword: string) => {
+function splitKeywords(keyword: string) {
   return keyword
     .trim()
     .toLowerCase()
@@ -15,7 +15,7 @@ const splitKeywords = (keyword: string) => {
     .filter(Boolean)
 }
 
-const includesKeywords = (text: string, keyword: string) => {
+function includesKeywords(text: string, keyword: string) {
   const keys = splitKeywords(keyword)
   if (!keys.length) {
     return true

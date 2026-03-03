@@ -1,8 +1,16 @@
+<script setup lang="ts">
+import { useWatermarkStore } from '@/stores/watermark'
+
+const watermarkStore = useWatermarkStore()
+</script>
+
 <template>
   <div class="page-container">
     <div class="card">
       <h2>{{ $t('exampleWatermark.title') }}</h2>
-      <p class="mb-lg">{{ $t('exampleWatermark.description') }}</p>
+      <p class="mb-lg">
+        {{ $t('exampleWatermark.description') }}
+      </p>
 
       <a-form layout="vertical" :style="{ maxWidth: '600px' }">
         <a-form-item :label="$t('exampleWatermark.enableGlobal')">
@@ -68,12 +76,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { useWatermarkStore } from '@/stores/watermark'
-
-const watermarkStore = useWatermarkStore()
-</script>
 
 <style scoped lang="scss">
 .mb-lg {

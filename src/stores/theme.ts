@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
 import type { ThemeMode } from '@/types/layout'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 
 const THEME_TRANSITION_CLASS = 'theme-transition'
 const THEME_VIEW_TRANSITION_CLASS = 'theme-view-transition'
@@ -83,7 +83,7 @@ export const useThemeStore = defineStore('theme', () => {
     const y = Math.max(0, Math.min(origin.y, window.innerHeight))
     const endRadius = Math.hypot(
       Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y)
+      Math.max(y, window.innerHeight - y),
     )
 
     root.classList.add(THEME_VIEW_TRANSITION_CLASS)
@@ -103,7 +103,8 @@ export const useThemeStore = defineStore('theme', () => {
         applyTheme()
       })
       transition.finished.finally(cleanup)
-    } catch (error) {
+    }
+    catch (error) {
       cleanup()
       applyTheme()
       return false
@@ -184,6 +185,6 @@ export const useThemeStore = defineStore('theme', () => {
     setTheme,
     toggleTheme,
     updateTheme,
-    initTheme
+    initTheme,
   }
 })

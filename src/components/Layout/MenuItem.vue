@@ -1,3 +1,29 @@
+<script setup lang="ts">
+import type { MenuItem as MenuItemType } from '@/types/router'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { resolveLocaleText } from '@/utils/i18n'
+import { resolveIcon } from '@/utils/icon'
+
+interface Props {
+  item: MenuItemType
+  collapsed?: boolean
+}
+
+const props = defineProps<Props>()
+const router = useRouter()
+const iconComponent = computed(() => resolveIcon(props.item.icon))
+const displayLabel = computed(() => {
+  return resolveLocaleText(props.item.label, props.item.id)
+})
+
+function handleClick() {
+  if (props.item.path) {
+    router.push(props.item.path)
+  }
+}
+</script>
+
 <template>
   <template v-if="!item.hidden">
     <!-- Menu Item with Children (SubMenu) -->
@@ -27,29 +53,3 @@
     </a-menu-item>
   </template>
 </template>
-
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import type { MenuItem as MenuItemType } from '@/types/router'
-import { resolveIcon } from '@/utils/icon'
-import { resolveLocaleText } from '@/utils/i18n'
-
-interface Props {
-  item: MenuItemType
-  collapsed?: boolean
-}
-
-const props = defineProps<Props>()
-const router = useRouter()
-const iconComponent = computed(() => resolveIcon(props.item.icon))
-const displayLabel = computed(() => {
-  return resolveLocaleText(props.item.label, props.item.id)
-})
-
-const handleClick = () => {
-  if (props.item.path) {
-    router.push(props.item.path)
-  }
-}
-</script>

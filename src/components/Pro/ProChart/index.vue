@@ -1,40 +1,23 @@
-<template>
-  <div class="pro-chart">
-    <div v-if="title || subTitle || $slots.extra" class="pro-chart-header">
-      <div>
-        <h3 v-if="title" class="pro-chart-title">{{ title }}</h3>
-        <p v-if="subTitle" class="pro-chart-subtitle">{{ subTitle }}</p>
-      </div>
-      <slot name="extra" />
-    </div>
-    <div class="pro-chart-body" :style="{ height: normalizedHeight }">
-      <a-spin v-if="loading" class="pro-chart-spin" />
-      <v-chart
-        v-else
-        :option="mergedOption"
-        :theme="isDark ? 'dark' : undefined"
-        autoresize
-        class="pro-chart-canvas"
-      />
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed } from 'vue'
-import VChart from 'vue-echarts'
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
-import { LineChart, BarChart, PieChart, RadarChart } from 'echarts/charts'
+import type { ProChartType } from '@/types/pro'
+import { BarChart, LineChart, PieChart, RadarChart } from 'echarts/charts'
 import {
+  GridComponent,
+  LegendComponent,
+  RadarComponent,
   TitleComponent,
   TooltipComponent,
-  LegendComponent,
-  GridComponent,
-  RadarComponent
 } from 'echarts/components'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { computed } from 'vue'
+import VChart from 'vue-echarts'
 import { useThemeStore } from '@/stores/theme'
-import type { ProChartType } from '@/types/pro'
+
+const props = withDefaults(defineProps<Props>(), {
+  height: 300,
+  loading: false,
+})
 
 use([
   CanvasRenderer,
@@ -46,7 +29,7 @@ use([
   TooltipComponent,
   LegendComponent,
   GridComponent,
-  RadarComponent
+  RadarComponent,
 ])
 
 interface Props {
@@ -58,11 +41,6 @@ interface Props {
   loading?: boolean
   option?: Record<string, any>
 }
-
-const props = withDefaults(defineProps<Props>(), {
-  height: 300,
-  loading: false
-})
 
 const themeStore = useThemeStore()
 const isDark = computed(() => themeStore.isDark)
@@ -83,9 +61,9 @@ const generatedOption = computed(() => {
         radius: type === 'donut' ? ['45%', '70%'] : '70%',
         data: data.map(item => ({ name: item.name, value: item.value })),
         emphasis: {
-          itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' }
-        }
-      }]
+          itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' },
+        },
+      }],
     }
   }
 
@@ -96,8 +74,8 @@ const generatedOption = computed(() => {
       radar: { indicator },
       series: [{
         type: 'radar',
-        data: [{ value: data.map(item => item.value) }]
-      }]
+        data: [{ value: data.map(item => item.value) }],
+      }],
     }
   }
 
@@ -114,8 +92,8 @@ const generatedOption = computed(() => {
       type: type === 'area' ? 'line' : type,
       data: values,
       smooth: type === 'line' || type === 'area',
-      areaStyle: type === 'area' ? {} : undefined
-    }]
+      areaStyle: type === 'area' ? {} : undefined,
+    }],
   }
 })
 
@@ -126,6 +104,32 @@ const mergedOption = computed(() => {
   return generatedOption.value
 })
 </script>
+
+<template>
+  <div class="pro-chart">
+    <div v-if="title || subTitle || $slots.extra" class="pro-chart-header">
+      <div>
+        <h3 v-if="title" class="pro-chart-title">
+          {{ title }}
+        </h3>
+        <p v-if="subTitle" class="pro-chart-subtitle">
+          {{ subTitle }}
+        </p>
+      </div>
+      <slot name="extra" />
+    </div>
+    <div class="pro-chart-body" :style="{ height: normalizedHeight }">
+      <a-spin v-if="loading" class="pro-chart-spin" />
+      <VChart
+        v-else
+        :option="mergedOption"
+        :theme="isDark ? 'dark' : undefined"
+        autoresize
+        class="pro-chart-canvas"
+      />
+    </div>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .pro-chart {

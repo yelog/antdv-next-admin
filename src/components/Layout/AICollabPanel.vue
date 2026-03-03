@@ -1,76 +1,7 @@
-<template>
-  <aside class="ai-panel">
-    <div class="panel-header">
-      <div class="title-wrap">
-        <div class="title">{{ $t('layout.aiAssistantTitle') }}</div>
-        <div class="subtitle">{{ $t('layout.aiAssistantSubtitle') }}</div>
-      </div>
-      <a-button type="text" class="close-btn" @click="emitClose">
-        <CloseOutlined />
-      </a-button>
-    </div>
-
-    <div class="context-row">
-      <a-tag color="blue">{{ $t('layout.aiCurrentPage') }}: {{ currentPageTitle }}</a-tag>
-      <a-tag>{{ route.path }}</a-tag>
-    </div>
-
-    <div class="quick-actions">
-      <div class="section-title">{{ $t('layout.aiQuickActions') }}</div>
-      <a-space wrap size="small">
-        <a-button
-          v-for="item in quickActions"
-          :key="item.id"
-          size="small"
-          @click="applyPrompt(item.prompt)"
-        >
-          {{ item.label }}
-        </a-button>
-      </a-space>
-    </div>
-
-    <div ref="messagesBodyRef" class="messages">
-      <template v-if="messages.length > 0">
-        <div
-          v-for="message in messages"
-          :key="message.id"
-          class="message-item"
-          :class="[`is-${message.role}`, { 'is-streaming': isStreaming && streamingMessageId === message.id }]"
-        >
-          <div class="message-role">{{ message.role === 'assistant' ? 'AI' : 'You' }}</div>
-          <div class="message-content">{{ message.content }}</div>
-        </div>
-      </template>
-      <div v-else class="message-empty">
-        <div class="empty-title">{{ $t('layout.aiEmptyTitle') }}</div>
-        <div class="empty-desc">{{ $t('layout.aiEmptyDescription') }}</div>
-      </div>
-    </div>
-
-    <div class="input-wrap">
-      <a-textarea
-        v-model:value="draft"
-        :rows="3"
-        :placeholder="$t('layout.aiInputPlaceholder')"
-        @keydown.enter="handleEnter"
-      />
-      <div class="input-actions">
-        <span class="hint">{{ isStreaming ? $t('common.loading') : $t('layout.aiEnterHint') }}</span>
-        <a-space size="small">
-          <a-button size="small" @click="clearMessages">{{ $t('common.clear') }}</a-button>
-          <a-button type="primary" size="small" :disabled="!draft.trim() || isStreaming" @click="sendMessage">
-            {{ $t('common.submit') }}
-          </a-button>
-        </a-space>
-      </div>
-    </div>
-  </aside>
-</template>
-
 <script setup lang="ts">
+import { CloseOutlined } from '@antdv-next/icons'
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { CloseOutlined } from '@antdv-next/icons'
 import { $t } from '@/locales'
 import { resolveLocaleText } from '@/utils/i18n'
 
@@ -115,46 +46,46 @@ const quickActions = computed<QuickActionItem[]>(() => {
     {
       id: 'explain',
       label: $t('layout.aiActionExplain'),
-      prompt: $t('layout.aiActionExplain')
+      prompt: $t('layout.aiActionExplain'),
     },
     {
       id: 'summary',
       label: $t('layout.aiActionSummary'),
-      prompt: $t('layout.aiActionSummary')
+      prompt: $t('layout.aiActionSummary'),
     },
     {
       id: 'risk',
       label: $t('layout.aiActionRisk'),
-      prompt: $t('layout.aiActionRisk')
+      prompt: $t('layout.aiActionRisk'),
     },
     {
       id: 'next-step',
       label: $t('layout.aiActionNextStep'),
-      prompt: $t('layout.aiActionNextStep')
-    }
+      prompt: $t('layout.aiActionNextStep'),
+    },
   ]
 })
 
-const emitClose = () => {
+function emitClose() {
   stopStreaming()
   emit('close')
 }
 
-const appendMessage = (role: MessageRole, content: string) => {
+function appendMessage(role: MessageRole, content: string) {
   messageId += 1
   messages.value.push({
     id: messageId,
     role,
-    content
+    content,
   })
   return messageId
 }
 
-const applyPrompt = (prompt: string) => {
+function applyPrompt(prompt: string) {
   draft.value = prompt
 }
 
-const scrollToBottom = () => {
+function scrollToBottom() {
   requestAnimationFrame(() => {
     const body = messagesBodyRef.value
     if (!body) {
@@ -164,7 +95,7 @@ const scrollToBottom = () => {
   })
 }
 
-const stopStreaming = () => {
+function stopStreaming() {
   if (streamTimer !== null) {
     window.clearInterval(streamTimer)
     streamTimer = null
@@ -173,7 +104,7 @@ const stopStreaming = () => {
   streamingMessageId.value = null
 }
 
-const streamAssistantReply = (fullReply: string) => {
+function streamAssistantReply(fullReply: string) {
   stopStreaming()
 
   const assistantId = appendMessage('assistant', '')
@@ -199,7 +130,7 @@ const streamAssistantReply = (fullReply: string) => {
   }, 30)
 }
 
-const sendMessage = async () => {
+async function sendMessage() {
   if (isStreaming.value) {
     return
   }
@@ -218,7 +149,7 @@ const sendMessage = async () => {
   streamAssistantReply(reply)
 }
 
-const handleEnter = (event: KeyboardEvent) => {
+function handleEnter(event: KeyboardEvent) {
   if (event.shiftKey) {
     return
   }
@@ -226,7 +157,7 @@ const handleEnter = (event: KeyboardEvent) => {
   void sendMessage()
 }
 
-const clearMessages = () => {
+function clearMessages() {
   stopStreaming()
   messages.value = []
 }
@@ -235,6 +166,93 @@ onBeforeUnmount(() => {
   stopStreaming()
 })
 </script>
+
+<template>
+  <aside class="ai-panel">
+    <div class="panel-header">
+      <div class="title-wrap">
+        <div class="title">
+          {{ $t('layout.aiAssistantTitle') }}
+        </div>
+        <div class="subtitle">
+          {{ $t('layout.aiAssistantSubtitle') }}
+        </div>
+      </div>
+      <a-button type="text" class="close-btn" @click="emitClose">
+        <CloseOutlined />
+      </a-button>
+    </div>
+
+    <div class="context-row">
+      <a-tag color="blue">
+        {{ $t('layout.aiCurrentPage') }}: {{ currentPageTitle }}
+      </a-tag>
+      <a-tag>{{ route.path }}</a-tag>
+    </div>
+
+    <div class="quick-actions">
+      <div class="section-title">
+        {{ $t('layout.aiQuickActions') }}
+      </div>
+      <a-space wrap size="small">
+        <a-button
+          v-for="item in quickActions"
+          :key="item.id"
+          size="small"
+          @click="applyPrompt(item.prompt)"
+        >
+          {{ item.label }}
+        </a-button>
+      </a-space>
+    </div>
+
+    <div ref="messagesBodyRef" class="messages">
+      <template v-if="messages.length > 0">
+        <div
+          v-for="message in messages"
+          :key="message.id"
+          class="message-item"
+          :class="[`is-${message.role}`, { 'is-streaming': isStreaming && streamingMessageId === message.id }]"
+        >
+          <div class="message-role">
+            {{ message.role === 'assistant' ? 'AI' : 'You' }}
+          </div>
+          <div class="message-content">
+            {{ message.content }}
+          </div>
+        </div>
+      </template>
+      <div v-else class="message-empty">
+        <div class="empty-title">
+          {{ $t('layout.aiEmptyTitle') }}
+        </div>
+        <div class="empty-desc">
+          {{ $t('layout.aiEmptyDescription') }}
+        </div>
+      </div>
+    </div>
+
+    <div class="input-wrap">
+      <a-textarea
+        v-model:value="draft"
+        :rows="3"
+        :placeholder="$t('layout.aiInputPlaceholder')"
+        @keydown.enter="handleEnter"
+      />
+      <div class="input-actions">
+        <span class="hint">{{ isStreaming ? $t('common.loading') : $t('layout.aiEnterHint') }}</span>
+        <a-space size="small">
+          <a-button size="small" @click="clearMessages">
+            {{ $t('common.clear') }}
+          </a-button>
+          <a-button type="primary" size="small" :disabled="!draft.trim() || isStreaming" @click="sendMessage">
+            {{ $t('common.submit') }}
+          </a-button>
+        </a-space>
+      </div>
+    </div>
+  </aside>
+</template>
 
 <style scoped lang="scss">
 .ai-panel {
@@ -378,11 +396,13 @@ onBeforeUnmount(() => {
 }
 
 @keyframes ai-stream-caret {
-  0%, 49% {
+  0%,
+  49% {
     opacity: 1;
   }
 
-  50%, 100% {
+  50%,
+  100% {
     opacity: 0;
   }
 }

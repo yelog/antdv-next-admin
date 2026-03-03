@@ -1,28 +1,3 @@
-<template>
-  <div class="rotate-captcha" :style="{ width: typeof width === 'number' ? width + 'px' : width }">
-    <div class="rotate-img-wrapper">
-      <img
-        :src="src"
-        class="rotate-img"
-        :style="{ transform: `rotate(${currentAngle}deg)` }"
-        alt="captcha"
-        draggable="false"
-      />
-      <div v-if="isSuccess" class="success-mask">
-        <span class="success-icon">✔</span>
-      </div>
-    </div>
-    <div class="rotate-slider" ref="sliderRef">
-      <div class="slider-track"></div>
-      <div
-        class="slider-handle"
-        :style="{ left: `${sliderPercent}%` }"
-        @mousedown="handleMouseDown"
-      ></div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
 
@@ -36,7 +11,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   width: '100%',
   src: 'https://picsum.photos/300/300',
-  tolerance: 10
+  tolerance: 10,
 })
 
 const emit = defineEmits(['success', 'fail'])
@@ -48,7 +23,7 @@ const isSuccess = ref(false)
 const initialAngle = ref(0)
 const sliderRef = ref<HTMLElement | null>(null)
 
-const init = () => {
+function init() {
   initialAngle.value = Math.random() * 300 + 30
   currentAngle.value = initialAngle.value
   sliderPercent.value = 0
@@ -58,16 +33,19 @@ const init = () => {
 // Init
 init()
 
-const handleMouseDown = (e: MouseEvent) => {
-  if (isSuccess.value) return
+function handleMouseDown(e: MouseEvent) {
+  if (isSuccess.value)
+    return
   isMoving.value = true
   const startX = e.clientX
   const startPercent = sliderPercent.value
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (!isMoving.value) return
+    if (!isMoving.value)
+      return
     const container = sliderRef.value
-    if (!container) return
+    if (!container)
+      return
 
     const width = container.clientWidth
     const deltaX = e.clientX - startX
@@ -89,13 +67,16 @@ const handleMouseDown = (e: MouseEvent) => {
 
     // Check if angle is close to 0 (360 multiples)
     let normalizedAngle = currentAngle.value % 360
-    if (normalizedAngle > 180) normalizedAngle -= 360
-    if (normalizedAngle < -180) normalizedAngle += 360
+    if (normalizedAngle > 180)
+      normalizedAngle -= 360
+    if (normalizedAngle < -180)
+      normalizedAngle += 360
 
     if (Math.abs(normalizedAngle) <= props.tolerance) {
       isSuccess.value = true
       emit('success')
-    } else {
+    }
+    else {
       emit('fail')
     }
   }
@@ -104,12 +85,37 @@ const handleMouseDown = (e: MouseEvent) => {
   document.addEventListener('mouseup', handleMouseUp)
 }
 
-const reset = () => {
+function reset() {
   init()
 }
 
 defineExpose({ reset })
 </script>
+
+<template>
+  <div class="rotate-captcha" :style="{ width: typeof width === 'number' ? `${width}px` : width }">
+    <div class="rotate-img-wrapper">
+      <img
+        :src="src"
+        class="rotate-img"
+        :style="{ transform: `rotate(${currentAngle}deg)` }"
+        alt="captcha"
+        draggable="false"
+      >
+      <div v-if="isSuccess" class="success-mask">
+        <span class="success-icon">✔</span>
+      </div>
+    </div>
+    <div ref="sliderRef" class="rotate-slider">
+      <div class="slider-track" />
+      <div
+        class="slider-handle"
+        :style="{ left: `${sliderPercent}%` }"
+        @mousedown="handleMouseDown"
+      />
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .rotate-captcha {

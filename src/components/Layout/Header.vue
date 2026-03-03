@@ -1,3 +1,192 @@
+<script setup lang="ts">
+import {
+  BulbOutlined,
+  FullscreenOutlined,
+  GlobalOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  MessageOutlined,
+  MoreOutlined,
+  SearchOutlined,
+  SettingOutlined,
+} from '@antdv-next/icons'
+import { computed, h, onBeforeUnmount, onMounted, ref } from 'vue'
+import { $t, LOCALE_NATIVE_LABELS, setLocale } from '@/locales'
+import { useLayoutStore } from '@/stores/layout'
+import { useThemeStore } from '@/stores/theme'
+import AvatarDropdown from './AvatarDropdown.vue'
+import Breadcrumb from './Breadcrumb.vue'
+import FullscreenToggle from './FullscreenToggle.vue'
+import GlobalSearch from './GlobalSearch.vue'
+import LanguageSwitch from './LanguageSwitch.vue'
+import NotificationPanel from './NotificationPanel.vue'
+import SettingsDrawer from './SettingsDrawer.vue'
+import ThemeToggle from './ThemeToggle.vue'
+
+interface Props {
+  showBreadcrumb?: boolean
+  showCollapseButton?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+  showBreadcrumb: true,
+  showCollapseButton: true,
+})
+
+const layoutStore = useLayoutStore()
+const themeStore = useThemeStore()
+const globalSearchRef = ref()
+const settingsDrawerRef = ref()
+const isMac = ref(false)
+
+function openGlobalSearch() {
+  globalSearchRef.value?.open()
+}
+
+function openSettings() {
+  settingsDrawerRef.value?.open()
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen()
+  }
+  else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen()
+    }
+  }
+}
+
+function handleMoreMenuClick({ key }: { key: string }) {
+  switch (key) {
+    case 'fullscreen':
+      toggleFullscreen()
+      break
+    case 'ai-collab':
+      layoutStore.toggleAiCollab()
+      break
+    case 'theme-light':
+      themeStore.setTheme('light')
+      break
+    case 'theme-dark':
+      themeStore.setTheme('dark')
+      break
+    case 'theme-auto':
+      themeStore.setTheme('system')
+      break
+    case 'lang-zh':
+      setLocale('zh-CN')
+      break
+    case 'lang-en':
+      setLocale('en-US')
+      break
+    case 'lang-ja':
+      setLocale('ja-JP')
+      break
+    case 'lang-ko':
+      setLocale('ko-KR')
+      break
+    case 'settings':
+      openSettings()
+      break
+  }
+}
+
+const moreMenuProps = computed(() => {
+  const items: any[] = [
+    {
+      key: 'fullscreen',
+      label: $t('layout.fullscreen'),
+      icon: h(FullscreenOutlined),
+    },
+  ]
+
+  if (layoutStore.aiEntryVisible) {
+    items.push({
+      key: 'ai-collab',
+      label: layoutStore.aiCollabEnabled ? $t('layout.aiCollabDisable') : $t('layout.aiCollabEnable'),
+      icon: h(MessageOutlined),
+    })
+  }
+
+  items.push(
+    {
+      type: 'divider',
+    },
+    {
+      key: 'theme',
+      label: $t('layout.theme'),
+      icon: h(BulbOutlined),
+      children: [
+        {
+          key: 'theme-light',
+          label: $t('layout.themeLight'),
+        },
+        {
+          key: 'theme-dark',
+          label: $t('layout.themeDark'),
+        },
+        {
+          key: 'theme-auto',
+          label: $t('layout.themeAuto'),
+        },
+      ],
+    },
+    {
+      key: 'language',
+      label: $t('layout.language'),
+      icon: h(GlobalOutlined),
+      children: [
+        {
+          key: 'lang-zh',
+          label: LOCALE_NATIVE_LABELS['zh-CN'],
+        },
+        {
+          key: 'lang-en',
+          label: LOCALE_NATIVE_LABELS['en-US'],
+        },
+        {
+          key: 'lang-ja',
+          label: LOCALE_NATIVE_LABELS['ja-JP'],
+        },
+        {
+          key: 'lang-ko',
+          label: LOCALE_NATIVE_LABELS['ko-KR'],
+        },
+      ],
+    },
+    {
+      type: 'divider',
+    },
+    {
+      key: 'settings',
+      label: $t('settings.title'),
+      icon: h(SettingOutlined),
+    },
+  )
+
+  return { items, onClick: handleMoreMenuClick }
+})
+
+function handleKeydown(e: KeyboardEvent) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault()
+    openGlobalSearch()
+  }
+}
+
+onMounted(() => {
+  // Simple check for Mac
+  isMac.value = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
+</script>
+
 <template>
   <a-layout-header class="admin-header">
     <div class="header-left">
@@ -84,194 +273,6 @@
     <SettingsDrawer ref="settingsDrawerRef" />
   </a-layout-header>
 </template>
-
-<script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, h } from 'vue'
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  SearchOutlined,
-  SettingOutlined,
-  MoreOutlined,
-  MessageOutlined,
-  FullscreenOutlined,
-  BulbOutlined,
-  GlobalOutlined
-} from '@antdv-next/icons'
-import { useLayoutStore } from '@/stores/layout'
-import { useThemeStore } from '@/stores/theme'
-import { $t, setLocale, LOCALE_NATIVE_LABELS } from '@/locales'
-import Breadcrumb from './Breadcrumb.vue'
-import FullscreenToggle from './FullscreenToggle.vue'
-import NotificationPanel from './NotificationPanel.vue'
-import ThemeToggle from './ThemeToggle.vue'
-import LanguageSwitch from './LanguageSwitch.vue'
-import AvatarDropdown from './AvatarDropdown.vue'
-import GlobalSearch from './GlobalSearch.vue'
-import SettingsDrawer from './SettingsDrawer.vue'
-
-interface Props {
-  showBreadcrumb?: boolean
-  showCollapseButton?: boolean
-}
-
-withDefaults(defineProps<Props>(), {
-  showBreadcrumb: true,
-  showCollapseButton: true
-})
-
-const layoutStore = useLayoutStore()
-const themeStore = useThemeStore()
-const globalSearchRef = ref()
-const settingsDrawerRef = ref()
-const isMac = ref(false)
-
-const openGlobalSearch = () => {
-  globalSearchRef.value?.open()
-}
-
-const openSettings = () => {
-  settingsDrawerRef.value?.open()
-}
-
-const toggleFullscreen = () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen()
-  } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen()
-    }
-  }
-}
-
-const handleMoreMenuClick = ({ key }: { key: string }) => {
-  switch (key) {
-    case 'fullscreen':
-      toggleFullscreen()
-      break
-    case 'ai-collab':
-      layoutStore.toggleAiCollab()
-      break
-    case 'theme-light':
-      themeStore.setTheme('light')
-      break
-    case 'theme-dark':
-      themeStore.setTheme('dark')
-      break
-    case 'theme-auto':
-      themeStore.setTheme('system')
-      break
-    case 'lang-zh':
-      setLocale('zh-CN')
-      break
-    case 'lang-en':
-      setLocale('en-US')
-      break
-    case 'lang-ja':
-      setLocale('ja-JP')
-      break
-    case 'lang-ko':
-      setLocale('ko-KR')
-      break
-    case 'settings':
-      openSettings()
-      break
-  }
-}
-
-const moreMenuProps = computed(() => {
-  const items: any[] = [
-    {
-      key: 'fullscreen',
-      label: $t('layout.fullscreen'),
-      icon: h(FullscreenOutlined)
-    }
-  ]
-
-  if (layoutStore.aiEntryVisible) {
-    items.push({
-      key: 'ai-collab',
-      label: layoutStore.aiCollabEnabled ? $t('layout.aiCollabDisable') : $t('layout.aiCollabEnable'),
-      icon: h(MessageOutlined)
-    })
-  }
-
-  items.push(
-    {
-      type: 'divider'
-    },
-    {
-      key: 'theme',
-      label: $t('layout.theme'),
-      icon: h(BulbOutlined),
-      children: [
-        {
-          key: 'theme-light',
-          label: $t('layout.themeLight')
-        },
-        {
-          key: 'theme-dark',
-          label: $t('layout.themeDark')
-        },
-        {
-          key: 'theme-auto',
-          label: $t('layout.themeAuto')
-        }
-      ]
-    },
-    {
-      key: 'language',
-      label: $t('layout.language'),
-      icon: h(GlobalOutlined),
-      children: [
-        {
-          key: 'lang-zh',
-          label: LOCALE_NATIVE_LABELS['zh-CN']
-        },
-        {
-          key: 'lang-en',
-          label: LOCALE_NATIVE_LABELS['en-US']
-        },
-        {
-          key: 'lang-ja',
-          label: LOCALE_NATIVE_LABELS['ja-JP']
-        },
-        {
-          key: 'lang-ko',
-          label: LOCALE_NATIVE_LABELS['ko-KR']
-        }
-      ]
-    },
-    {
-      type: 'divider'
-    },
-    {
-      key: 'settings',
-      label: $t('settings.title'),
-      icon: h(SettingOutlined)
-    }
-  )
-
-  return { items, onClick: handleMoreMenuClick }
-})
-
-const handleKeydown = (e: KeyboardEvent) => {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault()
-    openGlobalSearch()
-  }
-}
-
-onMounted(() => {
-  // Simple check for Mac
-  isMac.value = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
-  window.addEventListener('keydown', handleKeydown)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeydown)
-})
-</script>
 
 <style scoped lang="scss">
 .admin-header {

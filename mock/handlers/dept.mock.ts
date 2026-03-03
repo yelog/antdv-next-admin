@@ -1,6 +1,6 @@
-import { defineMock } from 'vite-plugin-mock-dev-server'
-import { departments, buildDeptTree } from '../data/dept.data'
 import type { Department } from '@/types/dept'
+import { defineMock } from 'vite-plugin-mock-dev-server'
+import { buildDeptTree, departments } from '../data/dept.data'
 
 export default defineMock([
   // 获取部门树
@@ -21,9 +21,9 @@ export default defineMock([
       return {
         code: 200,
         message: 'success',
-        data: buildDeptTree(filtered)
+        data: buildDeptTree(filtered),
       }
-    }
+    },
   },
 
   // 获取部门列表（扁平）
@@ -46,9 +46,9 @@ export default defineMock([
       return {
         code: 200,
         message: 'success',
-        data: filtered
+        data: filtered,
       }
-    }
+    },
   },
 
   // 创建部门
@@ -60,11 +60,11 @@ export default defineMock([
         id: String(Date.now()),
         ...req.body,
         createTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
-        updateTime: new Date().toISOString().replace('T', ' ').slice(0, 19)
+        updateTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
       }
       departments.push(newDept)
       return { code: 200, message: '创建成功', data: newDept }
-    }
+    },
   },
 
   // 更新部门
@@ -78,12 +78,12 @@ export default defineMock([
         departments[index] = {
           ...departments[index],
           ...req.body,
-          updateTime: new Date().toISOString().replace('T', ' ').slice(0, 19)
+          updateTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
         }
         return { code: 200, message: '更新成功', data: departments[index] }
       }
       return { code: 404, message: '部门不存在' }
-    }
+    },
   },
 
   // 删除部门
@@ -103,6 +103,6 @@ export default defineMock([
         return { code: 200, message: '删除成功' }
       }
       return { code: 404, message: '部门不存在' }
-    }
-  }
+    },
+  },
 ])

@@ -1,3 +1,37 @@
+<script setup lang="ts">
+import { reactive, ref } from 'vue'
+import I18nInput from '@/components/I18nInput/index.vue'
+
+const formState = reactive({
+  productName: {
+    'zh-CN': '苹果手机',
+    'en-US': 'iPhone',
+    'ja-JP': 'iPhone',
+    'ko-KR': '아이폰',
+  },
+  productDescription: {
+    'zh-CN': '这是最新款的智能手机，拥有强大的性能和优秀的拍照功能。',
+    'en-US': 'This is the latest smartphone with powerful performance and excellent camera capabilities.',
+    'ja-JP': 'これは最新のスマートフォンで、強力な性能と優れたカメラ機能を備えています。',
+    'ko-KR': '강력한 성능과 뛰어난 카메라 기능을 갖춘 최신 스마트폰입니다.',
+  },
+  stringFormat: '{"zh-CN": "字符串格式", "en-US": "String Format", "ja-JP": "文字列形式", "ko-KR": "문자열 형식"}',
+  withLocale: {
+    'zh-CN': '指定显示日语',
+    'en-US': 'Show Japanese value',
+    'ja-JP': '日本語表示を指定',
+    'ko-KR': '일본어 표시 지정',
+  },
+  emptyValue: null as Record<string, string> | string | null,
+})
+
+const showAsString = ref(false)
+
+function toggleValueType() {
+  showAsString.value = !showAsString.value
+}
+</script>
+
 <template>
   <div class="page-container">
     <div class="card">
@@ -6,8 +40,10 @@
         {{ $t('examples.i18nInput.description') }}
       </p>
 
-      <a-divider orientation="left">{{ $t('common.basicUsage') }}</a-divider>
-      
+      <a-divider orientation="left">
+        {{ $t('common.basicUsage') }}
+      </a-divider>
+
       <a-form :model="formState" layout="vertical">
         <a-form-item :label="$t('examples.i18nInput.productName')">
           <I18nInput
@@ -25,10 +61,14 @@
           />
         </a-form-item>
 
-        <a-divider orientation="left">{{ $t('common.advancedUsage') }}</a-divider>
+        <a-divider orientation="left">
+          {{ $t('common.advancedUsage') }}
+        </a-divider>
 
         <a-form-item :label="$t('examples.i18nInput.stringFormat')">
-          <div class="hint">{{ $t('examples.i18nInput.stringFormatHint') }}</div>
+          <div class="hint">
+            {{ $t('examples.i18nInput.stringFormatHint') }}
+          </div>
           <I18nInput
             v-model:value="formState.stringFormat"
             :placeholder="$t('examples.i18nInput.clickToEdit')"
@@ -36,7 +76,9 @@
         </a-form-item>
 
         <a-form-item :label="$t('examples.i18nInput.currentLocale')">
-          <div class="hint">{{ $t('examples.i18nInput.currentLocaleHint') }}</div>
+          <div class="hint">
+            {{ $t('examples.i18nInput.currentLocaleHint') }}
+          </div>
           <I18nInput
             v-model:value="formState.withLocale"
             locale="ja-JP"
@@ -52,13 +94,17 @@
         </a-form-item>
       </a-form>
 
-      <a-divider orientation="left">{{ $t('common.preview') }}</a-divider>
-      
+      <a-divider orientation="left">
+        {{ $t('common.preview') }}
+      </a-divider>
+
       <a-card :title="$t('examples.i18nInput.dataPreview')" size="small">
         <pre class="json-preview">{{ JSON.stringify(formState, null, 2) }}</pre>
       </a-card>
 
-      <a-divider orientation="left">{{ $t('examples.i18nInput.valueType') }}</a-divider>
+      <a-divider orientation="left">
+        {{ $t('examples.i18nInput.valueType') }}
+      </a-divider>
 
       <a-space>
         <a-button @click="toggleValueType">
@@ -77,40 +123,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
-import I18nInput from '@/components/I18nInput/index.vue'
-
-const formState = reactive({
-  productName: {
-    'zh-CN': '苹果手机',
-    'en-US': 'iPhone',
-    'ja-JP': 'iPhone',
-    'ko-KR': '아이폰'
-  },
-  productDescription: {
-    'zh-CN': '这是最新款的智能手机，拥有强大的性能和优秀的拍照功能。',
-    'en-US': 'This is the latest smartphone with powerful performance and excellent camera capabilities.',
-    'ja-JP': 'これは最新のスマートフォンで、強力な性能と優れたカメラ機能を備えています。',
-    'ko-KR': '강력한 성능과 뛰어난 카메라 기능을 갖춘 최신 스마트폰입니다.'
-  },
-  stringFormat: '{"zh-CN": "字符串格式", "en-US": "String Format", "ja-JP": "文字列形式", "ko-KR": "문자열 형식"}',
-  withLocale: {
-    'zh-CN': '指定显示日语',
-    'en-US': 'Show Japanese value',
-    'ja-JP': '日本語表示を指定',
-    'ko-KR': '일본어 표시 지정'
-  },
-  emptyValue: null as Record<string, string> | string | null
-})
-
-const showAsString = ref(false)
-
-function toggleValueType() {
-  showAsString.value = !showAsString.value
-}
-</script>
 
 <style scoped lang="scss">
 .page-container {

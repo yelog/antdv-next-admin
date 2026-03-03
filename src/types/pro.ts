@@ -1,38 +1,38 @@
 // Pro Component Types
 
 // ProTable Types
-export type ValueType =
-  | 'text'
-  | 'date'
-  | 'dateTime'
-  | 'dateRange'
-  | 'time'
-  | 'tag'
-  | 'badge'
-  | 'money'
-  | 'percent'
-  | 'avatar'
-  | 'image'
-  | 'link'
-  | 'progress'
+export type ValueType
+  = | 'text'
+    | 'date'
+    | 'dateTime'
+    | 'dateRange'
+    | 'time'
+    | 'tag'
+    | 'badge'
+    | 'money'
+    | 'percent'
+    | 'avatar'
+    | 'image'
+    | 'link'
+    | 'progress'
 
-export type SearchType =
-  | 'input'
-  | 'select'
-  | 'dateRange'
-  | 'datePicker'
-  | 'number'
-  | 'checkbox'
-  | 'radio'
+export type SearchType
+  = | 'input'
+    | 'select'
+    | 'dateRange'
+    | 'datePicker'
+    | 'number'
+    | 'checkbox'
+    | 'radio'
 
-export type HeaderFilterMode =
-  | 'client'
-  | 'server'
-  | 'hybrid'
+export type HeaderFilterMode
+  = | 'client'
+    | 'server'
+    | 'hybrid'
 
-export type ProTableHeaderFilterType =
-  | 'keyword'
-  | 'select'
+export type ProTableHeaderFilterType
+  = | 'keyword'
+    | 'select'
 
 export interface ProTableHeaderFilterOption {
   label: string
@@ -74,17 +74,17 @@ export interface ProTableColumn {
 
   // Value rendering
   valueType?: ValueType
-  valueEnum?: Record<string, { text: string; status?: string; color?: string }>
+  valueEnum?: Record<string, { text: string, status?: string, color?: string }>
   valueTypeProps?: Record<string, any>
   copyable?: boolean
 
   // Unified options: auto-derives searchOptions and valueEnum when set
-  options?: Array<{ label: string; value: any; color?: string; status?: string; disabled?: boolean }>
+  options?: Array<{ label: string, value: any, color?: string, status?: string, disabled?: boolean }>
 
   // Search
   search?: boolean
   searchType?: SearchType
-  searchOptions?: Array<{ label: string; value: any }>
+  searchOptions?: Array<{ label: string, value: any }>
   searchProps?: Record<string, any>
 
   // Header filter
@@ -98,7 +98,7 @@ export interface ProTableColumn {
   filterDropdown?: any
   filterDropdownProps?: Record<string, any>
   filterIcon?: any
-  filters?: Array<{ text: string; value: any }>
+  filters?: Array<{ text: string, value: any }>
   filterMultiple?: boolean
   filteredValue?: any[] | null
   onFilter?: (value: any, record: any) => boolean
@@ -157,28 +157,28 @@ export interface ProTableRequest {
 }
 
 // ProForm Types
-export type FormItemType =
-  | 'input'
-  | 'password'
-  | 'textarea'
-  | 'number'
-  | 'select'
-  | 'radio'
-  | 'checkbox'
-  | 'switch'
-  | 'datePicker'
-  | 'timePicker'
-  | 'dateRange'
-  | 'timeRange'
-  | 'upload'
-  | 'imageUpload'
-  | 'avatarUpload'
-  | 'slider'
-  | 'rate'
-  | 'colorPicker'
-  | 'cascader'
-  | 'treeSelect'
-  | 'custom'
+export type FormItemType
+  = | 'input'
+    | 'password'
+    | 'textarea'
+    | 'number'
+    | 'select'
+    | 'radio'
+    | 'checkbox'
+    | 'switch'
+    | 'datePicker'
+    | 'timePicker'
+    | 'dateRange'
+    | 'timeRange'
+    | 'upload'
+    | 'imageUpload'
+    | 'avatarUpload'
+    | 'slider'
+    | 'rate'
+    | 'colorPicker'
+    | 'cascader'
+    | 'treeSelect'
+    | 'custom'
 
 export interface ProFormItem {
   name: string
@@ -196,7 +196,7 @@ export interface ProFormItem {
   hidden?: boolean | ((values: Record<string, any>) => boolean)
 
   // Options (for select, radio, checkbox, etc.) — supports function form for dynamic options
-  options?: Array<{ label: string; value: any; disabled?: boolean }> | ((values: Record<string, any>) => Array<{ label: string; value: any; disabled?: boolean }>)
+  options?: Array<{ label: string, value: any, disabled?: boolean }> | ((values: Record<string, any>) => Array<{ label: string, value: any, disabled?: boolean }>)
 
   // Props to pass to the component
   props?: Record<string, any>
@@ -208,7 +208,7 @@ export interface ProFormItem {
   render?: (form: any) => any
 
   // Request for dynamic options
-  request?: () => Promise<Array<{ label: string; value: any }>>
+  request?: () => Promise<Array<{ label: string, value: any }>>
 }
 
 export interface ProFormLayout {
@@ -227,7 +227,7 @@ export interface ProDescriptionItem {
   label: string
   dataIndex: string
   valueType?: ValueType
-  valueEnum?: Record<string, { text: string; status?: string; color?: string }>
+  valueEnum?: Record<string, { text: string, status?: string, color?: string }>
   valueTypeProps?: Record<string, any>
   span?: number
   render?: (value: any, record: any) => any

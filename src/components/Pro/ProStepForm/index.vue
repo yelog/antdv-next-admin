@@ -1,3 +1,64 @@
+<script setup lang="ts">
+import type { ProStepFormStep } from '@/types/pro'
+import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const props = withDefaults(defineProps<{
+  steps: ProStepFormStep[]
+  modelValue?: number
+  loading?: boolean
+  prevText?: string
+  nextText?: string
+  submitText?: string
+}>(), {
+  modelValue: 0,
+  loading: false,
+})
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', step: number): void
+  (e: 'next', currentStep: number): void
+  (e: 'prev', currentStep: number): void
+  (e: 'submit'): void
+}>()
+
+const { t: $t } = useI18n()
+
+const currentStep = ref(props.modelValue)
+
+watch(() => props.modelValue, (val) => {
+  currentStep.value = val
+})
+
+watch(currentStep, (val) => {
+  emit('update:modelValue', val)
+})
+
+function handlePrev() {
+  if (currentStep.value > 0) {
+    currentStep.value -= 1
+    emit('prev', currentStep.value)
+  }
+}
+
+function handleNext() {
+  emit('next', currentStep.value)
+}
+
+function handleSubmit() {
+  emit('submit')
+}
+
+defineExpose({
+  prev: handlePrev,
+  goTo: (step: number) => {
+    if (step >= 0 && step < props.steps.length) {
+      currentStep.value = step
+    }
+  },
+})
+</script>
+
 <template>
   <div class="pro-step-form">
     <a-steps :current="currentStep" size="small" class="pro-step-form-steps">
@@ -47,67 +108,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import type { ProStepFormStep } from '@/types/pro'
-
-const { t: $t } = useI18n()
-
-const props = withDefaults(defineProps<{
-  steps: ProStepFormStep[]
-  modelValue?: number
-  loading?: boolean
-  prevText?: string
-  nextText?: string
-  submitText?: string
-}>(), {
-  modelValue: 0,
-  loading: false
-})
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', step: number): void
-  (e: 'next', currentStep: number): void
-  (e: 'prev', currentStep: number): void
-  (e: 'submit'): void
-}>()
-
-const currentStep = ref(props.modelValue)
-
-watch(() => props.modelValue, (val) => {
-  currentStep.value = val
-})
-
-watch(currentStep, (val) => {
-  emit('update:modelValue', val)
-})
-
-const handlePrev = () => {
-  if (currentStep.value > 0) {
-    currentStep.value -= 1
-    emit('prev', currentStep.value)
-  }
-}
-
-const handleNext = () => {
-  emit('next', currentStep.value)
-}
-
-const handleSubmit = () => {
-  emit('submit')
-}
-
-defineExpose({
-  prev: handlePrev,
-  goTo: (step: number) => {
-    if (step >= 0 && step < props.steps.length) {
-      currentStep.value = step
-    }
-  }
-})
-</script>
 
 <style scoped lang="scss">
 .pro-step-form {

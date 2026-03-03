@@ -1,8 +1,63 @@
+<script setup lang="ts">
+import { LockOutlined, UserOutlined } from '@antdv-next/icons'
+import { message } from 'antdv-next'
+import { reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import logoImg from '@/assets/images/logo.png'
+import { SliderCaptcha } from '@/components/Captcha'
+import LanguageSwitch from '@/components/Layout/LanguageSwitch.vue'
+import ThemeToggle from '@/components/Layout/ThemeToggle.vue'
+import { $t } from '@/locales'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const loading = ref(false)
+const captchaVerified = ref(false)
+const captchaRef = ref<InstanceType<typeof SliderCaptcha>>()
+const formState = reactive({
+  username: 'admin',
+  password: '123456',
+  remember: false,
+})
+
+const rules = {
+  username: [{ required: true, message: $t('login.usernameRequired') }],
+  password: [{ required: true, message: $t('login.passwordRequired') }],
+}
+
+function onCaptchaSuccess() {
+  captchaVerified.value = true
+}
+
+function onCaptchaFail() {
+  captchaVerified.value = false
+}
+
+async function handleSubmit() {
+  loading.value = true
+  try {
+    await authStore.login(formState.username, formState.password)
+    message.success($t('login.loginSuccess'))
+    router.push('/')
+  }
+  catch (error: any) {
+    message.error(error.message || $t('login.loginFailed'))
+    captchaVerified.value = false
+    captchaRef.value?.reset()
+  }
+  finally {
+    loading.value = false
+  }
+}
+</script>
+
 <template>
   <div class="login-shell">
-    <div class="ambient ambient-left"></div>
-    <div class="ambient ambient-right"></div>
-    <div class="ambient ambient-bottom"></div>
+    <div class="ambient ambient-left" />
+    <div class="ambient ambient-right" />
+    <div class="ambient ambient-bottom" />
 
     <div class="login-tools">
       <LanguageSwitch />
@@ -13,18 +68,24 @@
       <div class="login-header">
         <!-- Keep consistent with the in-app (top-left) logo style -->
         <div class="logo-wrap">
-          <img :src="logoImg" alt="Logo" class="logo" />
+          <img :src="logoImg" alt="Logo" class="logo">
         </div>
-        <p class="eyebrow">Antdv Next Admin</p>
-        <h1 class="title">{{ $t('login.title') }}</h1>
-        <p class="subtitle">Secure workspace entrance</p>
+        <p class="eyebrow">
+          Antdv Next Admin
+        </p>
+        <h1 class="title">
+          {{ $t('login.title') }}
+        </h1>
+        <p class="subtitle">
+          Secure workspace entrance
+        </p>
       </div>
 
       <a-form
         :model="formState"
         :rules="rules"
-        @finish="handleSubmit"
         class="login-form"
+        @finish="handleSubmit"
       >
         <a-form-item name="username">
           <a-input
@@ -95,63 +156,11 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { UserOutlined, LockOutlined } from '@antdv-next/icons'
-import { useAuthStore } from '@/stores/auth'
-import { message } from 'antdv-next'
-import { $t } from '@/locales'
-import ThemeToggle from '@/components/Layout/ThemeToggle.vue'
-import LanguageSwitch from '@/components/Layout/LanguageSwitch.vue'
-import { SliderCaptcha } from '@/components/Captcha'
-import logoImg from '@/assets/images/logo.png'
-
-const router = useRouter()
-const authStore = useAuthStore()
-
-const loading = ref(false)
-const captchaVerified = ref(false)
-const captchaRef = ref<InstanceType<typeof SliderCaptcha>>()
-const formState = reactive({
-  username: 'admin',
-  password: '123456',
-  remember: false
-})
-
-const rules = {
-  username: [{ required: true, message: $t('login.usernameRequired') }],
-  password: [{ required: true, message: $t('login.passwordRequired') }]
-}
-
-const onCaptchaSuccess = () => {
-  captchaVerified.value = true
-}
-
-const onCaptchaFail = () => {
-  captchaVerified.value = false
-}
-
-const handleSubmit = async () => {
-  loading.value = true
-  try {
-    await authStore.login(formState.username, formState.password)
-    message.success($t('login.loginSuccess'))
-    router.push('/')
-  } catch (error: any) {
-    message.error(error.message || $t('login.loginFailed'))
-    captchaVerified.value = false
-    captchaRef.value?.reset()
-  } finally {
-    loading.value = false
-  }
-}
-</script>
-
 <style scoped lang="scss">
 .login-shell {
   --login-font-family: 'Outfit', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --login-bg: radial-gradient(circle at 10% 20%, rgba(67, 160, 255, 0.35), transparent 46%),
+  --login-bg:
+    radial-gradient(circle at 10% 20%, rgba(67, 160, 255, 0.35), transparent 46%),
     radial-gradient(circle at 92% 15%, rgba(122, 214, 255, 0.36), transparent 44%),
     radial-gradient(circle at 85% 88%, rgba(90, 136, 255, 0.24), transparent 36%),
     linear-gradient(132deg, #e8f5ff 0%, #cfe8ff 42%, #b9e0ff 100%);
@@ -404,7 +413,8 @@ const handleSubmit = async () => {
         border-radius: 12px;
         border-color: var(--login-input-border);
         background: var(--login-input-bg);
-        transition: border-color var(--duration-base) var(--ease-out),
+        transition:
+          border-color var(--duration-base) var(--ease-out),
           background var(--duration-base) var(--ease-out);
       }
 
@@ -433,14 +443,17 @@ const handleSubmit = async () => {
         box-shadow: 0 2px 8px rgba(47, 132, 255, 0.15);
         color: rgba(47, 132, 255, 0.8);
         font-weight: 600;
-        transition: background var(--duration-base) var(--ease-out),
+        transition:
+          background var(--duration-base) var(--ease-out),
           border-color var(--duration-base) var(--ease-out),
           box-shadow var(--duration-base) var(--ease-out),
           color var(--duration-base) var(--ease-out);
 
         &:hover {
           border-color: rgba(47, 132, 255, 0.6);
-          box-shadow: 0 0 0 3px rgba(47, 132, 255, 0.12), 0 2px 8px rgba(47, 132, 255, 0.2);
+          box-shadow:
+            0 0 0 3px rgba(47, 132, 255, 0.12),
+            0 2px 8px rgba(47, 132, 255, 0.2);
           color: rgba(47, 132, 255, 1);
         }
 
@@ -496,7 +509,8 @@ const handleSubmit = async () => {
 }
 
 :root.dark .login-shell {
-  --login-bg: radial-gradient(circle at 12% 18%, rgba(80, 140, 255, 0.34), transparent 44%),
+  --login-bg:
+    radial-gradient(circle at 12% 18%, rgba(80, 140, 255, 0.34), transparent 44%),
     radial-gradient(circle at 88% 12%, rgba(48, 191, 255, 0.22), transparent 34%),
     radial-gradient(circle at 80% 85%, rgba(119, 80, 255, 0.2), transparent 35%),
     linear-gradient(130deg, #060b18 0%, #0a1327 48%, #101c33 100%);
@@ -552,7 +566,9 @@ const handleSubmit = async () => {
 
         &:hover {
           border-color: rgba(47, 132, 255, 0.65);
-          box-shadow: 0 0 0 3px rgba(47, 132, 255, 0.15), 0 2px 8px rgba(47, 132, 255, 0.25);
+          box-shadow:
+            0 0 0 3px rgba(47, 132, 255, 0.15),
+            0 2px 8px rgba(47, 132, 255, 0.25);
         }
 
         &:active {

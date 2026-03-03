@@ -1,5 +1,8 @@
+import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
+
+// Import after mocking
+import { usePermission } from '@/composables/usePermission'
 
 // Mock useAuthStore
 const mockAuthStore = {
@@ -22,15 +25,12 @@ const mockAuthStore = {
   }),
   hasAllRoles: vi.fn((roles: string[]) => {
     return roles.every(r => mockAuthStore.userRoles.includes(r))
-  })
+  }),
 }
 
 vi.mock('@/stores/auth', () => ({
-  useAuthStore: () => mockAuthStore
+  useAuthStore: () => mockAuthStore,
 }))
-
-// Import after mocking
-import { usePermission } from '@/composables/usePermission'
 
 describe('usePermission composable', () => {
   beforeEach(() => {

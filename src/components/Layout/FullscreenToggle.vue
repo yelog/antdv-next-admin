@@ -1,3 +1,10 @@
+<script setup lang="ts">
+import { FullscreenExitOutlined, FullscreenOutlined } from '@antdv-next/icons'
+import { useFullscreen } from '@/composables/useFullscreen'
+
+const { isFullscreen, toggle } = useFullscreen()
+</script>
+
 <template>
   <a-tooltip :title="isFullscreen ? $t('layout.exitFullscreen') : $t('layout.fullscreen')">
     <a-button type="text" class="header-action" @click="toggle">
@@ -6,10 +13,3 @@
     </a-button>
   </a-tooltip>
 </template>
-
-<script setup lang="ts">
-import { FullscreenOutlined, FullscreenExitOutlined } from '@antdv-next/icons'
-import { useFullscreen } from '@/composables/useFullscreen'
-
-const { isFullscreen, toggle } = useFullscreen()
-</script>

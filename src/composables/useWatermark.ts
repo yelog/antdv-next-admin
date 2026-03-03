@@ -25,7 +25,7 @@ export function useWatermark(options: WatermarkOptions = {}) {
     rotate = -20,
     width = 300,
     height = 200,
-    zIndex = 9999
+    zIndex = 9999,
   } = options
 
   let watermarkDiv: HTMLDivElement | null = null
@@ -40,7 +40,8 @@ export function useWatermark(options: WatermarkOptions = {}) {
     canvas.height = height
 
     const ctx = canvas.getContext('2d')
-    if (!ctx) return ''
+    if (!ctx)
+      return ''
 
     ctx.clearRect(0, 0, width, height)
     ctx.globalAlpha = opacity
@@ -99,8 +100,8 @@ export function useWatermark(options: WatermarkOptions = {}) {
     observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.type === 'childList') {
-          const removed = Array.from(mutation.removedNodes).some(
-            node => node === watermarkDiv
+          const removed = Array.from(mutation.removedNodes).includes(
+            watermarkDiv,
           )
           if (removed) {
             addWatermark()
@@ -111,7 +112,7 @@ export function useWatermark(options: WatermarkOptions = {}) {
 
     observer.observe(document.body, {
       childList: true,
-      subtree: true
+      subtree: true,
     })
   }
 
@@ -150,6 +151,6 @@ export function useWatermark(options: WatermarkOptions = {}) {
   return {
     addWatermark,
     removeWatermark,
-    updateWatermark
+    updateWatermark,
   }
 }

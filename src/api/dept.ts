@@ -1,6 +1,6 @@
-import { request } from '@/utils/request'
 import type { ApiResponse } from '@/types/api'
 import type { Department, DeptQueryParams } from '@/types/dept'
+import { request } from '@/utils/request'
 
 /**
  * 获取部门树

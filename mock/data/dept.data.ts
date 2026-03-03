@@ -14,7 +14,7 @@ export const departments: Department[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   // 一级部门
   {
@@ -27,7 +27,7 @@ export const departments: Department[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   {
     id: '11',
@@ -39,7 +39,7 @@ export const departments: Department[] = [
     sort: 2,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   {
     id: '12',
@@ -51,7 +51,7 @@ export const departments: Department[] = [
     sort: 3,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   {
     id: '13',
@@ -63,7 +63,7 @@ export const departments: Department[] = [
     sort: 4,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   {
     id: '14',
@@ -75,7 +75,7 @@ export const departments: Department[] = [
     sort: 5,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   // 二级部门 - 技术研发部下属
   {
@@ -87,7 +87,7 @@ export const departments: Department[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   {
     id: '102',
@@ -98,7 +98,7 @@ export const departments: Department[] = [
     sort: 2,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   {
     id: '103',
@@ -109,7 +109,7 @@ export const departments: Department[] = [
     sort: 3,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   {
     id: '104',
@@ -120,7 +120,7 @@ export const departments: Department[] = [
     sort: 4,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   // 二级部门 - 产品设计部下属
   {
@@ -132,7 +132,7 @@ export const departments: Department[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   {
     id: '112',
@@ -143,7 +143,7 @@ export const departments: Department[] = [
     sort: 2,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   // 二级部门 - 市场营销部下属
   {
@@ -155,7 +155,7 @@ export const departments: Department[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   {
     id: '122',
@@ -166,7 +166,7 @@ export const departments: Department[] = [
     sort: 2,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   // 二级部门 - 人力资源部下属
   {
@@ -177,7 +177,7 @@ export const departments: Department[] = [
     sort: 1,
     status: 'enabled',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-01-01 00:00:00'
+    updateTime: '2024-01-01 00:00:00',
   },
   {
     id: '132',
@@ -188,8 +188,8 @@ export const departments: Department[] = [
     status: 'disabled',
     remark: '暂停运营',
     createTime: '2024-01-01 00:00:00',
-    updateTime: '2024-06-01 00:00:00'
-  }
+    updateTime: '2024-06-01 00:00:00',
+  },
 ]
 
 /**
@@ -199,14 +199,15 @@ export function buildDeptTree(list: Department[]): Department[] {
   const map = new Map<string, Department>()
   const roots: Department[] = []
 
-  list.forEach(item => {
+  list.forEach((item) => {
     map.set(item.id, { ...item, children: [] })
   })
 
-  map.forEach(item => {
+  map.forEach((item) => {
     if (item.parentId && map.has(item.parentId)) {
       map.get(item.parentId)!.children!.push(item)
-    } else if (!item.parentId) {
+    }
+    else if (!item.parentId) {
       roots.push(item)
     }
   })
@@ -214,8 +215,9 @@ export function buildDeptTree(list: Department[]): Department[] {
   // 递归排序
   const sortTree = (nodes: Department[]) => {
     nodes.sort((a, b) => a.sort - b.sort)
-    nodes.forEach(n => {
-      if (n.children?.length) sortTree(n.children)
+    nodes.forEach((n) => {
+      if (n.children?.length)
+        sortTree(n.children)
       else delete n.children
     })
   }

@@ -1,3 +1,96 @@
+<script setup lang="ts">
+import type { FormInstance } from 'antdv-next'
+import type { ChangePasswordParams } from '@/api/user'
+import {
+  ClockCircleOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from '@antdv-next/icons'
+import { message } from 'antdv-next'
+import { reactive, ref } from 'vue'
+import { changePassword } from '@/api/user'
+import { $t } from '@/locales'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+const formRef = ref<FormInstance>()
+const loading = ref(false)
+
+const passwordForm = reactive({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+})
+
+function validateConfirmPassword(_rule: any, value: string) {
+  if (value && value !== passwordForm.newPassword) {
+    return Promise.reject($t('profile.passwordMismatch'))
+  }
+  return Promise.resolve()
+}
+
+const passwordRules = {
+  oldPassword: [
+    { required: true, message: $t('profile.enterCurrentPassword'), trigger: 'blur' },
+  ],
+  newPassword: [
+    { required: true, message: $t('profile.enterNewPassword'), trigger: 'blur' },
+    { min: 6, message: $t('profile.passwordMinLength'), trigger: 'blur' },
+  ],
+  confirmPassword: [
+    { required: true, message: $t('profile.enterConfirmPassword'), trigger: 'blur' },
+    { validator: validateConfirmPassword, trigger: 'blur' },
+  ],
+}
+
+function formatDate(dateString?: string) {
+  if (!dateString)
+    return '-'
+  const date = new Date(dateString)
+  return date.toLocaleDateString()
+}
+
+async function handleChangePassword() {
+  if (!formRef.value)
+    return
+
+  try {
+    await formRef.value.validate()
+    loading.value = true
+
+    const params: ChangePasswordParams = {
+      oldPassword: passwordForm.oldPassword,
+      newPassword: passwordForm.newPassword,
+    }
+
+    const response = await changePassword(params)
+
+    if (response.success) {
+      message.success(response.message || $t('profile.passwordChangeSuccess'))
+      handleReset()
+    }
+    else {
+      message.error(response.message || $t('profile.passwordChangeFailed'))
+    }
+  }
+  catch (error: any) {
+    console.error('Change password error:', error)
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+function handleReset() {
+  passwordForm.oldPassword = ''
+  passwordForm.newPassword = ''
+  passwordForm.confirmPassword = ''
+  formRef.value?.clearValidate()
+}
+</script>
+
 <template>
   <div class="profile-page">
     <a-row :gutter="16">
@@ -8,12 +101,16 @@
             <a-avatar :src="authStore.user?.avatar" :size="80" class="profile-avatar">
               {{ authStore.user?.username?.charAt(0).toUpperCase() }}
             </a-avatar>
-            <h2 class="profile-name">{{ authStore.user?.realName || authStore.user?.username }}</h2>
-            <p class="profile-username">@{{ authStore.user?.username }}</p>
+            <h2 class="profile-name">
+              {{ authStore.user?.realName || authStore.user?.username }}
+            </h2>
+            <p class="profile-username">
+              @{{ authStore.user?.username }}
+            </p>
           </div>
-          
+
           <a-divider />
-          
+
           <div class="profile-info">
             <div class="info-item">
               <span class="info-label">
@@ -22,7 +119,7 @@
               </span>
               <span class="info-value">{{ authStore.user?.username }}</span>
             </div>
-            
+
             <div class="info-item">
               <span class="info-label">
                 <MailOutlined class="info-icon" />
@@ -30,15 +127,15 @@
               </span>
               <span class="info-value">{{ authStore.user?.email }}</span>
             </div>
-            
-            <div class="info-item" v-if="authStore.user?.phone">
+
+            <div v-if="authStore.user?.phone" class="info-item">
               <span class="info-label">
                 <PhoneOutlined class="info-icon" />
                 {{ $t('profile.phone') }}
               </span>
               <span class="info-value">{{ authStore.user?.phone }}</span>
             </div>
-            
+
             <div class="info-item">
               <span class="info-label">
                 <TeamOutlined class="info-icon" />
@@ -50,7 +147,7 @@
                 </a-tag>
               </span>
             </div>
-            
+
             <div class="info-item">
               <span class="info-label">
                 <ClockCircleOutlined class="info-icon" />
@@ -119,93 +216,6 @@
     </a-row>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, reactive } from 'vue'
-import {
-  UserOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  TeamOutlined,
-  ClockCircleOutlined
-} from '@antdv-next/icons'
-import { message } from 'antdv-next'
-import type { FormInstance } from 'antdv-next'
-import { useAuthStore } from '@/stores/auth'
-import { changePassword, type ChangePasswordParams } from '@/api/user'
-import { $t } from '@/locales'
-
-const authStore = useAuthStore()
-const formRef = ref<FormInstance>()
-const loading = ref(false)
-
-const passwordForm = reactive({
-  oldPassword: '',
-  newPassword: '',
-  confirmPassword: ''
-})
-
-const validateConfirmPassword = (_rule: any, value: string) => {
-  if (value && value !== passwordForm.newPassword) {
-    return Promise.reject($t('profile.passwordMismatch'))
-  }
-  return Promise.resolve()
-}
-
-const passwordRules = {
-  oldPassword: [
-    { required: true, message: $t('profile.enterCurrentPassword'), trigger: 'blur' }
-  ],
-  newPassword: [
-    { required: true, message: $t('profile.enterNewPassword'), trigger: 'blur' },
-    { min: 6, message: $t('profile.passwordMinLength'), trigger: 'blur' }
-  ],
-  confirmPassword: [
-    { required: true, message: $t('profile.enterConfirmPassword'), trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' }
-  ]
-}
-
-const formatDate = (dateString?: string) => {
-  if (!dateString) return '-'
-  const date = new Date(dateString)
-  return date.toLocaleDateString()
-}
-
-const handleChangePassword = async () => {
-  if (!formRef.value) return
-
-  try {
-    await formRef.value.validate()
-    loading.value = true
-
-    const params: ChangePasswordParams = {
-      oldPassword: passwordForm.oldPassword,
-      newPassword: passwordForm.newPassword
-    }
-
-    const response = await changePassword(params)
-    
-    if (response.success) {
-      message.success(response.message || $t('profile.passwordChangeSuccess'))
-      handleReset()
-    } else {
-      message.error(response.message || $t('profile.passwordChangeFailed'))
-    }
-  } catch (error: any) {
-    console.error('Change password error:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleReset = () => {
-  passwordForm.oldPassword = ''
-  passwordForm.newPassword = ''
-  passwordForm.confirmPassword = ''
-  formRef.value?.clearValidate()
-}
-</script>
 
 <style scoped lang="scss">
 .profile-page {

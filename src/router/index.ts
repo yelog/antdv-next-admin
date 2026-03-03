@@ -1,12 +1,13 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { staticRoutes, basicRoutes, notFoundRoute, demoRoutes } from './routes/index'
+import type { RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { setupRouterGuards } from './guards'
+import { basicRoutes, demoRoutes, notFoundRoute, staticRoutes } from './routes/index'
 
 // Combine static, demo and basic routes
 const routes = [
   ...staticRoutes,
   ...demoRoutes,
-  ...basicRoutes
+  ...basicRoutes,
 ] as RouteRecordRaw[]
 
 // Create router instance
@@ -16,10 +17,11 @@ const router = createRouter({
   scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
       return savedPosition
-    } else {
+    }
+    else {
       return { top: 0 }
     }
-  }
+  },
 })
 
 // Setup router guards

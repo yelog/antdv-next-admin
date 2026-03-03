@@ -1,23 +1,5 @@
-<template>
-  <div class="point-captcha" ref="containerRef" :style="{ width: typeof width === 'number' ? width + 'px' : width }">
-    <div class="point-img-wrapper" :style="{ height: currentHeight + 'px' }">
-      <canvas ref="canvasRef" :width="currentWidth" :height="currentHeight" @click="handleClick"></canvas>
-      <div v-for="(point, index) in clicks" :key="index" class="point-mark" :style="{ left: point.x + 'px', top: point.y + 'px' }">
-        {{ index + 1 }}
-      </div>
-      <div v-if="isSuccess" class="success-mask">
-        <span class="success-icon">✔</span>
-      </div>
-    </div>
-    <div class="point-toolbar">
-      <div class="point-tip">{{ $t('captcha.clickInOrder') }}<span class="highlight">{{ checkPoints.join(',') }}</span></div>
-      <a-button size="small" @click="reset">{{ $t('captcha.refresh') }}</a-button>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 interface Props {
   width?: number | string
@@ -28,38 +10,40 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   width: '100%',
   height: 160,
-  src: 'https://picsum.photos/320/160'
+  src: 'https://picsum.photos/320/160',
 })
 
 const emit = defineEmits(['success', 'fail'])
 
 const containerRef = ref<HTMLElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-const clicks = ref<{x: number, y: number}[]>([])
+const clicks = ref<{ x: number, y: number }[]>([])
 const checkPoints = ref<string[]>([])
-const points = ref<{x: number, y: number, text: string}[]>([])
+const points = ref<{ x: number, y: number, text: string }[]>([])
 const isSuccess = ref(false)
 const currentWidth = ref(320)
 const currentHeight = ref(160)
 let resizeObserver: ResizeObserver | null = null
 
 const randomNum = (min: number, max: number) => Math.floor(Math.random() * (max - min) + min)
-const randomColor = (min: number, max: number) => {
+function randomColor(min: number, max: number) {
   const r = randomNum(min, max)
   const g = randomNum(min, max)
   const b = randomNum(min, max)
   return `rgb(${r},${g},${b})`
 }
 
-const init = () => {
+function init() {
   clicks.value = []
   points.value = []
   checkPoints.value = []
   isSuccess.value = false
 
-  if (!canvasRef.value) return
+  if (!canvasRef.value)
+    return
   const ctx = canvasRef.value.getContext('2d')
-  if (!ctx) return
+  if (!ctx)
+    return
 
   // Calculate dimensions based on container width
   const ratio = 160 / 320 // Default aspect ratio
@@ -69,7 +53,8 @@ const init = () => {
       currentWidth.value = w
       if (typeof props.height === 'number') {
         currentHeight.value = props.height
-      } else {
+      }
+      else {
         currentHeight.value = Math.floor(w * ratio)
       }
     }
@@ -77,7 +62,7 @@ const init = () => {
 
   const img = new Image()
   img.crossOrigin = 'Anonymous'
-  img.src = props.src + '?t=' + new Date().getTime()
+  img.src = `${props.src}?t=${new Date().getTime()}`
   img.onload = () => {
     ctx.drawImage(img, 0, 0, currentWidth.value, currentHeight.value)
 
@@ -124,8 +109,9 @@ onBeforeUnmount(() => {
   }
 })
 
-const handleClick = (e: MouseEvent) => {
-  if (isSuccess.value || clicks.value.length >= 3) return
+function handleClick(e: MouseEvent) {
+  if (isSuccess.value || clicks.value.length >= 3)
+    return
 
   const rect = (e.target as HTMLElement).getBoundingClientRect()
   const x = e.clientX - rect.left
@@ -138,11 +124,12 @@ const handleClick = (e: MouseEvent) => {
   }
 }
 
-const verify = () => {
+function verify() {
   const isCorrect = clicks.value.every((click, index) => {
     const targetChar = checkPoints.value[index]
     const targetPoint = points.value.find(p => p.text === targetChar)
-    if (!targetPoint) return false
+    if (!targetPoint)
+      return false
 
     const dx = click.x - targetPoint.x
     const dy = click.y - targetPoint.y
@@ -153,7 +140,8 @@ const verify = () => {
   if (isCorrect) {
     isSuccess.value = true
     emit('success')
-  } else {
+  }
+  else {
     emit('fail')
     setTimeout(() => {
       clicks.value = []
@@ -161,12 +149,34 @@ const verify = () => {
   }
 }
 
-const reset = () => {
+function reset() {
   init()
 }
 
 defineExpose({ reset })
 </script>
+
+<template>
+  <div ref="containerRef" class="point-captcha" :style="{ width: typeof width === 'number' ? `${width}px` : width }">
+    <div class="point-img-wrapper" :style="{ height: `${currentHeight}px` }">
+      <canvas ref="canvasRef" :width="currentWidth" :height="currentHeight" @click="handleClick" />
+      <div v-for="(point, index) in clicks" :key="index" class="point-mark" :style="{ left: `${point.x}px`, top: `${point.y}px` }">
+        {{ index + 1 }}
+      </div>
+      <div v-if="isSuccess" class="success-mask">
+        <span class="success-icon">✔</span>
+      </div>
+    </div>
+    <div class="point-toolbar">
+      <div class="point-tip">
+        {{ $t('captcha.clickInOrder') }}<span class="highlight">{{ checkPoints.join(',') }}</span>
+      </div>
+      <a-button size="small" @click="reset">
+        {{ $t('captcha.refresh') }}
+      </a-button>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .point-captcha {

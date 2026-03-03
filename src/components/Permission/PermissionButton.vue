@@ -1,7 +1,3 @@
-<template>
-  <slot v-if="hasPermission" />
-</template>
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePermission } from '@/composables/usePermission'
@@ -12,7 +8,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  requireAll: false
+  requireAll: false,
 })
 
 const { canAll, canAny } = usePermission()
@@ -26,8 +22,13 @@ const hasPermission = computed(() => {
 
   if (props.requireAll) {
     return canAll(permissions)
-  } else {
+  }
+  else {
     return canAny(permissions)
   }
 })
 </script>
+
+<template>
+  <slot v-if="hasPermission" />
+</template>

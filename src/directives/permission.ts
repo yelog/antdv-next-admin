@@ -14,7 +14,7 @@ export const vPermission: Directive = {
   },
   updated(el: HTMLElement, binding: DirectiveBinding) {
     checkPermission(el, binding)
-  }
+  },
 }
 
 function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
@@ -31,7 +31,8 @@ function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
   if (modifiers.all) {
     // Check if user has all permissions
     hasPermission = permissions.every(perm => authStore.hasPermission(perm))
-  } else {
+  }
+  else {
     // Check if user has any permission (OR logic)
     hasPermission = permissions.some(perm => authStore.hasPermission(perm))
   }
@@ -41,7 +42,8 @@ function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
     el.style.display = 'none'
     // Or completely remove from DOM
     // el.parentNode?.removeChild(el)
-  } else {
+  }
+  else {
     el.style.display = ''
   }
 }

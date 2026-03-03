@@ -13,7 +13,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
       title: 'menu.organization',
       icon: 'TeamOutlined',
       requiresAuth: true,
-      order: 3
+      order: 3,
     },
     children: [
       {
@@ -24,8 +24,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.dept',
           icon: 'ApartmentOutlined',
           requiresAuth: true,
-          requiredPermissions: ['system.dept.view']
-        }
+          requiredPermissions: ['system.dept.view'],
+        },
       },
       {
         path: 'user',
@@ -35,8 +35,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.user',
           icon: 'UserOutlined',
           requiresAuth: true,
-          requiredPermissions: ['system.user.view']
-        }
+          requiredPermissions: ['system.user.view'],
+        },
       },
       {
         path: 'role',
@@ -46,8 +46,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.role',
           icon: 'TeamOutlined',
           requiresAuth: true,
-          requiredPermissions: ['system.role.view']
-        }
+          requiredPermissions: ['system.role.view'],
+        },
       },
       {
         path: 'permission',
@@ -57,10 +57,10 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.permission',
           icon: 'SafetyOutlined',
           requiresAuth: true,
-          requiredPermissions: ['system.permission.view']
-        }
-      }
-    ]
+          requiredPermissions: ['system.permission.view'],
+        },
+      },
+    ],
   },
   {
     path: '/system',
@@ -71,7 +71,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
       title: 'menu.system',
       icon: 'SettingOutlined',
       requiresAuth: true,
-      order: 4
+      order: 4,
     },
     children: [
       {
@@ -82,8 +82,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.config',
           icon: 'ControlOutlined',
           requiresAuth: true,
-          requiredPermissions: ['system.config.view']
-        }
+          requiredPermissions: ['system.config.view'],
+        },
       },
       {
         path: 'dict',
@@ -93,8 +93,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.dict',
           icon: 'BookOutlined',
           requiresAuth: true,
-          requiredPermissions: ['system.dict.view']
-        }
+          requiredPermissions: ['system.dict.view'],
+        },
       },
       {
         path: 'file',
@@ -104,8 +104,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.file',
           icon: 'FolderOutlined',
           requiresAuth: true,
-          requiredPermissions: ['system.file.view']
-        }
+          requiredPermissions: ['system.file.view'],
+        },
       },
       {
         path: 'log',
@@ -115,10 +115,10 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.log',
           icon: 'FileTextOutlined',
           requiresAuth: true,
-          requiredPermissions: ['system.log.view']
-        }
-      }
-    ]
+          requiredPermissions: ['system.log.view'],
+        },
+      },
+    ],
   },
   {
     path: '/examples',
@@ -129,7 +129,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
       title: 'menu.examples',
       icon: 'AppstoreOutlined',
       requiresAuth: true,
-      order: 2
+      order: 2,
     },
     children: [
       {
@@ -141,7 +141,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.examplesQuickStart',
           icon: 'ThunderboltOutlined',
           requiresAuth: true,
-          order: 1
+          order: 1,
         },
         children: [
           {
@@ -152,8 +152,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.proTableAdvanced',
               icon: 'TableOutlined',
               requiresAuth: true,
-              order: 1
-            }
+              order: 1,
+            },
           },
           {
             path: '/examples/complex-form',
@@ -163,8 +163,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.complexForm',
               icon: 'FormOutlined',
               requiresAuth: true,
-              order: 2
-            }
+              order: 2,
+            },
           },
           {
             path: '/examples/master-detail',
@@ -174,8 +174,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.masterDetail',
               icon: 'ProfileOutlined',
               requiresAuth: true,
-              order: 3
-            }
+              order: 3,
+            },
           },
           {
             path: '/examples/virtual-table',
@@ -185,10 +185,10 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.virtualTable',
               icon: 'TableOutlined',
               requiresAuth: true,
-              order: 4
-            }
-          }
-        ]
+              order: 4,
+            },
+          },
+        ],
       },
       {
         path: 'form-input',
@@ -199,7 +199,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.examplesFormInput',
           icon: 'FormOutlined',
           requiresAuth: true,
-          order: 2
+          order: 2,
         },
         children: [
           {
@@ -210,8 +210,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.form',
               icon: 'FormOutlined',
               requiresAuth: true,
-              order: 1
-            }
+              order: 1,
+            },
           },
           {
             path: '/examples/json-input',
@@ -221,8 +221,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.jsonInput',
               icon: 'CodeOutlined',
               requiresAuth: true,
-              order: 2
-            }
+              order: 2,
+            },
           },
           {
             path: '/examples/i18n-input',
@@ -232,8 +232,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.i18nInput',
               icon: 'GlobalOutlined',
               requiresAuth: true,
-              order: 3
-            }
+              order: 3,
+            },
           },
           {
             path: '/examples/advanced-filter',
@@ -243,10 +243,10 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.advancedFilter',
               icon: 'ControlOutlined',
               requiresAuth: true,
-              order: 4
-            }
-          }
-        ]
+              order: 4,
+            },
+          },
+        ],
       },
       {
         path: 'content-editors',
@@ -257,7 +257,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.examplesContent',
           icon: 'EditOutlined',
           requiresAuth: true,
-          order: 3
+          order: 3,
         },
         children: [
           {
@@ -268,8 +268,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.editor',
               icon: 'EditOutlined',
               requiresAuth: true,
-              order: 1
-            }
+              order: 1,
+            },
           },
           {
             path: '/examples/milkdown',
@@ -279,10 +279,10 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.milkdown',
               icon: 'FileMarkdownOutlined',
               requiresAuth: true,
-              order: 2
-            }
-          }
-        ]
+              order: 2,
+            },
+          },
+        ],
       },
       {
         path: 'basic-interaction',
@@ -293,7 +293,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.examplesInteraction',
           icon: 'AppstoreAddOutlined',
           requiresAuth: true,
-          order: 4
+          order: 4,
         },
         children: [
           {
@@ -304,8 +304,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.table',
               icon: 'TableOutlined',
               requiresAuth: true,
-              order: 1
-            }
+              order: 1,
+            },
           },
           {
             path: '/examples/modal',
@@ -315,8 +315,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.modal',
               icon: 'ExpandOutlined',
               requiresAuth: true,
-              order: 2
-            }
+              order: 2,
+            },
           },
           {
             path: '/examples/icon',
@@ -326,8 +326,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.icon',
               icon: 'SmileOutlined',
               requiresAuth: true,
-              order: 3
-            }
+              order: 3,
+            },
           },
           {
             path: '/examples/spin',
@@ -337,8 +337,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.spin',
               icon: 'LoadingOutlined',
               requiresAuth: true,
-              order: 4
-            }
+              order: 4,
+            },
           },
           {
             path: '/examples/captcha',
@@ -348,8 +348,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.captcha',
               icon: 'SafetyCertificateOutlined',
               requiresAuth: true,
-              order: 5
-            }
+              order: 5,
+            },
           },
           {
             path: '/examples/watermark',
@@ -359,10 +359,10 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.watermark',
               icon: 'HighlightOutlined',
               requiresAuth: true,
-              order: 6
-            }
-          }
-        ]
+              order: 6,
+            },
+          },
+        ],
       },
       {
         path: 'business-scaffold',
@@ -373,7 +373,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.examplesBusinessScaffold',
           icon: 'ProfileOutlined',
           requiresAuth: true,
-          order: 5
+          order: 5,
         },
         children: [
           {
@@ -384,8 +384,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.uploadSystem',
               icon: 'CloudUploadOutlined',
               requiresAuth: true,
-              order: 1
-            }
+              order: 1,
+            },
           },
           {
             path: '/examples/state-cache',
@@ -395,8 +395,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.stateCache',
               icon: 'DatabaseOutlined',
               requiresAuth: true,
-              order: 2
-            }
+              order: 2,
+            },
           },
           {
             path: '/examples/import-export',
@@ -406,10 +406,10 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.importExport',
               icon: 'FileTextOutlined',
               requiresAuth: true,
-              order: 3
-            }
-          }
-        ]
+              order: 3,
+            },
+          },
+        ],
       },
       {
         path: 'security-engineering',
@@ -420,7 +420,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.examplesSecurityEngineering',
           icon: 'SafetyOutlined',
           requiresAuth: true,
-          order: 6
+          order: 6,
         },
         children: [
           {
@@ -431,8 +431,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.requestAuth',
               icon: 'SafetyOutlined',
               requiresAuth: true,
-              order: 1
-            }
+              order: 1,
+            },
           },
           {
             path: '/examples/rbac-flow',
@@ -442,8 +442,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.rbacFlow',
               icon: 'SafetyCertificateOutlined',
               requiresAuth: true,
-              order: 2
-            }
+              order: 2,
+            },
           },
           {
             path: '/examples/observability',
@@ -453,8 +453,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.observability',
               icon: 'LineChartOutlined',
               requiresAuth: true,
-              order: 3
-            }
+              order: 3,
+            },
           },
           {
             path: '/examples/testing',
@@ -464,10 +464,10 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.testing',
               icon: 'CheckCircleOutlined',
               requiresAuth: true,
-              order: 4
-            }
-          }
-        ]
+              order: 4,
+            },
+          },
+        ],
       },
       {
         path: 'integration-navigation',
@@ -478,7 +478,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.examplesIntegration',
           icon: 'LinkOutlined',
           requiresAuth: true,
-          order: 7
+          order: 7,
         },
         children: [
           {
@@ -490,7 +490,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.externalIframe',
               icon: 'AppstoreAddOutlined',
               requiresAuth: true,
-              order: 1
+              order: 1,
             },
             children: [
               {
@@ -501,8 +501,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
                   title: 'menu.externalTypescript',
                   icon: 'CodeOutlined',
                   requiresAuth: true,
-                  order: 1
-                }
+                  order: 1,
+                },
               },
               {
                 path: '/examples/external/iframe/antdv-next',
@@ -512,10 +512,10 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
                   title: 'menu.externalAntdvNext',
                   icon: 'AntDesignOutlined',
                   requiresAuth: true,
-                  order: 2
-                }
-              }
-            ]
+                  order: 2,
+                },
+              },
+            ],
           },
           {
             path: 'link',
@@ -525,7 +525,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.externalLink',
               icon: 'LinkOutlined',
               requiresAuth: true,
-              order: 2
+              order: 2,
             },
             children: [
               {
@@ -537,8 +537,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
                   icon: 'ThunderboltOutlined',
                   requiresAuth: true,
                   externalLink: 'https://vite.dev',
-                  order: 1
-                }
+                  order: 1,
+                },
               },
               {
                 path: '/examples/external/link/vue',
@@ -549,12 +549,12 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
                   icon: 'CoffeeOutlined',
                   requiresAuth: true,
                   externalLink: 'https://vuejs.org',
-                  order: 2
-                }
-              }
-            ]
-          }
-        ]
+                  order: 2,
+                },
+              },
+            ],
+          },
+        ],
       },
       {
         path: 'exception-pages',
@@ -565,7 +565,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: 'menu.examplesExceptionPages',
           icon: 'WarningOutlined',
           requiresAuth: true,
-          order: 8
+          order: 8,
         },
         children: [
           {
@@ -576,8 +576,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.exception403',
               icon: 'StopOutlined',
               requiresAuth: true,
-              order: 1
-            }
+              order: 1,
+            },
           },
           {
             path: '/examples/exception/404',
@@ -587,8 +587,8 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.exception404',
               icon: 'FileUnknownOutlined',
               requiresAuth: true,
-              order: 2
-            }
+              order: 2,
+            },
           },
           {
             path: '/examples/exception/500',
@@ -598,11 +598,11 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               title: 'menu.exception500',
               icon: 'BugOutlined',
               requiresAuth: true,
-              order: 3
-            }
-          }
-        ]
-      }
-    ]
-  }
+              order: 3,
+            },
+          },
+        ],
+      },
+    ],
+  },
 ]

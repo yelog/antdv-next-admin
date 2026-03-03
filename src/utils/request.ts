@@ -1,6 +1,7 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios'
-import { useAuthStore } from '@/stores/auth'
+import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import axios from 'axios'
 import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
 
 // Token refresh state
 let refreshPromise: Promise<string> | null = null
@@ -10,8 +11,8 @@ const service: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 15000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 })
 
 // Request interceptor
@@ -29,7 +30,7 @@ service.interceptors.request.use(
   (error: AxiosError) => {
     console.error('Request error:', error)
     return Promise.reject(error)
-  }
+  },
 )
 
 // Response interceptor
@@ -43,7 +44,8 @@ service.interceptors.response.use(
       if (res.code === 401) {
         // Will be handled in error interceptor
         return Promise.reject(new Error(res.message || 'Unauthorized'))
-      } else if (res.code === 403) {
+      }
+      else if (res.code === 403) {
         // Forbidden - no permission
         console.error('No permission:', res.message)
       }
@@ -80,7 +82,8 @@ service.interceptors.response.use(
 
         // Retry the original request
         return service(originalRequest)
-      } catch (refreshError) {
+      }
+      catch (refreshError) {
         // Refresh failed - logout and redirect to login
         const authStore = useAuthStore()
         authStore.logout()
@@ -113,14 +116,16 @@ service.interceptors.response.use(
         default:
           console.error(`Error ${status}:`, error.message)
       }
-    } else if (error.request) {
+    }
+    else if (error.request) {
       console.error('No response received:', error.request)
-    } else {
+    }
+    else {
       console.error('Request setup error:', error.message)
     }
 
     return Promise.reject(error)
-  }
+  },
 )
 
 // Export request methods
@@ -143,7 +148,7 @@ export const request = {
 
   patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
     return service.patch(url, data, config)
-  }
+  },
 }
 
 export default service

@@ -1,4 +1,4 @@
-import type { OperationLog, LoginLog } from '@/types/log'
+import type { LoginLog, OperationLog } from '@/types/log'
 
 const modules = ['userManagement', 'roleManagement', 'menuManagement', 'dictionary', 'systemLogin', 'profile', 'dashboard']
 const actions: OperationLog['action'][] = ['login', 'logout', 'create', 'update', 'delete', 'export', 'other']
@@ -14,7 +14,7 @@ const actionDescMap: Record<string, string[]> = {
   update: ['Update user info', 'Update role permissions', 'Update menu config', 'Update dict data', 'Update profile', 'Reset user password'],
   delete: ['Delete user', 'Delete role', 'Delete menu', 'Delete dict data'],
   export: ['Export user list', 'Export role list', 'Export operation log'],
-  other: ['View dashboard', 'Refresh cache']
+  other: ['View dashboard', 'Refresh cache'],
 }
 
 const actionUrlMap: Record<string, string[]> = {
@@ -24,7 +24,7 @@ const actionUrlMap: Record<string, string[]> = {
   update: ['/api/user/1', '/api/role/1', '/api/permission/1', '/api/dict/data/1', '/api/profile'],
   delete: ['/api/user/1', '/api/role/1', '/api/permission/1', '/api/dict/data/1'],
   export: ['/api/user/export', '/api/role/export', '/api/log/export'],
-  other: ['/api/dashboard/stats', '/api/cache/refresh']
+  other: ['/api/dashboard/stats', '/api/cache/refresh'],
 }
 
 function randomItem<T>(arr: T[]): T {
@@ -60,7 +60,7 @@ for (let i = 1; i <= 80; i++) {
     status: isFail ? 'fail' : 'success',
     errorMsg: isFail ? 'Insufficient permissions' : undefined,
     duration: Math.floor(Math.random() * 500) + 10,
-    createTime: generateTime(Math.floor(i / 6))
+    createTime: generateTime(Math.floor(i / 6)),
   })
 }
 operationLogs.sort((a, b) => b.createTime.localeCompare(a.createTime))
@@ -78,7 +78,7 @@ for (let i = 1; i <= 50; i++) {
     os: randomItem(osList),
     status: isSuccess ? 'success' : 'fail',
     message: msg,
-    createTime: generateTime(Math.floor(i / 4))
+    createTime: generateTime(Math.floor(i / 4)),
   })
 }
 loginLogs.sort((a, b) => b.createTime.localeCompare(a.createTime))

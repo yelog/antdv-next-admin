@@ -128,6 +128,6 @@ export const useLayoutStore = defineStore('layout', () => {
     setAiEntryVisible,
     setAiPanelWidth,
     getCurrentSidebarWidth,
-    initLayout
+    initLayout,
   }
 })

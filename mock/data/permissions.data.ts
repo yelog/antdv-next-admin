@@ -15,7 +15,7 @@ export const mockPermissions: Permission[] = [
     icon: 'DashboardOutlined',
     sort: 1,
     status: 'active',
-    visible: true
+    visible: true,
   },
 
   // Organization & Permissions Menu
@@ -60,7 +60,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '50',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '52',
@@ -72,7 +72,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '50',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '53',
@@ -84,9 +84,9 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '50',
             status: 'active',
-            visible: true
-          }
-        ]
+            visible: true,
+          },
+        ],
       },
       {
         id: '11',
@@ -114,7 +114,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '11',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '13',
@@ -126,7 +126,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '11',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '14',
@@ -138,9 +138,9 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '11',
             status: 'active',
-            visible: true
-          }
-        ]
+            visible: true,
+          },
+        ],
       },
       {
         id: '20',
@@ -168,7 +168,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '20',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '22',
@@ -180,7 +180,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '20',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '23',
@@ -192,9 +192,9 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '20',
             status: 'active',
-            visible: true
-          }
-        ]
+            visible: true,
+          },
+        ],
       },
       {
         id: '30',
@@ -222,7 +222,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '30',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '32',
@@ -234,7 +234,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '30',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '33',
@@ -246,11 +246,11 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '30',
             status: 'active',
-            visible: true
-          }
-        ]
-      }
-    ]
+            visible: true,
+          },
+        ],
+      },
+    ],
   },
 
   // System Management Menu
@@ -295,7 +295,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '54',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '56',
@@ -307,7 +307,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '54',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '57',
@@ -319,9 +319,9 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '54',
             status: 'active',
-            visible: true
-          }
-        ]
+            visible: true,
+          },
+        ],
       },
       {
         id: '34',
@@ -349,7 +349,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '34',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '36',
@@ -361,7 +361,7 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '34',
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '37',
@@ -373,9 +373,9 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '34',
             status: 'active',
-            visible: true
-          }
-        ]
+            visible: true,
+          },
+        ],
       },
       {
         id: '58',
@@ -403,9 +403,9 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '58',
             status: 'active',
-            visible: true
-          }
-        ]
+            visible: true,
+          },
+        ],
       },
       {
         id: '38',
@@ -433,11 +433,11 @@ export const mockPermissions: Permission[] = [
             type: 'button',
             parentId: '38',
             status: 'active',
-            visible: true
-          }
-        ]
-      }
-    ]
+            visible: true,
+          },
+        ],
+      },
+    ],
   },
 
   // Examples Menu
@@ -470,7 +470,7 @@ export const mockPermissions: Permission[] = [
         icon: 'TableOutlined',
         sort: 1,
         status: 'active',
-        visible: true
+        visible: true,
       },
       {
         id: '42',
@@ -486,7 +486,7 @@ export const mockPermissions: Permission[] = [
         icon: 'SmileOutlined',
         sort: 2,
         status: 'active',
-        visible: true
+        visible: true,
       },
       {
         id: '43',
@@ -502,7 +502,7 @@ export const mockPermissions: Permission[] = [
         icon: 'FormOutlined',
         sort: 3,
         status: 'active',
-        visible: true
+        visible: true,
       },
       {
         id: '44',
@@ -518,7 +518,7 @@ export const mockPermissions: Permission[] = [
         icon: 'ExpandOutlined',
         sort: 4,
         status: 'active',
-        visible: true
+        visible: true,
       },
       {
         id: '45',
@@ -534,7 +534,7 @@ export const mockPermissions: Permission[] = [
         icon: 'HighlightOutlined',
         sort: 5,
         status: 'active',
-        visible: true
+        visible: true,
       },
       {
         id: '46',
@@ -566,7 +566,7 @@ export const mockPermissions: Permission[] = [
             icon: 'StopOutlined',
             sort: 1,
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '48',
@@ -582,7 +582,7 @@ export const mockPermissions: Permission[] = [
             icon: 'FileUnknownOutlined',
             sort: 2,
             status: 'active',
-            visible: true
+            visible: true,
           },
           {
             id: '49',
@@ -598,10 +598,10 @@ export const mockPermissions: Permission[] = [
             icon: 'BugOutlined',
             sort: 3,
             status: 'active',
-            visible: true
-          }
-        ]
-      }
-    ]
-  }
+            visible: true,
+          },
+        ],
+      },
+    ],
+  },
 ]

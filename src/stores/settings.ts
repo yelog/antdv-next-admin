@@ -1,7 +1,7 @@
+import type { LayoutMode, PageAnimation, PrimaryColor, SidebarTheme } from '@/types/layout'
+import { generate } from '@ant-design/colors'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { generate } from '@ant-design/colors'
-import type { PrimaryColor, SidebarTheme, LayoutMode, PageAnimation } from '@/types/layout'
 
 const PAGE_ANIMATION_VALUES: PageAnimation[] = [
   'fade',
@@ -11,7 +11,7 @@ const PAGE_ANIMATION_VALUES: PageAnimation[] = [
   'slide-down',
   'zoom',
   'zoom-big',
-  'none'
+  'none',
 ]
 
 const PRIMARY_COLOR_HEX_MAP: Record<PrimaryColor, string> = {
@@ -20,7 +20,7 @@ const PRIMARY_COLOR_HEX_MAP: Record<PrimaryColor, string> = {
   purple: '#722ed1',
   red: '#f5222d',
   orange: '#fa8c16',
-  cyan: '#13c2c2'
+  cyan: '#13c2c2',
 }
 
 const isPrimaryColor = (color: string): color is PrimaryColor => color in PRIMARY_COLOR_HEX_MAP
@@ -113,15 +113,19 @@ export const useSettingsStore = defineStore('settings', () => {
 
     if (savedCustomPrimaryColor) {
       setCustomPrimaryColor(savedCustomPrimaryColor)
-    } else if (savedPrimaryColor && isPrimaryColor(savedPrimaryColor)) {
+    }
+    else if (savedPrimaryColor && isPrimaryColor(savedPrimaryColor)) {
       setPrimaryColor(savedPrimaryColor)
     }
-    if (savedSidebarTheme) setSidebarTheme(savedSidebarTheme)
-    if (savedLayoutMode) setLayoutMode(savedLayoutMode)
+    if (savedSidebarTheme)
+      setSidebarTheme(savedSidebarTheme)
+    if (savedLayoutMode)
+      setLayoutMode(savedLayoutMode)
     if (savedPageAnimation && PAGE_ANIMATION_VALUES.includes(savedPageAnimation)) {
       setPageAnimation(savedPageAnimation)
     }
-    if (savedGrayMode) setGrayMode(savedGrayMode === 'true')
+    if (savedGrayMode)
+      setGrayMode(savedGrayMode === 'true')
     rememberTabState.value = savedRememberTabState !== 'false'
   }
 
@@ -144,6 +148,6 @@ export const useSettingsStore = defineStore('settings', () => {
     setGrayMode,
     setRememberTabState,
     resetSettings,
-    initSettings
+    initSettings,
   }
 })

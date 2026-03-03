@@ -1,33 +1,3 @@
-<template>
-  <div
-    class="slider-captcha"
-    :style="{
-      width: typeof width === 'number' ? width + 'px' : width,
-      '--slider-height': typeof height === 'number' ? height + 'px' : height
-    }"
-  >
-    <div class="slider-bg" :class="{ success: isSuccess }">
-      <div class="slider-text" :style="{ opacity: isMoving ? 0 : 1 }">
-        {{ isSuccess ? successText : text }}
-      </div>
-      <div
-        class="slider-track"
-        :style="{ width: isSuccess ? '100%' : `${sliderLeft}px` }"
-      ></div>
-      <div
-        class="slider-handle"
-        :class="{ success: isSuccess }"
-        :style="{ left: isSuccess ? 'auto' : `${sliderLeft}px`, right: isSuccess ? 0 : 'auto' }"
-        @mousedown="handleMouseDown"
-        @touchstart.prevent="handleTouchStart"
-      >
-        <span v-if="isSuccess">✔</span>
-        <span v-else>→</span>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref } from 'vue'
 
@@ -42,7 +12,7 @@ withDefaults(defineProps<Props>(), {
   width: '100%',
   height: 40,
   text: 'Slide to verify',
-  successText: 'Success'
+  successText: 'Success',
 })
 
 const emit = defineEmits(['success', 'fail'])
@@ -53,8 +23,9 @@ const sliderLeft = ref(0)
 const startX = ref(0)
 let containerWidth = 0
 
-const handleMouseDown = (e: MouseEvent) => {
-  if (isSuccess.value) return
+function handleMouseDown(e: MouseEvent) {
+  if (isSuccess.value)
+    return
   isMoving.value = true
   startX.value = e.clientX
 
@@ -69,28 +40,32 @@ const handleMouseDown = (e: MouseEvent) => {
   document.addEventListener('mouseup', handleMouseUp)
 }
 
-const handleMouseMove = (e: MouseEvent) => {
-  if (!isMoving.value) return
+function handleMouseMove(e: MouseEvent) {
+  if (!isMoving.value)
+    return
   const offset = e.clientX - startX.value
 
   if (offset < 0) {
     sliderLeft.value = 0
-  } else if (offset > containerWidth) {
+  }
+  else if (offset > containerWidth) {
     sliderLeft.value = containerWidth
-  } else {
+  }
+  else {
     sliderLeft.value = offset
   }
 }
 
-const handleMouseUp = () => {
+function handleMouseUp() {
   isMoving.value = false
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseup', handleMouseUp)
   finishDrag()
 }
 
-const handleTouchStart = (e: TouchEvent) => {
-  if (isSuccess.value) return
+function handleTouchStart(e: TouchEvent) {
+  if (isSuccess.value)
+    return
   isMoving.value = true
   startX.value = e.touches[0].clientX
 
@@ -104,39 +79,44 @@ const handleTouchStart = (e: TouchEvent) => {
   document.addEventListener('touchend', handleTouchEnd)
 }
 
-const handleTouchMove = (e: TouchEvent) => {
-  if (!isMoving.value) return
+function handleTouchMove(e: TouchEvent) {
+  if (!isMoving.value)
+    return
   e.preventDefault()
   const offset = e.touches[0].clientX - startX.value
 
   if (offset < 0) {
     sliderLeft.value = 0
-  } else if (offset > containerWidth) {
+  }
+  else if (offset > containerWidth) {
     sliderLeft.value = containerWidth
-  } else {
+  }
+  else {
     sliderLeft.value = offset
   }
 }
 
-const handleTouchEnd = () => {
+function handleTouchEnd() {
   isMoving.value = false
   document.removeEventListener('touchmove', handleTouchMove)
   document.removeEventListener('touchend', handleTouchEnd)
   finishDrag()
 }
 
-const finishDrag = () => {
+function finishDrag() {
   if (sliderLeft.value >= containerWidth) {
     isSuccess.value = true
     sliderLeft.value = containerWidth
     emit('success')
-  } else {
+  }
+  else {
     // Reset animation
     const animate = () => {
       if (sliderLeft.value > 0) {
         sliderLeft.value = Math.max(0, sliderLeft.value - 10)
         requestAnimationFrame(animate)
-      } else {
+      }
+      else {
         emit('fail')
       }
     }
@@ -144,7 +124,7 @@ const finishDrag = () => {
   }
 }
 
-const reset = () => {
+function reset() {
   isSuccess.value = false
   isMoving.value = false
   sliderLeft.value = 0
@@ -152,6 +132,36 @@ const reset = () => {
 
 defineExpose({ reset })
 </script>
+
+<template>
+  <div
+    class="slider-captcha"
+    :style="{
+      'width': typeof width === 'number' ? `${width}px` : width,
+      '--slider-height': typeof height === 'number' ? `${height}px` : height,
+    }"
+  >
+    <div class="slider-bg" :class="{ success: isSuccess }">
+      <div class="slider-text" :style="{ opacity: isMoving ? 0 : 1 }">
+        {{ isSuccess ? successText : text }}
+      </div>
+      <div
+        class="slider-track"
+        :style="{ width: isSuccess ? '100%' : `${sliderLeft}px` }"
+      />
+      <div
+        class="slider-handle"
+        :class="{ success: isSuccess }"
+        :style="{ left: isSuccess ? 'auto' : `${sliderLeft}px`, right: isSuccess ? 0 : 'auto' }"
+        @mousedown="handleMouseDown"
+        @touchstart.prevent="handleTouchStart"
+      >
+        <span v-if="isSuccess">✔</span>
+        <span v-else>→</span>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .slider-captcha {

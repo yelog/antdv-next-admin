@@ -1,6 +1,6 @@
-import { request } from '@/utils/request'
 import type { ApiResponse } from '@/types/api'
-import type { OperationLog, LoginLog, OperationLogQueryParams, LoginLogQueryParams } from '@/types/log'
+import type { LoginLog, LoginLogQueryParams, OperationLog, OperationLogQueryParams } from '@/types/log'
+import { request } from '@/utils/request'
 
 /**
  * 获取操作日志列表

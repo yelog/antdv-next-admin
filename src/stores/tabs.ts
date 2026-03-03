@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
-import type { Tab } from '@/types/layout'
 import type { RouteLocationNormalized } from 'vue-router'
+import type { Tab } from '@/types/layout'
+import { defineStore } from 'pinia'
+import { computed, ref, watch } from 'vue'
 import router from '@/router'
 import { useSettingsStore } from './settings'
 
@@ -21,7 +21,8 @@ export const useTabsStore = defineStore('tabs', () => {
 
   const ensureActiveTab = (fallbackPath?: string) => {
     const activeExists = tabs.value.some(tab => tab.path === activeTabPath.value)
-    if (activeExists) return
+    if (activeExists)
+      return
 
     if (fallbackPath) {
       const fallbackTab = tabs.value.find(tab => tab.path === fallbackPath)
@@ -68,7 +69,8 @@ export const useTabsStore = defineStore('tabs', () => {
     const isAffix = Boolean(meta?.affix)
 
     // Skip if hidden
-    if (meta?.hidden) return
+    if (meta?.hidden)
+      return
 
     // Check if tab already exists
     const existingTab = tabs.value.find(tab => tab.path === path)
@@ -100,7 +102,7 @@ export const useTabsStore = defineStore('tabs', () => {
       params: params as Record<string, any>,
       closable: !isAffix,
       pinned: false,
-      affix: isAffix
+      affix: isAffix,
     }
 
     tabs.value.push(newTab)
@@ -109,11 +111,13 @@ export const useTabsStore = defineStore('tabs', () => {
 
   const closeTab = (path: string) => {
     const index = tabs.value.findIndex(tab => tab.path === path)
-    if (index === -1) return
+    if (index === -1)
+      return
 
     const tab = tabs.value[index]
     // Cannot close fixed tabs
-    if (isFixedTab(tab)) return
+    if (isFixedTab(tab))
+      return
 
     tabs.value.splice(index, 1)
 
@@ -139,7 +143,8 @@ export const useTabsStore = defineStore('tabs', () => {
 
   const closeLeftTabs = (path: string) => {
     const index = tabs.value.findIndex(tab => tab.path === path)
-    if (index === -1) return
+    if (index === -1)
+      return
 
     tabs.value = tabs.value.filter((tab, i) => i >= index || isFixedTab(tab))
     ensureActiveTab(path)
@@ -147,7 +152,8 @@ export const useTabsStore = defineStore('tabs', () => {
 
   const closeRightTabs = (path: string) => {
     const index = tabs.value.findIndex(tab => tab.path === path)
-    if (index === -1) return
+    if (index === -1)
+      return
 
     tabs.value = tabs.value.filter((tab, i) => i <= index || isFixedTab(tab))
     ensureActiveTab(path)
@@ -155,7 +161,8 @@ export const useTabsStore = defineStore('tabs', () => {
 
   const togglePinTab = (path: string) => {
     const tab = tabs.value.find(item => item.path === path)
-    if (!tab || tab.affix) return
+    if (!tab || tab.affix)
+      return
 
     tab.pinned = !tab.pinned
     updateTabClosable(tab)
@@ -163,7 +170,8 @@ export const useTabsStore = defineStore('tabs', () => {
 
   const toggleFavoriteTab = (path: string) => {
     const tab = tabs.value.find(item => item.path === path)
-    if (!tab) return
+    if (!tab)
+      return
 
     tab.favorite = !tab.favorite
   }
@@ -180,7 +188,7 @@ export const useTabsStore = defineStore('tabs', () => {
 
       // 2. Navigate to redirect page
       // This will unmount the current component and mount the Redirect component
-      await router.replace('/redirect' + path)
+      await router.replace(`/redirect${path}`)
 
       // 3. Restore cache state
       // The Redirect component will immediately navigate back to the original path.
@@ -199,7 +207,7 @@ export const useTabsStore = defineStore('tabs', () => {
     const affixTabs: Tab[] = []
 
     const findAffixRoutes = (routes: any[], basePath = '') => {
-      routes.forEach(route => {
+      routes.forEach((route) => {
         const routePath = route.path ? String(route.path) : ''
         const fullPath = resolveRoutePath(routePath, basePath)
 
@@ -215,7 +223,7 @@ export const useTabsStore = defineStore('tabs', () => {
             fullPath,
             closable: false,
             pinned: false,
-            affix: true
+            affix: true,
           })
         }
 
@@ -235,11 +243,12 @@ export const useTabsStore = defineStore('tabs', () => {
   // Save tabs state to localStorage
   const saveTabsState = () => {
     const settingsStore = useSettingsStore()
-    if (!settingsStore.rememberTabState) return
+    if (!settingsStore.rememberTabState)
+      return
 
     const state = {
       tabs: tabs.value,
-      activeTabPath: activeTabPath.value
+      activeTabPath: activeTabPath.value,
     }
     localStorage.setItem(TABS_STORAGE_KEY, JSON.stringify(state))
   }
@@ -247,10 +256,12 @@ export const useTabsStore = defineStore('tabs', () => {
   // Restore tabs state from localStorage
   const restoreTabsState = (routes: any[]) => {
     const settingsStore = useSettingsStore()
-    if (!settingsStore.rememberTabState || isRestored.value) return
+    if (!settingsStore.rememberTabState || isRestored.value)
+      return
 
     const savedState = localStorage.getItem(TABS_STORAGE_KEY)
-    if (!savedState) return
+    if (!savedState)
+      return
 
     try {
       const state = JSON.parse(savedState)
@@ -258,7 +269,7 @@ export const useTabsStore = defineStore('tabs', () => {
         // Filter out tabs that no longer exist in routes
         const validPaths = new Set<string>()
         const collectPaths = (routeList: any[], basePath = '') => {
-          routeList.forEach(route => {
+          routeList.forEach((route) => {
             const routePath = route.path ? String(route.path) : ''
             const fullPath = resolveRoutePath(routePath, basePath)
             validPaths.add(fullPath)
@@ -276,13 +287,15 @@ export const useTabsStore = defineStore('tabs', () => {
           // Restore active tab if it exists
           if (state.activeTabPath && validPaths.has(state.activeTabPath)) {
             activeTabPath.value = state.activeTabPath
-          } else {
+          }
+          else {
             activeTabPath.value = restoredTabs[0].path
           }
           isRestored.value = true
         }
       }
-    } catch {
+    }
+    catch {
       // Invalid saved state, ignore
     }
   }
@@ -298,7 +311,7 @@ export const useTabsStore = defineStore('tabs', () => {
     () => {
       saveTabsState()
     },
-    { deep: true }
+    { deep: true },
   )
 
   return {
@@ -321,6 +334,6 @@ export const useTabsStore = defineStore('tabs', () => {
     refreshTab,
     initAffixTabs,
     restoreTabsState,
-    clearTabsState
+    clearTabsState,
   }
 })

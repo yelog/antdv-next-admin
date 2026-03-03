@@ -68,6 +68,6 @@ export function usePermission() {
     cannot,
     hasRole,
     hasAnyRole,
-    hasAllRoles
+    hasAllRoles,
   }
 }

@@ -1,5 +1,5 @@
-import { createI18n } from 'vue-i18n'
 import type { I18n } from 'vue-i18n'
+import { createI18n } from 'vue-i18n'
 
 // Type definitions
 type MessageSchema = Record<string, any>
@@ -12,7 +12,7 @@ export const LOCALE_NATIVE_LABELS: Record<LocaleCode, string> = {
   'zh-CN': '简体中文',
   'en-US': 'English',
   'ja-JP': '日本語',
-  'ko-KR': '한국어'
+  'ko-KR': '한국어',
 }
 
 // Locale file importers (lazy loading)
@@ -20,7 +20,7 @@ const localeLoaders: Record<LocaleCode, () => Promise<{ default: MessageSchema }
   'zh-CN': () => import('./zh-CN'),
   'en-US': () => import('./en-US'),
   'ja-JP': () => import('./ja-JP'),
-  'ko-KR': () => import('./ko-KR')
+  'ko-KR': () => import('./ko-KR'),
 }
 
 // Track loaded locales
@@ -32,7 +32,7 @@ const i18n: I18n<MessageSchema, {}, {}, string, false> = createI18n({
   locale: 'zh-CN',
   fallbackLocale: 'zh-CN',
   messages: {},
-  globalInjection: true
+  globalInjection: true,
 })
 
 /**
@@ -48,7 +48,8 @@ async function loadLocaleMessages(locale: LocaleCode): Promise<MessageSchema | n
     i18n.global.setLocaleMessage(locale, messages.default)
     loadedLocales.add(locale)
     return messages.default
-  } catch (error) {
+  }
+  catch (error) {
     console.error(`Failed to load locale: ${locale}`, error)
     return null
   }
@@ -58,7 +59,8 @@ async function loadLocaleMessages(locale: LocaleCode): Promise<MessageSchema | n
  * Load locale synchronously (for initial render)
  */
 function loadLocaleSync(locale: LocaleCode): void {
-  if (loadedLocales.has(locale)) return
+  if (loadedLocales.has(locale))
+    return
 
   // For the initial locale, we need to load it synchronously
   // This is handled by the sync imports below
@@ -143,7 +145,7 @@ export function getLoadedLocales(): LocaleCode[] {
 }
 
 // Initialize with saved locale or default
-const initializeI18n = async () => {
+async function initializeI18n() {
   const savedLocale = (localStorage.getItem('app-locale') || 'zh-CN') as LocaleCode
 
   // Load the initial locale

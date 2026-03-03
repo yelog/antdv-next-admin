@@ -1,23 +1,12 @@
-<template>
-  <a-config-provider
-    :theme="antdThemeConfig"
-    :input="inputConfig"
-    :select="selectConfig"
-    :date-picker="datePickerConfig"
-    :range-picker="datePickerConfig"
-  >
-    <router-view />
-  </a-config-provider>
-</template>
-
 <script setup lang="ts">
+import type { ThemeConfig } from 'antdv-next'
+import { theme as antdTheme } from 'antdv-next'
 import { computed, onMounted } from 'vue'
-import { theme as antdTheme, type ThemeConfig } from 'antdv-next'
-import { useThemeStore } from './stores/theme'
-import { useSettingsStore } from './stores/settings'
-import { useWatermarkStore } from './stores/watermark'
-import { useNotificationStore } from './stores/notification'
 import { appDefaultSettings } from './settings'
+import { useNotificationStore } from './stores/notification'
+import { useSettingsStore } from './stores/settings'
+import { useThemeStore } from './stores/theme'
+import { useWatermarkStore } from './stores/watermark'
 
 const themeStore = useThemeStore()
 const settingsStore = useSettingsStore()
@@ -28,8 +17,8 @@ const antdThemeConfig = computed<ThemeConfig>(() => ({
   algorithm: themeStore.isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
   token: {
     colorPrimary: settingsStore.primaryColorHex,
-    colorLink: settingsStore.primaryColorHex
-  }
+    colorLink: settingsStore.primaryColorHex,
+  },
 }))
 
 const inputConfig = computed(() => appDefaultSettings.input)
@@ -44,6 +33,18 @@ onMounted(() => {
   notificationStore.initNotifications()
 })
 </script>
+
+<template>
+  <a-config-provider
+    :theme="antdThemeConfig"
+    :input="inputConfig"
+    :select="selectConfig"
+    :date-picker="datePickerConfig"
+    :range-picker="datePickerConfig"
+  >
+    <router-view />
+  </a-config-provider>
+</template>
 
 <style>
 #app {
