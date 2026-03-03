@@ -17,30 +17,22 @@ async function completeCaptcha(page) {
   const captcha = page.locator('.slider-captcha')
   await captcha.waitFor({ state: 'visible', timeout: 5000 })
 
-  // Use JavaScript to trigger the success state directly
+  // Trigger success event on the slider captcha component
   await page.evaluate(() => {
-    const sliderBg = document.querySelector('.slider-bg')
-    const sliderHandle = document.querySelector('.slider-handle')
-    if (sliderBg && sliderHandle) {
-      // Add success class to slider bg
-      sliderBg.classList.add('success')
-      // Add success class to slider handle
-      sliderHandle.classList.add('success')
-      // Update text
-      const text = sliderBg.querySelector('.slider-text')
-      if (text) {
-        text.textContent = 'Success'
+    // Find the slider captcha element
+    const sliderCaptcha = document.querySelector('.slider-captcha')
+    if (sliderCaptcha) {
+      // Get the Vue instance associated with this element
+      // @ts-ignore
+      const vueInstance = sliderCaptcha.__vueParentComponent
+      if (vueInstance) {
+        // Set isSuccess to true
+        // @ts-ignore
+        vueInstance.ctx.isSuccess.value = true
+        // Emit success event
+        // @ts-ignore
+        vueInstance.emit('success')
       }
-      // Set track width to 100%
-      const track = sliderBg.querySelector('.slider-track')
-      if (track) {
-        track.setAttribute('style', 'width: 100%')
-      }
-      // Set handle position
-      sliderHandle.setAttribute('style', 'right: 0; left: auto;')
-      // Dispatch success event
-      const event = new CustomEvent('captchaSuccess')
-      sliderBg.dispatchEvent(event)
     }
   })
 
