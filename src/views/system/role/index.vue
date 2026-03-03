@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Permission, Role } from '@/types/auth'
-import type { ProFormItem, ProTableColumn } from '@/types/pro'
+import type { ProFormItem, ProTableColumn, ProTableToolbar } from '@/types/pro'
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@antdv-next/icons'
 import { computed, onMounted, ref } from 'vue'
 import { getPermissionTree } from '@/api/permission'
@@ -30,7 +30,7 @@ const tableRef = ref<{
 
 const permissionTree = ref<Permission[]>([])
 
-const toolbarConfig = computed(() => ({
+const toolbarConfig = computed<ProTableToolbar>(() => ({
   title: $t('role.title'),
   subTitle: 'ProTable + ProForm',
   actions: ['!refresh', '!density', '!columnSetting'],
@@ -122,6 +122,7 @@ const {
   submitting,
   formData,
   modalTitle,
+  resolvedFormItems,
   openCreate,
   openEdit,
   closeModal,
