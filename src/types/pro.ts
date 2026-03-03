@@ -1,4 +1,5 @@
 // Pro Component Types
+import type { ComputedRef } from 'vue'
 
 // ProTable Types
 export type ValueType
@@ -61,7 +62,7 @@ export interface ProTableHeaderFilterConfig {
 }
 
 export interface ProTableColumn {
-  title: string
+  title: string | ComputedRef<string>
   dataIndex: string
   key?: string
   width?: number | string
