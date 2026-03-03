@@ -3,7 +3,7 @@ import { createI18n } from 'vue-i18n'
 
 // Type definitions
 type MessageSchema = Record<string, any>
-type LocaleCode = 'zh-CN' | 'en-US' | 'ja-JP' | 'ko-KR'
+export type LocaleCode = 'zh-CN' | 'en-US' | 'ja-JP' | 'ko-KR'
 
 // Supported locales configuration
 export const SUPPORTED_LOCALES: LocaleCode[] = ['zh-CN', 'en-US', 'ja-JP', 'ko-KR']

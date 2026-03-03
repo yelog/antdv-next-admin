@@ -52,6 +52,18 @@ export interface UseProTableOptions {
   fixedHeader?: Ref<boolean | undefined>
 }
 
+// Default values for optional options
+const defaultSearch: Ref<ProTableSearch | false> = ref({ defaultCollapsed: true })
+const defaultPagination: Ref<ProTablePagination | false> = ref({ current: 1, pageSize: 10 })
+const defaultSize: Ref<ProTableDensity> = ref('middle')
+const defaultResizable: Ref<boolean> = ref(false)
+const defaultColumnResizable: Ref<boolean> = ref(false)
+const defaultEllipsis: Ref<boolean> = ref(true)
+const defaultBordered: Ref<boolean> = ref(true)
+const defaultFixedHeader: Ref<boolean> = ref(false)
+const defaultHeight: Ref<ProTableHeight> = ref('auto')
+const defaultToolbar: Ref<ProTableToolbar> = ref({})
+
 /**
  * Return type for useProTable
  */
@@ -142,8 +154,6 @@ export interface UseProTableReturn {
   initializeColumnStates: () => void
 }
 
-const MIN_COLUMN_WIDTH = 40
-
 /**
  * Composable for ProTable logic
  */
@@ -151,17 +161,17 @@ export function useProTable(options: UseProTableOptions): UseProTableReturn {
   const {
     columns,
     request,
-    toolbar,
-    search,
+    toolbar = defaultToolbar,
+    search = defaultSearch,
     headerFilter,
-    pagination,
-    size,
-    height,
-    resizable,
-    columnResizable,
-    ellipsis,
-    bordered,
-    fixedHeader,
+    pagination = defaultPagination,
+    size = defaultSize,
+    height = defaultHeight,
+    resizable = defaultResizable,
+    columnResizable = defaultColumnResizable,
+    ellipsis = defaultEllipsis,
+    bordered = defaultBordered,
+    fixedHeader = defaultFixedHeader,
   } = options
 
   // Refs for DOM elements
@@ -192,7 +202,6 @@ export function useProTable(options: UseProTableOptions): UseProTableReturn {
   const draggingColumnKey = ref('')
   const isResizingColumn = ref(false)
   const resizingColumnKey = ref<string | null>(null)
-  const widthsPreparedForCurrentDrag = ref(false)
 
   // Helper functions
   function normalizeDensity(size: ProTableDensity | undefined): TableSize {
@@ -367,7 +376,7 @@ export function useProTable(options: UseProTableOptions): UseProTableReturn {
 
       return {
         ...column,
-        onHeaderCell: (headerColumn: any) => {
+        onHeaderCell: (_headerColumn: any) => {
           const mergedCell: Record<string, any> = {
             'data-pro-table-col-key': key,
           }
