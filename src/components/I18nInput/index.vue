@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
+import type { LocaleCode } from '@/locales'
 import { computed, ref, watch } from 'vue'
 import JsonInput from '@/components/JsonInput/index.vue'
-import { getLocale, SUPPORTED_LOCALES, type LocaleCode } from '@/locales'
+import { getLocale, SUPPORTED_LOCALES } from '@/locales'
 
 const props = defineProps({
   value: {

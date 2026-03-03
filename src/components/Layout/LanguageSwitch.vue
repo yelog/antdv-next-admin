@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import type { LocaleCode } from '@/locales'
 import { GlobalOutlined } from '@antdv-next/icons'
 import { computed } from 'vue'
-import i18n, { LOCALE_NATIVE_LABELS, setLocale, type LocaleCode } from '@/locales'
+import i18n, { LOCALE_NATIVE_LABELS, setLocale } from '@/locales'
 
 const currentLocale = computed(() => String(i18n.global.locale.value))
 const localeOptions = computed(() => ([
