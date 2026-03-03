@@ -120,7 +120,6 @@ const columns = computed<ProTableColumn[]>(() => [
 const {
   modalVisible,
   submitting,
-  formRef,
   formData,
   modalTitle,
   openCreate,
@@ -279,7 +278,7 @@ onMounted(async () => {
     >
       <ProForm
         ref="formRef"
-        :form-items="formItems"
+        :form-items="resolvedFormItems"
         :initial-values="formData"
         :grid="{ cols: 2, gutter: 16 }"
         :layout="{ layout: 'vertical' }"

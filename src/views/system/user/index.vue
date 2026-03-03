@@ -40,7 +40,7 @@ const formData = ref<UserFormValues>(createDefaultFormValues())
 const toolbarConfig = computed(() => ({
   title: $t('user.title'),
   subTitle: 'ProTable + ProForm',
-  actions: ['refresh', 'density', 'columnSetting'] as Array<'refresh' | 'density' | 'columnSetting'>,
+  actions: ['!refresh', '!density', '!columnSetting'] as Array<'!refresh' | '!density' | '!columnSetting'>,
 }))
 
 const statusOptions = computed(() => [
