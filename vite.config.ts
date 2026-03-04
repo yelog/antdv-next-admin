@@ -51,6 +51,10 @@ export default defineConfig({
       // }
     }
   },
+  preview: {
+    port: 3000,
+    host: '0.0.0.0'
+  },
   build: {
     target: 'es2020',
     outDir: 'dist',

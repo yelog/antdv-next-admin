@@ -994,12 +994,14 @@ function setupXHRInterceptor(): void {
   MockXHR.prototype = Object.create(OriginalXHR.prototype)
   MockXHR.prototype.constructor = MockXHR
 
-  // Copy constants
-  MockXHR.UNSENT = 0
-  MockXHR.OPENED = 1
-  MockXHR.HEADERS_RECEIVED = 2
-  MockXHR.LOADING = 3
-  MockXHR.DONE = 4
+  // Define constants as own properties (they're read-only on XMLHttpRequest)
+  Object.defineProperties(MockXHR, {
+    UNSENT: { value: 0, writable: false, configurable: true },
+    OPENED: { value: 1, writable: false, configurable: true },
+    HEADERS_RECEIVED: { value: 2, writable: false, configurable: true },
+    LOADING: { value: 3, writable: false, configurable: true },
+    DONE: { value: 4, writable: false, configurable: true }
+  })
 
   // Replace global XMLHttpRequest
   window.XMLHttpRequest = MockXHR as any
