@@ -24,10 +24,20 @@ import {
   mockChartData
 } from '../../mock/data/dashboard.data'
 
+// Normalize URL to pathname+search for stable matching in static hosting scenarios
+function normalizeUrl(rawUrl: string): string {
+  try {
+    const parsed = new URL(rawUrl, window.location.origin)
+    return `${parsed.pathname}${parsed.search}`
+  } catch {
+    return rawUrl
+  }
+}
+
 // Parse query parameters from URL
 function parseQuery(url: string): Record<string, any> {
   const query: Record<string, any> = {}
-  const queryString = url.split('?')[1]
+  const queryString = normalizeUrl(url).split('?')[1]
   if (queryString) {
     const params = new URLSearchParams(queryString)
     params.forEach((value, key) => {
@@ -42,7 +52,7 @@ function matchPattern(
   pattern: string,
   url: string
 ): { match: boolean; params?: Record<string, string> } {
-  const cleanUrl = url.split('?')[0]
+  const cleanUrl = normalizeUrl(url).split('?')[0]
 
   // Convert pattern like "/api/users/:id" to regex
   const regexPattern = pattern.replace(/:\w+/g, '([^/]+)').replace(/\*/g, '.*')
@@ -555,12 +565,7 @@ const mockHandlers: MockHandler[] = [
       return {
         code: 200,
         message: 'Success',
-        data: {
-          totalUsers: mockUsers.length,
-          totalRoles: mockRoles.length,
-          todayVisits: Math.floor(Math.random() * 1000),
-          activeUsers: Math.floor(Math.random() * 100)
-        }
+        data: mockStats
       }
     }
   },
@@ -699,9 +704,10 @@ const mockHandlers: MockHandler[] = [
 
 // Find matching mock handler
 function findMockHandler(url: string, method: string): MockHandler | null {
+  const normalizedUrl = normalizeUrl(url)
   return (
     mockHandlers.find(handler => {
-      const { match } = matchPattern(handler.pattern, url)
+      const { match } = matchPattern(handler.pattern, normalizedUrl)
       return match && handler.method === method.toUpperCase()
     }) || null
   )
@@ -713,8 +719,9 @@ async function executeMockHandler(
   url: string,
   body?: any
 ): Promise<{ status: number; data: any; headers: Record<string, string> }> {
-  const { params } = matchPattern(handler.pattern, url)
-  const query = parseQuery(url)
+  const normalizedUrl = normalizeUrl(url)
+  const { params } = matchPattern(handler.pattern, normalizedUrl)
+  const query = parseQuery(normalizedUrl)
 
   const result = handler.handler({ query, params: params || {}, body })
 
@@ -730,8 +737,9 @@ async function executeMockHandler(
 
 // Check if should intercept this request
 function shouldIntercept(url: string): boolean {
+  const normalizedUrl = normalizeUrl(url)
   // Only intercept API requests
-  return url.includes('/api/')
+  return normalizedUrl.startsWith('/api/')
 }
 
 // Setup fetch interceptor
@@ -742,7 +750,7 @@ function setupFetchInterceptor(): void {
     const url = input.toString()
 
     if (!shouldIntercept(url)) {
-      return originalFetch(input, init)
+      return originalFetch.call(window, input, init)
     }
 
     const handler = findMockHandler(url, init?.method || 'GET')
@@ -783,9 +791,6 @@ function setupXHRInterceptor(): void {
     let requestUrl = ''
     let requestMethod = 'GET'
     let requestBody: any = null
-
-    // Copy all properties from the real XHR
-    Object.setPrototypeOf(this, MockXHR.prototype)
 
     // Proxy properties
     const self = this as any
@@ -883,9 +888,11 @@ function setupXHRInterceptor(): void {
           self._readyState = 4 // DONE
           triggerEvent('readystatechange')
           triggerEvent('load')
+          triggerEvent('loadend')
         } catch (error) {
           console.error('[Mock] Error:', error)
           triggerEvent('error')
+          triggerEvent('loadend')
         }
       } else {
         console.warn('[Mock] No handler for:', requestUrl)
@@ -896,6 +903,7 @@ function setupXHRInterceptor(): void {
         self._readyState = 4
         triggerEvent('readystatechange')
         triggerEvent('load')
+        triggerEvent('loadend')
       }
     }
 
@@ -989,12 +997,7 @@ function setupXHRInterceptor(): void {
     })
   }
 
-  // Copy static properties from OriginalXHR
-  Object.setPrototypeOf(MockXHR, OriginalXHR)
-  MockXHR.prototype = Object.create(OriginalXHR.prototype)
-  MockXHR.prototype.constructor = MockXHR
-
-  // Define constants as own properties (they're read-only on XMLHttpRequest)
+  // Define constants as own properties
   Object.defineProperties(MockXHR, {
     UNSENT: { value: 0, writable: false, configurable: true },
     OPENED: { value: 1, writable: false, configurable: true },
