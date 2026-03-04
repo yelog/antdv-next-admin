@@ -357,13 +357,27 @@ const mockHandlers: MockHandler[] = [
     }
   },
 
-  // Permissions - All
+  // Permissions - User (current user permissions)
+  {
+    pattern: '/api/permissions/user',
+    method: 'GET',
+    handler: () => {
+      const user = mockUsers[0]
+      return {
+        code: 200,
+        message: 'Success',
+        data: user.permissions || []
+      }
+    }
+  },
+
+  // Permissions - All (flattened list)
   {
     pattern: '/api/permissions/all',
     method: 'GET',
     handler: () => {
       const flattenPermissions = (perms: any[]): any[] => {
-        return perms.reduce((acc, perm) => {
+        return perms.reduce((acc: any[], perm: any) => {
           acc.push(perm)
           if (perm.children?.length) {
             acc.push(...flattenPermissions(perm.children))
@@ -417,6 +431,84 @@ const mockHandlers: MockHandler[] = [
       if (dictType) {
         data = data.filter((d: any) => d.dictType === dictType)
       }
+      return { code: 200, message: 'Success', data }
+    }
+  },
+
+  // Dictionary Data - All (alternative path)
+  {
+    pattern: '/api/dict/data/all',
+    method: 'GET',
+    handler: () => {
+      return { code: 200, message: 'Success', data: mockDictData }
+    }
+  },
+
+  // Dictionary Types - Alternative paths
+  {
+    pattern: '/api/dict/types',
+    method: 'GET',
+    handler: () => {
+      return { code: 200, message: 'Success', data: mockDictTypes }
+    }
+  },
+
+  // Dictionary Type - List
+  {
+    pattern: '/api/dict/type/list',
+    method: 'GET',
+    handler: ({ query }) => {
+      const { current = 1, pageSize = 10 } = query
+      const start = (Number(current) - 1) * Number(pageSize)
+      const end = start + Number(pageSize)
+      const list = mockDictTypes.slice(start, end)
+
+      return {
+        code: 200,
+        message: 'Success',
+        data: {
+          list,
+          total: mockDictTypes.length,
+          current: Number(current),
+          pageSize: Number(pageSize)
+        }
+      }
+    }
+  },
+
+  // Dictionary Data - List
+  {
+    pattern: '/api/dict/data/list',
+    method: 'GET',
+    handler: ({ query }) => {
+      const { current = 1, pageSize = 10, dictType } = query
+      let data = mockDictData
+      if (dictType) {
+        data = data.filter((d: any) => d.dictType === dictType)
+      }
+      const start = (Number(current) - 1) * Number(pageSize)
+      const end = start + Number(pageSize)
+      const list = data.slice(start, end)
+
+      return {
+        code: 200,
+        message: 'Success',
+        data: {
+          list,
+          total: data.length,
+          current: Number(current),
+          pageSize: Number(pageSize)
+        }
+      }
+    }
+  },
+
+  // Dictionary Data by Type
+  {
+    pattern: '/api/dict/data/:typeCode',
+    method: 'GET',
+    handler: ({ params }) => {
+      const data = mockDictData.filter((d: any) => d.dictType === params.typeCode)
       return { code: 200, message: 'Success', data }
     }
   },
