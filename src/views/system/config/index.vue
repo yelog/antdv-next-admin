@@ -9,16 +9,16 @@
         <a-menu
           v-model:selectedKeys="selectedMenuKeys"
           mode="inline"
+          :items="menuItems"
           class="config-groups-menu"
+          @click="handleMenuClick"
         >
-          <a-menu-item
-            v-for="group in groups"
-            :key="group"
-            @click="selectedGroup = group"
-          >
-            <span class="group-name">{{ $t(`config.groups.${group}`) }}</span>
-            <span class="group-count">{{ getGroupCount(group) }}</span>
-          </a-menu-item>
+          <template #labelRender="{ item }">
+            <div class="menu-item-label">
+              <span class="group-name">{{ item.label }}</span>
+              <span class="group-count">{{ getGroupCount(item.key) }}</span>
+            </div>
+          </template>
         </a-menu>
       </template>
 
@@ -126,6 +126,7 @@ import ProTable from '@/components/Pro/ProTable/index.vue'
 import ProSplitLayout from '@/components/Pro/ProSplitLayout/index.vue'
 import type { ProTableColumn } from '@/types/pro'
 import type { SysConfig } from '@/types/config'
+import type { MenuItemType } from 'antdv-next'
 import { getConfigList, createConfig, updateConfig, deleteConfig } from '@/api/config'
 
 const { t } = useI18n()
@@ -142,6 +143,18 @@ const selectedMenuKeys = computed({
 })
 
 const getGroupCount = (group: string) => allConfigs.value.filter(c => c.group === group).length
+
+const menuItems = computed<MenuItemType[]>(() =>
+  groups.value.map((group) => ({
+    key: group,
+    label: t(`config.groups.${group}`),
+    title: t(`config.groups.${group}`)
+  }))
+)
+
+const handleMenuClick = ({ key }: { key: string }) => {
+  selectedGroup.value = key
+}
 
 // modal
 const modalVisible = ref(false)
@@ -264,9 +277,6 @@ loadAllConfigs()
   border: none;
 
   :deep(.ant-menu-item) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     margin: 4px 8px;
     padding: 10px 12px !important;
     border-radius: 8px;
@@ -290,6 +300,13 @@ loadAllConfigs()
         font-weight: 600;
       }
     }
+  }
+
+  .menu-item-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 
     .group-name {
       font-size: 14px;
