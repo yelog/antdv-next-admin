@@ -9,7 +9,7 @@
     "build:check": "vue-tsc && vite build",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
-    "lint": "oxlint --vue-plugin src mock",
+    "lint": "oxlint src mock",
     "lint:fix": "oxlint --fix src mock",
     "format": "oxfmt --write src mock",
     "format:check": "oxfmt --check src mock"
