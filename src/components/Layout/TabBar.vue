@@ -189,7 +189,7 @@ const getTabMenuItems = (tab: Tab) => {
       label: t('layout.tabs.refresh'),
     },
     {
-      type: 'divider',
+      type: 'divider' as const,
     },
     {
       key: 'closeLeft',

@@ -66,17 +66,21 @@ onMounted(async () => {
           emit('change', markdown);
         }
       });
-    })
+    });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const editorWithPlugins = (editor as any)
     .use(nord)
     .use(commonmark)
     .use(gfm)
     .use(history)
     .use(clipboard)
     .use(listener)
-    .use(prism)
-    .create();
+    .use(prism);
 
-  editorInstance.value = editor as Editor;
+  const finalEditor = await editorWithPlugins.create();
+
+  editorInstance.value = finalEditor as Editor;
 });
 
 onUnmounted(() => {

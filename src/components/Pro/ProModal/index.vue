@@ -183,7 +183,8 @@ const isCloseButtonDisabled = computed(() => {
   return typeof props.closable === 'object' && Boolean(props.closable.disabled);
 });
 
-const resolvedGetContainer = computed<ModalProps['getContainer']>(() => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const resolvedGetContainer = computed<any>(() => {
   if (props.getContainer !== undefined) {
     return props.getContainer;
   }
@@ -292,19 +293,21 @@ const mergedModalBindings = computed(() => {
   };
 });
 
-const mergedSemanticStyles = computed<ModalProps['styles']>(() => {
-  const inputStyles = props.styles || {};
+const mergedSemanticStyles = computed(() => {
+  const inputStyles = (props.styles || {}) as Record<string, unknown>;
+  const containerStyle = (inputStyles.container as Record<string, unknown>) || {};
+  const bodyStyle = (inputStyles.body as Record<string, unknown>) || {};
   return {
     ...inputStyles,
     container: {
-      ...inputStyles.container,
+      ...containerStyle,
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
       minHeight: 0,
     },
     body: {
-      ...inputStyles.body,
+      ...bodyStyle,
       flex: 1,
       minHeight: 0,
       overflow: 'auto',
