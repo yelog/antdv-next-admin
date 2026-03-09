@@ -8,7 +8,11 @@
     "build": "vite build",
     "build:check": "vue-tsc && vite build",
     "preview": "vite preview",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "lint": "oxlint --vue-plugin src mock",
+    "lint:fix": "oxlint --fix src mock",
+    "format": "oxfmt --write src mock",
+    "format:check": "oxfmt --check src mock"
   },
   "dependencies": {
     "@ant-design/colors": "^8.0.1",
@@ -53,11 +57,13 @@
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
     "@types/lodash-es": "^4.17.12",
-    "@vitejs/plugin-vue": "^5.0.0",
+    "@vitejs/plugin-vue": "^6.0.4",
+    "oxfmt": "^0.36.0",
+    "oxlint": "^1.51.0",
     "sass": "^1.69.7",
     "typescript": "^5.3.3",
-    "vite": "^5.0.11",
-    "vite-plugin-mock-dev-server": "^1.4.0",
+    "vite": "8.0.0-beta.18",
+    "vite-plugin-mock-dev-server": "^2.1.0",
     "vue-tsc": "^3.2.4"
   }
 }

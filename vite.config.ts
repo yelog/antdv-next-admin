@@ -1,64 +1,71 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { mockDevServerPlugin } from 'vite-plugin-mock-dev-server'
-import { fileURLToPath, URL } from 'node:url'
-import pkg from './package.json'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { mockDevServerPlugin } from "vite-plugin-mock-dev-server";
+import { fileURLToPath, URL } from "node:url";
+import pkg from "./package.json";
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  // 自定义域名部署配置 - 使用根路径
-  base: '/',
+  base: "/",
   define: {
-    __APP_VERSION__: JSON.stringify(pkg.version)
+    __APP_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [
     vue(),
     mockDevServerPlugin({
-      prefix: '/api',
-      log: 'error'
-    })
+      prefix: "/api",
+      log: "error",
+    }),
   ],
   css: {
     preprocessorOptions: {
       scss: {
-        silenceDeprecations: ['legacy-js-api']
+        silenceDeprecations: ["legacy-js-api"],
       },
       sass: {
-        silenceDeprecations: ['legacy-js-api']
-      }
-    }
+        silenceDeprecations: ["legacy-js-api"],
+      },
+    },
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
   },
   server: {
     port: 3000,
-    open: false, // 不自动打开浏览器，手动访问 http://localhost:3000
-    proxy: {
-      // Proxy API requests in production
-      // '/api': {
-      //   target: 'http://your-backend-api.com',
-      //   changeOrigin: true,
-      //   rewrite: (path) => path.replace(/^\/api/, '')
-      // }
-    }
+    open: false,
+    proxy: {},
   },
   build: {
-    target: 'es2020',
-    outDir: 'dist',
-    assetsDir: 'assets',
+    target: "es2020",
+    outDir: "dist",
+    assetsDir: "assets",
     sourcemap: false,
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vue-vendor': ['vue', 'vue-router', 'pinia'],
-          'antdv-vendor': ['antdv-next', '@antdv-next/icons'],
-          'chart-vendor': ['echarts', 'vue-echarts']
-        }
-      }
-    }
-  }
-})
+        manualChunks(id) {
+          if (
+            id.includes("node_modules/vue/") ||
+            id.includes("node_modules/vue-router/") ||
+            id.includes("node_modules/pinia/")
+          ) {
+            return "vue-vendor";
+          }
+          if (
+            id.includes("node_modules/antdv-next/") ||
+            id.includes("node_modules/@antdv-next/")
+          ) {
+            return "antdv-vendor";
+          }
+          if (
+            id.includes("node_modules/echarts/") ||
+            id.includes("node_modules/vue-echarts/")
+          ) {
+            return "chart-vendor";
+          }
+        },
+      },
+    },
+  },
+});
