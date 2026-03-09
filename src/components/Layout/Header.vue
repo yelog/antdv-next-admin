@@ -23,16 +23,21 @@
       </a-button>
       <div class="search-trigger desktop-only" @click="openGlobalSearch">
         <SearchOutlined class="search-icon" />
-        <span class="search-text">{{ $t('common.search') }}</span>
+        <span class="search-text">{{ $t("common.search") }}</span>
         <div class="search-key">
-          <span class="search-key-text">{{ isMac ? '⌘' : 'Ctrl' }}</span>
+          <span class="search-key-text">{{ isMac ? "⌘" : "Ctrl" }}</span>
           <span class="search-key-k">K</span>
         </div>
       </div>
 
       <!-- Desktop: Show all actions -->
       <template v-if="!layoutStore.isMobile">
-        <a-tooltip v-if="layoutStore.aiEntryVisible" :title="layoutStore.aiCollabEnabled ? $t('layout.aiCollabDisable') : $t('layout.aiCollabEnable')">
+        <a-tooltip
+          v-if="layoutStore.aiEntryVisible"
+          :title="
+            layoutStore.aiCollabEnabled ? $t('layout.aiCollabDisable') : $t('layout.aiCollabEnable')
+          "
+        >
           <a-button
             type="text"
             class="header-action ai-toggle-btn"
@@ -63,7 +68,7 @@
         </a-tooltip>
 
         <!-- Divider -->
-        <a-divider type="vertical" style="height: 20px; margin: 0 4px;" />
+        <a-divider type="vertical" style="height: 20px; margin: 0 4px" />
       </template>
 
       <!-- Mobile: More menu (three dots) -->
@@ -86,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, h } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, h } from "vue";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -96,181 +101,183 @@ import {
   MessageOutlined,
   FullscreenOutlined,
   BulbOutlined,
-  GlobalOutlined
-} from '@antdv-next/icons'
-import { useLayoutStore } from '@/stores/layout'
-import { useThemeStore } from '@/stores/theme'
-import { $t, setLocale, LOCALE_NATIVE_LABELS } from '@/locales'
-import Breadcrumb from './Breadcrumb.vue'
-import FullscreenToggle from './FullscreenToggle.vue'
-import NotificationPanel from './NotificationPanel.vue'
-import ThemeToggle from './ThemeToggle.vue'
-import LanguageSwitch from './LanguageSwitch.vue'
-import AvatarDropdown from './AvatarDropdown.vue'
-import GlobalSearch from './GlobalSearch.vue'
-import SettingsDrawer from './SettingsDrawer.vue'
+  GlobalOutlined,
+} from "@antdv-next/icons";
+import { useLayoutStore } from "@/stores/layout";
+import { useThemeStore } from "@/stores/theme";
+import { $t, setLocale, LOCALE_NATIVE_LABELS } from "@/locales";
+import Breadcrumb from "./Breadcrumb.vue";
+import FullscreenToggle from "./FullscreenToggle.vue";
+import NotificationPanel from "./NotificationPanel.vue";
+import ThemeToggle from "./ThemeToggle.vue";
+import LanguageSwitch from "./LanguageSwitch.vue";
+import AvatarDropdown from "./AvatarDropdown.vue";
+import GlobalSearch from "./GlobalSearch.vue";
+import SettingsDrawer from "./SettingsDrawer.vue";
 
 interface Props {
-  showBreadcrumb?: boolean
-  showCollapseButton?: boolean
+  showBreadcrumb?: boolean;
+  showCollapseButton?: boolean;
 }
 
 withDefaults(defineProps<Props>(), {
   showBreadcrumb: true,
-  showCollapseButton: true
-})
+  showCollapseButton: true,
+});
 
-const layoutStore = useLayoutStore()
-const themeStore = useThemeStore()
-const globalSearchRef = ref()
-const settingsDrawerRef = ref()
-const isMac = ref(false)
+const layoutStore = useLayoutStore();
+const themeStore = useThemeStore();
+const globalSearchRef = ref();
+const settingsDrawerRef = ref();
+const isMac = ref(false);
 
 const openGlobalSearch = () => {
-  globalSearchRef.value?.open()
-}
+  globalSearchRef.value?.open();
+};
 
 const openSettings = () => {
-  settingsDrawerRef.value?.open()
-}
+  settingsDrawerRef.value?.open();
+};
 
 const toggleFullscreen = () => {
   if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen()
+    document.documentElement.requestFullscreen();
   } else {
     if (document.exitFullscreen) {
-      document.exitFullscreen()
+      document.exitFullscreen();
     }
   }
-}
+};
 
 const handleMoreMenuClick = ({ key }: { key: string }) => {
   switch (key) {
-    case 'fullscreen':
-      toggleFullscreen()
-      break
-    case 'ai-collab':
-      layoutStore.toggleAiCollab()
-      break
-    case 'theme-light':
-      themeStore.setThemeMode('light')
-      break
-    case 'theme-dark':
-      themeStore.setThemeMode('dark')
-      break
-    case 'theme-auto':
-      themeStore.setThemeMode('auto')
-      break
-    case 'lang-zh':
-      setLocale('zh-CN')
-      break
-    case 'lang-en':
-      setLocale('en-US')
-      break
-    case 'lang-ja':
-      setLocale('ja-JP')
-      break
-    case 'lang-ko':
-      setLocale('ko-KR')
-      break
-    case 'settings':
-      openSettings()
-      break
+    case "fullscreen":
+      toggleFullscreen();
+      break;
+    case "ai-collab":
+      layoutStore.toggleAiCollab();
+      break;
+    case "theme-light":
+      themeStore.setThemeMode("light");
+      break;
+    case "theme-dark":
+      themeStore.setThemeMode("dark");
+      break;
+    case "theme-auto":
+      themeStore.setThemeMode("auto");
+      break;
+    case "lang-zh":
+      setLocale("zh-CN");
+      break;
+    case "lang-en":
+      setLocale("en-US");
+      break;
+    case "lang-ja":
+      setLocale("ja-JP");
+      break;
+    case "lang-ko":
+      setLocale("ko-KR");
+      break;
+    case "settings":
+      openSettings();
+      break;
   }
-}
+};
 
 const moreMenuProps = computed(() => {
   const items: any[] = [
     {
-      key: 'fullscreen',
-      label: $t('layout.fullscreen'),
-      icon: h(FullscreenOutlined)
-    }
-  ]
+      key: "fullscreen",
+      label: $t("layout.fullscreen"),
+      icon: h(FullscreenOutlined),
+    },
+  ];
 
   if (layoutStore.aiEntryVisible) {
     items.push({
-      key: 'ai-collab',
-      label: layoutStore.aiCollabEnabled ? $t('layout.aiCollabDisable') : $t('layout.aiCollabEnable'),
-      icon: h(MessageOutlined)
-    })
+      key: "ai-collab",
+      label: layoutStore.aiCollabEnabled
+        ? $t("layout.aiCollabDisable")
+        : $t("layout.aiCollabEnable"),
+      icon: h(MessageOutlined),
+    });
   }
 
   items.push(
     {
-      type: 'divider'
+      type: "divider",
     },
     {
-      key: 'theme',
-      label: $t('layout.theme'),
+      key: "theme",
+      label: $t("layout.theme"),
       icon: h(BulbOutlined),
       children: [
         {
-          key: 'theme-light',
-          label: $t('layout.themeLight')
+          key: "theme-light",
+          label: $t("layout.themeLight"),
         },
         {
-          key: 'theme-dark',
-          label: $t('layout.themeDark')
+          key: "theme-dark",
+          label: $t("layout.themeDark"),
         },
         {
-          key: 'theme-auto',
-          label: $t('layout.themeAuto')
-        }
-      ]
+          key: "theme-auto",
+          label: $t("layout.themeAuto"),
+        },
+      ],
     },
     {
-      key: 'language',
-      label: $t('layout.language'),
+      key: "language",
+      label: $t("layout.language"),
       icon: h(GlobalOutlined),
       children: [
         {
-          key: 'lang-zh',
-          label: LOCALE_NATIVE_LABELS['zh-CN']
+          key: "lang-zh",
+          label: LOCALE_NATIVE_LABELS["zh-CN"],
         },
         {
-          key: 'lang-en',
-          label: LOCALE_NATIVE_LABELS['en-US']
+          key: "lang-en",
+          label: LOCALE_NATIVE_LABELS["en-US"],
         },
         {
-          key: 'lang-ja',
-          label: LOCALE_NATIVE_LABELS['ja-JP']
+          key: "lang-ja",
+          label: LOCALE_NATIVE_LABELS["ja-JP"],
         },
         {
-          key: 'lang-ko',
-          label: LOCALE_NATIVE_LABELS['ko-KR']
-        }
-      ]
+          key: "lang-ko",
+          label: LOCALE_NATIVE_LABELS["ko-KR"],
+        },
+      ],
     },
     {
-      type: 'divider'
+      type: "divider",
     },
     {
-      key: 'settings',
-      label: $t('settings.title'),
-      icon: h(SettingOutlined)
-    }
-  )
+      key: "settings",
+      label: $t("settings.title"),
+      icon: h(SettingOutlined),
+    },
+  );
 
-  return { items, onClick: handleMoreMenuClick }
-})
+  return { items, onClick: handleMoreMenuClick };
+});
 
 const handleKeydown = (e: KeyboardEvent) => {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault()
-    openGlobalSearch()
+  if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+    e.preventDefault();
+    openGlobalSearch();
   }
-}
+};
 
 onMounted(() => {
   // Simple check for Mac
-  isMac.value = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
-  window.addEventListener('keydown', handleKeydown)
-})
+  isMac.value = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+  window.addEventListener("keydown", handleKeydown);
+});
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeydown)
-})
+  window.removeEventListener("keydown", handleKeydown);
+});
 </script>
 
 <style scoped lang="scss">

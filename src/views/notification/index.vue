@@ -5,22 +5,22 @@
       <div class="hero-glow hero-glow-b"></div>
 
       <div class="hero-main">
-        <p class="hero-kicker">{{ $t('notificationCenter.kicker') }}</p>
-        <h1 class="hero-title">{{ $t('notificationCenter.title') }}</h1>
-        <p class="hero-subtitle">{{ $t('notificationCenter.subtitle') }}</p>
+        <p class="hero-kicker">{{ $t("notificationCenter.kicker") }}</p>
+        <h1 class="hero-title">{{ $t("notificationCenter.title") }}</h1>
+        <p class="hero-subtitle">{{ $t("notificationCenter.subtitle") }}</p>
       </div>
 
       <div class="hero-metrics">
         <div class="metric-card">
-          <span class="metric-label">{{ $t('notificationCenter.metrics.total') }}</span>
+          <span class="metric-label">{{ $t("notificationCenter.metrics.total") }}</span>
           <strong class="metric-value">{{ notifications.length }}</strong>
         </div>
         <div class="metric-card">
-          <span class="metric-label">{{ $t('notificationCenter.metrics.unread') }}</span>
+          <span class="metric-label">{{ $t("notificationCenter.metrics.unread") }}</span>
           <strong class="metric-value">{{ unreadCount }}</strong>
         </div>
         <div class="metric-card">
-          <span class="metric-label">{{ $t('notificationCenter.metrics.today') }}</span>
+          <span class="metric-label">{{ $t("notificationCenter.metrics.today") }}</span>
           <strong class="metric-value">{{ todayCount }}</strong>
         </div>
       </div>
@@ -38,18 +38,34 @@
         </a-input>
 
         <a-radio-group v-model:value="readFilter" size="small">
-          <a-radio-button value="all">{{ $t('notificationCenter.filters.allStatus') }}</a-radio-button>
-          <a-radio-button value="unread">{{ $t('notificationCenter.filters.unread') }}</a-radio-button>
-          <a-radio-button value="read">{{ $t('notificationCenter.filters.read') }}</a-radio-button>
+          <a-radio-button value="all">{{
+            $t("notificationCenter.filters.allStatus")
+          }}</a-radio-button>
+          <a-radio-button value="unread">{{
+            $t("notificationCenter.filters.unread")
+          }}</a-radio-button>
+          <a-radio-button value="read">{{ $t("notificationCenter.filters.read") }}</a-radio-button>
         </a-radio-group>
 
         <a-select v-model:value="toneFilter" size="small" class="tone-select">
-          <a-select-option value="all">{{ $t('notificationCenter.filters.allTypes') }}</a-select-option>
-          <a-select-option value="system">{{ $t('notificationCenter.filters.system') }}</a-select-option>
-          <a-select-option value="message">{{ $t('notificationCenter.filters.message') }}</a-select-option>
-          <a-select-option value="security">{{ $t('notificationCenter.filters.security') }}</a-select-option>
-          <a-select-option value="task">{{ $t('notificationCenter.filters.task') }}</a-select-option>
-          <a-select-option value="error">{{ $t('notificationCenter.filters.error') }}</a-select-option>
+          <a-select-option value="all">{{
+            $t("notificationCenter.filters.allTypes")
+          }}</a-select-option>
+          <a-select-option value="system">{{
+            $t("notificationCenter.filters.system")
+          }}</a-select-option>
+          <a-select-option value="message">{{
+            $t("notificationCenter.filters.message")
+          }}</a-select-option>
+          <a-select-option value="security">{{
+            $t("notificationCenter.filters.security")
+          }}</a-select-option>
+          <a-select-option value="task">{{
+            $t("notificationCenter.filters.task")
+          }}</a-select-option>
+          <a-select-option value="error">{{
+            $t("notificationCenter.filters.error")
+          }}</a-select-option>
         </a-select>
       </div>
     </section>
@@ -58,8 +74,10 @@
       <article class="list-panel card">
         <header class="panel-header">
           <div>
-            <h2 class="panel-title">{{ $t('notificationCenter.listTitle') }}</h2>
-            <p class="panel-subtitle">{{ $t('notificationCenter.listSubtitle', { count: filteredNotifications.length }) }}</p>
+            <h2 class="panel-title">{{ $t("notificationCenter.listTitle") }}</h2>
+            <p class="panel-subtitle">
+              {{ $t("notificationCenter.listSubtitle", { count: filteredNotifications.length }) }}
+            </p>
           </div>
 
           <a-button
@@ -68,7 +86,7 @@
             :disabled="unreadCount === 0"
             @click="notificationStore.markAllAsRead()"
           >
-            {{ $t('layout.markAllRead') }}
+            {{ $t("layout.markAllRead") }}
           </a-button>
         </header>
 
@@ -82,8 +100,8 @@
               `tone-${resolveTone(notification)}`,
               {
                 active: selectedNotificationId === notification.id,
-                unread: !notification.read
-              }
+                unread: !notification.read,
+              },
             ]"
             @click="handleSelectNotification(notification)"
           >
@@ -125,7 +143,10 @@
             </div>
 
             <div class="detail-header-actions">
-              <a-tooltip v-if="!selectedNotification.read" :title="$t('notificationCenter.actions.markAsRead')">
+              <a-tooltip
+                v-if="!selectedNotification.read"
+                :title="$t('notificationCenter.actions.markAsRead')"
+              >
                 <a-button
                   type="text"
                   size="small"
@@ -152,12 +173,14 @@
 
             <div class="detail-meta">
               <div class="meta-item">
-                <span class="meta-label">{{ $t('notificationCenter.meta.type') }}</span>
+                <span class="meta-label">{{ $t("notificationCenter.meta.type") }}</span>
                 <span class="meta-value">{{ getToneLabel(selectedTone) }}</span>
               </div>
               <div class="meta-item">
-                <span class="meta-label">{{ $t('notificationCenter.meta.receivedAt') }}</span>
-                <span class="meta-value">{{ formatAbsoluteTime(selectedNotification.timestamp) }}</span>
+                <span class="meta-label">{{ $t("notificationCenter.meta.receivedAt") }}</span>
+                <span class="meta-value">{{
+                  formatAbsoluteTime(selectedNotification.timestamp)
+                }}</span>
               </div>
             </div>
           </div>
@@ -169,7 +192,7 @@
               block
               @click="handleOpenRelated(selectedNotification)"
             >
-              {{ $t('notificationCenter.actions.openRelated') }}
+              {{ $t("notificationCenter.actions.openRelated") }}
             </a-button>
           </footer>
         </template>
@@ -177,8 +200,8 @@
         <template v-else>
           <div class="detail-placeholder">
             <BellOutlined class="placeholder-icon" />
-            <h3 class="placeholder-title">{{ $t('notificationCenter.placeholder.title') }}</h3>
-            <p class="placeholder-desc">{{ $t('notificationCenter.placeholder.desc') }}</p>
+            <h3 class="placeholder-title">{{ $t("notificationCenter.placeholder.title") }}</h3>
+            <p class="placeholder-desc">{{ $t("notificationCenter.placeholder.desc") }}</p>
           </div>
         </template>
       </article>
@@ -187,8 +210,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import {
   BellOutlined,
   RocketOutlined,
@@ -197,162 +220,164 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
   SearchOutlined,
-  DeleteOutlined
-} from '@antdv-next/icons'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { $t } from '@/locales'
-import { useNotificationStore } from '@/stores/notification'
-import type { Notification } from '@/types/layout'
+  DeleteOutlined,
+} from "@antdv-next/icons";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { $t } from "@/locales";
+import { useNotificationStore } from "@/stores/notification";
+import type { Notification } from "@/types/layout";
 
-dayjs.extend(relativeTime)
+dayjs.extend(relativeTime);
 
-type ReadFilter = 'all' | 'unread' | 'read'
-type NotificationTone = 'system' | 'message' | 'security' | 'task' | 'error'
-type ToneFilter = 'all' | NotificationTone
+type ReadFilter = "all" | "unread" | "read";
+type NotificationTone = "system" | "message" | "security" | "task" | "error";
+type ToneFilter = "all" | NotificationTone;
 
-const route = useRoute()
-const router = useRouter()
-const notificationStore = useNotificationStore()
+const route = useRoute();
+const router = useRouter();
+const notificationStore = useNotificationStore();
 
-const keyword = ref('')
-const readFilter = ref<ReadFilter>('all')
-const toneFilter = ref<ToneFilter>('all')
+const keyword = ref("");
+const readFilter = ref<ReadFilter>("all");
+const toneFilter = ref<ToneFilter>("all");
 
 const notifications = computed(() => {
-  return [...notificationStore.notifications].sort((a, b) => b.timestamp - a.timestamp)
-})
+  return [...notificationStore.notifications].toSorted((a, b) => b.timestamp - a.timestamp);
+});
 
-const unreadCount = computed(() => notifications.value.filter(item => !item.read).length)
-const todayCount = computed(() => notifications.value.filter(item => dayjs(item.timestamp).isSame(dayjs(), 'day')).length)
+const unreadCount = computed(() => notifications.value.filter((item) => !item.read).length);
+const todayCount = computed(
+  () => notifications.value.filter((item) => dayjs(item.timestamp).isSame(dayjs(), "day")).length,
+);
 
 const selectedNotificationId = computed(() => {
-  const queryValue = route.query.id
-  const raw = Array.isArray(queryValue) ? queryValue[0] : queryValue
-  return raw ? String(raw) : ''
-})
+  const queryValue = route.query.id;
+  const raw = Array.isArray(queryValue) ? queryValue[0] : queryValue;
+  return raw ? String(raw) : "";
+});
 
-const normalizeText = (value: string) => value.trim().toLowerCase()
+const normalizeText = (value: string) => value.trim().toLowerCase();
 
 const resolveTone = (notification: Notification): NotificationTone => {
   // Use category if explicitly set
   if (notification.category) {
-    return notification.category
+    return notification.category;
   }
 
   // Fallback to type-based classification
   switch (notification.type) {
-    case 'warning':
-      return 'security'
-    case 'success':
-      return 'task'
-    case 'error':
-      return 'error'
+    case "warning":
+      return "security";
+    case "success":
+      return "task";
+    case "error":
+      return "error";
     default:
-      return 'system'
+      return "system";
   }
-}
+};
 
 const filteredNotifications = computed(() => {
-  const query = normalizeText(keyword.value)
+  const query = normalizeText(keyword.value);
 
   return notifications.value.filter((notification) => {
-    if (readFilter.value === 'unread' && notification.read) return false
-    if (readFilter.value === 'read' && !notification.read) return false
+    if (readFilter.value === "unread" && notification.read) return false;
+    if (readFilter.value === "read" && !notification.read) return false;
 
-    const tone = resolveTone(notification)
-    if (toneFilter.value !== 'all' && tone !== toneFilter.value) return false
+    const tone = resolveTone(notification);
+    if (toneFilter.value !== "all" && tone !== toneFilter.value) return false;
 
-    if (!query) return true
+    if (!query) return true;
 
-    const merged = `${notification.title} ${notification.message}`.toLowerCase()
-    return merged.includes(query)
-  })
-})
+    const merged = `${notification.title} ${notification.message}`.toLowerCase();
+    return merged.includes(query);
+  });
+});
 
 const selectedNotification = computed(() => {
   if (!selectedNotificationId.value) {
-    return null
+    return null;
   }
-  return notifications.value.find(item => item.id === selectedNotificationId.value) || null
-})
+  return notifications.value.find((item) => item.id === selectedNotificationId.value) || null;
+});
 
 const selectedTone = computed<NotificationTone>(() => {
   if (!selectedNotification.value) {
-    return 'system'
+    return "system";
   }
-  return resolveTone(selectedNotification.value)
-})
+  return resolveTone(selectedNotification.value);
+});
 
 watch(
   selectedNotification,
   (notification) => {
     if (notification && !notification.read) {
-      notificationStore.markAsRead(notification.id)
+      notificationStore.markAsRead(notification.id);
     }
   },
-  { immediate: true }
-)
+  { immediate: true },
+);
 
 const getToneIcon = (tone: NotificationTone) => {
-  if (tone === 'system') return RocketOutlined
-  if (tone === 'message') return MailOutlined
-  if (tone === 'security') return SafetyCertificateOutlined
-  if (tone === 'task') return CheckCircleOutlined
-  if (tone === 'error') return ExclamationCircleOutlined
-  return BellOutlined
-}
+  if (tone === "system") return RocketOutlined;
+  if (tone === "message") return MailOutlined;
+  if (tone === "security") return SafetyCertificateOutlined;
+  if (tone === "task") return CheckCircleOutlined;
+  if (tone === "error") return ExclamationCircleOutlined;
+  return BellOutlined;
+};
 
 const getToneLabel = (tone: NotificationTone) => {
-  if (tone === 'system') return $t('notificationCenter.filters.system')
-  if (tone === 'message') return $t('notificationCenter.filters.message')
-  if (tone === 'security') return $t('notificationCenter.filters.security')
-  if (tone === 'task') return $t('notificationCenter.filters.task')
-  return $t('notificationCenter.filters.error')
-}
+  if (tone === "system") return $t("notificationCenter.filters.system");
+  if (tone === "message") return $t("notificationCenter.filters.message");
+  if (tone === "security") return $t("notificationCenter.filters.security");
+  if (tone === "task") return $t("notificationCenter.filters.task");
+  return $t("notificationCenter.filters.error");
+};
 
-const formatRelativeTime = (timestamp: number) => dayjs(timestamp).fromNow()
-const formatAbsoluteTime = (timestamp: number) => dayjs(timestamp).format('YYYY-MM-DD HH:mm')
+const formatRelativeTime = (timestamp: number) => dayjs(timestamp).fromNow();
+const formatAbsoluteTime = (timestamp: number) => dayjs(timestamp).format("YYYY-MM-DD HH:mm");
 
 const handleSelectNotification = (notification: Notification) => {
   if (!notification.read) {
-    notificationStore.markAsRead(notification.id)
+    notificationStore.markAsRead(notification.id);
   }
 
   if (selectedNotificationId.value === notification.id) {
-    return
+    return;
   }
 
   router.replace({
-    path: '/notifications',
-    query: { id: notification.id }
-  })
-}
+    path: "/notifications",
+    query: { id: notification.id },
+  });
+};
 
 const handleMarkAsRead = (id: string) => {
-  notificationStore.markAsRead(id)
-}
+  notificationStore.markAsRead(id);
+};
 
 const handleDeleteNotification = (id: string) => {
-  notificationStore.removeNotification(id)
+  notificationStore.removeNotification(id);
 
   if (selectedNotificationId.value === id) {
-    router.replace({ path: '/notifications' })
+    router.replace({ path: "/notifications" });
   }
-}
+};
 
 const handleOpenRelated = (notification: Notification) => {
   if (!notification.link) {
-    return
+    return;
   }
 
   if (/^https?:\/\//.test(notification.link)) {
-    window.open(notification.link, '_blank', 'noopener,noreferrer')
-    return
+    window.open(notification.link, "_blank", "noopener,noreferrer");
+    return;
   }
 
-  router.push(notification.link)
-}
+  router.push(notification.link);
+};
 </script>
 
 <style scoped lang="scss">
@@ -366,7 +391,12 @@ const handleOpenRelated = (notification: Notification) => {
   overflow: hidden;
   padding: 24px;
   border-radius: 18px;
-  background: linear-gradient(135deg, var(--color-bg-container) 0%, var(--color-primary-1) 58%, var(--color-bg-container) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-container) 0%,
+    var(--color-primary-1) 58%,
+    var(--color-bg-container) 100%
+  );
 
   .hero-glow {
     position: absolute;
@@ -796,7 +826,12 @@ const handleOpenRelated = (notification: Notification) => {
 /* ===== Dark Mode ===== */
 :root.dark {
   .hero-panel {
-    background: linear-gradient(135deg, var(--color-bg-container) 0%, color-mix(in srgb, var(--color-primary) 12%, var(--color-bg-container)) 58%, var(--color-bg-container) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-bg-container) 0%,
+      color-mix(in srgb, var(--color-primary) 12%, var(--color-bg-container)) 58%,
+      var(--color-bg-container) 100%
+    );
   }
 
   .metric-card {

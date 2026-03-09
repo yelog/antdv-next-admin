@@ -16,7 +16,7 @@
       <div class="notification-panel">
         <div class="panel-header">
           <div class="header-left">
-            <span class="title">{{ $t('layout.notifications') }}</span>
+            <span class="title">{{ $t("layout.notifications") }}</span>
             <span v-if="notificationStore.unreadCount > 0" class="unread-pill">
               {{ notificationStore.unreadCount }}
             </span>
@@ -28,7 +28,7 @@
               :disabled="notificationStore.unreadCount === 0"
               @click="handleMarkAllRead"
             >
-              {{ $t('layout.markAllRead') }}
+              {{ $t("layout.markAllRead") }}
             </a-button>
             <a-button
               type="link"
@@ -36,7 +36,7 @@
               :disabled="notificationStore.notifications.length === 0"
               @click="handleClearAll"
             >
-              {{ $t('layout.clearAll') }}
+              {{ $t("layout.clearAll") }}
             </a-button>
           </a-space>
         </div>
@@ -49,7 +49,7 @@
               :class="[
                 'notification-item',
                 { unread: !notification.read },
-                `tone-${getNotificationTone(notification)}`
+                `tone-${getNotificationTone(notification)}`,
               ]"
               @click="handleNotificationClick(notification)"
             >
@@ -68,7 +68,7 @@
                   </div>
                 </div>
                 <div class="notification-message">{{ notification.message }}</div>
-                <div class="notification-detail-hint">{{ $t('layout.viewDetails') }}</div>
+                <div class="notification-detail-hint">{{ $t("layout.viewDetails") }}</div>
               </div>
 
               <a-button
@@ -87,14 +87,14 @@
               <BellOutlined class="empty-icon" />
               <span class="empty-dot" />
             </div>
-            <div class="empty-title">{{ $t('layout.noNotifications') }}</div>
-            <div class="empty-subtitle">{{ $t('layout.notificationsEmptyHint') }}</div>
+            <div class="empty-title">{{ $t("layout.noNotifications") }}</div>
+            <div class="empty-subtitle">{{ $t("layout.notificationsEmptyHint") }}</div>
           </div>
         </div>
 
         <div class="panel-footer">
           <a-button type="link" class="view-all-btn" @click="handleViewAll">
-            {{ $t('layout.viewAllNotifications') }}
+            {{ $t("layout.viewAllNotifications") }}
             <RightOutlined />
           </a-button>
         </div>
@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref } from "vue";
 import {
   BellOutlined,
   RocketOutlined,
@@ -113,84 +113,84 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
   CloseOutlined,
-  RightOutlined
-} from '@antdv-next/icons'
-import { useNotificationStore } from '@/stores/notification'
-import type { Notification } from '@/types/layout'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import router from '@/router'
+  RightOutlined,
+} from "@antdv-next/icons";
+import { useNotificationStore } from "@/stores/notification";
+import type { Notification } from "@/types/layout";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import router from "@/router";
 
-dayjs.extend(relativeTime)
+dayjs.extend(relativeTime);
 
-const notificationStore = useNotificationStore()
-const popoverOpen = ref(false)
+const notificationStore = useNotificationStore();
+const popoverOpen = ref(false);
 
 const displayedNotifications = computed(() => {
-  return notificationStore.notifications.slice(0, 10)
-})
+  return notificationStore.notifications.slice(0, 10);
+});
 
 const formatTime = (timestamp: number) => {
-  return dayjs(timestamp).fromNow()
-}
+  return dayjs(timestamp).fromNow();
+};
 
 const getNotificationTone = (notification: Notification) => {
   // Use category if explicitly set
   if (notification.category) {
-    return notification.category
+    return notification.category;
   }
 
   // Fallback to type-based classification
   switch (notification.type) {
-    case 'success':
-      return 'task'
-    case 'warning':
-      return 'security'
-    case 'error':
-      return 'error'
+    case "success":
+      return "task";
+    case "warning":
+      return "security";
+    case "error":
+      return "error";
     default:
-      return 'system'
+      return "system";
   }
-}
+};
 
 const getNotificationIcon = (notification: Notification) => {
-  const tone = getNotificationTone(notification)
+  const tone = getNotificationTone(notification);
 
-  if (tone === 'system') return RocketOutlined
-  if (tone === 'message') return MailOutlined
-  if (tone === 'security') return SafetyCertificateOutlined
-  if (tone === 'task') return CheckCircleOutlined
-  if (tone === 'error') return ExclamationCircleOutlined
-  return BellOutlined
-}
+  if (tone === "system") return RocketOutlined;
+  if (tone === "message") return MailOutlined;
+  if (tone === "security") return SafetyCertificateOutlined;
+  if (tone === "task") return CheckCircleOutlined;
+  if (tone === "error") return ExclamationCircleOutlined;
+  return BellOutlined;
+};
 
 const handleNotificationClick = (notification: Notification) => {
-  notificationStore.markAsRead(notification.id)
-  popoverOpen.value = false
+  notificationStore.markAsRead(notification.id);
+  popoverOpen.value = false;
   router.push({
-    path: '/notifications',
+    path: "/notifications",
     query: {
-      id: notification.id
-    }
-  })
-}
+      id: notification.id,
+    },
+  });
+};
 
 const handleRemoveNotification = (id: string) => {
-  notificationStore.removeNotification(id)
-}
+  notificationStore.removeNotification(id);
+};
 
 const handleMarkAllRead = () => {
-  notificationStore.markAllAsRead()
-}
+  notificationStore.markAllAsRead();
+};
 
 const handleClearAll = () => {
-  notificationStore.clearAll()
-}
+  notificationStore.clearAll();
+};
 
 const handleViewAll = () => {
-  popoverOpen.value = false
-  router.push('/notifications')
-}
+  popoverOpen.value = false;
+  router.push("/notifications");
+};
 </script>
 
 <style scoped lang="scss">
@@ -264,7 +264,9 @@ const handleViewAll = () => {
       padding: 14px;
       border-radius: 10px;
       cursor: pointer;
-      transition: background var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+      transition:
+        background var(--duration-base) var(--ease-out),
+        transform var(--duration-base) var(--ease-out);
 
       & + .notification-item {
         border-top: 1px solid var(--color-border-secondary);
@@ -354,7 +356,9 @@ const handleViewAll = () => {
           color: var(--color-primary);
           opacity: 0;
           transform: translateY(2px);
-          transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+          transition:
+            opacity var(--duration-base) var(--ease-out),
+            transform var(--duration-base) var(--ease-out);
         }
       }
 
@@ -365,7 +369,9 @@ const handleViewAll = () => {
         border-radius: 999px;
         color: var(--color-text-tertiary);
         opacity: 0;
-        transition: opacity var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out);
+        transition:
+          opacity var(--duration-base) var(--ease-out),
+          background var(--duration-base) var(--ease-out);
 
         &:hover {
           color: var(--color-text-secondary);
@@ -492,7 +498,9 @@ const handleViewAll = () => {
   .ant-popover-inner {
     border-radius: 12px;
     border: 1px solid var(--color-border-secondary);
-    box-shadow: 0 28px 72px rgba(15, 23, 42, 0.18), 0 6px 18px rgba(15, 23, 42, 0.08);
+    box-shadow:
+      0 28px 72px rgba(15, 23, 42, 0.18),
+      0 6px 18px rgba(15, 23, 42, 0.08);
     overflow: hidden;
   }
 
@@ -503,7 +511,9 @@ const handleViewAll = () => {
 
 :root.dark .notification-popover-overlay {
   .ant-popover-inner {
-    box-shadow: 0 28px 72px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.2);
+    box-shadow:
+      0 28px 72px rgba(0, 0, 0, 0.4),
+      0 6px 18px rgba(0, 0, 0, 0.2);
   }
 }
 </style>

@@ -1,70 +1,70 @@
-import { defineMock } from 'vite-plugin-mock-dev-server'
+import { defineMock } from "vite-plugin-mock-dev-server";
 import {
   mockStats,
   mockSalesTrend,
   mockUserDistribution,
   mockActivities,
-  mockChartData
-} from '../data/dashboard.data'
+  mockChartData,
+} from "../data/dashboard.data";
 
 export default defineMock([
   // Get statistics
   {
-    url: '/api/dashboard/stats',
-    method: 'GET',
+    url: "/api/dashboard/stats",
+    method: "GET",
     body: {
       code: 200,
-      message: 'Success',
+      message: "Success",
       data: mockStats,
-      success: true
-    }
+      success: true,
+    },
   },
 
   // Get sales trend
   {
-    url: '/api/dashboard/sales-trend',
-    method: 'GET',
+    url: "/api/dashboard/sales-trend",
+    method: "GET",
     body: {
       code: 200,
-      message: 'Success',
+      message: "Success",
       data: mockSalesTrend,
-      success: true
-    }
+      success: true,
+    },
   },
 
   // Get user distribution
   {
-    url: '/api/dashboard/user-distribution',
-    method: 'GET',
+    url: "/api/dashboard/user-distribution",
+    method: "GET",
     body: {
       code: 200,
-      message: 'Success',
+      message: "Success",
       data: mockUserDistribution,
-      success: true
-    }
+      success: true,
+    },
   },
 
   // Get recent activities
   {
-    url: '/api/dashboard/activities',
-    method: 'GET',
+    url: "/api/dashboard/activities",
+    method: "GET",
     body: {
       code: 200,
-      message: 'Success',
+      message: "Success",
       data: mockActivities,
-      success: true
-    }
+      success: true,
+    },
   },
 
   // Get chart data
   {
-    url: '/api/dashboard/chart-data',
-    method: 'GET',
+    url: "/api/dashboard/chart-data",
+    method: "GET",
     body: {
       code: 200,
-      message: 'Success',
+      message: "Success",
       data: mockChartData,
-      success: true
-    }
-  }
-])
+      success: true,
+    },
+  },
+]);

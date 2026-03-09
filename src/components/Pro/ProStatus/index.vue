@@ -15,38 +15,38 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { ProStatusMode, ProStatusMap } from '@/types/pro'
+import { computed } from "vue";
+import type { ProStatusMode, ProStatusMap } from "@/types/pro";
 
 interface Props {
-  value: string | number
-  statusMap: ProStatusMap
-  mode?: ProStatusMode
+  value: string | number;
+  statusMap: ProStatusMap;
+  mode?: ProStatusMode;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  mode: 'dot'
-})
+  mode: "dot",
+});
 
-const config = computed(() => props.statusMap[String(props.value)])
-const statusText = computed(() => config.value?.text ?? String(props.value))
-const statusColor = computed(() => config.value?.color ?? '#8c8c8c')
+const config = computed(() => props.statusMap[String(props.value)]);
+const statusText = computed(() => config.value?.text ?? String(props.value));
+const statusColor = computed(() => config.value?.color ?? "#8c8c8c");
 
 const dotStyle = computed(() => {
-  const c = statusColor.value
+  const c = statusColor.value;
   return {
-    '--pro-status-color': c,
-    '--pro-status-bg': hexToRgba(c, 0.1)
-  }
-})
+    "--pro-status-color": c,
+    "--pro-status-bg": hexToRgba(c, 0.1),
+  };
+});
 
 function hexToRgba(hex: string, alpha: number): string {
   // Handle named colors by returning a light background
-  if (!hex.startsWith('#')) return `color-mix(in srgb, ${hex} ${alpha * 100}%, transparent)`
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+  if (!hex.startsWith("#")) return `color-mix(in srgb, ${hex} ${alpha * 100}%, transparent)`;
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 </script>
 

@@ -14,11 +14,13 @@
             <span>{{ currentTimeText }}</span>
           </p>
           <h1 class="welcome-title">{{ greetingText }}，{{ displayName }}</h1>
-          <p class="welcome-subtitle">{{ $t('dashboard.subtitle') }}</p>
+          <p class="welcome-subtitle">{{ $t("dashboard.subtitle") }}</p>
 
           <div class="welcome-metas">
-            <span class="meta-chip meta-chip-primary">{{ $t('dashboard.systemStable') }}</span>
-            <span class="meta-chip">{{ $t('dashboard.todayFocus') }} · {{ $t('dashboard.totalRevenue') }}</span>
+            <span class="meta-chip meta-chip-primary">{{ $t("dashboard.systemStable") }}</span>
+            <span class="meta-chip"
+              >{{ $t("dashboard.todayFocus") }} · {{ $t("dashboard.totalRevenue") }}</span
+            >
           </div>
         </div>
       </div>
@@ -52,7 +54,7 @@
           :height="280"
         >
           <template #extra>
-            <a-button type="link" size="small">{{ $t('dashboard.viewMore') }}</a-button>
+            <a-button type="link" size="small">{{ $t("dashboard.viewMore") }}</a-button>
           </template>
         </ProChart>
       </div>
@@ -69,8 +71,8 @@
 
     <section class="card activities-card">
       <div class="card-header">
-        <h3 class="card-title">{{ $t('dashboard.recentActivities') }}</h3>
-        <a-button type="link" size="small">{{ $t('dashboard.viewMore') }}</a-button>
+        <h3 class="card-title">{{ $t("dashboard.recentActivities") }}</h3>
+        <a-button type="link" size="small">{{ $t("dashboard.viewMore") }}</a-button>
       </div>
 
       <ul class="activity-list">
@@ -88,163 +90,163 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import {
   UserOutlined,
   ShoppingOutlined,
   DollarOutlined,
   RiseOutlined,
-  ClockCircleOutlined
-} from '@antdv-next/icons'
-import { useAuthStore } from '@/stores/auth'
-import ProChart from '@/components/Pro/ProChart/index.vue'
-import ProStatCard from '@/components/Pro/ProStatCard/index.vue'
-import i18n, { $t } from '@/locales'
+  ClockCircleOutlined,
+} from "@antdv-next/icons";
+import { useAuthStore } from "@/stores/auth";
+import ProChart from "@/components/Pro/ProChart/index.vue";
+import ProStatCard from "@/components/Pro/ProStatCard/index.vue";
+import i18n, { $t } from "@/locales";
 
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 
-const now = ref(new Date())
-let timer: number | null = null
+const now = ref(new Date());
+let timer: number | null = null;
 
 const displayName = computed(() => {
-  return authStore.user?.realName || authStore.user?.username || 'Administrator'
-})
+  return authStore.user?.realName || authStore.user?.username || "Administrator";
+});
 
 const greetingText = computed(() => {
-  const hour = now.value.getHours()
+  const hour = now.value.getHours();
   if (hour < 6) {
-    return $t('dashboard.goodNight')
+    return $t("dashboard.goodNight");
   }
   if (hour < 12) {
-    return $t('dashboard.goodMorning')
+    return $t("dashboard.goodMorning");
   }
   if (hour < 18) {
-    return $t('dashboard.goodAfternoon')
+    return $t("dashboard.goodAfternoon");
   }
-  return $t('dashboard.goodEvening')
-})
+  return $t("dashboard.goodEvening");
+});
 
 const currentTimeText = computed(() => {
-  const targetLocale = String(i18n.global.locale.value || 'en-US')
+  const targetLocale = String(i18n.global.locale.value || "en-US");
 
   try {
     return new Intl.DateTimeFormat(targetLocale, {
-      month: 'short',
-      day: 'numeric',
-      weekday: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(now.value)
+      month: "short",
+      day: "numeric",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(now.value);
   } catch {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      weekday: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(now.value)
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(now.value);
   }
-})
+});
 
 const statCards = computed(() => [
   {
-    key: 'users',
-    tone: 'blue',
-    label: $t('dashboard.totalUsers'),
-    value: '12,458',
-    trend: '+12.5%',
-    icon: UserOutlined
+    key: "users",
+    tone: "blue",
+    label: $t("dashboard.totalUsers"),
+    value: "12,458",
+    trend: "+12.5%",
+    icon: UserOutlined,
   },
   {
-    key: 'orders',
-    tone: 'green',
-    label: $t('dashboard.totalOrders'),
-    value: '8,946',
-    trend: '+8.2%',
-    icon: ShoppingOutlined
+    key: "orders",
+    tone: "green",
+    label: $t("dashboard.totalOrders"),
+    value: "8,946",
+    trend: "+8.2%",
+    icon: ShoppingOutlined,
   },
   {
-    key: 'revenue',
-    tone: 'orange',
-    label: $t('dashboard.totalRevenue'),
-    value: '¥456,789',
-    trend: '+15.3%',
-    icon: DollarOutlined
+    key: "revenue",
+    tone: "orange",
+    label: $t("dashboard.totalRevenue"),
+    value: "¥456,789",
+    trend: "+15.3%",
+    icon: DollarOutlined,
   },
   {
-    key: 'conversion',
-    tone: 'purple',
-    label: $t('dashboard.conversionRate'),
-    value: '3.24%',
-    trend: '+0.8%',
-    icon: RiseOutlined
-  }
-])
+    key: "conversion",
+    tone: "purple",
+    label: $t("dashboard.conversionRate"),
+    value: "3.24%",
+    trend: "+0.8%",
+    icon: RiseOutlined,
+  },
+]);
 
 const salesChartData = computed(() => [
-  { name: $t('dashboard.months.jan'), value: 340 },
-  { name: $t('dashboard.months.feb'), value: 480 },
-  { name: $t('dashboard.months.mar'), value: 440 },
-  { name: $t('dashboard.months.apr'), value: 620 },
-  { name: $t('dashboard.months.may'), value: 580 },
-  { name: $t('dashboard.months.jun'), value: 700 },
-  { name: $t('dashboard.months.jul'), value: 660 },
-  { name: $t('dashboard.months.aug'), value: 720 }
-])
+  { name: $t("dashboard.months.jan"), value: 340 },
+  { name: $t("dashboard.months.feb"), value: 480 },
+  { name: $t("dashboard.months.mar"), value: 440 },
+  { name: $t("dashboard.months.apr"), value: 620 },
+  { name: $t("dashboard.months.may"), value: 580 },
+  { name: $t("dashboard.months.jun"), value: 700 },
+  { name: $t("dashboard.months.jul"), value: 660 },
+  { name: $t("dashboard.months.aug"), value: 720 },
+]);
 
 const userDistributionChartData = computed(() => [
-  { name: $t('dashboard.newUsers'), value: 46 },
-  { name: $t('dashboard.returningUsers'), value: 34 },
-  { name: $t('dashboard.enterpriseUsers'), value: 20 }
-])
+  { name: $t("dashboard.newUsers"), value: 46 },
+  { name: $t("dashboard.returningUsers"), value: 34 },
+  { name: $t("dashboard.enterpriseUsers"), value: 20 },
+]);
 
 const activities = computed(() => [
   {
     id: 1,
-    action: $t('dashboard.activities.permissionUpdated'),
-    time: $t('dashboard.minutesAgo', { value: 2 }),
-    tag: $t('dashboard.activityTags.system'),
-    tagColor: 'blue',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin'
+    action: $t("dashboard.activities.permissionUpdated"),
+    time: $t("dashboard.minutesAgo", { value: 2 }),
+    tag: $t("dashboard.activityTags.system"),
+    tagColor: "blue",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
   },
   {
     id: 2,
-    action: $t('dashboard.activities.userCreated'),
-    time: $t('dashboard.minutesAgo', { value: 18 }),
-    tag: $t('dashboard.activityTags.user'),
-    tagColor: 'cyan',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sunny'
+    action: $t("dashboard.activities.userCreated"),
+    time: $t("dashboard.minutesAgo", { value: 18 }),
+    tag: $t("dashboard.activityTags.user"),
+    tagColor: "cyan",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=sunny",
   },
   {
     id: 3,
-    action: $t('dashboard.activities.orderTaskDone'),
-    time: $t('dashboard.hoursAgo', { value: 1 }),
-    tag: $t('dashboard.activityTags.task'),
-    tagColor: 'green',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=job'
+    action: $t("dashboard.activities.orderTaskDone"),
+    time: $t("dashboard.hoursAgo", { value: 1 }),
+    tag: $t("dashboard.activityTags.task"),
+    tagColor: "green",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=job",
   },
   {
     id: 4,
-    action: $t('dashboard.activities.riskPolicyReleased'),
-    time: $t('dashboard.hoursAgo', { value: 2 }),
-    tag: $t('dashboard.activityTags.release'),
-    tagColor: 'purple',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=release'
-  }
-])
+    action: $t("dashboard.activities.riskPolicyReleased"),
+    time: $t("dashboard.hoursAgo", { value: 2 }),
+    tag: $t("dashboard.activityTags.release"),
+    tagColor: "purple",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=release",
+  },
+]);
 
 onMounted(() => {
   timer = window.setInterval(() => {
-    now.value = new Date()
-  }, 60000)
-})
+    now.value = new Date();
+  }, 60000);
+});
 
 onBeforeUnmount(() => {
   if (timer !== null) {
-    window.clearInterval(timer)
-    timer = null
+    window.clearInterval(timer);
+    timer = null;
   }
-})
+});
 </script>
 
 <style scoped lang="scss">
@@ -368,7 +370,11 @@ onBeforeUnmount(() => {
         width: 380px;
         height: 260px;
         border-radius: 42% 58% 56% 44% / 44% 44% 56% 56%;
-        background: radial-gradient(circle at 20% 30%, rgba(24, 119, 255, 0.16), rgba(24, 119, 255, 0.02));
+        background: radial-gradient(
+          circle at 20% 30%,
+          rgba(24, 119, 255, 0.16),
+          rgba(24, 119, 255, 0.02)
+        );
       }
     }
   }

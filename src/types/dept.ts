@@ -2,33 +2,33 @@
  * 部门/组织架构
  */
 export interface Department {
-  id: string
+  id: string;
   /** 部门名称 */
-  name: string
+  name: string;
   /** 父级ID */
-  parentId: string | null
+  parentId: string | null;
   /** 负责人 */
-  leader?: string
+  leader?: string;
   /** 联系电话 */
-  phone?: string
+  phone?: string;
   /** 邮箱 */
-  email?: string
+  email?: string;
   /** 排序 */
-  sort: number
+  sort: number;
   /** 状态 */
-  status: 'enabled' | 'disabled'
+  status: "enabled" | "disabled";
   /** 备注 */
-  remark?: string
-  createTime: string
-  updateTime: string
+  remark?: string;
+  createTime: string;
+  updateTime: string;
   /** 子部门 */
-  children?: Department[]
+  children?: Department[];
 }
 
 /**
  * 部门查询参数
  */
 export interface DeptQueryParams {
-  name?: string
-  status?: 'enabled' | 'disabled'
+  name?: string;
+  status?: "enabled" | "disabled";
 }

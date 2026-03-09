@@ -12,7 +12,7 @@
   >
     <a-button>
       <UploadOutlined />
-      {{ buttonText || $t('proUpload.uploadFile') }}
+      {{ buttonText || $t("proUpload.uploadFile") }}
     </a-button>
     <template v-if="hint" #itemRender>
       <span />
@@ -33,7 +33,7 @@
     <p class="ant-upload-drag-icon">
       <InboxOutlined />
     </p>
-    <p class="ant-upload-text">{{ buttonText || $t('proUpload.dragHint') }}</p>
+    <p class="ant-upload-text">{{ buttonText || $t("proUpload.dragHint") }}</p>
     <p v-if="hint" class="ant-upload-hint">{{ hint }}</p>
   </a-upload-dragger>
 
@@ -51,7 +51,7 @@
   >
     <div v-if="!maxCount || fileList.length < maxCount">
       <PlusOutlined />
-      <div style="margin-top: 8px">{{ buttonText || $t('proUpload.uploadImage') }}</div>
+      <div style="margin-top: 8px">{{ buttonText || $t("proUpload.uploadImage") }}</div>
     </div>
   </a-upload>
 
@@ -81,85 +81,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
-import { message } from 'antdv-next'
-import { UploadOutlined, InboxOutlined, PlusOutlined, UserOutlined, CameraOutlined } from '@antdv-next/icons'
-import { $t } from '@/locales'
-import type { ProUploadMode } from '@/types/pro'
+import { ref, watch, computed } from "vue";
+import { message } from "antdv-next";
+import {
+  UploadOutlined,
+  InboxOutlined,
+  PlusOutlined,
+  UserOutlined,
+  CameraOutlined,
+} from "@antdv-next/icons";
+import { $t } from "@/locales";
+import type { ProUploadMode } from "@/types/pro";
 
 interface UploadFile {
-  uid: string
-  name: string
-  status?: string
-  url?: string
-  thumbUrl?: string
-  originFileObj?: File
-  [key: string]: any
+  uid: string;
+  name: string;
+  status?: string;
+  url?: string;
+  thumbUrl?: string;
+  originFileObj?: File;
+  [key: string]: any;
 }
 
 interface Props {
-  value?: UploadFile[]
-  mode?: ProUploadMode
-  accept?: string
-  maxSize?: number
-  maxCount?: number
-  action?: string
-  buttonText?: string
-  hint?: string
+  value?: UploadFile[];
+  mode?: ProUploadMode;
+  accept?: string;
+  maxSize?: number;
+  maxCount?: number;
+  action?: string;
+  buttonText?: string;
+  hint?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  mode: 'button',
-  maxSize: 10
-})
+  mode: "button",
+  maxSize: 10,
+});
 
-const emit = defineEmits(['update:value', 'change'])
+const emit = defineEmits(["update:value", "change"]);
 
-const fileList = ref<UploadFile[]>(props.value ?? [])
+const fileList = ref<UploadFile[]>(props.value ?? []);
 
-watch(() => props.value, (val) => {
-  if (val) fileList.value = val
-})
+watch(
+  () => props.value,
+  (val) => {
+    if (val) fileList.value = val;
+  },
+);
 
 const avatarUrl = computed(() => {
-  const file = fileList.value[0]
-  if (!file) return ''
-  if (file.thumbUrl) return file.thumbUrl
-  if (file.url) return file.url
-  if (file.originFileObj) return URL.createObjectURL(file.originFileObj)
-  return ''
-})
+  const file = fileList.value[0];
+  if (!file) return "";
+  if (file.thumbUrl) return file.thumbUrl;
+  if (file.url) return file.url;
+  if (file.originFileObj) return URL.createObjectURL(file.originFileObj);
+  return "";
+});
 
 const handleBeforeUpload = (file: File) => {
   if (props.maxSize) {
-    const isLt = file.size / 1024 / 1024 < props.maxSize
+    const isLt = file.size / 1024 / 1024 < props.maxSize;
     if (!isLt) {
-      message.error($t('proUpload.fileSizeExceed', { size: props.maxSize }))
-      return false
+      message.error($t("proUpload.fileSizeExceed", { size: props.maxSize }));
+      return false;
     }
   }
   if (props.accept) {
-    const acceptList = props.accept.split(',').map(s => s.trim())
-    const ext = '.' + file.name.split('.').pop()?.toLowerCase()
-    const mime = file.type
-    const match = acceptList.some(a => {
-      if (a.startsWith('.')) return ext === a.toLowerCase()
-      if (a.endsWith('/*')) return mime.startsWith(a.replace('/*', '/'))
-      return mime === a
-    })
+    const acceptList = props.accept.split(",").map((s) => s.trim());
+    const ext = "." + file.name.split(".").pop()?.toLowerCase();
+    const mime = file.type;
+    const match = acceptList.some((a) => {
+      if (a.startsWith(".")) return ext === a.toLowerCase();
+      if (a.endsWith("/*")) return mime.startsWith(a.replace("/*", "/"));
+      return mime === a;
+    });
     if (!match) {
-      message.error($t('proUpload.fileTypeNotAllowed'))
-      return false
+      message.error($t("proUpload.fileTypeNotAllowed"));
+      return false;
     }
   }
-  return true
-}
+  return true;
+};
 
 const handleChange = (files: UploadFile[]) => {
-  fileList.value = files
-  emit('update:value', files)
-  emit('change', files)
-}
+  fileList.value = files;
+  emit("update:value", files);
+  emit("change", files);
+};
 </script>
 
 <style scoped lang="scss">

@@ -43,36 +43,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import ProDescriptions from '../ProDescriptions/index.vue'
-import type { ProDescriptionItem, ProDetailTab } from '@/types/pro'
+import { ref, watch } from "vue";
+import ProDescriptions from "../ProDescriptions/index.vue";
+import type { ProDescriptionItem, ProDetailTab } from "@/types/pro";
 
 interface Props {
-  title?: string
-  subTitle?: string
-  tags?: Array<{ text: string; color?: string }>
-  descriptions?: ProDescriptionItem[]
-  data?: Record<string, any>
-  descriptionColumn?: number
-  tabs?: ProDetailTab[]
-  activeTab?: string
+  title?: string;
+  subTitle?: string;
+  tags?: Array<{ text: string; color?: string }>;
+  descriptions?: ProDescriptionItem[];
+  data?: Record<string, any>;
+  descriptionColumn?: number;
+  tabs?: ProDetailTab[];
+  activeTab?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  descriptionColumn: 2
-})
+  descriptionColumn: 2,
+});
 
-const emit = defineEmits(['update:activeTab'])
+const emit = defineEmits(["update:activeTab"]);
 
-const currentTab = ref(props.activeTab || props.tabs?.[0]?.key || '')
+const currentTab = ref(props.activeTab || props.tabs?.[0]?.key || "");
 
-watch(() => props.activeTab, (val) => {
-  if (val) currentTab.value = val
-})
+watch(
+  () => props.activeTab,
+  (val) => {
+    if (val) currentTab.value = val;
+  },
+);
 
 watch(currentTab, (val) => {
-  emit('update:activeTab', val)
-})
+  emit("update:activeTab", val);
+});
 </script>
 
 <style scoped lang="scss">

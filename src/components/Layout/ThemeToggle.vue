@@ -10,44 +10,44 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
-import { MoonOutlined, SunOutlined } from '@antdv-next/icons'
-import { useThemeStore } from '@/stores/theme'
-import { $t } from '@/locales'
+import { computed, onBeforeUnmount, ref } from "vue";
+import { MoonOutlined, SunOutlined } from "@antdv-next/icons";
+import { useThemeStore } from "@/stores/theme";
+import { $t } from "@/locales";
 
-const themeStore = useThemeStore()
-const isRotating = ref(false)
-let rotateTimer: number | null = null
+const themeStore = useThemeStore();
+const isRotating = ref(false);
+let rotateTimer: number | null = null;
 
 const tooltipTitle = computed(() => {
-  return themeStore.isDark ? `${$t('layout.theme')} (Light)` : `${$t('layout.theme')} (Dark)`
-})
+  return themeStore.isDark ? `${$t("layout.theme")} (Light)` : `${$t("layout.theme")} (Dark)`;
+});
 
 const resetRotateState = () => {
   if (rotateTimer !== null) {
-    window.clearTimeout(rotateTimer)
-    rotateTimer = null
+    window.clearTimeout(rotateTimer);
+    rotateTimer = null;
   }
-  isRotating.value = false
-}
+  isRotating.value = false;
+};
 
 const handleThemeToggle = (event: MouseEvent) => {
-  resetRotateState()
-  isRotating.value = true
+  resetRotateState();
+  isRotating.value = true;
   rotateTimer = window.setTimeout(() => {
-    isRotating.value = false
-    rotateTimer = null
-  }, 620)
+    isRotating.value = false;
+    rotateTimer = null;
+  }, 620);
 
-  themeStore.setTheme(themeStore.isDark ? 'light' : 'dark', {
+  themeStore.setTheme(themeStore.isDark ? "light" : "dark", {
     origin: {
       x: event.clientX,
-      y: event.clientY
-    }
-  })
-}
+      y: event.clientY,
+    },
+  });
+};
 
-onBeforeUnmount(resetRotateState)
+onBeforeUnmount(resetRotateState);
 </script>
 
 <style scoped lang="scss">
@@ -68,7 +68,9 @@ onBeforeUnmount(resetRotateState)
   justify-content: center;
   opacity: 0;
   transform: scale(0.85);
-  transition: opacity 0.22s ease, transform 0.3s ease;
+  transition:
+    opacity 0.22s ease,
+    transform 0.3s ease;
 }
 
 .theme-icon.active {

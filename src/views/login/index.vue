@@ -16,16 +16,11 @@
           <img :src="logoImg" alt="Logo" class="logo" />
         </div>
         <p class="eyebrow">Antdv Next Admin</p>
-        <h1 class="title">{{ $t('login.title') }}</h1>
+        <h1 class="title">{{ $t("login.title") }}</h1>
         <p class="subtitle">Secure workspace entrance</p>
       </div>
 
-      <a-form
-        :model="formState"
-        :rules="rules"
-        @finish="handleSubmit"
-        class="login-form"
-      >
+      <a-form :model="formState" :rules="rules" @finish="handleSubmit" class="login-form">
         <a-form-item name="username">
           <a-input
             v-model:value="formState.username"
@@ -63,7 +58,7 @@
 
         <a-form-item>
           <a-checkbox v-model:checked="formState.remember">
-            {{ $t('login.remember') }}
+            {{ $t("login.remember") }}
           </a-checkbox>
         </a-form-item>
 
@@ -76,18 +71,18 @@
             :loading="loading"
             :disabled="!captchaVerified"
           >
-            {{ $t('login.login') }}
+            {{ $t("login.login") }}
           </a-button>
         </a-form-item>
       </a-form>
 
       <div class="login-tips">
         <p>
-          <span>{{ $t('login.username') }}</span>
+          <span>{{ $t("login.username") }}</span>
           <code>admin / user</code>
         </p>
         <p>
-          <span>{{ $t('login.password') }}</span>
+          <span>{{ $t("login.password") }}</span>
           <code>123456</code>
         </p>
       </div>
@@ -96,62 +91,63 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { UserOutlined, LockOutlined } from '@antdv-next/icons'
-import { useAuthStore } from '@/stores/auth'
-import { message } from 'antdv-next'
-import { $t } from '@/locales'
-import ThemeToggle from '@/components/Layout/ThemeToggle.vue'
-import LanguageSwitch from '@/components/Layout/LanguageSwitch.vue'
-import { SliderCaptcha } from '@/components/Captcha'
-import logoImg from '@/assets/images/logo.png'
+import { reactive, ref } from "vue";
+import { useRouter } from "vue-router";
+import { UserOutlined, LockOutlined } from "@antdv-next/icons";
+import { useAuthStore } from "@/stores/auth";
+import { message } from "antdv-next";
+import { $t } from "@/locales";
+import ThemeToggle from "@/components/Layout/ThemeToggle.vue";
+import LanguageSwitch from "@/components/Layout/LanguageSwitch.vue";
+import { SliderCaptcha } from "@/components/Captcha";
+import logoImg from "@/assets/images/logo.png";
 
-const router = useRouter()
-const authStore = useAuthStore()
+const router = useRouter();
+const authStore = useAuthStore();
 
-const loading = ref(false)
-const captchaVerified = ref(false)
-const captchaRef = ref<InstanceType<typeof SliderCaptcha>>()
+const loading = ref(false);
+const captchaVerified = ref(false);
+const captchaRef = ref<InstanceType<typeof SliderCaptcha>>();
 const formState = reactive({
-  username: 'admin',
-  password: '123456',
-  remember: false
-})
+  username: "admin",
+  password: "123456",
+  remember: false,
+});
 
 const rules = {
-  username: [{ required: true, message: $t('login.usernameRequired') }],
-  password: [{ required: true, message: $t('login.passwordRequired') }]
-}
+  username: [{ required: true, message: $t("login.usernameRequired") }],
+  password: [{ required: true, message: $t("login.passwordRequired") }],
+};
 
 const onCaptchaSuccess = () => {
-  captchaVerified.value = true
-}
+  captchaVerified.value = true;
+};
 
 const onCaptchaFail = () => {
-  captchaVerified.value = false
-}
+  captchaVerified.value = false;
+};
 
 const handleSubmit = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    await authStore.login(formState.username, formState.password)
-    message.success($t('login.loginSuccess'))
-    router.push('/')
+    await authStore.login(formState.username, formState.password);
+    message.success($t("login.loginSuccess"));
+    router.push("/");
   } catch (error: any) {
-    message.error(error.message || $t('login.loginFailed'))
-    captchaVerified.value = false
-    captchaRef.value?.reset()
+    message.error(error.message || $t("login.loginFailed"));
+    captchaVerified.value = false;
+    captchaRef.value?.reset();
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 </script>
 
 <style scoped lang="scss">
 .login-shell {
-  --login-font-family: 'Outfit', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --login-bg: radial-gradient(circle at 10% 20%, rgba(67, 160, 255, 0.35), transparent 46%),
+  --login-font-family: "Outfit", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --login-bg:
+    radial-gradient(circle at 10% 20%, rgba(67, 160, 255, 0.35), transparent 46%),
     radial-gradient(circle at 92% 15%, rgba(122, 214, 255, 0.36), transparent 44%),
     radial-gradient(circle at 85% 88%, rgba(90, 136, 255, 0.24), transparent 36%),
     linear-gradient(132deg, #e8f5ff 0%, #cfe8ff 42%, #b9e0ff 100%);
@@ -195,7 +191,11 @@ const handleSubmit = async () => {
     height: 420px;
     left: -160px;
     top: -120px;
-    background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.88), rgba(80, 174, 255, 0.22));
+    background: radial-gradient(
+      circle at 35% 35%,
+      rgba(255, 255, 255, 0.88),
+      rgba(80, 174, 255, 0.22)
+    );
   }
 
   .ambient-right {
@@ -203,7 +203,11 @@ const handleSubmit = async () => {
     height: 460px;
     right: -170px;
     top: -90px;
-    background: radial-gradient(circle at 45% 45%, rgba(210, 243, 255, 0.9), rgba(105, 173, 255, 0.2));
+    background: radial-gradient(
+      circle at 45% 45%,
+      rgba(210, 243, 255, 0.9),
+      rgba(105, 173, 255, 0.2)
+    );
     animation-delay: -2.2s;
   }
 
@@ -212,7 +216,11 @@ const handleSubmit = async () => {
     height: 500px;
     right: 12%;
     bottom: -300px;
-    background: radial-gradient(circle at 45% 30%, rgba(167, 210, 255, 0.4), rgba(134, 170, 255, 0.08));
+    background: radial-gradient(
+      circle at 45% 30%,
+      rgba(167, 210, 255, 0.4),
+      rgba(134, 170, 255, 0.08)
+    );
     animation-delay: -4.5s;
   }
 
@@ -404,7 +412,8 @@ const handleSubmit = async () => {
         border-radius: 12px;
         border-color: var(--login-input-border);
         background: var(--login-input-bg);
-        transition: border-color var(--duration-base) var(--ease-out),
+        transition:
+          border-color var(--duration-base) var(--ease-out),
           background var(--duration-base) var(--ease-out);
       }
 
@@ -433,14 +442,17 @@ const handleSubmit = async () => {
         box-shadow: 0 2px 8px rgba(47, 132, 255, 0.15);
         color: rgba(47, 132, 255, 0.8);
         font-weight: 600;
-        transition: background var(--duration-base) var(--ease-out),
+        transition:
+          background var(--duration-base) var(--ease-out),
           border-color var(--duration-base) var(--ease-out),
           box-shadow var(--duration-base) var(--ease-out),
           color var(--duration-base) var(--ease-out);
 
         &:hover {
           border-color: rgba(47, 132, 255, 0.6);
-          box-shadow: 0 0 0 3px rgba(47, 132, 255, 0.12), 0 2px 8px rgba(47, 132, 255, 0.2);
+          box-shadow:
+            0 0 0 3px rgba(47, 132, 255, 0.12),
+            0 2px 8px rgba(47, 132, 255, 0.2);
           color: rgba(47, 132, 255, 1);
         }
 
@@ -496,7 +508,8 @@ const handleSubmit = async () => {
 }
 
 :root.dark .login-shell {
-  --login-bg: radial-gradient(circle at 12% 18%, rgba(80, 140, 255, 0.34), transparent 44%),
+  --login-bg:
+    radial-gradient(circle at 12% 18%, rgba(80, 140, 255, 0.34), transparent 44%),
     radial-gradient(circle at 88% 12%, rgba(48, 191, 255, 0.22), transparent 34%),
     radial-gradient(circle at 80% 85%, rgba(119, 80, 255, 0.2), transparent 35%),
     linear-gradient(130deg, #060b18 0%, #0a1327 48%, #101c33 100%);
@@ -513,15 +526,27 @@ const handleSubmit = async () => {
 
 :root.dark .login-shell {
   .ambient-left {
-    background: radial-gradient(circle at 38% 36%, rgba(91, 163, 255, 0.4), rgba(42, 94, 198, 0.08));
+    background: radial-gradient(
+      circle at 38% 36%,
+      rgba(91, 163, 255, 0.4),
+      rgba(42, 94, 198, 0.08)
+    );
   }
 
   .ambient-right {
-    background: radial-gradient(circle at 45% 45%, rgba(61, 213, 255, 0.34), rgba(64, 102, 210, 0.08));
+    background: radial-gradient(
+      circle at 45% 45%,
+      rgba(61, 213, 255, 0.34),
+      rgba(64, 102, 210, 0.08)
+    );
   }
 
   .ambient-bottom {
-    background: radial-gradient(circle at 45% 30%, rgba(112, 136, 255, 0.35), rgba(62, 72, 130, 0.08));
+    background: radial-gradient(
+      circle at 45% 30%,
+      rgba(112, 136, 255, 0.35),
+      rgba(62, 72, 130, 0.08)
+    );
   }
 
   .login-tools {
@@ -552,7 +577,9 @@ const handleSubmit = async () => {
 
         &:hover {
           border-color: rgba(47, 132, 255, 0.65);
-          box-shadow: 0 0 0 3px rgba(47, 132, 255, 0.15), 0 2px 8px rgba(47, 132, 255, 0.25);
+          box-shadow:
+            0 0 0 3px rgba(47, 132, 255, 0.15),
+            0 2px 8px rgba(47, 132, 255, 0.25);
         }
 
         &:active {

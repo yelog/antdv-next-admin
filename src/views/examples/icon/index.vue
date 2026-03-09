@@ -14,7 +14,16 @@
       </symbol>
 
       <symbol id="icon-demo-pulse" viewBox="0 0 1024 1024">
-        <rect x="176" y="176" width="672" height="672" rx="156" fill="none" stroke="currentColor" stroke-width="68" />
+        <rect
+          x="176"
+          y="176"
+          width="672"
+          height="672"
+          rx="156"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="68"
+        />
         <path
           d="M224 552h160l90-188 96 292 76-148h152"
           fill="none"
@@ -36,20 +45,20 @@
 
     <section class="card intro-card">
       <div class="intro-main">
-        <h2 class="intro-title">{{ $t('exampleIcon.title') }}</h2>
-        <p class="intro-subtitle">{{ $t('exampleIcon.subtitle') }}</p>
+        <h2 class="intro-title">{{ $t("exampleIcon.title") }}</h2>
+        <p class="intro-subtitle">{{ $t("exampleIcon.subtitle") }}</p>
       </div>
-      <p class="intro-capability">{{ $t('exampleIcon.capabilities') }}</p>
+      <p class="intro-capability">{{ $t("exampleIcon.capabilities") }}</p>
     </section>
 
     <section class="card">
       <div class="section-head">
-        <h3>{{ $t('exampleIcon.renderTitle') }}</h3>
-        <p>{{ $t('exampleIcon.renderSubtitle') }}</p>
+        <h3>{{ $t("exampleIcon.renderTitle") }}</h3>
+        <p>{{ $t("exampleIcon.renderSubtitle") }}</p>
       </div>
 
       <div class="sample-hint">
-        <a-tag color="blue">{{ $t('exampleIcon.sampleHint') }}</a-tag>
+        <a-tag color="blue">{{ $t("exampleIcon.sampleHint") }}</a-tag>
       </div>
 
       <div class="samples-layout">
@@ -83,27 +92,27 @@
 
     <section class="card">
       <div class="section-head">
-        <h3>{{ $t('exampleIcon.guidesTitle') }}</h3>
-        <p>{{ $t('exampleIcon.guidesSubtitle') }}</p>
+        <h3>{{ $t("exampleIcon.guidesTitle") }}</h3>
+        <p>{{ $t("exampleIcon.guidesSubtitle") }}</p>
       </div>
 
       <div class="guide-grid">
         <article class="guide-card">
-          <h4>{{ $t('exampleIcon.svgGuideTitle') }}</h4>
+          <h4>{{ $t("exampleIcon.svgGuideTitle") }}</h4>
           <ol>
-            <li>{{ $t('exampleIcon.guideStepSvg1') }}</li>
-            <li>{{ $t('exampleIcon.guideStepSvg2') }}</li>
-            <li>{{ $t('exampleIcon.guideStepSvg3') }}</li>
+            <li>{{ $t("exampleIcon.guideStepSvg1") }}</li>
+            <li>{{ $t("exampleIcon.guideStepSvg2") }}</li>
+            <li>{{ $t("exampleIcon.guideStepSvg3") }}</li>
           </ol>
           <pre><code>{{ svgGuideCode }}</code></pre>
         </article>
 
         <article class="guide-card">
-          <h4>{{ $t('exampleIcon.iconifyGuideTitle') }}</h4>
+          <h4>{{ $t("exampleIcon.iconifyGuideTitle") }}</h4>
           <ol>
-            <li>{{ $t('exampleIcon.guideStepIconify1') }}</li>
-            <li>{{ $t('exampleIcon.guideStepIconify2') }}</li>
-            <li>{{ $t('exampleIcon.guideStepIconify3') }}</li>
+            <li>{{ $t("exampleIcon.guideStepIconify1") }}</li>
+            <li>{{ $t("exampleIcon.guideStepIconify2") }}</li>
+            <li>{{ $t("exampleIcon.guideStepIconify3") }}</li>
           </ol>
           <pre><code>{{ iconifyGuideCode }}</code></pre>
         </article>
@@ -112,8 +121,8 @@
 
     <section class="card picker-card">
       <div class="section-head">
-        <h3>{{ $t('exampleIcon.pickerTitle') }}</h3>
-        <p>{{ $t('exampleIcon.pickerSubtitle') }}</p>
+        <h3>{{ $t("exampleIcon.pickerTitle") }}</h3>
+        <p>{{ $t("exampleIcon.pickerSubtitle") }}</p>
       </div>
 
       <div class="picker-shell">
@@ -130,11 +139,11 @@
           <a-space :size="10" wrap>
             <a-button type="primary" @click="copyIconValue">
               <CopyOutlined />
-              {{ $t('exampleIcon.copy') }}
+              {{ $t("exampleIcon.copy") }}
             </a-button>
             <a-button @click="resetIconValue">
               <ReloadOutlined />
-              {{ $t('exampleIcon.reset') }}
+              {{ $t("exampleIcon.reset") }}
             </a-button>
           </a-space>
         </div>
@@ -148,7 +157,7 @@
             <div class="hero-info">
               <div class="hero-value">{{ activeIcon }}</div>
               <a-space :size="8" wrap>
-                <a-tag color="blue">{{ $t('exampleIcon.sourceLabel') }}</a-tag>
+                <a-tag color="blue">{{ $t("exampleIcon.sourceLabel") }}</a-tag>
                 <a-tag>{{ activeSourceText }}</a-tag>
               </a-space>
             </div>
@@ -156,12 +165,12 @@
 
           <div class="preview-fields">
             <div class="preview-field">
-              <label>{{ $t('exampleIcon.modelLabel') }}</label>
+              <label>{{ $t("exampleIcon.modelLabel") }}</label>
               <a-input :value="activeIcon" readonly />
             </div>
 
             <div class="preview-field">
-              <label>{{ $t('exampleIcon.previewLabel') }}</label>
+              <label>{{ $t("exampleIcon.previewLabel") }}</label>
               <div class="preview-inline">
                 <IconView :icon="activeIcon" :size="20" />
                 <span>{{ activeIcon }}</span>
@@ -175,127 +184,128 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { CopyOutlined, ReloadOutlined } from '@antdv-next/icons'
-import { message } from 'antdv-next'
-import { $t } from '@/locales'
-import IconView from '@/components/Icon/index.vue'
-import IconPicker from '@/components/IconPicker/index.vue'
+import { computed, ref } from "vue";
+import { CopyOutlined, ReloadOutlined } from "@antdv-next/icons";
+import { message } from "antdv-next";
+import { $t } from "@/locales";
+import IconView from "@/components/Icon/index.vue";
+import IconPicker from "@/components/IconPicker/index.vue";
 
-const svgOrbitId = 'icon-demo-orbit'
-const svgPulseId = 'icon-demo-pulse'
-const svgSparkId = 'icon-demo-spark'
-const svgSymbolNames = [svgOrbitId, svgPulseId, svgSparkId]
+const svgOrbitId = "icon-demo-orbit";
+const svgPulseId = "icon-demo-pulse";
+const svgSparkId = "icon-demo-spark";
+const svgSymbolNames = [svgOrbitId, svgPulseId, svgSparkId];
 
-const defaultIcon = 'ri:map-pin-time-line'
-const pickedIcon = ref(defaultIcon)
+const defaultIcon = "ri:map-pin-time-line";
+const pickedIcon = ref(defaultIcon);
 
-const activeIcon = computed(() => pickedIcon.value || defaultIcon)
+const activeIcon = computed(() => pickedIcon.value || defaultIcon);
 
 const activeSourceText = computed(() => {
-  const value = activeIcon.value.trim()
-  if (value.startsWith('svg:')) return $t('exampleIcon.sourceSvg')
-  if (value.startsWith('antdv-next:') || value.startsWith('antd:')) return $t('exampleIcon.sourceAntdv')
-  if (value.startsWith('ri:') || value.startsWith('mdi:') || value.startsWith('ion:')) {
-    return $t('exampleIcon.sourceIconify')
+  const value = activeIcon.value.trim();
+  if (value.startsWith("svg:")) return $t("exampleIcon.sourceSvg");
+  if (value.startsWith("antdv-next:") || value.startsWith("antd:"))
+    return $t("exampleIcon.sourceAntdv");
+  if (value.startsWith("ri:") || value.startsWith("mdi:") || value.startsWith("ion:")) {
+    return $t("exampleIcon.sourceIconify");
   }
-  if (value.includes(':')) return $t('exampleIcon.sourceOnline')
-  return $t('exampleIcon.sourceUnknown')
-})
+  if (value.includes(":")) return $t("exampleIcon.sourceOnline");
+  return $t("exampleIcon.sourceUnknown");
+});
 
 const showcaseGroups = computed(() => [
   {
-    key: 'svg',
-    label: $t('exampleIcon.modeSvg'),
-    tag: 'svg',
-    color: '#f59e0b',
+    key: "svg",
+    label: $t("exampleIcon.modeSvg"),
+    tag: "svg",
+    color: "#f59e0b",
     items: [
-      { icon: `svg:${svgOrbitId}`, name: 'orbit' },
-      { icon: `svg:${svgPulseId}`, name: 'pulse' },
-      { icon: `svg:${svgSparkId}`, name: 'spark' }
-    ]
+      { icon: `svg:${svgOrbitId}`, name: "orbit" },
+      { icon: `svg:${svgPulseId}`, name: "pulse" },
+      { icon: `svg:${svgSparkId}`, name: "spark" },
+    ],
   },
   {
-    key: 'antdv',
-    label: $t('exampleIcon.modeAntdv'),
-    tag: 'antdv-next',
-    color: '#1677ff',
+    key: "antdv",
+    label: $t("exampleIcon.modeAntdv"),
+    tag: "antdv-next",
+    color: "#1677ff",
     items: [
-      { icon: 'antdv-next:HomeOutlined', name: 'HomeOutlined' },
-      { icon: 'antdv-next:AppstoreOutlined', name: 'AppstoreOutlined' },
-      { icon: 'antdv-next:SettingOutlined', name: 'SettingOutlined' },
-      { icon: 'antdv-next:BellOutlined', name: 'BellOutlined' },
-      { icon: 'antdv-next:SafetyOutlined', name: 'SafetyOutlined' }
-    ]
+      { icon: "antdv-next:HomeOutlined", name: "HomeOutlined" },
+      { icon: "antdv-next:AppstoreOutlined", name: "AppstoreOutlined" },
+      { icon: "antdv-next:SettingOutlined", name: "SettingOutlined" },
+      { icon: "antdv-next:BellOutlined", name: "BellOutlined" },
+      { icon: "antdv-next:SafetyOutlined", name: "SafetyOutlined" },
+    ],
   },
   {
-    key: 'iconify',
-    label: $t('exampleIcon.modeIconify'),
-    tag: 'iconify',
-    color: '#10b981',
+    key: "iconify",
+    label: $t("exampleIcon.modeIconify"),
+    tag: "iconify",
+    color: "#10b981",
     items: [
-      { icon: 'ri:map-pin-time-line', name: 'ri:map-pin-time-line' },
-      { icon: 'ri:compass-3-line', name: 'ri:compass-3-line' },
-      { icon: 'mdi:account-circle-outline', name: 'mdi:account-circle-outline' },
-      { icon: 'mdi:email-outline', name: 'mdi:email-outline' },
-      { icon: 'ion:planet-outline', name: 'ion:planet-outline' }
-    ]
-  }
-])
+      { icon: "ri:map-pin-time-line", name: "ri:map-pin-time-line" },
+      { icon: "ri:compass-3-line", name: "ri:compass-3-line" },
+      { icon: "mdi:account-circle-outline", name: "mdi:account-circle-outline" },
+      { icon: "mdi:email-outline", name: "mdi:email-outline" },
+      { icon: "ion:planet-outline", name: "ion:planet-outline" },
+    ],
+  },
+]);
 
 const svgGuideCode = `<svg aria-hidden="true" style="position:absolute;width:0;height:0">
   <symbol id="icon-demo-orbit" viewBox="0 0 1024 1024">...</symbol>
 </svg>
 
-<IconView icon="svg:icon-demo-orbit" :size="20" />`
+<IconView icon="svg:icon-demo-orbit" :size="20" />`;
 
 const iconifyGuideCode = `<IconView icon="ri:home-line" :size="20" />
 <IconView icon="mdi:account-circle-outline" :size="20" />
 
-<IconPicker v-model="iconValue" />`
+<IconPicker v-model="iconValue" />`;
 
 const applyExampleIcon = (icon: string) => {
-  pickedIcon.value = icon
-}
+  pickedIcon.value = icon;
+};
 
 const copyFallback = (value: string) => {
-  const textarea = document.createElement('textarea')
-  textarea.value = value
-  textarea.style.position = 'fixed'
-  textarea.style.left = '-9999px'
-  document.body.appendChild(textarea)
-  textarea.select()
-  document.execCommand('copy')
-  document.body.removeChild(textarea)
-}
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+};
 
 const copyIconValue = async () => {
-  const value = activeIcon.value.trim()
+  const value = activeIcon.value.trim();
   if (!value) {
-    message.warning($t('exampleIcon.copyEmpty'))
-    return
+    message.warning($t("exampleIcon.copyEmpty"));
+    return;
   }
 
   try {
     if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(value)
+      await navigator.clipboard.writeText(value);
     } else {
-      copyFallback(value)
+      copyFallback(value);
     }
-    message.success($t('exampleIcon.copySuccess'))
+    message.success($t("exampleIcon.copySuccess"));
   } catch (error) {
     try {
-      copyFallback(value)
-      message.success($t('exampleIcon.copySuccess'))
+      copyFallback(value);
+      message.success($t("exampleIcon.copySuccess"));
     } catch {
-      message.error($t('exampleIcon.copyFailed'))
+      message.error($t("exampleIcon.copyFailed"));
     }
   }
-}
+};
 
 const resetIconValue = () => {
-  pickedIcon.value = defaultIcon
-}
+  pickedIcon.value = defaultIcon;
+};
 </script>
 
 <style scoped lang="scss">
@@ -380,7 +390,11 @@ const resetIconValue = () => {
 .group-card {
   border: 1px solid color-mix(in srgb, var(--group-color), var(--color-border-secondary) 72%);
   border-radius: 12px;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--group-color), var(--color-bg-container) 90%) 0%, var(--color-bg-container) 55%);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--group-color), var(--color-bg-container) 90%) 0%,
+    var(--color-bg-container) 55%
+  );
   padding: 12px;
 }
 

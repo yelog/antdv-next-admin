@@ -1,52 +1,52 @@
-export type ProTableDensity = 'large' | 'middle' | 'small' | 'smal'
-export type ProTableHeight = '100%' | 'auto' | string | number
+export type ProTableDensity = "large" | "middle" | "small" | "smal";
+export type ProTableHeight = "100%" | "auto" | string | number;
 
 export interface ProTableDefaultSettings {
-  size: ProTableDensity
-  height: ProTableHeight
-  resizable: boolean
-  columnResizable: boolean
-  ellipsis: boolean
-  bordered: boolean
-  fixedHeader: boolean
+  size: ProTableDensity;
+  height: ProTableHeight;
+  resizable: boolean;
+  columnResizable: boolean;
+  ellipsis: boolean;
+  bordered: boolean;
+  fixedHeader: boolean;
 }
 
 export interface InputDefaultSettings {
-  allowClear: boolean
+  allowClear: boolean;
 }
 
 export interface SelectDefaultSettings {
-  allowClear: boolean
+  allowClear: boolean;
 }
 
 export interface DatePickerDefaultSettings {
-  allowClear: boolean
+  allowClear: boolean;
 }
 
 export interface AppDefaultSettings {
-  proTable: ProTableDefaultSettings
-  input: InputDefaultSettings
-  select: SelectDefaultSettings
-  datePicker: DatePickerDefaultSettings
+  proTable: ProTableDefaultSettings;
+  input: InputDefaultSettings;
+  select: SelectDefaultSettings;
+  datePicker: DatePickerDefaultSettings;
 }
 
 export const appDefaultSettings: AppDefaultSettings = {
   proTable: {
-    size: 'smal',
-    height: 'auto',
+    size: "smal",
+    height: "auto",
     resizable: true,
     columnResizable: true,
     ellipsis: true,
     bordered: true,
-    fixedHeader: true
+    fixedHeader: true,
   },
   input: {
-    allowClear: true
+    allowClear: true,
   },
   select: {
-    allowClear: true
+    allowClear: true,
   },
   datePicker: {
-    allowClear: true
-  }
-}
+    allowClear: true,
+  },
+};

@@ -1,71 +1,71 @@
 <template>
-  <div class="milkdown-editor" :class="{ 'dark': isDark }">
+  <div class="milkdown-editor" :class="{ dark: isDark }">
     <div ref="editorRef" class="milkdown-container" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { Editor, rootCtx, defaultValueCtx, editorViewOptionsCtx } from '@milkdown/core'
-import { nord } from '@milkdown/theme-nord'
-import { commonmark } from '@milkdown/preset-commonmark'
-import { gfm } from '@milkdown/preset-gfm'
-import { history } from '@milkdown/plugin-history'
-import { clipboard } from '@milkdown/plugin-clipboard'
-import { listener, listenerCtx } from '@milkdown/plugin-listener'
-import { prism } from '@milkdown/plugin-prism'
+import { ref, onMounted, onUnmounted, watch } from "vue";
+import { Editor, rootCtx, defaultValueCtx, editorViewOptionsCtx } from "@milkdown/core";
+import { nord } from "@milkdown/theme-nord";
+import { commonmark } from "@milkdown/preset-commonmark";
+import { gfm } from "@milkdown/preset-gfm";
+import { history } from "@milkdown/plugin-history";
+import { clipboard } from "@milkdown/plugin-clipboard";
+import { listener, listenerCtx } from "@milkdown/plugin-listener";
+import { prism } from "@milkdown/plugin-prism";
 
 interface Props {
-  modelValue?: string
-  placeholder?: string
-  readonly?: boolean
-  height?: number | string
+  modelValue?: string;
+  placeholder?: string;
+  readonly?: boolean;
+  height?: number | string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: '',
-  placeholder: '',
+  modelValue: "",
+  placeholder: "",
   readonly: false,
-  height: 400
-})
+  height: 400,
+});
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string]
-  'change': [value: string]
-}>()
+  "update:modelValue": [value: string];
+  change: [value: string];
+}>();
 
-const editorRef = ref<HTMLElement>()
-const editorInstance = ref<Editor>()
-const isDark = ref(false)
+const editorRef = ref<HTMLElement>();
+const editorInstance = ref<Editor>();
+const isDark = ref(false);
 
 // 检测暗色主题
 const checkDarkTheme = () => {
-  isDark.value = document.documentElement.classList.contains('dark')
-}
+  isDark.value = document.documentElement.classList.contains("dark");
+};
 
 onMounted(async () => {
-  if (!editorRef.value) return
-  
-  checkDarkTheme()
-  
+  if (!editorRef.value) return;
+
+  checkDarkTheme();
+
   const editor = await Editor.make()
     .config((ctx) => {
-      ctx.set(rootCtx, editorRef.value)
-      ctx.set(defaultValueCtx, props.modelValue)
-      
+      ctx.set(rootCtx, editorRef.value);
+      ctx.set(defaultValueCtx, props.modelValue);
+
       // 配置编辑器视图
       ctx.update(editorViewOptionsCtx, (prev) => ({
         ...prev,
-        editable: () => !props.readonly
-      }))
-      
+        editable: () => !props.readonly,
+      }));
+
       // 监听内容变化
       ctx.get(listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
         if (markdown !== prevMarkdown) {
-          emit('update:modelValue', markdown)
-          emit('change', markdown)
+          emit("update:modelValue", markdown);
+          emit("change", markdown);
         }
-      })
+      });
     })
     .use(nord)
     .use(commonmark)
@@ -74,38 +74,48 @@ onMounted(async () => {
     .use(clipboard)
     .use(listener)
     .use(prism)
-    .create()
-  
-  editorInstance.value = editor
-})
+    .create();
+
+  editorInstance.value = editor;
+});
 
 onUnmounted(() => {
-  editorInstance.value?.destroy()
-})
+  editorInstance.value?.destroy();
+});
 
 // 监听外部值变化
-watch(() => props.modelValue, (newValue) => {
-  if (editorInstance.value && newValue !== editorInstance.value.action((ctx) => {
-    return ctx.get(defaultValueCtx)
-  })) {
-    editorInstance.value.action((ctx) => {
-      const view = ctx.editorView
-      const state = view.state
-      const tr = state.tr.replaceWith(0, state.doc.content.size, state.schema.text(newValue))
-      view.dispatch(tr)
-    })
-  }
-})
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (
+      editorInstance.value &&
+      newValue !==
+        editorInstance.value.action((ctx) => {
+          return ctx.get(defaultValueCtx);
+        })
+    ) {
+      editorInstance.value.action((ctx) => {
+        const view = ctx.editorView;
+        const state = view.state;
+        const tr = state.tr.replaceWith(0, state.doc.content.size, state.schema.text(newValue));
+        view.dispatch(tr);
+      });
+    }
+  },
+);
 
 // 监听只读状态
-watch(() => props.readonly, (readonly) => {
-  editorInstance.value?.action((ctx) => {
-    ctx.update(editorViewOptionsCtx, (prev) => ({
-      ...prev,
-      editable: () => !readonly
-    }))
-  })
-})
+watch(
+  () => props.readonly,
+  (readonly) => {
+    editorInstance.value?.action((ctx) => {
+      ctx.update(editorViewOptionsCtx, (prev) => ({
+        ...prev,
+        editable: () => !readonly,
+      }));
+    });
+  },
+);
 </script>
 
 <style scoped lang="scss">
@@ -114,7 +124,7 @@ watch(() => props.readonly, (readonly) => {
   border-radius: var(--radius-base);
   overflow: hidden;
   background: var(--color-bg-container);
-  
+
   &.dark {
     :deep(.milkdown) {
       --nord0: #2e3440;
@@ -140,44 +150,62 @@ watch(() => props.readonly, (readonly) => {
 .milkdown-container {
   :deep(.milkdown) {
     padding: 16px;
-    min-height: v-bind(height + 'px');
-    
+    min-height: v-bind(height + "px");
+
     // 编辑器样式覆盖
     .editor {
       min-height: inherit;
       outline: none;
     }
-    
+
     // 段落
     p {
       margin: 0.75em 0;
       line-height: 1.6;
     }
-    
+
     // 标题
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       margin: 1em 0 0.5em;
       font-weight: 600;
       line-height: 1.25;
     }
-    
-    h1 { font-size: 2em; }
-    h2 { font-size: 1.5em; }
-    h3 { font-size: 1.25em; }
-    h4 { font-size: 1em; }
-    h5 { font-size: 0.875em; }
-    h6 { font-size: 0.85em; }
-    
+
+    h1 {
+      font-size: 2em;
+    }
+    h2 {
+      font-size: 1.5em;
+    }
+    h3 {
+      font-size: 1.25em;
+    }
+    h4 {
+      font-size: 1em;
+    }
+    h5 {
+      font-size: 0.875em;
+    }
+    h6 {
+      font-size: 0.85em;
+    }
+
     // 列表
-    ul, ol {
+    ul,
+    ol {
       padding-left: 1.5em;
       margin: 0.75em 0;
     }
-    
+
     li {
       margin: 0.25em 0;
     }
-    
+
     // 引用
     blockquote {
       border-left: 4px solid var(--color-primary);
@@ -186,80 +214,81 @@ watch(() => props.readonly, (readonly) => {
       color: var(--color-text-secondary);
       font-style: italic;
     }
-    
+
     // 代码
     code {
       background: var(--color-bg-layout);
       padding: 0.2em 0.4em;
       border-radius: 3px;
       font-size: 0.9em;
-      font-family: 'Courier New', monospace;
+      font-family: "Courier New", monospace;
     }
-    
+
     pre {
       background: var(--color-bg-layout);
       padding: 1em;
       border-radius: var(--radius-base);
       overflow-x: auto;
       margin: 1em 0;
-      
+
       code {
         background: none;
         padding: 0;
       }
     }
-    
+
     // 链接
     a {
       color: var(--color-primary);
       text-decoration: none;
-      
+
       &:hover {
         text-decoration: underline;
       }
     }
-    
+
     // 图片
     img {
       max-width: 100%;
       height: auto;
       border-radius: var(--radius-base);
     }
-    
+
     // 表格
     table {
       width: 100%;
       border-collapse: collapse;
       margin: 1em 0;
-      
-      th, td {
+
+      th,
+      td {
         border: 1px solid var(--color-border);
         padding: 8px 12px;
         text-align: left;
       }
-      
+
       th {
         background: var(--color-bg-layout);
         font-weight: 600;
       }
     }
-    
+
     // 分割线
     hr {
       border: none;
       border-top: 1px solid var(--color-border);
       margin: 1.5em 0;
     }
-    
+
     // 任务列表
     .task-list-item {
       list-style: none;
-      
+
       input {
         margin-right: 0.5em;
       }
     }
-    
+
     // 选中样式
     ::selection {
       background: var(--color-primary-deprecated-l-35);

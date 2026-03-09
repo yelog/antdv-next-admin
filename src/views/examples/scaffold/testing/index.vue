@@ -1,32 +1,37 @@
 <template>
   <div class="page-container">
     <div class="card mb-lg">
-      <h2>{{ $t('examples.scaffold.testing.title') }}</h2>
-      <p class="text-secondary">{{ $t('examples.scaffold.testing.description') }}</p>
+      <h2>{{ $t("examples.scaffold.testing.title") }}</h2>
+      <p class="text-secondary">{{ $t("examples.scaffold.testing.description") }}</p>
 
-      <a-alert
-        type="info"
-        show-icon
-        :message="$t('examples.scaffold.testing.alertMessage')"
-      />
+      <a-alert type="info" show-icon :message="$t('examples.scaffold.testing.alertMessage')" />
     </div>
 
     <div class="card mb-lg">
-      <div class="section-title">{{ $t('examples.scaffold.testing.unitTestTitle') }}</div>
+      <div class="section-title">{{ $t("examples.scaffold.testing.unitTestTitle") }}</div>
       <pre class="code-block"><code>{{ unitCode }}</code></pre>
     </div>
 
     <div class="card mb-lg">
-      <div class="section-title">{{ $t('examples.scaffold.testing.e2eTestTitle') }}</div>
+      <div class="section-title">{{ $t("examples.scaffold.testing.e2eTestTitle") }}</div>
       <pre class="code-block"><code>{{ e2eCode }}</code></pre>
     </div>
 
     <div class="card">
-      <div class="section-title">{{ $t('examples.scaffold.testing.implementationTitle') }}</div>
+      <div class="section-title">{{ $t("examples.scaffold.testing.implementationTitle") }}</div>
       <a-steps direction="vertical" size="small">
-        <a-step :title="$t('examples.scaffold.testing.step1Title')" :description="$t('examples.scaffold.testing.step1Description')" />
-        <a-step :title="$t('examples.scaffold.testing.step2Title')" :description="$t('examples.scaffold.testing.step2Description')" />
-        <a-step :title="$t('examples.scaffold.testing.step3Title')" :description="$t('examples.scaffold.testing.step3Description')" />
+        <a-step
+          :title="$t('examples.scaffold.testing.step1Title')"
+          :description="$t('examples.scaffold.testing.step1Description')"
+        />
+        <a-step
+          :title="$t('examples.scaffold.testing.step2Title')"
+          :description="$t('examples.scaffold.testing.step2Description')"
+        />
+        <a-step
+          :title="$t('examples.scaffold.testing.step3Title')"
+          :description="$t('examples.scaffold.testing.step3Description')"
+        />
       </a-steps>
     </div>
   </div>
@@ -47,7 +52,7 @@ describe('splitKeywords', () => {
   it('should return empty array for empty input', () => {
     expect(splitKeywords('   ')).toEqual([])
   })
-})`
+})`;
 
 const e2eCode = `import { test, expect } from '@playwright/test'
 
@@ -65,7 +70,7 @@ test('login and filter users by keyword', async ({ page }) => {
   await page.getByRole('button', { name: '搜索' }).click()
 
   await expect(page.locator('table')).toContainText('admin')
-})`
+})`;
 </script>
 
 <style scoped lang="scss">

@@ -1,13 +1,19 @@
 <template>
   <div class="page-container">
     <div class="card">
-      <h2>{{ $t('examples.scaffold.uploadSystem.title') }}</h2>
-      <p class="text-secondary mb-lg">{{ $t('examples.scaffold.uploadSystem.description') }}</p>
+      <h2>{{ $t("examples.scaffold.uploadSystem.title") }}</h2>
+      <p class="text-secondary mb-lg">{{ $t("examples.scaffold.uploadSystem.description") }}</p>
 
       <a-space wrap class="mb-md">
-        <a-tag color="processing">{{ $t('examples.scaffold.uploadSystem.uploading') }} {{ uploadingCount }}</a-tag>
-        <a-tag color="success">{{ $t('examples.scaffold.uploadSystem.success') }} {{ doneCount }}</a-tag>
-        <a-tag color="error">{{ $t('examples.scaffold.uploadSystem.failed') }} {{ errorCount }}</a-tag>
+        <a-tag color="processing"
+          >{{ $t("examples.scaffold.uploadSystem.uploading") }} {{ uploadingCount }}</a-tag
+        >
+        <a-tag color="success"
+          >{{ $t("examples.scaffold.uploadSystem.success") }} {{ doneCount }}</a-tag
+        >
+        <a-tag color="error"
+          >{{ $t("examples.scaffold.uploadSystem.failed") }} {{ errorCount }}</a-tag
+        >
       </a-space>
 
       <a-upload-dragger
@@ -22,184 +28,191 @@
         <p class="ant-upload-drag-icon">
           <InboxOutlined />
         </p>
-        <p class="ant-upload-text">{{ $t('examples.scaffold.uploadSystem.dragText') }}</p>
-        <p class="ant-upload-hint">{{ $t('examples.scaffold.uploadSystem.dragHint') }}</p>
+        <p class="ant-upload-text">{{ $t("examples.scaffold.uploadSystem.dragText") }}</p>
+        <p class="ant-upload-hint">{{ $t("examples.scaffold.uploadSystem.dragHint") }}</p>
       </a-upload-dragger>
 
       <div class="toolbar">
         <a-space>
-          <a-button :disabled="errorCount === 0" @click="retryFailed">{{ $t('examples.scaffold.uploadSystem.retryButton') }}</a-button>
-          <a-button danger :disabled="fileList.length === 0" @click="clearAll">{{ $t('examples.scaffold.uploadSystem.clearButton') }}</a-button>
+          <a-button :disabled="errorCount === 0" @click="retryFailed">{{
+            $t("examples.scaffold.uploadSystem.retryButton")
+          }}</a-button>
+          <a-button danger :disabled="fileList.length === 0" @click="clearAll">{{
+            $t("examples.scaffold.uploadSystem.clearButton")
+          }}</a-button>
         </a-space>
-        <div class="text-secondary">{{ $t('examples.scaffold.uploadSystem.failureRate') }}{{ Math.round(failureRate * 100) }}%</div>
+        <div class="text-secondary">
+          {{ $t("examples.scaffold.uploadSystem.failureRate") }}{{ Math.round(failureRate * 100) }}%
+        </div>
       </div>
 
-      <a-slider
-        v-model:value="failureRate"
-        :min="0"
-        :max="0.9"
-        :step="0.05"
-      />
+      <a-slider v-model:value="failureRate" :min="0" :max="0.9" :step="0.05" />
     </div>
 
-    <a-modal
-      v-model:open="previewOpen"
-      :title="previewTitle"
-      :footer="null"
-      width="720px"
-    >
+    <a-modal v-model:open="previewOpen" :title="previewTitle" :footer="null" width="720px">
       <img :src="previewSrc" alt="preview" class="preview-image" />
     </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { InboxOutlined } from '@antdv-next/icons'
-import { message } from 'antdv-next'
-import { $t } from '@/locales'
+import { computed, ref } from "vue";
+import { InboxOutlined } from "@antdv-next/icons";
+import { message } from "antdv-next";
+import { $t } from "@/locales";
 
 type UploadFileItem = {
-  uid: string
-  name: string
-  status?: 'error' | 'success' | 'done' | 'uploading' | 'removed'
-  percent?: number
-  url?: string
-  thumbUrl?: string
-  originFileObj?: File
-}
+  uid: string;
+  name: string;
+  status?: "error" | "success" | "done" | "uploading" | "removed";
+  percent?: number;
+  url?: string;
+  thumbUrl?: string;
+  originFileObj?: File;
+};
 
-const fileList = ref<UploadFileItem[]>([])
-const failureRate = ref(0.25)
+const fileList = ref<UploadFileItem[]>([]);
+const failureRate = ref(0.25);
 
-const previewOpen = ref(false)
-const previewSrc = ref('')
-const previewTitle = ref($t('examples.scaffold.uploadSystem.previewTitle'))
+const previewOpen = ref(false);
+const previewSrc = ref("");
+const previewTitle = ref($t("examples.scaffold.uploadSystem.previewTitle"));
 
-const uploadingCount = computed(() => fileList.value.filter(item => item.status === 'uploading').length)
-const doneCount = computed(() => fileList.value.filter(item => item.status === 'done' || item.status === 'success').length)
-const errorCount = computed(() => fileList.value.filter(item => item.status === 'error').length)
+const uploadingCount = computed(
+  () => fileList.value.filter((item) => item.status === "uploading").length,
+);
+const doneCount = computed(
+  () => fileList.value.filter((item) => item.status === "done" || item.status === "success").length,
+);
+const errorCount = computed(() => fileList.value.filter((item) => item.status === "error").length);
 
 const getBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => resolve(String(reader.result || ''))
-    reader.onerror = reject
-  })
-}
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = reject;
+  });
+};
 
 const markFileState = (uid: string, updater: (item: UploadFileItem) => void) => {
-  const file = fileList.value.find(item => item.uid === uid)
+  const file = fileList.value.find((item) => item.uid === uid);
   if (!file) {
-    return
+    return;
   }
-  updater(file)
-  fileList.value = [...fileList.value]
-}
+  updater(file);
+  fileList.value = [...fileList.value];
+};
 
 const runUploadTask = (
   uid: string,
   callbacks?: {
-    onProgress?: (event: { percent: number }) => void
-    onSuccess?: (response: any) => void
-    onError?: (error: Error) => void
-  }
+    onProgress?: (event: { percent: number }) => void;
+    onSuccess?: (response: any) => void;
+    onError?: (error: Error) => void;
+  },
 ) => {
-  let percent = 0
+  let percent = 0;
 
   const timer = window.setInterval(() => {
-    percent += 8 + Math.round(Math.random() * 16)
+    percent += 8 + Math.round(Math.random() * 16);
 
     if (percent >= 98) {
-      percent = 98
+      percent = 98;
     }
 
     markFileState(uid, (item) => {
-      item.status = 'uploading'
-      item.percent = percent
-    })
+      item.status = "uploading";
+      item.percent = percent;
+    });
 
-    callbacks?.onProgress?.({ percent })
-  }, 160)
+    callbacks?.onProgress?.({ percent });
+  }, 160);
 
-  window.setTimeout(() => {
-    window.clearInterval(timer)
+  window.setTimeout(
+    () => {
+      window.clearInterval(timer);
 
-    const failed = Math.random() < failureRate.value
-    if (failed) {
-      const error = new Error($t('examples.scaffold.uploadSystem.uploadFailedError'))
+      const failed = Math.random() < failureRate.value;
+      if (failed) {
+        const error = new Error($t("examples.scaffold.uploadSystem.uploadFailedError"));
+
+        markFileState(uid, (item) => {
+          item.status = "error";
+          item.percent = 100;
+        });
+
+        callbacks?.onError?.(error);
+        return;
+      }
+
+      const preview = `https://picsum.photos/seed/${uid}/880/560`;
 
       markFileState(uid, (item) => {
-        item.status = 'error'
-        item.percent = 100
-      })
+        item.status = "done";
+        item.percent = 100;
+        item.url = item.url || preview;
+        item.thumbUrl = item.thumbUrl || preview;
+      });
 
-      callbacks?.onError?.(error)
-      return
-    }
-
-    const preview = `https://picsum.photos/seed/${uid}/880/560`
-
-    markFileState(uid, (item) => {
-      item.status = 'done'
-      item.percent = 100
-      item.url = item.url || preview
-      item.thumbUrl = item.thumbUrl || preview
-    })
-
-    callbacks?.onSuccess?.({ url: preview })
-  }, 1400 + Math.round(Math.random() * 900))
-}
+      callbacks?.onSuccess?.({ url: preview });
+    },
+    1400 + Math.round(Math.random() * 900),
+  );
+};
 
 const customRequest = (options: any) => {
-  const uid = options.file.uid
+  const uid = options.file.uid;
 
   runUploadTask(uid, {
     onProgress: ({ percent }) => {
-      options.onProgress?.({ percent })
+      options.onProgress?.({ percent });
     },
     onSuccess: (response) => {
-      options.onSuccess?.(response)
-      message.success($t('examples.scaffold.uploadSystem.uploadSuccessMsg', { name: options.file.name }))
+      options.onSuccess?.(response);
+      message.success(
+        $t("examples.scaffold.uploadSystem.uploadSuccessMsg", { name: options.file.name }),
+      );
     },
     onError: (error) => {
-      options.onError?.(error)
-      message.error($t('examples.scaffold.uploadSystem.uploadFailedMsg', { name: options.file.name }))
-    }
-  })
-}
+      options.onError?.(error);
+      message.error(
+        $t("examples.scaffold.uploadSystem.uploadFailedMsg", { name: options.file.name }),
+      );
+    },
+  });
+};
 
 const retryFailed = () => {
-  const failedFiles = fileList.value.filter(item => item.status === 'error')
+  const failedFiles = fileList.value.filter((item) => item.status === "error");
   if (failedFiles.length === 0) {
-    return
+    return;
   }
 
   failedFiles.forEach((item) => {
-    runUploadTask(item.uid)
-  })
+    runUploadTask(item.uid);
+  });
 
-  message.info($t('examples.scaffold.uploadSystem.retryMsg', { count: failedFiles.length }))
-}
+  message.info($t("examples.scaffold.uploadSystem.retryMsg", { count: failedFiles.length }));
+};
 
 const clearAll = () => {
-  fileList.value = []
-}
+  fileList.value = [];
+};
 
 const handlePreview = async (file: UploadFileItem) => {
   if (file.url) {
-    previewSrc.value = file.url
+    previewSrc.value = file.url;
   } else if (file.originFileObj) {
-    previewSrc.value = await getBase64(file.originFileObj)
+    previewSrc.value = await getBase64(file.originFileObj);
   } else {
-    message.warning($t('examples.scaffold.uploadSystem.previewNotSupported'))
-    return
+    message.warning($t("examples.scaffold.uploadSystem.previewNotSupported"));
+    return;
   }
 
-  previewTitle.value = file.name
-  previewOpen.value = true
-}
+  previewTitle.value = file.name;
+  previewOpen.value = true;
+};
 </script>
 
 <style scoped lang="scss">

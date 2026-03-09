@@ -1,49 +1,49 @@
-import type { App, Component } from 'vue'
-import { defineComponent, h } from 'vue'
-import { Select, DatePicker, DateRangePicker } from 'antdv-next'
-import { appDefaultSettings } from '@/settings'
+import type { App, Component } from "vue";
+import { defineComponent, h } from "vue";
+import { Select, DatePicker, DateRangePicker } from "antdv-next";
+import { appDefaultSettings } from "@/settings";
 
-type AttrMap = Record<string, unknown>
+type AttrMap = Record<string, unknown>;
 
 const withAllowClearDefault = (
   name: string,
   component: Component,
-  getDefaultAllowClear: () => boolean
+  getDefaultAllowClear: () => boolean,
 ) => {
   return defineComponent({
     name,
     inheritAttrs: false,
     setup(_, { attrs, slots }) {
       return () => {
-        const props = attrs as AttrMap
-        const allowClear = props.allowClear ?? getDefaultAllowClear()
+        const props = attrs as AttrMap;
+        const allowClear = props.allowClear ?? getDefaultAllowClear();
 
-        return h(component as any, { ...props, allowClear }, slots)
-      }
-    }
-  })
-}
+        return h(component as any, { ...props, allowClear }, slots);
+      };
+    },
+  });
+};
 
 const SelectWithDefaults = withAllowClearDefault(
-  'ASelectWithDefaults',
+  "ASelectWithDefaults",
   Select,
-  () => appDefaultSettings.select.allowClear
-)
+  () => appDefaultSettings.select.allowClear,
+);
 
 const DatePickerWithDefaults = withAllowClearDefault(
-  'ADatePickerWithDefaults',
+  "ADatePickerWithDefaults",
   DatePicker,
-  () => appDefaultSettings.datePicker.allowClear
-)
+  () => appDefaultSettings.datePicker.allowClear,
+);
 
 const RangePickerWithDefaults = withAllowClearDefault(
-  'ARangePickerWithDefaults',
+  "ARangePickerWithDefaults",
   DateRangePicker,
-  () => appDefaultSettings.datePicker.allowClear
-)
+  () => appDefaultSettings.datePicker.allowClear,
+);
 
 export const registerDefaultComponentProps = (app: App) => {
-  app.component('ASelect', SelectWithDefaults)
-  app.component('ADatePicker', DatePickerWithDefaults)
-  app.component('ARangePicker', RangePickerWithDefaults)
-}
+  app.component("ASelect", SelectWithDefaults);
+  app.component("ADatePicker", DatePickerWithDefaults);
+  app.component("ARangePicker", RangePickerWithDefaults);
+};

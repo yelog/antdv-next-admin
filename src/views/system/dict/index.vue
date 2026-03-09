@@ -4,10 +4,10 @@
       <template #side>
         <!-- dict type list -->
         <div class="dict-types-header">
-          <h3>{{ t('dict.dictType') }}</h3>
+          <h3>{{ t("dict.dictType") }}</h3>
           <a-button type="primary" size="small" @click="handleAddType">
             <template #icon><PlusOutlined /></template>
-            {{ t('common.add') }}
+            {{ t("common.add") }}
           </a-button>
         </div>
         <div class="dict-types-list">
@@ -50,7 +50,7 @@
         >
           <template #toolbar-actions>
             <a-button type="primary" @click="handleAdd">
-              <PlusOutlined /> {{ t('dict.createData') }}
+              <PlusOutlined /> {{ t("dict.createData") }}
             </a-button>
           </template>
           <template #bodyCell="{ column, record }">
@@ -61,11 +61,11 @@
               <a-space :size="4">
                 <a-button type="link" size="small" @click="handleEdit(record)">
                   <template #icon><EditOutlined /></template>
-                  {{ t('common.edit') }}
+                  {{ t("common.edit") }}
                 </a-button>
                 <a-button type="link" size="small" danger @click="handleDelete(record)">
                   <template #icon><DeleteOutlined /></template>
-                  {{ t('common.delete') }}
+                  {{ t("common.delete") }}
                 </a-button>
               </a-space>
             </template>
@@ -78,36 +78,36 @@
     </ProSplitLayout>
 
     <!-- dict type modal -->
-    <a-modal
-      v-model:open="typeModalVisible"
-      :title="typeModalTitle"
-      @ok="handleTypeSubmit"
-    >
+    <a-modal v-model:open="typeModalVisible" :title="typeModalTitle" @ok="handleTypeSubmit">
       <a-form :model="typeForm" :label-col="{ span: 6 }">
         <a-form-item :label="t('dict.typeName')" required>
           <a-input v-model:value="typeForm.name" :placeholder="t('dict.typeNamePlaceholder')" />
         </a-form-item>
         <a-form-item :label="t('dict.typeCode')" required>
-          <a-input v-model:value="typeForm.code" :placeholder="t('dict.typeCodePlaceholder')" :disabled="!!typeForm.id" />
+          <a-input
+            v-model:value="typeForm.code"
+            :placeholder="t('dict.typeCodePlaceholder')"
+            :disabled="!!typeForm.id"
+          />
         </a-form-item>
         <a-form-item :label="t('dict.description')">
-          <a-textarea v-model:value="typeForm.description" :placeholder="t('dict.descriptionPlaceholder')" :rows="3" />
+          <a-textarea
+            v-model:value="typeForm.description"
+            :placeholder="t('dict.descriptionPlaceholder')"
+            :rows="3"
+          />
         </a-form-item>
         <a-form-item :label="t('common.status')">
           <a-radio-group v-model:value="typeForm.status">
-            <a-radio value="enabled">{{ t('dict.enabled') }}</a-radio>
-            <a-radio value="disabled">{{ t('dict.disabled') }}</a-radio>
+            <a-radio value="enabled">{{ t("dict.enabled") }}</a-radio>
+            <a-radio value="disabled">{{ t("dict.disabled") }}</a-radio>
           </a-radio-group>
         </a-form-item>
       </a-form>
     </a-modal>
 
     <!-- dict data modal -->
-    <a-modal
-      v-model:open="dataModalVisible"
-      :title="dataModalTitle"
-      @ok="handleDataSubmit"
-    >
+    <a-modal v-model:open="dataModalVisible" :title="dataModalTitle" @ok="handleDataSubmit">
       <a-form :model="dataForm" :label-col="{ span: 6 }">
         <a-form-item :label="t('dict.dictLabel')" required>
           <a-input v-model:value="dataForm.label" :placeholder="t('dict.labelPlaceholder')" />
@@ -120,12 +120,16 @@
         </a-form-item>
         <a-form-item :label="t('common.status')">
           <a-radio-group v-model:value="dataForm.status">
-            <a-radio value="enabled">{{ t('dict.enabled') }}</a-radio>
-            <a-radio value="disabled">{{ t('dict.disabled') }}</a-radio>
+            <a-radio value="enabled">{{ t("dict.enabled") }}</a-radio>
+            <a-radio value="disabled">{{ t("dict.disabled") }}</a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item :label="t('dict.remark')">
-          <a-textarea v-model:value="dataForm.remark" :placeholder="t('dict.remarkPlaceholder')" :rows="3" />
+          <a-textarea
+            v-model:value="dataForm.remark"
+            :placeholder="t('dict.remarkPlaceholder')"
+            :rows="3"
+          />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -133,15 +137,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { message, Modal } from 'antdv-next'
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons'
-import { useI18n } from 'vue-i18n'
-import ProTable from '@/components/Pro/ProTable/index.vue'
-import ProStatus from '@/components/Pro/ProStatus/index.vue'
-import ProSplitLayout from '@/components/Pro/ProSplitLayout/index.vue'
-import type { ProTableColumn, ProStatusMap } from '@/types/pro'
-import type { DictType, DictData } from '@/types/dict'
+import { ref, computed } from "vue";
+import { message, Modal } from "antdv-next";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@antdv-next/icons";
+import { useI18n } from "vue-i18n";
+import ProTable from "@/components/Pro/ProTable/index.vue";
+import ProStatus from "@/components/Pro/ProStatus/index.vue";
+import ProSplitLayout from "@/components/Pro/ProSplitLayout/index.vue";
+import type { ProTableColumn, ProStatusMap } from "@/types/pro";
+import type { DictType, DictData } from "@/types/dict";
 import {
   getDictTypes,
   createDictType,
@@ -150,267 +154,271 @@ import {
   getDictDataList,
   createDictData,
   updateDictData,
-  deleteDictData
-} from '@/api/dict'
-import { useDictStore } from '@/stores/dict'
+  deleteDictData,
+} from "@/api/dict";
+import { useDictStore } from "@/stores/dict";
 
-const { t } = useI18n()
-const dictStore = useDictStore()
+const { t } = useI18n();
+const dictStore = useDictStore();
 
 const dictStatusMap = computed<ProStatusMap>(() => ({
-  enabled: { text: t('dict.enabled'), color: '#52c41a' },
-  disabled: { text: t('dict.disabled'), color: '#bfbfbf' }
-}))
+  enabled: { text: t("dict.enabled"), color: "#52c41a" },
+  disabled: { text: t("dict.disabled"), color: "#bfbfbf" },
+}));
 
 // dict type list
-const dictTypes = ref<DictType[]>([])
-const selectedTypeCode = ref<string>('')
+const dictTypes = ref<DictType[]>([]);
+const selectedTypeCode = ref<string>("");
 const selectedTypeName = computed(() => {
-  const type = dictTypes.value.find(t => t.code === selectedTypeCode.value)
-  return type?.name || ''
-})
+  const type = dictTypes.value.find((t) => t.code === selectedTypeCode.value);
+  return type?.name || "";
+});
 
 // dict type modal
-const typeModalVisible = ref(false)
-const typeModalTitle = computed(() => typeForm.value.id ? t('dict.editType') : t('dict.createType'))
+const typeModalVisible = ref(false);
+const typeModalTitle = computed(() =>
+  typeForm.value.id ? t("dict.editType") : t("dict.createType"),
+);
 const typeForm = ref<Partial<DictType>>({
-  name: '',
-  code: '',
-  description: '',
-  status: 'enabled'
-})
+  name: "",
+  code: "",
+  description: "",
+  status: "enabled",
+});
 
 // dict data modal
-const dataModalVisible = ref(false)
-const dataModalTitle = computed(() => dataForm.value.id ? t('dict.editData') : t('dict.createData'))
+const dataModalVisible = ref(false);
+const dataModalTitle = computed(() =>
+  dataForm.value.id ? t("dict.editData") : t("dict.createData"),
+);
 const dataForm = ref<Partial<DictData>>({
-  label: '',
-  value: '',
+  label: "",
+  value: "",
   sort: 0,
-  status: 'enabled',
-  remark: ''
-})
+  status: "enabled",
+  remark: "",
+});
 
 // table columns
 const columns: ProTableColumn[] = [
   {
-    title: t('dict.dictLabel'),
-    dataIndex: 'label',
-    key: 'label'
+    title: t("dict.dictLabel"),
+    dataIndex: "label",
+    key: "label",
   },
   {
-    title: t('dict.dictValue'),
-    dataIndex: 'value',
-    key: 'value'
+    title: t("dict.dictValue"),
+    dataIndex: "value",
+    key: "value",
   },
   {
-    title: t('dict.sort'),
-    dataIndex: 'sort',
-    key: 'sort',
-    width: 80
+    title: t("dict.sort"),
+    dataIndex: "sort",
+    key: "sort",
+    width: 80,
   },
   {
-    title: t('common.status'),
-    dataIndex: 'status',
-    key: 'status',
-    width: 80
+    title: t("common.status"),
+    dataIndex: "status",
+    key: "status",
+    width: 80,
   },
   {
-    title: t('dict.remark'),
-    dataIndex: 'remark',
-    key: 'remark'
+    title: t("dict.remark"),
+    dataIndex: "remark",
+    key: "remark",
   },
   {
-    title: t('common.actions'),
-    key: 'action',
+    title: t("common.actions"),
+    key: "action",
     width: 150,
-    fixed: 'right'
-  }
-]
+    fixed: "right",
+  },
+];
 
 // load dict type list
 const loadDictTypes = async () => {
   try {
-    const response = await getDictTypes() as any
+    const response = (await getDictTypes()) as any;
     if (response.code === 200) {
-      dictTypes.value = response.data
+      dictTypes.value = response.data;
       if (dictTypes.value.length > 0 && !selectedTypeCode.value) {
-        selectedTypeCode.value = dictTypes.value[0].code
+        selectedTypeCode.value = dictTypes.value[0].code;
       }
     }
   } catch (error) {
-    console.error(t('dict.loadTypeFailed'), error)
+    console.error(t("dict.loadTypeFailed"), error);
   }
-}
+};
 
 // load dict data list
 const loadData = async (params: any) => {
   try {
-    const response = await getDictDataList({
+    const response = (await getDictDataList({
       typeCode: selectedTypeCode.value,
       page: params.current,
-      pageSize: params.pageSize
-    }) as any
+      pageSize: params.pageSize,
+    })) as any;
     if (response.code === 200) {
       return {
         data: response.data.list,
         total: response.data.total,
-        success: true
-      }
+        success: true,
+      };
     }
   } catch (error) {
-    console.error(t('dict.loadDataFailed'), error)
+    console.error(t("dict.loadDataFailed"), error);
   }
   return {
     data: [],
     total: 0,
-    success: false
-  }
-}
+    success: false,
+  };
+};
 
 // select dict type
 const handleSelectType = (type: DictType) => {
-  selectedTypeCode.value = type.code
-}
+  selectedTypeCode.value = type.code;
+};
 
 // add dict type
 const handleAddType = () => {
   typeForm.value = {
-    name: '',
-    code: '',
-    description: '',
-    status: 'enabled'
-  }
-  typeModalVisible.value = true
-}
+    name: "",
+    code: "",
+    description: "",
+    status: "enabled",
+  };
+  typeModalVisible.value = true;
+};
 
 // edit dict type
 const handleEditType = (type: DictType) => {
-  typeForm.value = { ...type }
-  typeModalVisible.value = true
-}
+  typeForm.value = { ...type };
+  typeModalVisible.value = true;
+};
 
 // delete dict type
 const handleDeleteType = (type: DictType) => {
   Modal.confirm({
-    title: t('dict.confirmDelete'),
-    content: t('dict.confirmDeleteType', { name: type.name }),
+    title: t("dict.confirmDelete"),
+    content: t("dict.confirmDeleteType", { name: type.name }),
     onOk: async () => {
       try {
-        const response = await deleteDictType(type.id) as any
+        const response = (await deleteDictType(type.id)) as any;
         if (response.code === 200) {
-          message.success(t('dict.deleteSuccess'))
-          loadDictTypes()
+          message.success(t("dict.deleteSuccess"));
+          loadDictTypes();
           if (selectedTypeCode.value === type.code) {
-            selectedTypeCode.value = ''
+            selectedTypeCode.value = "";
           }
         }
       } catch (error) {
-        message.error(t('dict.deleteFailed'))
+        message.error(t("dict.deleteFailed"));
       }
-    }
-  })
-}
+    },
+  });
+};
 
 // submit dict type
 const handleTypeSubmit = async () => {
   if (!typeForm.value.name || !typeForm.value.code) {
-    message.warning(t('dict.requiredFields'))
-    return
+    message.warning(t("dict.requiredFields"));
+    return;
   }
 
   try {
     if (typeForm.value.id) {
-      const response = await updateDictType(typeForm.value.id, typeForm.value) as any
+      const response = (await updateDictType(typeForm.value.id, typeForm.value)) as any;
       if (response.code === 200) {
-        message.success(t('dict.updateSuccess'))
-        typeModalVisible.value = false
-        loadDictTypes()
+        message.success(t("dict.updateSuccess"));
+        typeModalVisible.value = false;
+        loadDictTypes();
       }
     } else {
-      const response = await createDictType(typeForm.value) as any
+      const response = (await createDictType(typeForm.value)) as any;
       if (response.code === 200) {
-        message.success(t('dict.createSuccess'))
-        typeModalVisible.value = false
-        loadDictTypes()
+        message.success(t("dict.createSuccess"));
+        typeModalVisible.value = false;
+        loadDictTypes();
       }
     }
   } catch (error) {
-    message.error(t('dict.operateFailed'))
+    message.error(t("dict.operateFailed"));
   }
-}
+};
 
 // add dict data
 const handleAdd = () => {
   dataForm.value = {
     typeCode: selectedTypeCode.value,
-    label: '',
-    value: '',
+    label: "",
+    value: "",
     sort: 0,
-    status: 'enabled',
-    remark: ''
-  }
-  dataModalVisible.value = true
-}
+    status: "enabled",
+    remark: "",
+  };
+  dataModalVisible.value = true;
+};
 
 // edit dict data
 const handleEdit = (record: DictData) => {
-  dataForm.value = { ...record }
-  dataModalVisible.value = true
-}
+  dataForm.value = { ...record };
+  dataModalVisible.value = true;
+};
 
 // delete dict data
 const handleDelete = (record: DictData) => {
   Modal.confirm({
-    title: t('dict.confirmDelete'),
-    content: t('dict.confirmDeleteData', { label: record.label }),
+    title: t("dict.confirmDelete"),
+    content: t("dict.confirmDeleteData", { label: record.label }),
     onOk: async () => {
       try {
-        const response = await deleteDictData(record.id) as any
+        const response = (await deleteDictData(record.id)) as any;
         if (response.code === 200) {
-          message.success(t('dict.deleteSuccess'))
+          message.success(t("dict.deleteSuccess"));
           // refresh dict cache
-          dictStore.refreshDictData()
+          dictStore.refreshDictData();
         }
       } catch (error) {
-        message.error(t('dict.deleteFailed'))
+        message.error(t("dict.deleteFailed"));
       }
-    }
-  })
-}
+    },
+  });
+};
 
 // submit dict data
 const handleDataSubmit = async () => {
   if (!dataForm.value.label || !dataForm.value.value) {
-    message.warning(t('dict.requiredFields'))
-    return
+    message.warning(t("dict.requiredFields"));
+    return;
   }
 
   try {
     if (dataForm.value.id) {
-      const response = await updateDictData(dataForm.value.id, dataForm.value) as any
+      const response = (await updateDictData(dataForm.value.id, dataForm.value)) as any;
       if (response.code === 200) {
-        message.success(t('dict.updateSuccess'))
-        dataModalVisible.value = false
+        message.success(t("dict.updateSuccess"));
+        dataModalVisible.value = false;
         // refresh dict cache
-        dictStore.refreshDictData()
+        dictStore.refreshDictData();
       }
     } else {
-      const response = await createDictData(dataForm.value) as any
+      const response = (await createDictData(dataForm.value)) as any;
       if (response.code === 200) {
-        message.success(t('dict.createSuccess'))
-        dataModalVisible.value = false
+        message.success(t("dict.createSuccess"));
+        dataModalVisible.value = false;
         // refresh dict cache
-        dictStore.refreshDictData()
+        dictStore.refreshDictData();
       }
     }
   } catch (error) {
-    message.error(t('dict.operateFailed'))
+    message.error(t("dict.operateFailed"));
   }
-}
+};
 
 // init
-loadDictTypes()
+loadDictTypes();
 </script>
 
 <style scoped lang="scss">
@@ -462,7 +470,7 @@ loadDictTypes()
     overflow: hidden;
 
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       left: 0;
       top: 50%;
@@ -514,7 +522,7 @@ loadDictTypes()
       .type-code {
         font-size: 12px;
         color: var(--color-text-quaternary, #bfbfbf);
-        font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+        font-family: "SF Mono", "Monaco", "Menlo", monospace;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

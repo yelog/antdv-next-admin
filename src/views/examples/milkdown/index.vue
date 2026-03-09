@@ -4,7 +4,7 @@
       title="Milkdown Markdown 编辑器"
       sub-title="基于 @milkdown/vue 的 Markdown 编辑器组件"
     />
-    
+
     <a-row :gutter="[16, 16]">
       <!-- 基础用法 -->
       <a-col :span="24">
@@ -27,10 +27,7 @@
       <a-col :span="24">
         <a-card title="默认内容" :bordered="false">
           <p class="desc">支持设置默认内容，自动渲染为可编辑的富文本</p>
-          <MilkdownEditor
-            v-model="content2"
-            :height="400"
-          />
+          <MilkdownEditor v-model="content2" :height="400" />
         </a-card>
       </a-col>
 
@@ -38,11 +35,7 @@
       <a-col :span="24" :lg="12">
         <a-card title="只读模式" :bordered="false">
           <p class="desc">支持只读模式，用于展示 Markdown 内容</p>
-          <MilkdownEditor
-            v-model="content3"
-            :readonly="true"
-            :height="250"
-          />
+          <MilkdownEditor v-model="content3" :readonly="true" :height="250" />
         </a-card>
       </a-col>
 
@@ -90,11 +83,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { CheckCircleOutlined } from '@antdv-next/icons'
-import MilkdownEditor from '@/components/Milkdown/index.vue'
+import { ref } from "vue";
+import { CheckCircleOutlined } from "@antdv-next/icons";
+import MilkdownEditor from "@/components/Milkdown/index.vue";
 
-const content1 = ref('')
+const content1 = ref("");
 
 const content2 = ref(`# Milkdown 编辑器
 
@@ -112,7 +105,7 @@ Milkdown 是一个**插件驱动**的 Markdown 编辑器框架，基于：
 
 - **粗体** 和 *斜体*
 - ~~删除线~~
-- 
+-
 ### 2. 列表
 
 有序列表：
@@ -157,7 +150,7 @@ function greet(name: string) {
 ---
 
 **提示：** 试试输入 "/" 查看 Slash 命令菜单！
-`)
+`);
 
 const content3 = ref(`# 只读模式示例
 
@@ -169,32 +162,32 @@ const content3 = ref(`# 只读模式示例
 2. 内容展示
 3. 文章阅读
 
-> 💡 提示：可以通过 \`readonly\` 属性控制编辑状态。`)
+> 💡 提示：可以通过 \`readonly\` 属性控制编辑状态。`);
 </script>
 
 <style scoped lang="scss">
 .milkdown-demo {
   padding: 24px;
-  
+
   .desc {
     color: var(--color-text-secondary);
     margin-bottom: 16px;
   }
-  
+
   .output-section {
     margin-top: 16px;
-    
+
     h4 {
       margin-bottom: 12px;
       font-weight: 500;
     }
   }
-  
+
   .code-block {
     background: var(--color-bg-layout);
     padding: 16px;
     border-radius: var(--radius-base);
-    font-family: 'Courier New', monospace;
+    font-family: "Courier New", monospace;
     font-size: 13px;
     overflow-x: auto;
     white-space: pre-wrap;
@@ -202,7 +195,7 @@ const content3 = ref(`# 只读模式示例
     max-height: 200px;
     overflow-y: auto;
   }
-  
+
   .feature-icon {
     color: var(--color-success);
     margin-right: 8px;

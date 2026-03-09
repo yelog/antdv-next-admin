@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
     <div class="card mb-md">
-      <h2 class="text-xl font-bold mb-sm">{{ $t('exampleSpin.title') }}</h2>
-      <p class="text-secondary">{{ $t('exampleSpin.description') }}</p>
+      <h2 class="text-xl font-bold mb-sm">{{ $t("exampleSpin.title") }}</h2>
+      <p class="text-secondary">{{ $t("exampleSpin.description") }}</p>
     </div>
 
     <a-row :gutter="[16, 16]">
@@ -46,7 +46,7 @@
               />
             </a-spin>
             <a-flex align="center" gap="small">
-              <span>{{ $t('exampleSpin.loadingState') }}</span>
+              <span>{{ $t("exampleSpin.loadingState") }}</span>
               <a-switch v-model:checked="nestedLoading" />
             </a-flex>
           </a-flex>
@@ -68,7 +68,7 @@
               />
             </a-spin>
             <a-flex align="center" gap="small">
-              <span>{{ $t('exampleSpin.loadingState') }}</span>
+              <span>{{ $t("exampleSpin.loadingState") }}</span>
               <a-switch v-model:checked="delayLoading" />
             </a-flex>
           </a-flex>
@@ -123,10 +123,7 @@
       <a-col :span="24" :lg="12">
         <a-card :title="$t('exampleSpin.customStyle')" :bordered="false">
           <a-flex align="center" gap="middle">
-            <a-spin
-              v-bind="sharedStyleProps"
-              :styles="{ indicator: { color: '#00d4ff' } }"
-            />
+            <a-spin v-bind="sharedStyleProps" :styles="{ indicator: { color: '#00d4ff' } }" />
             <a-spin
               v-bind="sharedStyleProps"
               :styles="() => ({ indicator: { color: '#722ed1' } })"
@@ -145,7 +142,7 @@
       <a-col :span="24" :lg="12">
         <a-card :title="$t('exampleSpin.fullscreen')" :bordered="false">
           <a-button type="primary" @click="showFullscreen">
-            {{ $t('exampleSpin.showFullscreen') }}
+            {{ $t("exampleSpin.showFullscreen") }}
           </a-button>
           <a-spin :spinning="fullscreenSpinning" :percent="fullscreenPercent" fullscreen />
         </a-card>
@@ -155,73 +152,77 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from 'vue'
-import { LoadingOutlined } from '@antdv-next/icons'
+import { computed, onUnmounted, ref, watch } from "vue";
+import { LoadingOutlined } from "@antdv-next/icons";
 
 // Nested loading
-const nestedLoading = ref(false)
+const nestedLoading = ref(false);
 
 // Delay loading
-const delayLoading = ref(false)
+const delayLoading = ref(false);
 
 // Percent / Progress
-const autoPercent = ref(false)
-const percent = ref(-50)
-let percentTimer: ReturnType<typeof setTimeout> | null = null
+const autoPercent = ref(false);
+const percent = ref(-50);
+let percentTimer: ReturnType<typeof setTimeout> | null = null;
 
-const mergedPercent = computed(() => autoPercent.value ? 'auto' : percent.value)
+const mergedPercent = computed(() => (autoPercent.value ? "auto" : percent.value));
 
 function updatePercent() {
   percentTimer = setTimeout(() => {
-    const next = percent.value + 5
-    percent.value = next > 150 ? -50 : next
-  }, 100)
+    const next = percent.value + 5;
+    percent.value = next > 150 ? -50 : next;
+  }, 100);
 }
 
-watch(percent, (_n, _o, onCleanup) => {
-  updatePercent()
-  onCleanup(() => {
-    if (percentTimer) {
-      clearTimeout(percentTimer)
-      percentTimer = null
-    }
-  })
-}, { immediate: true })
+watch(
+  percent,
+  (_n, _o, onCleanup) => {
+    updatePercent();
+    onCleanup(() => {
+      if (percentTimer) {
+        clearTimeout(percentTimer);
+        percentTimer = null;
+      }
+    });
+  },
+  { immediate: true },
+);
 
 watch(autoPercent, () => {
-  percent.value = -50
-})
+  percent.value = -50;
+});
 
 // Custom style shared props
 const sharedStyleProps = {
   spinning: true,
   percent: 0,
-}
+};
 
 // Fullscreen
-const fullscreenSpinning = ref(false)
-const fullscreenPercent = ref(0)
+const fullscreenSpinning = ref(false);
+const fullscreenPercent = ref(0);
 
 function showFullscreen() {
-  fullscreenSpinning.value = true
-  let ptg = -10
+  fullscreenSpinning.value = true;
+  let ptg = -10;
   const interval = setInterval(() => {
-    ptg += 5
-    fullscreenPercent.value = ptg
+    ptg += 5;
+    fullscreenPercent.value = ptg;
     if (ptg > 120) {
-      clearInterval(interval)
-      fullscreenSpinning.value = false
-      fullscreenPercent.value = 0
+      clearInterval(interval);
+      fullscreenSpinning.value = false;
+      fullscreenPercent.value = 0;
     }
-  }, 100)
+  }, 100);
 }
 
 onUnmounted(() => {
   if (percentTimer) {
-    clearTimeout(percentTimer)
-    percentTimer = null
+    clearTimeout(percentTimer);
+    percentTimer = null;
   }
-})
+});
 </script>
 
 <style scoped lang="scss">

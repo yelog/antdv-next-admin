@@ -1,12 +1,9 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { staticRoutes, basicRoutes, notFoundRoute } from './routes'
-import { setupRouterGuards } from './guards'
+import { createRouter, createWebHistory } from "vue-router";
+import { staticRoutes, basicRoutes, notFoundRoute } from "./routes";
+import { setupRouterGuards } from "./guards";
 
 // Combine static and basic routes
-const routes = [
-  ...staticRoutes,
-  ...basicRoutes
-]
+const routes = [...staticRoutes, ...basicRoutes];
 
 // Create router instance
 const router = createRouter({
@@ -14,17 +11,17 @@ const router = createRouter({
   routes,
   scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
-      return savedPosition
+      return savedPosition;
     } else {
-      return { top: 0 }
+      return { top: 0 };
     }
-  }
-})
+  },
+});
 
 // Setup router guards
-setupRouterGuards(router)
+setupRouterGuards(router);
 
 // Add not found route last (after dynamic routes are added)
-router.addRoute(notFoundRoute as any)
+router.addRoute(notFoundRoute as any);
 
-export default router
+export default router;

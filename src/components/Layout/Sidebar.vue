@@ -1,9 +1,5 @@
 <template>
-  <div
-    v-if="showMobileMask"
-    class="sidebar-mask"
-    @click="closeMobileSidebar"
-  />
+  <div v-if="showMobileMask" class="sidebar-mask" @click="closeMobileSidebar" />
   <a-layout-sider
     v-model:collapsed="layoutStore.collapsed"
     :class="['admin-sidebar', `theme-${effectiveSidebarTheme}`, { mobile: layoutStore.isMobile }]"
@@ -17,7 +13,7 @@
       <img :src="logoImg" alt="Logo" class="logo-img" />
       <transition name="fade">
         <span v-show="!layoutStore.collapsed" class="logo-title">
-          {{ $t('common.appName') }}
+          {{ $t("common.appName") }}
         </span>
       </transition>
     </div>
@@ -36,182 +32,180 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, h, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import type { MenuProps } from 'antdv-next'
-import { useLayoutStore } from '@/stores/layout'
-import { useSettingsStore } from '@/stores/settings'
-import { useThemeStore } from '@/stores/theme'
-import { usePermissionStore } from '@/stores/permission'
-import { basicRoutes } from '@/router/routes'
-import { routesToMenuTree } from '@/router/utils'
-import type { MenuItem as MenuItemType } from '@/types/router'
-import type { SidebarTheme } from '@/types/layout'
-import { resolveLocaleText } from '@/utils/i18n'
-import { resolveIcon } from '@/utils/icon'
-import logoImg from '@/assets/images/logo.png'
+import { ref, computed, watch, h, nextTick } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import type { MenuProps } from "antdv-next";
+import { useLayoutStore } from "@/stores/layout";
+import { useSettingsStore } from "@/stores/settings";
+import { useThemeStore } from "@/stores/theme";
+import { usePermissionStore } from "@/stores/permission";
+import { basicRoutes } from "@/router/routes";
+import { routesToMenuTree } from "@/router/utils";
+import type { MenuItem as MenuItemType } from "@/types/router";
+import type { SidebarTheme } from "@/types/layout";
+import { resolveLocaleText } from "@/utils/i18n";
+import { resolveIcon } from "@/utils/icon";
+import logoImg from "@/assets/images/logo.png";
 
-const route = useRoute()
-const router = useRouter()
-const layoutStore = useLayoutStore()
-const settingsStore = useSettingsStore()
-const themeStore = useThemeStore()
-const permissionStore = usePermissionStore()
+const route = useRoute();
+const router = useRouter();
+const layoutStore = useLayoutStore();
+const settingsStore = useSettingsStore();
+const themeStore = useThemeStore();
+const permissionStore = usePermissionStore();
 
-const selectedKeys = ref<string[]>([])
-const openKeys = ref<string[]>([])
+const selectedKeys = ref<string[]>([]);
+const openKeys = ref<string[]>([]);
 
 const fallbackMenuItems = computed(() => {
-  const basicChildren = basicRoutes.flatMap(route => route.children || [])
-  return routesToMenuTree(basicChildren)
-})
+  const basicChildren = basicRoutes.flatMap((route) => route.children || []);
+  return routesToMenuTree(basicChildren);
+});
 
 const menuItems = computed(() => {
   if (permissionStore.menuTree.length > 0) {
-    return permissionStore.menuTree
+    return permissionStore.menuTree;
   }
-  return fallbackMenuItems.value
-})
+  return fallbackMenuItems.value;
+});
 
 const effectiveSidebarTheme = computed<SidebarTheme>(() => {
   // Allow user to override sidebar theme even in global dark mode
   // If the user explicitly selects 'light' sidebar, respect that choice
-  return settingsStore.sidebarTheme
-})
+  return settingsStore.sidebarTheme;
+});
 
 const siderCollapsedWidth = computed(() => {
-  return layoutStore.isMobile ? 0 : layoutStore.collapsedWidth
-})
+  return layoutStore.isMobile ? 0 : layoutStore.collapsedWidth;
+});
 
 const showMobileMask = computed(() => {
-  return layoutStore.isMobile && !layoutStore.collapsed
-})
+  return layoutStore.isMobile && !layoutStore.collapsed;
+});
 
-const antMenuItems = computed<MenuProps['items']>(() => {
-  const convert = (menus: MenuItemType[]): NonNullable<MenuProps['items']> => {
-    return menus.map(menu => {
-      const iconComponent = resolveIcon(menu.icon)
+const antMenuItems = computed<MenuProps["items"]>(() => {
+  const convert = (menus: MenuItemType[]): NonNullable<MenuProps["items"]> => {
+    return menus.map((menu) => {
+      const iconComponent = resolveIcon(menu.icon);
       const item = {
         key: menu.path || menu.id,
         label: resolveLocaleText(menu.label, menu.id),
-        icon: iconComponent ? h(iconComponent) : undefined
-      }
+        icon: iconComponent ? h(iconComponent) : undefined,
+      };
 
       if (menu.children && menu.children.length > 0) {
         return {
           ...item,
           key: menu.id,
-          children: convert(menu.children)
-        }
+          children: convert(menu.children),
+        };
       }
 
-      return item
-    })
-  }
+      return item;
+    });
+  };
 
-  return convert(menuItems.value)
-})
+  return convert(menuItems.value);
+});
 
 function findMenuOpenKeys(
   menus: MenuItemType[],
   targetPath: string,
-  parents: string[] = []
+  parents: string[] = [],
 ): string[] {
   for (const item of menus) {
-    const menuKey = item.children && item.children.length > 0
-      ? item.id
-      : (item.path || item.id)
-    const currentParents = [...parents, menuKey]
+    const menuKey = item.children && item.children.length > 0 ? item.id : item.path || item.id;
+    const currentParents = [...parents, menuKey];
 
     if ((item.path || item.id) === targetPath) {
-      return parents
+      return parents;
     }
 
     if (item.children && item.children.length > 0) {
-      const matched = findMenuOpenKeys(item.children, targetPath, currentParents)
+      const matched = findMenuOpenKeys(item.children, targetPath, currentParents);
       if (matched.length > 0) {
-        return matched
+        return matched;
       }
     }
   }
 
-  return []
+  return [];
 }
 
 function isExternalLinkPath(path: string): boolean {
-  return path.startsWith('http://') || path.startsWith('https://')
+  return path.startsWith("http://") || path.startsWith("https://");
 }
 
 function findMenuByPath(menus: MenuItemType[], targetPath: string): MenuItemType | null {
   for (const item of menus) {
     if ((item.path || item.id) === targetPath) {
-      return item
+      return item;
     }
 
     if (item.children && item.children.length > 0) {
-      const found = findMenuByPath(item.children, targetPath)
+      const found = findMenuByPath(item.children, targetPath);
       if (found) {
-        return found
+        return found;
       }
     }
   }
 
-  return null
+  return null;
 }
 
 const syncMenuState = () => {
   // Find the menu item for current route
-  const currentMenuItem = findMenuByPath(menuItems.value, route.path)
-  
+  const currentMenuItem = findMenuByPath(menuItems.value, route.path);
+
   // Don't set selected state if current menu item is an external link
   if (currentMenuItem && currentMenuItem.path && isExternalLinkPath(currentMenuItem.path)) {
-    selectedKeys.value = []
+    selectedKeys.value = [];
   } else {
-    selectedKeys.value = [route.path]
+    selectedKeys.value = [route.path];
   }
-  
-  openKeys.value = findMenuOpenKeys(menuItems.value, route.path)
-}
+
+  openKeys.value = findMenuOpenKeys(menuItems.value, route.path);
+};
 
 const closeMobileSidebar = () => {
   if (layoutStore.isMobile && !layoutStore.collapsed) {
-    layoutStore.setSidebarCollapsed(true)
+    layoutStore.setSidebarCollapsed(true);
   }
-}
+};
 
 const handleMenuClick = ({ key }: { key: string | number }) => {
-  if (typeof key !== 'string') return
+  if (typeof key !== "string") return;
 
   // External links: open in a new tab
-  if (key.startsWith('http://') || key.startsWith('https://')) {
+  if (key.startsWith("http://") || key.startsWith("https://")) {
     // Save current selected state before opening external link
-    const currentSelected = [...selectedKeys.value]
-    
-    window.open(key, '_blank', 'noopener,noreferrer')
-    closeMobileSidebar()
-    
+    const currentSelected = [...selectedKeys.value];
+
+    window.open(key, "_blank", "noopener,noreferrer");
+    closeMobileSidebar();
+
     // Restore selected state after Menu component updates
     // This prevents the external link menu item from being shown as selected
     nextTick(() => {
-      selectedKeys.value = currentSelected
-    })
-    return
+      selectedKeys.value = currentSelected;
+    });
+    return;
   }
 
   // Internal routes
-  if (key.startsWith('/')) {
-    router.push(key)
-    closeMobileSidebar()
+  if (key.startsWith("/")) {
+    router.push(key);
+    closeMobileSidebar();
   }
-}
+};
 
 watch(
   [() => route.path, menuItems],
   () => {
-    syncMenuState()
+    syncMenuState();
   },
-  { immediate: true, deep: true }
-)
+  { immediate: true, deep: true },
+);
 </script>
 
 <style scoped lang="scss">

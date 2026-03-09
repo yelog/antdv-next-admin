@@ -34,10 +34,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import { Dropdown } from 'antdv-next'
+import { computed, h } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+import { Dropdown } from "antdv-next";
 import {
   ReloadOutlined,
   FullscreenOutlined,
@@ -51,249 +51,250 @@ import {
   VerticalLeftOutlined,
   VerticalRightOutlined,
   StarOutlined,
-  StarFilled
-} from '@antdv-next/icons'
-import { useTabsStore } from '@/stores/tabs'
-import { useLayoutStore } from '@/stores/layout'
-import type { Tab } from '@/types/layout'
-import { resolveLocaleText } from '@/utils/i18n'
-import { resolveIcon } from '@/utils/icon'
+  StarFilled,
+} from "@antdv-next/icons";
+import { useTabsStore } from "@/stores/tabs";
+import { useLayoutStore } from "@/stores/layout";
+import type { Tab } from "@/types/layout";
+import { resolveLocaleText } from "@/utils/i18n";
+import { resolveIcon } from "@/utils/icon";
 
-const route = useRoute()
-const router = useRouter()
-const { t, locale } = useI18n()
-const tabsStore = useTabsStore()
-const layoutStore = useLayoutStore()
+const route = useRoute();
+const router = useRouter();
+const { t, locale } = useI18n();
+const tabsStore = useTabsStore();
+const layoutStore = useLayoutStore();
 
-const isFullscreen = computed(() => layoutStore.pageFullscreen)
+const isFullscreen = computed(() => layoutStore.pageFullscreen);
 const toggleFullscreen = () => {
-  layoutStore.togglePageFullscreen()
-}
+  layoutStore.togglePageFullscreen();
+};
 
 type TabMenuKey =
-  | 'close'
-  | 'pin'
-  | 'favorite'
-  | 'refresh'
-  | 'closeLeft'
-  | 'closeRight'
-  | 'closeOthers'
-  | 'closeAll'
+  | "close"
+  | "pin"
+  | "favorite"
+  | "refresh"
+  | "closeLeft"
+  | "closeRight"
+  | "closeOthers"
+  | "closeAll";
 
 const activeKey = computed({
   get: () => tabsStore.activeTabPath,
-  set: (value) => tabsStore.setActiveTab(value)
-})
+  set: (value) => tabsStore.setActiveTab(value),
+});
 
 const currentTab = computed(() => {
-  return tabsStore.activeTab || tabsStore.tabs[0]
-})
+  return tabsStore.activeTab || tabsStore.tabs[0];
+});
 
 const tabItems = computed(() => {
   // Access locale to establish reactivity dependency on language changes
-  const currentLocale = locale.value
+  const currentLocale = locale.value;
   // Keep locale dependency but don't use it as a key to avoid forced remounts
-  void currentLocale
-  
-  return tabsStore.tabs.map(tab => ({
+  void currentLocale;
+
+  return tabsStore.tabs.map((tab) => ({
     key: tab.path,
     closable: tab.closable,
-    label: h('span', { class: 'tab-label-wrapper' }, [
-        h(
-          Dropdown,
-          {
-            trigger: ['contextmenu'],
-            menu: {
+    label: h("span", { class: "tab-label-wrapper" }, [
+      h(
+        Dropdown,
+        {
+          trigger: ["contextmenu"],
+          menu: {
             items: getTabMenuItems(tab),
-            onClick: ({ key }: { key: string | number }) => handleContextMenu({ key: String(key) }, tab)
-          }
+            onClick: ({ key }: { key: string | number }) =>
+              handleContextMenu({ key: String(key) }, tab),
+          },
         },
         {
           default: () => {
-            const icon = getTabIcon(tab)
-            return h('span', { class: 'tab-label' }, [
-              icon ? h(icon, { class: 'tab-menu-icon' }) : null,
-              h('span', { class: 'tab-text' }, getTabLabel(tab)),
-              tab.favorite ? h(StarFilled, { class: 'tab-favorite-icon' }) : null,
-              isTabFixed(tab) ? h(PushpinFilled, { class: 'tab-pin-icon' }) : null
-            ])
-          }
-        }
-      )
-    ])
-  }))
-})
+            const icon = getTabIcon(tab);
+            return h("span", { class: "tab-label" }, [
+              icon ? h(icon, { class: "tab-menu-icon" }) : null,
+              h("span", { class: "tab-text" }, getTabLabel(tab)),
+              tab.favorite ? h(StarFilled, { class: "tab-favorite-icon" }) : null,
+              isTabFixed(tab) ? h(PushpinFilled, { class: "tab-pin-icon" }) : null,
+            ]);
+          },
+        },
+      ),
+    ]),
+  }));
+});
 
-const isTabFixed = (tab: Tab) => Boolean(tab.affix || tab.pinned)
+const isTabFixed = (tab: Tab) => Boolean(tab.affix || tab.pinned);
 
 const handleEdit = (targetKey: string) => {
-  tabsStore.closeTab(targetKey)
-  syncRouteWithActiveTab()
-}
+  tabsStore.closeTab(targetKey);
+  syncRouteWithActiveTab();
+};
 
 const handleChange = (key: string) => {
-  const tab = tabsStore.tabs.find(t => t.path === key)
+  const tab = tabsStore.tabs.find((t) => t.path === key);
   if (tab) {
-    router.push(tab.fullPath)
+    router.push(tab.fullPath);
   }
-}
+};
 
 const hasClosableLeftTabs = (tab: Tab) => {
-  const index = tabsStore.tabs.findIndex(item => item.path === tab.path)
-  if (index <= 0) return false
-  return tabsStore.tabs.slice(0, index).some(item => item.closable)
-}
+  const index = tabsStore.tabs.findIndex((item) => item.path === tab.path);
+  if (index <= 0) return false;
+  return tabsStore.tabs.slice(0, index).some((item) => item.closable);
+};
 
 const hasClosableRightTabs = (tab: Tab) => {
-  const index = tabsStore.tabs.findIndex(item => item.path === tab.path)
-  if (index < 0 || index >= tabsStore.tabs.length - 1) return false
-  return tabsStore.tabs.slice(index + 1).some(item => item.closable)
-}
+  const index = tabsStore.tabs.findIndex((item) => item.path === tab.path);
+  if (index < 0 || index >= tabsStore.tabs.length - 1) return false;
+  return tabsStore.tabs.slice(index + 1).some((item) => item.closable);
+};
 
 const hasClosableOtherTabs = (tab: Tab) => {
-  return tabsStore.tabs.some(item => item.path !== tab.path && item.closable)
-}
+  return tabsStore.tabs.some((item) => item.path !== tab.path && item.closable);
+};
 
 const hasClosableTabs = computed(() => {
-  return tabsStore.tabs.some(tab => tab.closable)
-})
+  return tabsStore.tabs.some((tab) => tab.closable);
+});
 
 const getTabMenuItems = (tab: Tab) => {
   // Get the latest tab state from store to ensure reactivity
-  const latestTab = tabsStore.tabs.find(t => t.path === tab.path) || tab
+  const latestTab = tabsStore.tabs.find((t) => t.path === tab.path) || tab;
   // Call t() function to get reactive translations
   return [
     {
-      key: 'close',
+      key: "close",
       icon: h(CloseOutlined),
-      label: t('layout.tabs.close'),
-      disabled: !latestTab.closable
+      label: t("layout.tabs.close"),
+      disabled: !latestTab.closable,
     },
     {
-      key: 'pin',
+      key: "pin",
       icon: h(latestTab.pinned ? PushpinFilled : PushpinOutlined),
-      label: latestTab.pinned ? t('layout.tabs.unpin') : t('layout.tabs.pin'),
-      disabled: Boolean(latestTab.affix)
+      label: latestTab.pinned ? t("layout.tabs.unpin") : t("layout.tabs.pin"),
+      disabled: Boolean(latestTab.affix),
     },
     {
-      key: 'favorite',
+      key: "favorite",
       icon: h(latestTab.favorite ? StarFilled : StarOutlined),
-      label: latestTab.favorite ? t('layout.tabs.unfavorite') : t('layout.tabs.favorite')
+      label: latestTab.favorite ? t("layout.tabs.unfavorite") : t("layout.tabs.favorite"),
     },
     {
-      key: 'refresh',
+      key: "refresh",
       icon: h(ReloadOutlined),
-      label: t('layout.tabs.refresh')
+      label: t("layout.tabs.refresh"),
     },
     {
-      type: 'divider'
+      type: "divider",
     },
     {
-      key: 'closeLeft',
+      key: "closeLeft",
       icon: h(VerticalLeftOutlined),
-      label: t('layout.tabs.closeLeft'),
-      disabled: !hasClosableLeftTabs(tab)
+      label: t("layout.tabs.closeLeft"),
+      disabled: !hasClosableLeftTabs(tab),
     },
     {
-      key: 'closeRight',
+      key: "closeRight",
       icon: h(VerticalRightOutlined),
-      label: t('layout.tabs.closeRight'),
-      disabled: !hasClosableRightTabs(tab)
+      label: t("layout.tabs.closeRight"),
+      disabled: !hasClosableRightTabs(tab),
     },
     {
-      key: 'closeOthers',
+      key: "closeOthers",
       icon: h(CloseCircleOutlined),
-      label: t('layout.tabs.closeOthers'),
-      disabled: !hasClosableOtherTabs(tab)
+      label: t("layout.tabs.closeOthers"),
+      disabled: !hasClosableOtherTabs(tab),
     },
     {
-      key: 'closeAll',
+      key: "closeAll",
       icon: h(CloseSquareOutlined),
-      label: t('layout.tabs.closeAll'),
-      disabled: !hasClosableTabs.value
-    }
-  ]
-}
+      label: t("layout.tabs.closeAll"),
+      disabled: !hasClosableTabs.value,
+    },
+  ];
+};
 
 const syncRouteWithActiveTab = () => {
-  const active = tabsStore.tabs.find(tab => tab.path === tabsStore.activeTabPath) || tabsStore.tabs[0]
+  const active =
+    tabsStore.tabs.find((tab) => tab.path === tabsStore.activeTabPath) || tabsStore.tabs[0];
   if (!active) {
-    if (route.path !== '/dashboard') {
-      router.push('/dashboard')
+    if (route.path !== "/dashboard") {
+      router.push("/dashboard");
     }
-    return
+    return;
   }
 
   if (route.path !== active.path || route.fullPath !== active.fullPath) {
-    router.push(active.fullPath)
+    router.push(active.fullPath);
   }
-}
+};
 
 const handleContextMenu = (e: { key: string }, tab: Tab) => {
-  const { key } = e
+  const { key } = e;
   switch (key as TabMenuKey) {
-    case 'close':
-      tabsStore.closeTab(tab.path)
-      syncRouteWithActiveTab()
-      break
-    case 'pin':
-      tabsStore.togglePinTab(tab.path)
-      break
-    case 'favorite':
-      tabsStore.toggleFavoriteTab(tab.path)
-      break
-    case 'refresh':
-      tabsStore.refreshTab(tab.path)
-      break
-    case 'closeOthers':
-      tabsStore.closeOtherTabs(tab.path)
-      syncRouteWithActiveTab()
-      break
-    case 'closeAll':
-      tabsStore.closeAllTabs()
-      syncRouteWithActiveTab()
-      break
-    case 'closeLeft':
-      tabsStore.closeLeftTabs(tab.path)
-      syncRouteWithActiveTab()
-      break
-    case 'closeRight':
-      tabsStore.closeRightTabs(tab.path)
-      syncRouteWithActiveTab()
-      break
+    case "close":
+      tabsStore.closeTab(tab.path);
+      syncRouteWithActiveTab();
+      break;
+    case "pin":
+      tabsStore.togglePinTab(tab.path);
+      break;
+    case "favorite":
+      tabsStore.toggleFavoriteTab(tab.path);
+      break;
+    case "refresh":
+      tabsStore.refreshTab(tab.path);
+      break;
+    case "closeOthers":
+      tabsStore.closeOtherTabs(tab.path);
+      syncRouteWithActiveTab();
+      break;
+    case "closeAll":
+      tabsStore.closeAllTabs();
+      syncRouteWithActiveTab();
+      break;
+    case "closeLeft":
+      tabsStore.closeLeftTabs(tab.path);
+      syncRouteWithActiveTab();
+      break;
+    case "closeRight":
+      tabsStore.closeRightTabs(tab.path);
+      syncRouteWithActiveTab();
+      break;
   }
-}
-
+};
 
 const activeTabMenuProps = computed(() => {
   // Access locale to establish reactivity dependency on language changes
-  const currentLocale = locale.value
-  void currentLocale // Ensure reactivity
-  
-  const tab = currentTab.value
+  const currentLocale = locale.value;
+  void currentLocale; // Ensure reactivity
+
+  const tab = currentTab.value;
   return {
     items: tab ? getTabMenuItems(tab) : [],
     onClick: ({ key }: { key: string | number }) => {
       if (tab) {
-        handleContextMenu({ key: String(key) }, tab)
+        handleContextMenu({ key: String(key) }, tab);
       }
-    }
-  }
-})
+    },
+  };
+});
 
 const refreshCurrentTab = () => {
-  const tab = currentTab.value
-  if (!tab) return
-  tabsStore.refreshTab(tab.path)
-}
+  const tab = currentTab.value;
+  if (!tab) return;
+  tabsStore.refreshTab(tab.path);
+};
 
 const getTabLabel = (tab: Tab) => {
-  return resolveLocaleText(tab.title, tab.name)
-}
+  return resolveLocaleText(tab.title, tab.name);
+};
 
 const getTabIcon = (tab: Tab) => {
-  return resolveIcon(tab.icon)
-}
+  return resolveIcon(tab.icon);
+};
 </script>
 
 <style scoped lang="scss">

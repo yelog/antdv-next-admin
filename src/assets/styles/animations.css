@@ -117,23 +117,13 @@
 }
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 25%,
-    #e0e0e0 37%,
-    #f0f0f0 63%
-  );
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
   background-size: 400% 100%;
   animation: skeleton-loading 1.4s ease infinite;
 }
 
 :root.dark .skeleton {
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #1f1f1f 37%,
-    #2a2a2a 63%
-  );
+  background: linear-gradient(90deg, #2a2a2a 25%, #1f1f1f 37%, #2a2a2a 63%);
   background-size: 400% 100%;
 }
 
@@ -158,13 +148,21 @@
 
 /* Shake */
 @keyframes shake {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(0);
   }
-  10%, 30%, 50%, 70%, 90% {
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
     transform: translateX(-10px);
   }
-  20%, 40%, 60%, 80% {
+  20%,
+  40%,
+  60%,
+  80% {
     transform: translateX(10px);
   }
 }
@@ -296,7 +294,7 @@
 }
 
 .ripple-effect::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;

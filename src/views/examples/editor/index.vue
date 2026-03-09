@@ -1,39 +1,39 @@
 <template>
   <div class="page-container">
     <div class="card">
-      <h2>{{ t('exampleEditor.title') }}</h2>
+      <h2>{{ t("exampleEditor.title") }}</h2>
       <p class="text-secondary mb-lg">
-        {{ t('exampleEditor.description') }}
+        {{ t("exampleEditor.description") }}
       </p>
 
       <a-space direction="vertical" :size="16" style="width: 100%">
         <div>
-          <h3>{{ t('exampleEditor.basicUsage') }}</h3>
+          <h3>{{ t("exampleEditor.basicUsage") }}</h3>
           <Editor v-model="content1" :height="300" :placeholder="t('exampleEditor.placeholder')" />
         </div>
 
         <div>
-          <h3>{{ t('exampleEditor.disabledState') }}</h3>
+          <h3>{{ t("exampleEditor.disabledState") }}</h3>
           <Editor v-model="content2" :height="200" disabled />
         </div>
 
         <div>
-          <h3>{{ t('exampleEditor.customHeight') }}</h3>
+          <h3>{{ t("exampleEditor.customHeight") }}</h3>
           <Editor v-model="content3" :height="500" />
         </div>
 
         <div>
-          <h3>{{ t('exampleEditor.contentPreview') }}</h3>
+          <h3>{{ t("exampleEditor.contentPreview") }}</h3>
           <a-card :title="t('exampleEditor.htmlOutput')">
-            <pre class="html-preview">{{ content1 || t('exampleEditor.noContent') }}</pre>
+            <pre class="html-preview">{{ content1 || t("exampleEditor.noContent") }}</pre>
           </a-card>
         </div>
 
         <div>
           <a-space>
-            <a-button type="primary" @click="handleSave">{{ t('exampleEditor.save') }}</a-button>
-            <a-button @click="handleClear">{{ t('exampleEditor.clear') }}</a-button>
-            <a-button @click="handleLoadDemo">{{ t('exampleEditor.loadDemo') }}</a-button>
+            <a-button type="primary" @click="handleSave">{{ t("exampleEditor.save") }}</a-button>
+            <a-button @click="handleClear">{{ t("exampleEditor.clear") }}</a-button>
+            <a-button @click="handleLoadDemo">{{ t("exampleEditor.loadDemo") }}</a-button>
           </a-space>
         </div>
       </a-space>
@@ -42,26 +42,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { message } from 'antdv-next'
-import { useI18n } from 'vue-i18n'
-import Editor from '@/components/Editor/index.vue'
+import { ref } from "vue";
+import { message } from "antdv-next";
+import { useI18n } from "vue-i18n";
+import Editor from "@/components/Editor/index.vue";
 
-const { t } = useI18n()
+const { t } = useI18n();
 
-const content1 = ref('<p>This is a rich text editor example based on <strong>Tiptap</strong>.</p>')
-const content2 = ref('<p>This editor is in disabled state and cannot be edited.</p>')
-const content3 = ref('')
+const content1 = ref("<p>This is a rich text editor example based on <strong>Tiptap</strong>.</p>");
+const content2 = ref("<p>This editor is in disabled state and cannot be edited.</p>");
+const content3 = ref("");
 
 const handleSave = () => {
-  console.log('Saved content:', content1.value)
-  message.success(t('exampleEditor.savedMessage'))
-}
+  console.log("Saved content:", content1.value);
+  message.success(t("exampleEditor.savedMessage"));
+};
 
 const handleClear = () => {
-  content1.value = ''
-  message.info(t('exampleEditor.clearedMessage'))
-}
+  content1.value = "";
+  message.info(t("exampleEditor.clearedMessage"));
+};
 
 const handleLoadDemo = () => {
   content1.value = `
@@ -90,9 +90,9 @@ const handleLoadDemo = () => {
 }</code></pre>
     <h2>Links</h2>
     <p>Visit the <a href="https://tiptap.dev" target="_blank" rel="noopener noreferrer">Tiptap website</a> for more information.</p>
-  `
-  message.success(t('exampleEditor.demoLoadedMessage'))
-}
+  `;
+  message.success(t("exampleEditor.demoLoadedMessage"));
+};
 </script>
 
 <style scoped lang="scss">

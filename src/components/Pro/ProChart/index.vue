@@ -21,20 +21,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import VChart from 'vue-echarts'
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
-import { LineChart, BarChart, PieChart, RadarChart } from 'echarts/charts'
+import { computed } from "vue";
+import VChart from "vue-echarts";
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { LineChart, BarChart, PieChart, RadarChart } from "echarts/charts";
 import {
   TitleComponent,
   TooltipComponent,
   LegendComponent,
   GridComponent,
-  RadarComponent
-} from 'echarts/components'
-import { useThemeStore } from '@/stores/theme'
-import type { ProChartType } from '@/types/pro'
+  RadarComponent,
+} from "echarts/components";
+import { useThemeStore } from "@/stores/theme";
+import type { ProChartType } from "@/types/pro";
 
 use([
   CanvasRenderer,
@@ -46,85 +46,91 @@ use([
   TooltipComponent,
   LegendComponent,
   GridComponent,
-  RadarComponent
-])
+  RadarComponent,
+]);
 
 interface Props {
-  type: ProChartType
-  data: any[]
-  height?: number | string
-  title?: string
-  subTitle?: string
-  loading?: boolean
-  option?: Record<string, any>
+  type: ProChartType;
+  data: any[];
+  height?: number | string;
+  title?: string;
+  subTitle?: string;
+  loading?: boolean;
+  option?: Record<string, any>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   height: 300,
-  loading: false
-})
+  loading: false,
+});
 
-const themeStore = useThemeStore()
-const isDark = computed(() => themeStore.isDark)
+const themeStore = useThemeStore();
+const isDark = computed(() => themeStore.isDark);
 
 const normalizedHeight = computed(() => {
-  return typeof props.height === 'number' ? `${props.height}px` : props.height
-})
+  return typeof props.height === "number" ? `${props.height}px` : props.height;
+});
 
 const generatedOption = computed(() => {
-  const { type, data } = props
+  const { type, data } = props;
 
-  if (type === 'pie' || type === 'donut') {
+  if (type === "pie" || type === "donut") {
     return {
-      tooltip: { trigger: 'item' },
+      tooltip: { trigger: "item" },
       legend: { bottom: 0 },
-      series: [{
-        type: 'pie',
-        radius: type === 'donut' ? ['45%', '70%'] : '70%',
-        data: data.map(item => ({ name: item.name, value: item.value })),
-        emphasis: {
-          itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' }
-        }
-      }]
-    }
+      series: [
+        {
+          type: "pie",
+          radius: type === "donut" ? ["45%", "70%"] : "70%",
+          data: data.map((item) => ({ name: item.name, value: item.value })),
+          emphasis: {
+            itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: "rgba(0, 0, 0, 0.5)" },
+          },
+        },
+      ],
+    };
   }
 
-  if (type === 'radar') {
-    const indicator = data.map(item => ({ name: item.name, max: item.max ?? 100 }))
+  if (type === "radar") {
+    const indicator = data.map((item) => ({ name: item.name, max: item.max ?? 100 }));
     return {
       tooltip: {},
       radar: { indicator },
-      series: [{
-        type: 'radar',
-        data: [{ value: data.map(item => item.value) }]
-      }]
-    }
+      series: [
+        {
+          type: "radar",
+          data: [{ value: data.map((item) => item.value) }],
+        },
+      ],
+    };
   }
 
   // line, bar, area
-  const categories = data.map(item => item.name)
-  const values = data.map(item => item.value)
+  const categories = data.map((item) => item.name);
+  const values = data.map((item) => item.value);
 
   return {
-    tooltip: { trigger: 'axis' },
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: { type: 'category', data: categories },
-    yAxis: { type: 'value' },
-    series: [{
-      type: type === 'area' ? 'line' : type,
-      data: values,
-      smooth: type === 'line' || type === 'area',
-      areaStyle: type === 'area' ? {} : undefined
-    }]
-  }
-})
+    tooltip: { trigger: "axis" },
+    grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
+    xAxis: { type: "category", data: categories },
+    yAxis: { type: "value" },
+    series: [
+      {
+        type: type === "area" ? "line" : type,
+        data: values,
+        smooth: type === "line" || type === "area",
+        areaStyle: type === "area" ? {} : undefined,
+      },
+    ],
+  };
+});
 
 const mergedOption = computed(() => {
   if (props.option) {
-    return { ...generatedOption.value, ...props.option }
+    return { ...generatedOption.value, ...props.option };
   }
-  return generatedOption.value
-})
+  return generatedOption.value;
+});
 </script>
 
 <style scoped lang="scss">

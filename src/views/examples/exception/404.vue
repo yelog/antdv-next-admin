@@ -8,7 +8,7 @@
       >
         <template #extra>
           <a-button type="primary" @click="router.push('/')">
-            {{ $t('error.backHome') }}
+            {{ $t("error.backHome") }}
           </a-button>
         </template>
       </a-result>
@@ -17,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 </script>
 
 <style scoped lang="scss">

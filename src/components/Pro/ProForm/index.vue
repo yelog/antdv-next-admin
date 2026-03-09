@@ -8,11 +8,7 @@
     class="pro-form"
   >
     <a-row :gutter="grid?.gutter || 16">
-      <a-col
-        v-for="item in visibleFormItems"
-        :key="item.name"
-        :span="getColSpan(item)"
-      >
+      <a-col v-for="item in visibleFormItems" :key="item.name" :span="getColSpan(item)">
         <a-form-item
           :name="item.name"
           :label="item.label"
@@ -21,11 +17,7 @@
           :value-prop-name="item.valuePropName || 'value'"
           :class="{ 'form-item-required': item.required }"
         >
-          <FormItemRender
-            v-model:value="formData[item.name]"
-            :item="item"
-            :form-data="formData"
-          />
+          <FormItemRender v-model:value="formData[item.name]" :item="item" :form-data="formData" />
         </a-form-item>
       </a-col>
     </a-row>
@@ -41,130 +33,130 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { $t } from '@/locales'
-import type { ProFormItem, ProFormLayout, ProFormGrid } from '@/types/pro'
-import FormItemRender from './FormItemRender.vue'
+import { ref, computed, watch } from "vue";
+import { $t } from "@/locales";
+import type { ProFormItem, ProFormLayout, ProFormGrid } from "@/types/pro";
+import FormItemRender from "./FormItemRender.vue";
 
 interface Props {
-  formItems: ProFormItem[]
-  initialValues?: Record<string, any>
-  layout?: ProFormLayout
-  grid?: ProFormGrid
+  formItems: ProFormItem[];
+  initialValues?: Record<string, any>;
+  layout?: ProFormLayout;
+  grid?: ProFormGrid;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   layout: () => ({
     labelCol: { span: 6 },
     wrapperCol: { span: 18 },
-    layout: 'horizontal'
+    layout: "horizontal",
   }),
   grid: () => ({
     gutter: 16,
-    cols: 1
-  })
-})
+    cols: 1,
+  }),
+});
 
-const emit = defineEmits(['submit', 'valuesChange', 'finish'])
+const emit = defineEmits(["submit", "valuesChange", "finish"]);
 
-const formRef = ref()
-const formData = ref<Record<string, any>>({})
+const formRef = ref();
+const formData = ref<Record<string, any>>({});
 
 // Computed
 const visibleFormItems = computed(() => {
-  return props.formItems.filter(item => {
-    if (typeof item.hidden === 'function') return !item.hidden(formData.value)
-    return !item.hidden
-  })
-})
+  return props.formItems.filter((item) => {
+    if (typeof item.hidden === "function") return !item.hidden(formData.value);
+    return !item.hidden;
+  });
+});
 
 const formRules = computed(() => {
-  const rules: Record<string, any> = {}
-  props.formItems.forEach(item => {
-    const itemRules = []
+  const rules: Record<string, any> = {};
+  props.formItems.forEach((item) => {
+    const itemRules = [];
 
     // 如果字段标记为 required，自动添加 required 规则
     if (item.required) {
       itemRules.push({
         required: true,
-        message: $t('proForm.enterPlaceholder', { label: String(item.label ?? '') })
-      })
+        message: $t("proForm.enterPlaceholder", { label: String(item.label ?? "") }),
+      });
     }
 
     // 添加自定义规则
     if (item.rules) {
-      itemRules.push(...(Array.isArray(item.rules) ? item.rules : [item.rules]))
+      itemRules.push(...(Array.isArray(item.rules) ? item.rules : [item.rules]));
     }
 
     if (itemRules.length > 0) {
-      rules[item.name] = itemRules
+      rules[item.name] = itemRules;
     }
-  })
-  return rules
-})
+  });
+  return rules;
+});
 
 // Methods
 const getColSpan = (item: ProFormItem) => {
   if (item.colSpan) {
-    return (24 / (props.grid?.cols || 1)) * item.colSpan
+    return (24 / (props.grid?.cols || 1)) * item.colSpan;
   }
-  return 24 / (props.grid?.cols || 1)
-}
+  return 24 / (props.grid?.cols || 1);
+};
 
 const handleFinish = (values: any) => {
-  emit('finish', values)
-  emit('submit', values)
-}
+  emit("finish", values);
+  emit("submit", values);
+};
 
 // Watch initial values
 watch(
   () => props.initialValues,
   (values) => {
     if (values) {
-      formData.value = { ...values }
+      formData.value = { ...values };
     }
   },
-  { immediate: true, deep: true }
-)
+  { immediate: true, deep: true },
+);
 
 // Watch form data changes
 watch(
   formData,
   (values) => {
-    emit('valuesChange', values)
+    emit("valuesChange", values);
   },
-  { deep: true }
-)
+  { deep: true },
+);
 
 // Expose methods
 const validate = async () => {
   try {
-    await formRef.value?.validate()
-    return true
+    await formRef.value?.validate();
+    return true;
   } catch {
-    return false
+    return false;
   }
-}
+};
 
 const resetFields = () => {
-  formRef.value?.resetFields()
-}
+  formRef.value?.resetFields();
+};
 
 const setFieldsValue = (values: Record<string, any>) => {
-  formData.value = { ...formData.value, ...values }
-}
+  formData.value = { ...formData.value, ...values };
+};
 
 const getFieldsValue = () => {
-  return formData.value
-}
+  return formData.value;
+};
 
 defineExpose({
   validate,
   resetFields,
   setFieldsValue,
   getFieldsValue,
-  formRef
-})
+  formRef,
+});
 </script>
 
 <style scoped lang="scss">
@@ -177,7 +169,7 @@ defineExpose({
       font-size: 14px;
       font-family: SimSun, sans-serif;
       line-height: 1;
-      content: '*';
+      content: "*";
     }
   }
 

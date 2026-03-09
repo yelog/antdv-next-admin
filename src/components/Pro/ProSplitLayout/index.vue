@@ -11,31 +11,34 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 
-const props = withDefaults(defineProps<{
-  sideWidth?: number | string
-  sidePosition?: 'left' | 'right'
-  gap?: number | string
-}>(), {
-  sideWidth: 280,
-  sidePosition: 'left',
-  gap: 16
-})
+const props = withDefaults(
+  defineProps<{
+    sideWidth?: number | string;
+    sidePosition?: "left" | "right";
+    gap?: number | string;
+  }>(),
+  {
+    sideWidth: 280,
+    sidePosition: "left",
+    gap: 16,
+  },
+);
 
 const normalizeSize = (value: number | string) => {
-  return typeof value === 'number' ? `${value}px` : value
-}
+  return typeof value === "number" ? `${value}px` : value;
+};
 
 const layoutStyle = computed(() => ({
   gap: normalizeSize(props.gap),
-  flexDirection: props.sidePosition === 'right' ? 'row-reverse' as const : 'row' as const
-}))
+  flexDirection: props.sidePosition === "right" ? ("row-reverse" as const) : ("row" as const),
+}));
 
 const sideStyle = computed(() => ({
   width: normalizeSize(props.sideWidth),
-  minWidth: normalizeSize(props.sideWidth)
-}))
+  minWidth: normalizeSize(props.sideWidth),
+}));
 </script>
 
 <style scoped lang="scss">

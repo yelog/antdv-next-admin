@@ -24,91 +24,91 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue";
 
 interface Props {
-  width?: number | string
-  height?: number | string
-  src?: string
-  tolerance?: number
+  width?: number | string;
+  height?: number | string;
+  src?: string;
+  tolerance?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  width: '100%',
-  src: 'https://picsum.photos/300/300',
-  tolerance: 10
-})
+  width: "100%",
+  src: "https://picsum.photos/300/300",
+  tolerance: 10,
+});
 
-const emit = defineEmits(['success', 'fail'])
+const emit = defineEmits(["success", "fail"]);
 
-const currentAngle = ref(0)
-const sliderPercent = ref(0)
-const isMoving = ref(false)
-const isSuccess = ref(false)
-const initialAngle = ref(0)
-const sliderRef = ref<HTMLElement | null>(null)
+const currentAngle = ref(0);
+const sliderPercent = ref(0);
+const isMoving = ref(false);
+const isSuccess = ref(false);
+const initialAngle = ref(0);
+const sliderRef = ref<HTMLElement | null>(null);
 
 const init = () => {
-  initialAngle.value = Math.random() * 300 + 30
-  currentAngle.value = initialAngle.value
-  sliderPercent.value = 0
-  isSuccess.value = false
-}
+  initialAngle.value = Math.random() * 300 + 30;
+  currentAngle.value = initialAngle.value;
+  sliderPercent.value = 0;
+  isSuccess.value = false;
+};
 
 // Init
-init()
+init();
 
 const handleMouseDown = (e: MouseEvent) => {
-  if (isSuccess.value) return
-  isMoving.value = true
-  const startX = e.clientX
-  const startPercent = sliderPercent.value
+  if (isSuccess.value) return;
+  isMoving.value = true;
+  const startX = e.clientX;
+  const startPercent = sliderPercent.value;
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (!isMoving.value) return
-    const container = sliderRef.value
-    if (!container) return
+    if (!isMoving.value) return;
+    const container = sliderRef.value;
+    if (!container) return;
 
-    const width = container.clientWidth
-    const deltaX = e.clientX - startX
-    const deltaPercent = (deltaX / width) * 100
+    const width = container.clientWidth;
+    const deltaX = e.clientX - startX;
+    const deltaPercent = (deltaX / width) * 100;
 
-    let newPercent = startPercent + deltaPercent
-    newPercent = Math.max(0, Math.min(100, newPercent))
+    let newPercent = startPercent + deltaPercent;
+    newPercent = Math.max(0, Math.min(100, newPercent));
 
-    sliderPercent.value = newPercent
+    sliderPercent.value = newPercent;
     // Map 0-100% to 0-360deg to offset initial angle
-    const rotateDelta = (newPercent / 100) * 360
-    currentAngle.value = initialAngle.value - rotateDelta
-  }
+    const rotateDelta = (newPercent / 100) * 360;
+    currentAngle.value = initialAngle.value - rotateDelta;
+  };
 
   const handleMouseUp = () => {
-    isMoving.value = false
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
+    isMoving.value = false;
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
 
     // Check if angle is close to 0 (360 multiples)
-    let normalizedAngle = currentAngle.value % 360
-    if (normalizedAngle > 180) normalizedAngle -= 360
-    if (normalizedAngle < -180) normalizedAngle += 360
+    let normalizedAngle = currentAngle.value % 360;
+    if (normalizedAngle > 180) normalizedAngle -= 360;
+    if (normalizedAngle < -180) normalizedAngle += 360;
 
     if (Math.abs(normalizedAngle) <= props.tolerance) {
-      isSuccess.value = true
-      emit('success')
+      isSuccess.value = true;
+      emit("success");
     } else {
-      emit('fail')
+      emit("fail");
     }
-  }
+  };
 
-  document.addEventListener('mousemove', handleMouseMove)
-  document.addEventListener('mouseup', handleMouseUp)
-}
+  document.addEventListener("mousemove", handleMouseMove);
+  document.addEventListener("mouseup", handleMouseUp);
+};
 
 const reset = () => {
-  init()
-}
+  init();
+};
 
-defineExpose({ reset })
+defineExpose({ reset });
 </script>
 
 <style scoped>
@@ -180,7 +180,7 @@ defineExpose({ reset })
   justify-content: center;
 }
 .slider-handle::after {
-  content: '';
+  content: "";
   width: 12px;
   height: 12px;
   border-radius: 50%;

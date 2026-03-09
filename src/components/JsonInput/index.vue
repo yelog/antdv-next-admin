@@ -41,8 +41,12 @@
                 <a-tag color="blue">{{ rootFieldCount }} 个字段</a-tag>
               </a-space>
               <a-space size="small">
-                <a-button type="link" size="small" @click="expandAllObjectFields">展开全部</a-button>
-                <a-button type="link" size="small" @click="collapseAllObjectFields">全部收起</a-button>
+                <a-button type="link" size="small" @click="expandAllObjectFields"
+                  >展开全部</a-button
+                >
+                <a-button type="link" size="small" @click="collapseAllObjectFields"
+                  >全部收起</a-button
+                >
               </a-space>
             </div>
 
@@ -81,7 +85,7 @@
       <template #footer>
         <a-space>
           <a-button @click="toggleEditMode" size="small">
-            {{ useRawEdit ? '结构编辑' : '原始编辑' }}
+            {{ useRawEdit ? "结构编辑" : "原始编辑" }}
           </a-button>
           <a-button @click="handleCancel" size="small">
             {{ cancelText }}
@@ -128,723 +132,738 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, type PropType } from 'vue'
-import { EditOutlined } from '@antdv-next/icons'
-import { message } from 'antdv-next'
-import JsonFieldTreeList, { type FieldType, type JsonObject, type FieldConfig, type JsonTreeEditorApi } from './JsonFieldTreeList.vue'
+import { ref, computed, watch, type PropType } from "vue";
+import { EditOutlined } from "@antdv-next/icons";
+import { message } from "antdv-next";
+import JsonFieldTreeList, {
+  type FieldType,
+  type JsonObject,
+  type FieldConfig,
+  type JsonTreeEditorApi,
+} from "./JsonFieldTreeList.vue";
 
 defineOptions({
-  name: 'JsonInput'
-})
+  name: "JsonInput",
+});
 
 interface LabelMap {
-  [key: string]: string
+  [key: string]: string;
 }
 
 interface FieldConfigMap {
-  [key: string]: FieldConfig
+  [key: string]: FieldConfig;
 }
 
 interface RemoveFieldPayload {
-  path: string[]
-  key: string
+  path: string[];
+  key: string;
 }
 
 interface DragStartPayload {
-  path: string[]
-  oldIndex?: number
+  path: string[];
+  oldIndex?: number;
 }
 
 const props = defineProps({
   value: {
     type: Object as PropType<JsonObject | null>,
-    default: null
+    default: null,
   },
   displayKey: {
     type: String,
-    default: ''
+    default: "",
   },
   labelMap: {
     type: Object as PropType<LabelMap>,
-    default: () => ({})
+    default: () => ({}),
   },
   fieldConfig: {
     type: Object as PropType<FieldConfigMap>,
-    default: () => ({})
+    default: () => ({}),
   },
   disabledFields: {
     type: Array as PropType<string[]>,
-    default: () => []
+    default: () => [],
   },
   readonlyFields: {
     type: Array as PropType<string[]>,
-    default: () => []
+    default: () => [],
   },
   allowAdd: {
     type: Boolean,
-    default: true
+    default: true,
   },
   allowDelete: {
     type: Boolean,
-    default: true
+    default: true,
   },
   allowSort: {
     type: Boolean,
-    default: true
+    default: true,
   },
   placeholder: {
     type: String,
-    default: ''
+    default: "",
   },
   modalTitle: {
     type: String,
-    default: ''
+    default: "",
   },
   modalWidth: {
     type: String,
-    default: '900px'
-  }
-})
+    default: "900px",
+  },
+});
 
-const emit = defineEmits(['update:value', 'change'])
+const emit = defineEmits(["update:value", "change"]);
 
-const modalVisible = ref(false)
-const editData = ref<JsonObject>({})
-const fieldOrderMap = ref<Record<string, string[]>>({})
-const dynamicTypeMap = ref<Record<string, FieldType>>({})
-const arrayTextBuffer = ref<Record<string, string>>({})
-const expandedPathKeys = ref<string[]>([])
-const errorMessage = ref('')
-const useRawEdit = ref(false)
-const rawJsonText = ref('')
-const hoveredFieldPathKey = ref('')
-const draggingFieldPathKey = ref('')
-const showAddFieldDialog = ref(false)
-const addFieldTargetPath = ref<string[]>([])
-const newField = ref<{ name: string; type: FieldType }>({ name: '', type: 'string' })
+const modalVisible = ref(false);
+const editData = ref<JsonObject>({});
+const fieldOrderMap = ref<Record<string, string[]>>({});
+const dynamicTypeMap = ref<Record<string, FieldType>>({});
+const arrayTextBuffer = ref<Record<string, string>>({});
+const expandedPathKeys = ref<string[]>([]);
+const errorMessage = ref("");
+const useRawEdit = ref(false);
+const rawJsonText = ref("");
+const hoveredFieldPathKey = ref("");
+const draggingFieldPathKey = ref("");
+const showAddFieldDialog = ref(false);
+const addFieldTargetPath = ref<string[]>([]);
+const newField = ref<{ name: string; type: FieldType }>({ name: "", type: "string" });
 
-const okText = '确定'
-const cancelText = '取消'
+const okText = "确定";
+const cancelText = "取消";
 const fieldTypeOptions: Array<{ label: string; value: FieldType }> = [
-  { label: '文本', value: 'string' },
-  { label: '数字', value: 'number' },
-  { label: '布尔值', value: 'boolean' },
-  { label: '标签', value: 'tags' },
-  { label: '数组', value: 'array' },
-  { label: '对象', value: 'object' }
-]
+  { label: "文本", value: "string" },
+  { label: "数字", value: "number" },
+  { label: "布尔值", value: "boolean" },
+  { label: "标签", value: "tags" },
+  { label: "数组", value: "array" },
+  { label: "对象", value: "object" },
+];
 
 const displayValue = computed(() => {
   if (!props.value) {
-    return ''
+    return "";
   }
   if (props.displayKey && props.value[props.displayKey] !== undefined) {
-    return String(props.value[props.displayKey])
+    return String(props.value[props.displayKey]);
   }
-  return `${JSON.stringify(props.value).slice(0, 50)}...`
-})
+  return `${JSON.stringify(props.value).slice(0, 50)}...`;
+});
 
-const rootFieldCount = computed(() => getFieldOrderByPath([]).length)
+const rootFieldCount = computed(() => getFieldOrderByPath([]).length);
 
 function isPlainObject(value: unknown): value is JsonObject {
-  return Object.prototype.toString.call(value) === '[object Object]'
+  return Object.prototype.toString.call(value) === "[object Object]";
 }
 
 function deepCloneObject<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T
+  return JSON.parse(JSON.stringify(value)) as T;
 }
 
 function normalizeInputValue(value: JsonObject | null): JsonObject {
   if (!value || !isPlainObject(value)) {
-    return {}
+    return {};
   }
-  return deepCloneObject(value)
+  return deepCloneObject(value);
 }
 
 function serializePath(path: string[]): string {
-  return JSON.stringify(path)
+  return JSON.stringify(path);
 }
 
 function parsePath(pathKey: string): string[] {
   try {
-    const parsed: unknown = JSON.parse(pathKey)
-    if (Array.isArray(parsed) && parsed.every(item => typeof item === 'string')) {
-      return parsed
+    const parsed: unknown = JSON.parse(pathKey);
+    if (Array.isArray(parsed) && parsed.every((item) => typeof item === "string")) {
+      return parsed;
     }
   } catch {
-    return []
+    return [];
   }
-  return []
+  return [];
 }
 
 function isPathPrefix(prefix: string[], target: string[]): boolean {
   if (prefix.length > target.length) {
-    return false
+    return false;
   }
-  return prefix.every((segment, index) => segment === target[index])
+  return prefix.every((segment, index) => segment === target[index]);
 }
 
 function getValueByPath(root: unknown, path: string[]): unknown {
-  let current: unknown = root
+  let current: unknown = root;
   for (const segment of path) {
     if (Array.isArray(current)) {
-      const index = Number(segment)
+      const index = Number(segment);
       if (!Number.isInteger(index) || index < 0 || index >= current.length) {
-        return undefined
+        return undefined;
       }
-      current = current[index]
-      continue
+      current = current[index];
+      continue;
     }
     if (isPlainObject(current)) {
-      current = current[segment]
-      continue
+      current = current[segment];
+      continue;
     }
-    return undefined
+    return undefined;
   }
-  return current
+  return current;
 }
 
 function getObjectByPath(path: string[]): JsonObject | null {
-  const value = getValueByPath(editData.value, path)
+  const value = getValueByPath(editData.value, path);
   if (isPlainObject(value)) {
-    return value
+    return value;
   }
-  return null
+  return null;
 }
 
 function getFieldPath(path: string[], key: string): string[] {
-  return [...path, key]
+  return [...path, key];
 }
 
 function getFieldPathKey(path: string[], key: string): string {
-  return serializePath(getFieldPath(path, key))
+  return serializePath(getFieldPath(path, key));
 }
 
 function getFieldConfigByPath(path: string[], key: string): FieldConfig | undefined {
-  const fullPathKey = getFieldPath(path, key).join('.')
-  return props.fieldConfig[fullPathKey] || props.fieldConfig[key]
+  const fullPathKey = getFieldPath(path, key).join(".");
+  return props.fieldConfig[fullPathKey] || props.fieldConfig[key];
 }
 
 function getFieldLabelByPath(path: string[], key: string): string {
-  const config = getFieldConfigByPath(path, key)
-  const fullPathKey = getFieldPath(path, key).join('.')
-  return config?.label || props.labelMap[fullPathKey] || props.labelMap[key] || key
+  const config = getFieldConfigByPath(path, key);
+  const fullPathKey = getFieldPath(path, key).join(".");
+  return config?.label || props.labelMap[fullPathKey] || props.labelMap[key] || key;
 }
 
 function hasLabelMapByPath(path: string[], key: string): boolean {
-  const config = getFieldConfigByPath(path, key)
-  const fullPathKey = getFieldPath(path, key).join('.')
-  return Boolean(config?.label || props.labelMap[fullPathKey] || props.labelMap[key])
+  const config = getFieldConfigByPath(path, key);
+  const fullPathKey = getFieldPath(path, key).join(".");
+  return Boolean(config?.label || props.labelMap[fullPathKey] || props.labelMap[key]);
 }
 
 function isLongTextFieldByPath(path: string[], key: string): boolean {
-  return getFieldConfigByPath(path, key)?.component === 'textarea'
+  return getFieldConfigByPath(path, key)?.component === "textarea";
 }
 
 function setDynamicFieldType(path: string[], key: string, type: FieldType) {
-  dynamicTypeMap.value[getFieldPathKey(path, key)] = type
+  dynamicTypeMap.value[getFieldPathKey(path, key)] = type;
 }
 
 function getDynamicFieldType(path: string[], key: string): FieldType | undefined {
-  return dynamicTypeMap.value[getFieldPathKey(path, key)]
+  return dynamicTypeMap.value[getFieldPathKey(path, key)];
 }
 
 function clearDynamicFieldTypeByPrefix(path: string[]) {
   for (const pathKey of Object.keys(dynamicTypeMap.value)) {
-    const targetPath = parsePath(pathKey)
+    const targetPath = parsePath(pathKey);
     if (isPathPrefix(path, targetPath)) {
-      delete dynamicTypeMap.value[pathKey]
+      delete dynamicTypeMap.value[pathKey];
     }
   }
 }
 
 function getFieldTypeByPath(path: string[], key: string): FieldType {
-  const dynamicType = getDynamicFieldType(path, key)
+  const dynamicType = getDynamicFieldType(path, key);
   if (dynamicType) {
-    return dynamicType
+    return dynamicType;
   }
 
-  const configType = getFieldConfigByPath(path, key)?.type
+  const configType = getFieldConfigByPath(path, key)?.type;
   if (configType) {
-    return configType
+    return configType;
   }
 
-  const target = getObjectByPath(path)
-  const value = target ? target[key] : undefined
+  const target = getObjectByPath(path);
+  const value = target ? target[key] : undefined;
 
   if (value === null || value === undefined) {
-    return 'string'
+    return "string";
   }
-  if (typeof value === 'boolean') {
-    return 'boolean'
+  if (typeof value === "boolean") {
+    return "boolean";
   }
-  if (typeof value === 'number') {
-    return 'number'
+  if (typeof value === "number") {
+    return "number";
   }
   if (Array.isArray(value)) {
-    if (value.length > 0 && value.every(item => typeof item === 'string')) {
-      return 'tags'
+    if (value.length > 0 && value.every((item) => typeof item === "string")) {
+      return "tags";
     }
-    return 'array'
+    return "array";
   }
   if (isPlainObject(value)) {
-    return 'object'
+    return "object";
   }
-  return 'string'
+  return "string";
 }
 
 function isFieldDisabledByPath(path: string[], key: string): boolean {
-  const fullPathKey = getFieldPath(path, key).join('.')
-  return props.disabledFields.includes(fullPathKey) || props.disabledFields.includes(key)
+  const fullPathKey = getFieldPath(path, key).join(".");
+  return props.disabledFields.includes(fullPathKey) || props.disabledFields.includes(key);
 }
 
 function isFieldReadonlyByPath(path: string[], key: string): boolean {
-  const fullPathKey = getFieldPath(path, key).join('.')
-  return isFieldDisabledByPath(path, key) || props.readonlyFields.includes(fullPathKey) || props.readonlyFields.includes(key)
+  const fullPathKey = getFieldPath(path, key).join(".");
+  return (
+    isFieldDisabledByPath(path, key) ||
+    props.readonlyFields.includes(fullPathKey) ||
+    props.readonlyFields.includes(key)
+  );
 }
 
 function getFieldOrderByPath(path: string[]): string[] {
-  const target = getObjectByPath(path)
+  const target = getObjectByPath(path);
   if (!target) {
-    return []
+    return [];
   }
 
-  const pathKey = serializePath(path)
-  const keys = Object.keys(target)
-  const currentOrder = fieldOrderMap.value[pathKey]
+  const pathKey = serializePath(path);
+  const keys = Object.keys(target);
+  const currentOrder = fieldOrderMap.value[pathKey];
 
   if (!currentOrder) {
-    fieldOrderMap.value[pathKey] = [...keys]
-    return fieldOrderMap.value[pathKey]
+    fieldOrderMap.value[pathKey] = [...keys];
+    return fieldOrderMap.value[pathKey];
   }
 
-  const normalizedOrder = currentOrder.filter(key => Object.prototype.hasOwnProperty.call(target, key))
-  keys.forEach(key => {
+  const normalizedOrder = currentOrder.filter((key) =>
+    Object.prototype.hasOwnProperty.call(target, key),
+  );
+  keys.forEach((key) => {
     if (!normalizedOrder.includes(key)) {
-      normalizedOrder.push(key)
+      normalizedOrder.push(key);
     }
-  })
+  });
 
-  const isSameLength = normalizedOrder.length === currentOrder.length
-  const isSameOrder = isSameLength && normalizedOrder.every((key, index) => key === currentOrder[index])
+  const isSameLength = normalizedOrder.length === currentOrder.length;
+  const isSameOrder =
+    isSameLength && normalizedOrder.every((key, index) => key === currentOrder[index]);
   if (!isSameOrder) {
-    fieldOrderMap.value[pathKey] = normalizedOrder
-    return normalizedOrder
+    fieldOrderMap.value[pathKey] = normalizedOrder;
+    return normalizedOrder;
   }
 
-  return currentOrder
+  return currentOrder;
 }
 
 function setFieldOrderByPath(path: string[], order: string[]) {
-  fieldOrderMap.value[serializePath(path)] = [...order]
+  fieldOrderMap.value[serializePath(path)] = [...order];
 }
 
 function formatPathSegment(segment: string): string {
   if (/^\d+$/.test(segment)) {
-    return `[${segment}]`
+    return `[${segment}]`;
   }
-  return segment
+  return segment;
 }
 
 function formatPathLabel(path: string[]): string {
   if (path.length === 0) {
-    return 'root'
+    return "root";
   }
-  return ['root', ...path.map(formatPathSegment)].join(' / ')
+  return ["root", ...path.map(formatPathSegment)].join(" / ");
 }
 
 function getObjectSummaryByPath(path: string[], key: string): string {
-  const target = getObjectByPath(path)
-  const value = target ? target[key] : undefined
+  const target = getObjectByPath(path);
+  const value = target ? target[key] : undefined;
   if (isPlainObject(value)) {
-    return `对象（${Object.keys(value).length} 个字段）`
+    return `对象（${Object.keys(value).length} 个字段）`;
   }
-  return '对象'
+  return "对象";
 }
 
 function parseArrayTextValue(value: string): unknown[] {
-  const trimmed = value.trim()
+  const trimmed = value.trim();
   if (!trimmed) {
-    return []
+    return [];
   }
 
-  const parsed = JSON.parse(trimmed)
+  const parsed = JSON.parse(trimmed);
   if (!Array.isArray(parsed)) {
-    throw new Error('NOT_ARRAY')
+    throw new Error("NOT_ARRAY");
   }
 
-  return parsed
+  return parsed;
 }
 
 function getArrayFieldTextByPath(path: string[], key: string): string {
-  const fieldPath = getFieldPath(path, key)
-  const pathKey = serializePath(fieldPath)
+  const fieldPath = getFieldPath(path, key);
+  const pathKey = serializePath(fieldPath);
 
   if (Object.prototype.hasOwnProperty.call(arrayTextBuffer.value, pathKey)) {
-    return arrayTextBuffer.value[pathKey]
+    return arrayTextBuffer.value[pathKey];
   }
 
-  const target = getObjectByPath(path)
-  const value = target ? target[key] : undefined
+  const target = getObjectByPath(path);
+  const value = target ? target[key] : undefined;
   if (Array.isArray(value)) {
-    return JSON.stringify(value, null, 2)
+    return JSON.stringify(value, null, 2);
   }
-  if (typeof value === 'string') {
-    return value
+  if (typeof value === "string") {
+    return value;
   }
-  return '[]'
+  return "[]";
 }
 
 function onArrayTextChangeByPath(path: string[], key: string, value: string) {
-  arrayTextBuffer.value[serializePath(getFieldPath(path, key))] = value
+  arrayTextBuffer.value[serializePath(getFieldPath(path, key))] = value;
 }
 
 function commitArrayBuffer(path: string[]): boolean {
   if (path.length === 0) {
-    return true
+    return true;
   }
 
-  const pathKey = serializePath(path)
+  const pathKey = serializePath(path);
   if (!Object.prototype.hasOwnProperty.call(arrayTextBuffer.value, pathKey)) {
-    return true
+    return true;
   }
 
-  const parentPath = path.slice(0, -1)
-  const fieldKey = path[path.length - 1]
-  const parent = getValueByPath(editData.value, parentPath)
+  const parentPath = path.slice(0, -1);
+  const fieldKey = path[path.length - 1];
+  const parent = getValueByPath(editData.value, parentPath);
 
   if (!isPlainObject(parent)) {
-    delete arrayTextBuffer.value[pathKey]
-    return true
+    delete arrayTextBuffer.value[pathKey];
+    return true;
   }
 
   try {
-    const parsed = parseArrayTextValue(arrayTextBuffer.value[pathKey])
-    parent[fieldKey] = parsed
-    delete arrayTextBuffer.value[pathKey]
-    return true
+    const parsed = parseArrayTextValue(arrayTextBuffer.value[pathKey]);
+    parent[fieldKey] = parsed;
+    delete arrayTextBuffer.value[pathKey];
+    return true;
   } catch {
-    errorMessage.value = `${getFieldLabelByPath(parentPath, fieldKey)}: 无效的数组格式`
-    return false
+    errorMessage.value = `${getFieldLabelByPath(parentPath, fieldKey)}: 无效的数组格式`;
+    return false;
   }
 }
 
 function validateArrayByPath(path: string[], key: string) {
   if (commitArrayBuffer(getFieldPath(path, key))) {
-    errorMessage.value = ''
+    errorMessage.value = "";
   }
 }
 
 function syncAllArrayBuffers(): boolean {
-  const keys = Object.keys(arrayTextBuffer.value)
+  const keys = Object.keys(arrayTextBuffer.value);
   for (const key of keys) {
-    const path = parsePath(key)
+    const path = parsePath(key);
     if (!commitArrayBuffer(path)) {
-      return false
+      return false;
     }
   }
-  return true
+  return true;
 }
 
 function clearArrayBufferByPrefix(path: string[]) {
   for (const pathKey of Object.keys(arrayTextBuffer.value)) {
-    const targetPath = parsePath(pathKey)
+    const targetPath = parsePath(pathKey);
     if (isPathPrefix(path, targetPath)) {
-      delete arrayTextBuffer.value[pathKey]
+      delete arrayTextBuffer.value[pathKey];
     }
   }
 }
 
 function getOrderedObjectKeys(path: string[], target: JsonObject): string[] {
-  const defaultKeys = Object.keys(target)
-  const customOrder = fieldOrderMap.value[serializePath(path)]
+  const defaultKeys = Object.keys(target);
+  const customOrder = fieldOrderMap.value[serializePath(path)];
   if (!customOrder) {
-    return defaultKeys
+    return defaultKeys;
   }
 
-  const ordered = customOrder.filter(key => Object.prototype.hasOwnProperty.call(target, key))
-  defaultKeys.forEach(key => {
+  const ordered = customOrder.filter((key) => Object.prototype.hasOwnProperty.call(target, key));
+  defaultKeys.forEach((key) => {
     if (!ordered.includes(key)) {
-      ordered.push(key)
+      ordered.push(key);
     }
-  })
-  return ordered
+  });
+  return ordered;
 }
 
 function collectObjectPathKeys(value: unknown, path: string[] = []): string[] {
   if (!isPlainObject(value)) {
-    return []
+    return [];
   }
 
-  const keys: string[] = []
-  const orderedKeys = getOrderedObjectKeys(path, value)
+  const keys: string[] = [];
+  const orderedKeys = getOrderedObjectKeys(path, value);
 
-  orderedKeys.forEach(key => {
-    const childPath = [...path, key]
-    const childValue = value[key]
+  orderedKeys.forEach((key) => {
+    const childPath = [...path, key];
+    const childValue = value[key];
     if (isPlainObject(childValue)) {
-      keys.push(serializePath(childPath))
-      keys.push(...collectObjectPathKeys(childValue, childPath))
+      keys.push(serializePath(childPath));
+      keys.push(...collectObjectPathKeys(childValue, childPath));
     }
-  })
+  });
 
-  return keys
+  return keys;
 }
 
 function isPathExpanded(path: string[]): boolean {
   if (path.length === 0) {
-    return true
+    return true;
   }
-  return expandedPathKeys.value.includes(serializePath(path))
+  return expandedPathKeys.value.includes(serializePath(path));
 }
 
 function setPathExpanded(path: string[], expanded: boolean) {
-  const pathKey = serializePath(path)
-  const next = expandedPathKeys.value.filter(item => item !== pathKey)
+  const pathKey = serializePath(path);
+  const next = expandedPathKeys.value.filter((item) => item !== pathKey);
   if (expanded) {
-    next.push(pathKey)
+    next.push(pathKey);
   }
-  expandedPathKeys.value = next
+  expandedPathKeys.value = next;
 }
 
 function togglePathExpanded(path: string[]) {
-  setPathExpanded(path, !isPathExpanded(path))
+  setPathExpanded(path, !isPathExpanded(path));
 }
 
 function clearExpandedPathKeysByPrefix(path: string[]) {
-  expandedPathKeys.value = expandedPathKeys.value.filter(pathKey => {
-    const targetPath = parsePath(pathKey)
-    return !isPathPrefix(path, targetPath)
-  })
+  expandedPathKeys.value = expandedPathKeys.value.filter((pathKey) => {
+    const targetPath = parsePath(pathKey);
+    return !isPathPrefix(path, targetPath);
+  });
 }
 
 function expandAllObjectFields() {
-  expandedPathKeys.value = collectObjectPathKeys(editData.value)
+  expandedPathKeys.value = collectObjectPathKeys(editData.value);
 }
 
 function collapseAllObjectFields() {
-  expandedPathKeys.value = []
+  expandedPathKeys.value = [];
 }
 
 function buildOrderedValue(value: unknown, path: string[] = []): unknown {
   if (Array.isArray(value)) {
-    return value.map((item, index) => buildOrderedValue(item, [...path, String(index)]))
+    return value.map((item, index) => buildOrderedValue(item, [...path, String(index)]));
   }
 
   if (!isPlainObject(value)) {
-    return value
+    return value;
   }
 
-  const orderedKeys = getFieldOrderByPath(path)
-  const result: JsonObject = {}
+  const orderedKeys = getFieldOrderByPath(path);
+  const result: JsonObject = {};
 
-  orderedKeys.forEach(key => {
+  orderedKeys.forEach((key) => {
     if (Object.prototype.hasOwnProperty.call(value, key)) {
-      result[key] = buildOrderedValue(value[key], [...path, key])
+      result[key] = buildOrderedValue(value[key], [...path, key]);
     }
-  })
+  });
 
-  return result
+  return result;
 }
 
 function resetEditorState(nextValue: JsonObject) {
-  editData.value = nextValue
-  fieldOrderMap.value = {}
-  dynamicTypeMap.value = {}
-  arrayTextBuffer.value = {}
-  hoveredFieldPathKey.value = ''
-  draggingFieldPathKey.value = ''
-  addFieldTargetPath.value = []
-  getFieldOrderByPath([])
-  expandedPathKeys.value = collectObjectPathKeys(nextValue)
+  editData.value = nextValue;
+  fieldOrderMap.value = {};
+  dynamicTypeMap.value = {};
+  arrayTextBuffer.value = {};
+  hoveredFieldPathKey.value = "";
+  draggingFieldPathKey.value = "";
+  addFieldTargetPath.value = [];
+  getFieldOrderByPath([]);
+  expandedPathKeys.value = collectObjectPathKeys(nextValue);
 }
 
 function showModal() {
-  modalVisible.value = true
-  errorMessage.value = ''
-  useRawEdit.value = false
-  showAddFieldDialog.value = false
+  modalVisible.value = true;
+  errorMessage.value = "";
+  useRawEdit.value = false;
+  showAddFieldDialog.value = false;
 
-  const normalized = normalizeInputValue(props.value)
-  resetEditorState(normalized)
-  rawJsonText.value = JSON.stringify(normalized, null, 2)
+  const normalized = normalizeInputValue(props.value);
+  resetEditorState(normalized);
+  rawJsonText.value = JSON.stringify(normalized, null, 2);
 }
 
 function handleCancel() {
-  modalVisible.value = false
-  showAddFieldDialog.value = false
-  errorMessage.value = ''
+  modalVisible.value = false;
+  showAddFieldDialog.value = false;
+  errorMessage.value = "";
 }
 
 function handleOk() {
-  errorMessage.value = ''
+  errorMessage.value = "";
 
   if (useRawEdit.value) {
     try {
-      const parsed: unknown = JSON.parse(rawJsonText.value)
+      const parsed: unknown = JSON.parse(rawJsonText.value);
       if (!isPlainObject(parsed)) {
-        errorMessage.value = 'JSON 根节点必须是对象'
-        return
+        errorMessage.value = "JSON 根节点必须是对象";
+        return;
       }
-      emit('update:value', parsed)
-      emit('change', parsed)
-      modalVisible.value = false
+      emit("update:value", parsed);
+      emit("change", parsed);
+      modalVisible.value = false;
     } catch {
-      errorMessage.value = 'JSON 格式错误'
+      errorMessage.value = "JSON 格式错误";
     }
-    return
+    return;
   }
 
   if (!syncAllArrayBuffers()) {
-    return
+    return;
   }
 
-  const result = buildOrderedValue(editData.value)
+  const result = buildOrderedValue(editData.value);
   if (!isPlainObject(result)) {
-    errorMessage.value = 'JSON 根节点必须是对象'
-    return
+    errorMessage.value = "JSON 根节点必须是对象";
+    return;
   }
 
-  emit('update:value', result)
-  emit('change', result)
-  modalVisible.value = false
+  emit("update:value", result);
+  emit("change", result);
+  modalVisible.value = false;
 }
 
 function toggleEditMode() {
   if (!useRawEdit.value) {
     if (!syncAllArrayBuffers()) {
-      return
+      return;
     }
-    rawJsonText.value = JSON.stringify(editData.value, null, 2)
-    useRawEdit.value = true
-    return
+    rawJsonText.value = JSON.stringify(editData.value, null, 2);
+    useRawEdit.value = true;
+    return;
   }
 
   try {
-    const parsed: unknown = JSON.parse(rawJsonText.value)
+    const parsed: unknown = JSON.parse(rawJsonText.value);
     if (!isPlainObject(parsed)) {
-      errorMessage.value = 'JSON 根节点必须是对象'
-      return
+      errorMessage.value = "JSON 根节点必须是对象";
+      return;
     }
 
-    resetEditorState(parsed)
-    errorMessage.value = ''
-    useRawEdit.value = false
+    resetEditorState(parsed);
+    errorMessage.value = "";
+    useRawEdit.value = false;
   } catch {
-    errorMessage.value = 'JSON 格式错误'
+    errorMessage.value = "JSON 格式错误";
   }
 }
 
 function openAddFieldDialog(path: string[]) {
-  const target = getObjectByPath(path)
+  const target = getObjectByPath(path);
   if (!target) {
-    message.warning('目标对象不存在')
-    return
+    message.warning("目标对象不存在");
+    return;
   }
 
-  addFieldTargetPath.value = [...path]
-  newField.value = { name: '', type: 'string' }
-  showAddFieldDialog.value = true
+  addFieldTargetPath.value = [...path];
+  newField.value = { name: "", type: "string" };
+  showAddFieldDialog.value = true;
 }
 
 function handleAddField() {
-  const fieldName = newField.value.name.trim()
+  const fieldName = newField.value.name.trim();
   if (!fieldName) {
-    message.warning('请输入字段名')
-    return
+    message.warning("请输入字段名");
+    return;
   }
 
-  const targetPath = [...addFieldTargetPath.value]
-  const targetObject = getObjectByPath(targetPath)
+  const targetPath = [...addFieldTargetPath.value];
+  const targetObject = getObjectByPath(targetPath);
   if (!targetObject) {
-    message.warning('目标对象不存在')
-    return
+    message.warning("目标对象不存在");
+    return;
   }
 
   if (Object.prototype.hasOwnProperty.call(targetObject, fieldName)) {
-    message.warning('字段已存在')
-    return
+    message.warning("字段已存在");
+    return;
   }
 
-  let defaultValue: unknown = ''
+  let defaultValue: unknown = "";
   switch (newField.value.type) {
-    case 'boolean':
-      defaultValue = false
-      break
-    case 'number':
-      defaultValue = 0
-      break
-    case 'tags':
-      defaultValue = []
-      break
-    case 'array':
-      defaultValue = []
-      break
-    case 'object':
-      defaultValue = {}
-      break
+    case "boolean":
+      defaultValue = false;
+      break;
+    case "number":
+      defaultValue = 0;
+      break;
+    case "tags":
+      defaultValue = [];
+      break;
+    case "array":
+      defaultValue = [];
+      break;
+    case "object":
+      defaultValue = {};
+      break;
     default:
-      defaultValue = ''
+      defaultValue = "";
   }
 
-  const currentOrder = getFieldOrderByPath(targetPath).filter(key => key !== fieldName)
-  targetObject[fieldName] = defaultValue
-  setDynamicFieldType(targetPath, fieldName, newField.value.type)
-  setFieldOrderByPath(targetPath, [...currentOrder, fieldName])
+  const currentOrder = getFieldOrderByPath(targetPath).filter((key) => key !== fieldName);
+  targetObject[fieldName] = defaultValue;
+  setDynamicFieldType(targetPath, fieldName, newField.value.type);
+  setFieldOrderByPath(targetPath, [...currentOrder, fieldName]);
 
-  if (newField.value.type === 'array') {
-    arrayTextBuffer.value[getFieldPathKey(targetPath, fieldName)] = '[]'
+  if (newField.value.type === "array") {
+    arrayTextBuffer.value[getFieldPathKey(targetPath, fieldName)] = "[]";
   }
 
-  if (newField.value.type === 'object') {
-    setPathExpanded(getFieldPath(targetPath, fieldName), true)
+  if (newField.value.type === "object") {
+    setPathExpanded(getFieldPath(targetPath, fieldName), true);
   }
 
-  newField.value = { name: '', type: 'string' }
-  showAddFieldDialog.value = false
-  message.success('添加成功')
+  newField.value = { name: "", type: "string" };
+  showAddFieldDialog.value = false;
+  message.success("添加成功");
 }
 
 function onRemoveField(payload: RemoveFieldPayload) {
-  const target = getObjectByPath(payload.path)
+  const target = getObjectByPath(payload.path);
   if (!target) {
-    return
+    return;
   }
 
-  delete target[payload.key]
-  setFieldOrderByPath(payload.path, getFieldOrderByPath(payload.path).filter(key => key !== payload.key))
+  delete target[payload.key];
+  setFieldOrderByPath(
+    payload.path,
+    getFieldOrderByPath(payload.path).filter((key) => key !== payload.key),
+  );
 
-  const removedPath = [...payload.path, payload.key]
-  clearArrayBufferByPrefix(removedPath)
-  clearDynamicFieldTypeByPrefix(removedPath)
-  clearExpandedPathKeysByPrefix(removedPath)
+  const removedPath = [...payload.path, payload.key];
+  clearArrayBufferByPrefix(removedPath);
+  clearDynamicFieldTypeByPrefix(removedPath);
+  clearExpandedPathKeysByPrefix(removedPath);
 
-  const removedPathKey = serializePath(removedPath)
+  const removedPathKey = serializePath(removedPath);
   if (hoveredFieldPathKey.value === removedPathKey) {
-    hoveredFieldPathKey.value = ''
+    hoveredFieldPathKey.value = "";
   }
   if (draggingFieldPathKey.value === removedPathKey) {
-    draggingFieldPathKey.value = ''
+    draggingFieldPathKey.value = "";
   }
 }
 
 function onHoverChange(pathKey: string) {
-  hoveredFieldPathKey.value = pathKey
+  hoveredFieldPathKey.value = pathKey;
 }
 
 function onDragStart(payload: DragStartPayload) {
   if (payload.oldIndex === undefined) {
-    draggingFieldPathKey.value = ''
-    return
+    draggingFieldPathKey.value = "";
+    return;
   }
 
-  const currentOrder = getFieldOrderByPath(payload.path)
-  const fieldKey = currentOrder[payload.oldIndex]
-  draggingFieldPathKey.value = fieldKey ? getFieldPathKey(payload.path, fieldKey) : ''
+  const currentOrder = getFieldOrderByPath(payload.path);
+  const fieldKey = currentOrder[payload.oldIndex];
+  draggingFieldPathKey.value = fieldKey ? getFieldPathKey(payload.path, fieldKey) : "";
 }
 
 function onDragEnd() {
-  draggingFieldPathKey.value = ''
+  draggingFieldPathKey.value = "";
 }
 
 const treeEditorApi: JsonTreeEditorApi = {
@@ -865,26 +884,26 @@ const treeEditorApi: JsonTreeEditorApi = {
   onArrayTextChangeByPath,
   validateArrayByPath,
   isPathExpanded,
-  togglePathExpanded
-}
+  togglePathExpanded,
+};
 
 watch(
   () => props.value,
   (newVal) => {
     if (modalVisible.value) {
-      return
+      return;
     }
 
-    const normalized = normalizeInputValue(newVal)
-    editData.value = normalized
-    fieldOrderMap.value = {}
-    dynamicTypeMap.value = {}
-    arrayTextBuffer.value = {}
-    getFieldOrderByPath([])
-    expandedPathKeys.value = collectObjectPathKeys(normalized)
+    const normalized = normalizeInputValue(newVal);
+    editData.value = normalized;
+    fieldOrderMap.value = {};
+    dynamicTypeMap.value = {};
+    arrayTextBuffer.value = {};
+    getFieldOrderByPath([]);
+    expandedPathKeys.value = collectObjectPathKeys(normalized);
   },
-  { deep: true }
-)
+  { deep: true },
+);
 </script>
 
 <style scoped lang="scss">
@@ -940,7 +959,7 @@ watch(
 }
 
 .raw-editor {
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-family: "Monaco", "Menlo", "Consolas", monospace;
   font-size: 13px;
 }
 </style>

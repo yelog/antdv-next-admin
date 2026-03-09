@@ -1,16 +1,16 @@
-import { $t } from '@/locales'
+import { $t } from "@/locales";
 
-export function resolveLocaleText(key?: string, fallback = ''): string {
-  const safeFallback = fallback || '-'
+export function resolveLocaleText(key?: string, fallback = ""): string {
+  const safeFallback = fallback || "-";
   if (!key) {
-    return safeFallback
+    return safeFallback;
   }
 
-  const messageKey = String(key)
-  const translated = $t(messageKey)
+  const messageKey = String(key);
+  const translated = $t(messageKey);
   if (translated !== messageKey && translated.trim()) {
-    return translated
+    return translated;
   }
 
-  return messageKey || safeFallback
+  return messageKey || safeFallback;
 }

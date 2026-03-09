@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
     <div class="card">
-      <h2>{{ $t('exampleWatermark.title') }}</h2>
-      <p class="mb-lg">{{ $t('exampleWatermark.description') }}</p>
+      <h2>{{ $t("exampleWatermark.title") }}</h2>
+      <p class="mb-lg">{{ $t("exampleWatermark.description") }}</p>
 
       <a-form layout="vertical" :style="{ maxWidth: '600px' }">
         <a-form-item :label="$t('exampleWatermark.enableGlobal')">
@@ -70,9 +70,9 @@
 </template>
 
 <script setup lang="ts">
-import { useWatermarkStore } from '@/stores/watermark'
+import { useWatermarkStore } from "@/stores/watermark";
 
-const watermarkStore = useWatermarkStore()
+const watermarkStore = useWatermarkStore();
 </script>
 
 <style scoped lang="scss">

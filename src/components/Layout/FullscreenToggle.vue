@@ -8,8 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import { FullscreenOutlined, FullscreenExitOutlined } from '@antdv-next/icons'
-import { useFullscreen } from '@/composables/useFullscreen'
+import { FullscreenOutlined, FullscreenExitOutlined } from "@antdv-next/icons";
+import { useFullscreen } from "@/composables/useFullscreen";
 
-const { isFullscreen, toggle } = useFullscreen()
+const { isFullscreen, toggle } = useFullscreen();
 </script>

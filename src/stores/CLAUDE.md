@@ -5,8 +5,9 @@
 
 ### Feb 11, 2026
 
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #350 | 5:41 PM | 🔵 | Authentication Store with Demo and Production Modes | ~514 |
-| #342 | 5:40 PM | 🔵 | Pinia Store Architecture | ~252 |
+| ID   | Time    | T   | Title                                               | Read |
+| ---- | ------- | --- | --------------------------------------------------- | ---- |
+| #350 | 5:41 PM | 🔵  | Authentication Store with Demo and Production Modes | ~514 |
+| #342 | 5:40 PM | 🔵  | Pinia Store Architecture                            | ~252 |
+
 </claude-mem-context>

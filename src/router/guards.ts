@@ -1,41 +1,40 @@
-import type { Router, RouteLocationNormalized } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { usePermissionStore } from '@/stores/permission'
-import { useTabsStore } from '@/stores/tabs'
-import { useDictStore } from '@/stores/dict'
-import { isLoggedIn } from '@/utils/auth'
-import { resolveLocaleText } from '@/utils/i18n'
-import { basicRoutes } from './routes'
+import type { Router, RouteLocationNormalized } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { usePermissionStore } from "@/stores/permission";
+import { useTabsStore } from "@/stores/tabs";
+import { useDictStore } from "@/stores/dict";
+import { isLoggedIn } from "@/utils/auth";
+import { resolveLocaleText } from "@/utils/i18n";
+import { basicRoutes } from "./routes";
 
-const MENU_HISTORY_KEY = 'app-menu-history'
-const MAX_HISTORY_ITEMS = 10
+const MENU_HISTORY_KEY = "app-menu-history";
+const MAX_HISTORY_ITEMS = 10;
 
 interface MenuHistoryItem {
-  path: string
-  title: string
-  icon?: string
-  timestamp: number
+  path: string;
+  title: string;
+  icon?: string;
+  timestamp: number;
 }
 
 function recordMenuHistory(route: RouteLocationNormalized) {
   try {
-    const history: MenuHistoryItem[] = JSON.parse(localStorage.getItem(MENU_HISTORY_KEY) || '[]')
-    const title = resolveLocaleText(route.meta?.title as string, String(route.name || route.path))
+    const history: MenuHistoryItem[] = JSON.parse(localStorage.getItem(MENU_HISTORY_KEY) || "[]");
+    const title = resolveLocaleText(route.meta?.title as string, String(route.name || route.path));
 
-    const filtered = history.filter(item => item.path !== route.path)
+    const filtered = history.filter((item) => item.path !== route.path);
 
     filtered.unshift({
       path: route.path,
       title,
       icon: route.meta?.icon as string,
-      timestamp: Date.now()
-    })
+      timestamp: Date.now(),
+    });
 
-    const trimmed = filtered.slice(0, MAX_HISTORY_ITEMS)
+    const trimmed = filtered.slice(0, MAX_HISTORY_ITEMS);
 
-    localStorage.setItem(MENU_HISTORY_KEY, JSON.stringify(trimmed))
-  } catch {
-  }
+    localStorage.setItem(MENU_HISTORY_KEY, JSON.stringify(trimmed));
+  } catch {}
 }
 
 /**
@@ -44,175 +43,175 @@ function recordMenuHistory(route: RouteLocationNormalized) {
 export function setupRouterGuards(router: Router) {
   // Before each route navigation
   router.beforeEach(async (to, _from, next) => {
-    const authStore = useAuthStore()
-    const permissionStore = usePermissionStore()
-    const tabsStore = useTabsStore()
-    const dictStore = useDictStore()
+    const authStore = useAuthStore();
+    const permissionStore = usePermissionStore();
+    const tabsStore = useTabsStore();
+    const dictStore = useDictStore();
 
     const generateDynamicRoutes = async () => {
-      if (permissionStore.isRoutesGenerated) return
+      if (permissionStore.isRoutesGenerated) return;
 
       if (!authStore.user) {
-        authStore.initAuth()
+        authStore.initAuth();
       }
 
       const accessRoutes = await permissionStore.generateRoutes(
         authStore.userRoles,
-        authStore.userPermissions
-      )
+        authStore.userPermissions,
+      );
 
-      accessRoutes.forEach(route => {
-        const routeName = route.name ? String(route.name) : ''
+      accessRoutes.forEach((route) => {
+        const routeName = route.name ? String(route.name) : "";
         if (routeName && router.hasRoute(routeName)) {
-          return
+          return;
         }
-        router.addRoute(route)
-      })
+        router.addRoute(route);
+      });
 
       // 加载字典数据
-      dictStore.loadDictData()
-    }
+      dictStore.loadDictData();
+    };
 
     const initTabsIfNeeded = () => {
-      if (tabsStore.tabs.length > 0) return
+      if (tabsStore.tabs.length > 0) return;
 
-      const routeSources = [
-        ...basicRoutes,
-        ...(permissionStore.routes as any[])
-      ]
+      const routeSources = [...basicRoutes, ...(permissionStore.routes as any[])];
 
-      tabsStore.restoreTabsState(routeSources)
+      tabsStore.restoreTabsState(routeSources);
 
       if (tabsStore.tabs.length === 0) {
-        tabsStore.initAffixTabs(routeSources)
+        tabsStore.initAffixTabs(routeSources);
       }
-    }
+    };
 
     // Set page title
     if (to.meta.title) {
       const title = resolveLocaleText(
         to.meta.title as string,
-        String(to.name || to.path || 'Dashboard')
-      )
-      document.title = `${title} - ${import.meta.env.VITE_APP_TITLE || 'Antdv Next Admin'}`
+        String(to.name || to.path || "Dashboard"),
+      );
+      document.title = `${title} - ${import.meta.env.VITE_APP_TITLE || "Antdv Next Admin"}`;
     }
 
     // If first refresh hits catch-all and is redirected to 404,
     // restore dynamic routes first, then retry the original target.
-    const redirectedFromPath = to.redirectedFrom?.fullPath
-    const shouldRecoverFromNotFound = (
-      to.path === '/404' &&
+    const redirectedFromPath = to.redirectedFrom?.fullPath;
+    const shouldRecoverFromNotFound =
+      to.path === "/404" &&
       !!redirectedFromPath &&
-      redirectedFromPath !== '/404' &&
+      redirectedFromPath !== "/404" &&
       isLoggedIn() &&
-      !permissionStore.isRoutesGenerated
-    )
+      !permissionStore.isRoutesGenerated;
 
     if (shouldRecoverFromNotFound) {
       try {
-        await generateDynamicRoutes()
-        initTabsIfNeeded()
-        next({ path: redirectedFromPath, replace: true })
-        return
+        await generateDynamicRoutes();
+        initTabsIfNeeded();
+        next({ path: redirectedFromPath, replace: true });
+        return;
       } catch (error) {
-        console.error('Failed to recover routes from not found redirect:', error)
-        next('/403')
-        return
+        console.error("Failed to recover routes from not found redirect:", error);
+        next("/403");
+        return;
       }
     }
 
     // If catch-all redirected to 404 but user is not logged in,
     // redirect to login instead of showing 404
     if (
-      to.path === '/404' &&
+      to.path === "/404" &&
       !!redirectedFromPath &&
-      redirectedFromPath !== '/404' &&
+      redirectedFromPath !== "/404" &&
       !isLoggedIn()
     ) {
-      next({ path: '/login', query: { redirect: redirectedFromPath } })
-      return
+      next({ path: "/login", query: { redirect: redirectedFromPath } });
+      return;
     }
 
     // Check if route requires authentication
-    const requiresAuth = to.meta.requiresAuth !== false
+    const requiresAuth = to.meta.requiresAuth !== false;
 
     if (requiresAuth) {
       // Check if user is logged in
       if (!isLoggedIn()) {
         // Redirect to login page
         next({
-          path: '/login',
-          query: { redirect: to.fullPath }
-        })
-        return
+          path: "/login",
+          query: { redirect: to.fullPath },
+        });
+        return;
       }
 
       // Generate dynamic routes if not already generated
       if (!permissionStore.isRoutesGenerated) {
         try {
-          await generateDynamicRoutes()
-          initTabsIfNeeded()
+          await generateDynamicRoutes();
+          initTabsIfNeeded();
 
           // Continue to the target route
-          next({ ...to, replace: true })
-          return
+          next({ ...to, replace: true });
+          return;
         } catch (error) {
-          console.error('Failed to generate routes:', error)
-          next('/403')
-          return
+          console.error("Failed to generate routes:", error);
+          next("/403");
+          return;
         }
       }
 
       // Check permissions
-      const requiredPermissions = to.meta.requiredPermissions as string[] | undefined
-      if (requiredPermissions && Array.isArray(requiredPermissions) && requiredPermissions.length > 0) {
-        const hasPermission = authStore.hasAnyPermission(requiredPermissions)
+      const requiredPermissions = to.meta.requiredPermissions as string[] | undefined;
+      if (
+        requiredPermissions &&
+        Array.isArray(requiredPermissions) &&
+        requiredPermissions.length > 0
+      ) {
+        const hasPermission = authStore.hasAnyPermission(requiredPermissions);
         if (!hasPermission) {
-          next('/403')
-          return
+          next("/403");
+          return;
         }
       }
 
       // Check roles
-      const requiredRoles = to.meta.requiredRoles as string[] | undefined
+      const requiredRoles = to.meta.requiredRoles as string[] | undefined;
       if (requiredRoles && Array.isArray(requiredRoles) && requiredRoles.length > 0) {
-        const hasRole = authStore.hasAnyRole(requiredRoles)
+        const hasRole = authStore.hasAnyRole(requiredRoles);
         if (!hasRole) {
-          next('/403')
-          return
+          next("/403");
+          return;
         }
       }
 
-      initTabsIfNeeded()
+      initTabsIfNeeded();
     }
 
     // Add to tabs
     if (to.name && to.meta.requiresAuth !== false && !to.meta.hidden) {
-      tabsStore.addTab(to)
+      tabsStore.addTab(to);
     }
 
-    next()
-  })
+    next();
+  });
 
   // After each route navigation
   router.afterEach((to) => {
     // Scroll to top
-    window.scrollTo(0, 0)
+    window.scrollTo(0, 0);
 
     // Set active tab
-    const tabsStore = useTabsStore()
+    const tabsStore = useTabsStore();
     if (to.path) {
-      tabsStore.setActiveTab(to.path)
+      tabsStore.setActiveTab(to.path);
     }
 
     // Record menu visit history
     if (to.name && to.meta.requiresAuth !== false && !to.meta.hidden) {
-      recordMenuHistory(to)
+      recordMenuHistory(to);
     }
-  })
+  });
 
   // On error
   router.onError((error) => {
-    console.error('Router error:', error)
-  })
+    console.error("Router error:", error);
+  });
 }

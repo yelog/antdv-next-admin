@@ -1,122 +1,119 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import type { RouteRecordRaw } from 'vue-router'
-import type { AppRouteRecordRaw, MenuItem } from '@/types/router'
-import type { Permission } from '@/types/auth'
-import { basicRoutes, asyncRoutes } from '@/router/routes'
-import { getUserPermissions } from '@/api/permission'
-import {
-  filterRoutesByPermission,
-  filterRoutesByRole,
-  routesToMenuTree
-} from '@/router/utils'
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import type { RouteRecordRaw } from "vue-router";
+import type { AppRouteRecordRaw, MenuItem } from "@/types/router";
+import type { Permission } from "@/types/auth";
+import { basicRoutes, asyncRoutes } from "@/router/routes";
+import { getUserPermissions } from "@/api/permission";
+import { filterRoutesByPermission, filterRoutesByRole, routesToMenuTree } from "@/router/utils";
 
 function cloneRoutes(routes: AppRouteRecordRaw[]): AppRouteRecordRaw[] {
-  return routes.map(route => ({
+  return routes.map((route) => ({
     ...route,
     meta: route.meta ? { ...route.meta } : undefined,
-    children: route.children ? cloneRoutes(route.children) : undefined
-  }))
+    children: route.children ? cloneRoutes(route.children) : undefined,
+  }));
 }
 
 function collectPermissionCodes(permissionTree: Permission[]): string[] {
-  const codes = new Set<string>()
+  const codes = new Set<string>();
 
   const traverse = (permissions: Permission[]) => {
-    permissions.forEach(permission => {
+    permissions.forEach((permission) => {
       if (permission.code) {
-        codes.add(permission.code)
+        codes.add(permission.code);
       }
       if (permission.children && permission.children.length > 0) {
-        traverse(permission.children)
+        traverse(permission.children);
       }
-    })
-  }
+    });
+  };
 
-  traverse(permissionTree)
-  return Array.from(codes)
+  traverse(permissionTree);
+  return Array.from(codes);
 }
 
-export const usePermissionStore = defineStore('permission', () => {
+export const usePermissionStore = defineStore("permission", () => {
   // State
-  const routes = ref<RouteRecordRaw[]>([])
-  const menuTree = ref<MenuItem[]>([])
-  const isRoutesGenerated = ref(false)
+  const routes = ref<RouteRecordRaw[]>([]);
+  const menuTree = ref<MenuItem[]>([]);
+  const isRoutesGenerated = ref(false);
 
   // Actions
-  const generateRoutes = async (roles: string[], permissions: string[]): Promise<RouteRecordRaw[]> => {
-    let permissionCodes = permissions
+  const generateRoutes = async (
+    roles: string[],
+    permissions: string[],
+  ): Promise<RouteRecordRaw[]> => {
+    let permissionCodes = permissions;
     try {
-      const permissionResponse = await getUserPermissions()
-      const apiPermissionCodes = collectPermissionCodes(permissionResponse.data || [])
+      const permissionResponse = await getUserPermissions();
+      const apiPermissionCodes = collectPermissionCodes(permissionResponse.data || []);
       if (apiPermissionCodes.length > 0) {
-        permissionCodes = apiPermissionCodes
+        permissionCodes = apiPermissionCodes;
       }
     } catch (error) {
-      console.warn('Failed to load permissions from API, fallback to user info permissions.', error)
+      console.warn(
+        "Failed to load permissions from API, fallback to user info permissions.",
+        error,
+      );
     }
 
-    const clonedAsyncRoutes = cloneRoutes(asyncRoutes)
-    const clonedBasicChildren = cloneRoutes(
-      basicRoutes.flatMap(route => route.children || [])
-    )
+    const clonedAsyncRoutes = cloneRoutes(asyncRoutes);
+    const clonedBasicChildren = cloneRoutes(basicRoutes.flatMap((route) => route.children || []));
 
-    let accessedRoutes = filterRoutesByPermission(clonedAsyncRoutes, permissionCodes)
-    accessedRoutes = filterRoutesByRole(accessedRoutes, roles)
+    let accessedRoutes = filterRoutesByPermission(clonedAsyncRoutes, permissionCodes);
+    accessedRoutes = filterRoutesByRole(accessedRoutes, roles);
 
-    routes.value = accessedRoutes as unknown as RouteRecordRaw[]
-    menuTree.value = routesToMenuTree([
-      ...clonedBasicChildren,
-      ...accessedRoutes
-    ])
-    isRoutesGenerated.value = true
+    routes.value = accessedRoutes as unknown as RouteRecordRaw[];
+    menuTree.value = routesToMenuTree([...clonedBasicChildren, ...accessedRoutes]);
+    isRoutesGenerated.value = true;
 
-    return routes.value
-  }
+    return routes.value;
+  };
 
   const getAccessibleMenus = (permissions: string[]): MenuItem[] => {
-    const hasAllPermission = permissions.includes('*')
+    const hasAllPermission = permissions.includes("*");
 
     // Filter menu tree based on permissions
     const filterMenu = (menus: MenuItem[]): MenuItem[] => {
       return menus
-        .filter(menu => {
+        .filter((menu) => {
           if (hasAllPermission) {
-            return true
+            return true;
           }
 
           if (!menu.requiredPermissions || menu.requiredPermissions.length === 0) {
-            return true
+            return true;
           }
-          return menu.requiredPermissions.some(perm => permissions.includes(perm))
+          return menu.requiredPermissions.some((perm) => permissions.includes(perm));
         })
-        .map(menu => {
+        .map((menu) => {
           if (menu.children) {
             return {
               ...menu,
-              children: filterMenu(menu.children)
-            }
+              children: filterMenu(menu.children),
+            };
           }
-          return menu
-        })
-    }
+          return menu;
+        });
+    };
 
-    return filterMenu(menuTree.value)
-  }
+    return filterMenu(menuTree.value);
+  };
 
   const setRoutes = (newRoutes: RouteRecordRaw[]) => {
-    routes.value = newRoutes
-  }
+    routes.value = newRoutes;
+  };
 
   const setMenuTree = (newMenuTree: MenuItem[]) => {
-    menuTree.value = newMenuTree
-  }
+    menuTree.value = newMenuTree;
+  };
 
   const resetPermission = () => {
-    routes.value = []
-    menuTree.value = []
-    isRoutesGenerated.value = false
-  }
+    routes.value = [];
+    menuTree.value = [];
+    isRoutesGenerated.value = false;
+  };
 
   return {
     // State
@@ -128,6 +125,6 @@ export const usePermissionStore = defineStore('permission', () => {
     getAccessibleMenus,
     setRoutes,
     setMenuTree,
-    resetPermission
-  }
-})
+    resetPermission,
+  };
+});

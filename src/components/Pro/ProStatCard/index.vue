@@ -13,20 +13,23 @@
 </template>
 
 <script setup lang="ts">
-import { RiseOutlined, FallOutlined } from '@antdv-next/icons'
-import type { ProStatCardTone } from '@/types/pro'
+import { RiseOutlined, FallOutlined } from "@antdv-next/icons";
+import type { ProStatCardTone } from "@/types/pro";
 
-withDefaults(defineProps<{
-  label: string
-  value: string | number
-  trend?: string
-  trendDirection?: 'up' | 'down'
-  icon?: any
-  tone?: ProStatCardTone
-}>(), {
-  trendDirection: 'up',
-  tone: 'blue'
-})
+withDefaults(
+  defineProps<{
+    label: string;
+    value: string | number;
+    trend?: string;
+    trendDirection?: "up" | "down";
+    icon?: any;
+    tone?: ProStatCardTone;
+  }>(),
+  {
+    trendDirection: "up",
+    tone: "blue",
+  },
+);
 </script>
 
 <style scoped lang="scss">

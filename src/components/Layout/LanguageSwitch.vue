@@ -7,37 +7,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { GlobalOutlined } from '@antdv-next/icons'
-import i18n, { setLocale, LOCALE_NATIVE_LABELS } from '@/locales'
+import { computed } from "vue";
+import { GlobalOutlined } from "@antdv-next/icons";
+import i18n, { setLocale, LOCALE_NATIVE_LABELS } from "@/locales";
 
-const currentLocale = computed(() => String(i18n.global.locale.value))
-const localeOptions = computed(() => ([
-  { label: LOCALE_NATIVE_LABELS['zh-CN'], value: 'zh-CN' },
-  { label: LOCALE_NATIVE_LABELS['en-US'], value: 'en-US' },
-  { label: LOCALE_NATIVE_LABELS['ja-JP'], value: 'ja-JP' },
-  { label: LOCALE_NATIVE_LABELS['ko-KR'], value: 'ko-KR' }
-]))
+const currentLocale = computed(() => String(i18n.global.locale.value));
+const localeOptions = computed(() => [
+  { label: LOCALE_NATIVE_LABELS["zh-CN"], value: "zh-CN" },
+  { label: LOCALE_NATIVE_LABELS["en-US"], value: "en-US" },
+  { label: LOCALE_NATIVE_LABELS["ja-JP"], value: "ja-JP" },
+  { label: LOCALE_NATIVE_LABELS["ko-KR"], value: "ko-KR" },
+]);
 
 const handleLanguageChange = ({ key }: { key: string | number }) => {
-  const nextLocale = String(key)
-  if (!localeOptions.value.some(item => item.value === nextLocale)) {
-    return
+  const nextLocale = String(key);
+  if (!localeOptions.value.some((item) => item.value === nextLocale)) {
+    return;
   }
   if (nextLocale === currentLocale.value) {
-    return
+    return;
   }
-  setLocale(nextLocale)
-}
+  setLocale(nextLocale);
+};
 
 const menuProps = computed(() => ({
-  items: localeOptions.value.map(item => ({
+  items: localeOptions.value.map((item) => ({
     key: item.value,
-    label: item.label
+    label: item.label,
   })),
   selectedKeys: [currentLocale.value],
-  onClick: handleLanguageChange
-}))
+  onClick: handleLanguageChange,
+}));
 </script>
 
 <style scoped lang="scss">

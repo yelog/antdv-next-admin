@@ -26,40 +26,40 @@
         />
       </template>
       <template v-else>
-        {{ getValue(item) ?? '-' }}
+        {{ getValue(item) ?? "-" }}
       </template>
     </a-descriptions-item>
   </a-descriptions>
 </template>
 
 <script setup lang="ts">
-import type { ProDescriptionItem } from '@/types/pro'
-import ValueTypeRender from '../ProTable/ValueTypeRender.vue'
+import type { ProDescriptionItem } from "@/types/pro";
+import ValueTypeRender from "../ProTable/ValueTypeRender.vue";
 
 interface Props {
-  columns: ProDescriptionItem[]
-  data: Record<string, any>
-  column?: number
-  bordered?: boolean
-  size?: 'default' | 'middle' | 'small'
-  title?: string
-  layout?: 'horizontal' | 'vertical'
+  columns: ProDescriptionItem[];
+  data: Record<string, any>;
+  column?: number;
+  bordered?: boolean;
+  size?: "default" | "middle" | "small";
+  title?: string;
+  layout?: "horizontal" | "vertical";
 }
 
 const props = withDefaults(defineProps<Props>(), {
   column: 2,
   bordered: false,
-  size: 'default',
-  layout: 'horizontal'
-})
+  size: "default",
+  layout: "horizontal",
+});
 
 const getValue = (item: ProDescriptionItem) => {
-  const keys = item.dataIndex.split('.')
-  let val: any = props.data
+  const keys = item.dataIndex.split(".");
+  let val: any = props.data;
   for (const key of keys) {
-    if (val == null) return undefined
-    val = val[key]
+    if (val == null) return undefined;
+    val = val[key];
   }
-  return val
-}
+  return val;
+};
 </script>

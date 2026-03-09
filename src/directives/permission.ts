@@ -1,5 +1,5 @@
-import type { Directive, DirectiveBinding } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import type { Directive, DirectiveBinding } from "vue";
+import { useAuthStore } from "@/stores/auth";
 
 /**
  * Permission directive
@@ -10,39 +10,39 @@ import { useAuthStore } from '@/stores/auth'
  */
 export const vPermission: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding) {
-    checkPermission(el, binding)
+    checkPermission(el, binding);
   },
   updated(el: HTMLElement, binding: DirectiveBinding) {
-    checkPermission(el, binding)
-  }
-}
+    checkPermission(el, binding);
+  },
+};
 
 function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
-  const { value, modifiers } = binding
-  const authStore = useAuthStore()
+  const { value, modifiers } = binding;
+  const authStore = useAuthStore();
 
   if (!value) {
-    throw new Error('Permission value is required. Usage: v-permission="\'user.create\'"')
+    throw new Error("Permission value is required. Usage: v-permission=\"'user.create'\"");
   }
 
-  const permissions = Array.isArray(value) ? value : [value]
-  let hasPermission = false
+  const permissions = Array.isArray(value) ? value : [value];
+  let hasPermission = false;
 
   if (modifiers.all) {
     // Check if user has all permissions
-    hasPermission = permissions.every(perm => authStore.hasPermission(perm))
+    hasPermission = permissions.every((perm) => authStore.hasPermission(perm));
   } else {
     // Check if user has any permission (OR logic)
-    hasPermission = permissions.some(perm => authStore.hasPermission(perm))
+    hasPermission = permissions.some((perm) => authStore.hasPermission(perm));
   }
 
   if (!hasPermission) {
     // Remove element if no permission
-    el.style.display = 'none'
+    el.style.display = "none";
     // Or completely remove from DOM
     // el.parentNode?.removeChild(el)
   } else {
-    el.style.display = ''
+    el.style.display = "";
   }
 }
 
@@ -50,7 +50,7 @@ function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
  * Register permission directive globally
  */
 export function setupPermissionDirective(app: any) {
-  app.directive('permission', vPermission)
+  app.directive("permission", vPermission);
 }
 
-export default vPermission
+export default vPermission;

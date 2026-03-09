@@ -5,9 +5,10 @@
 
 ### Feb 11, 2026
 
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #349 | 5:41 PM | 🔵 | Router Guards with Dynamic Route Generation and Permission Checking | ~589 |
-| #347 | " | 🔵 | Route Structure with Three-Tier Organization | ~443 |
-| #343 | 5:40 PM | 🔵 | Router Configuration with Guard System | ~292 |
+| ID   | Time    | T   | Title                                                               | Read |
+| ---- | ------- | --- | ------------------------------------------------------------------- | ---- |
+| #349 | 5:41 PM | 🔵  | Router Guards with Dynamic Route Generation and Permission Checking | ~589 |
+| #347 | "       | 🔵  | Route Structure with Three-Tier Organization                        | ~443 |
+| #343 | 5:40 PM | 🔵  | Router Configuration with Guard System                              | ~292 |
+
 </claude-mem-context>

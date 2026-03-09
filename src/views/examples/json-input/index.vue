@@ -1,19 +1,19 @@
 <template>
   <div class="page-container">
     <div class="card">
-      <h2>JsonInput {{ $t('common.component') || 'Component' }}</h2>
+      <h2>JsonInput {{ $t("common.component") || "Component" }}</h2>
       <p class="mb-lg">
-        {{ $t('examples.jsonInput.description') }}
+        {{ $t("examples.jsonInput.description") }}
       </p>
 
-      <a-divider orientation="left">{{ $t('common.basicUsage') }}</a-divider>
+      <a-divider orientation="left">{{ $t("common.basicUsage") }}</a-divider>
 
       <a-form :model="formState" layout="vertical">
         <a-form-item :label="$t('examples.jsonInput.userConfig')">
           <JsonInput
             v-model:value="formState.userConfig"
             :field-config="{
-              address: { component: 'textarea', maxLength: 500 }
+              address: { component: 'textarea', maxLength: 500 },
             }"
             :placeholder="$t('examples.jsonInput.clickToEdit')"
             :modal-title="$t('examples.jsonInput.editUserConfig')"
@@ -25,16 +25,16 @@
             v-model:value="formState.productInfo"
             display-key="name"
             :field-config="{
-              description: { component: 'textarea', maxLength: 500 }
+              description: { component: 'textarea', maxLength: 500 },
             }"
             :placeholder="$t('examples.jsonInput.selectProduct')"
           />
         </a-form-item>
 
-        <a-divider orientation="left">{{ $t('common.advancedUsage') }}</a-divider>
+        <a-divider orientation="left">{{ $t("common.advancedUsage") }}</a-divider>
 
         <a-form-item :label="$t('examples.jsonInput.withI18nKeys')">
-          <div class="hint">{{ $t('examples.jsonInput.i18nKeysHint') }}</div>
+          <div class="hint">{{ $t("examples.jsonInput.i18nKeysHint") }}</div>
           <JsonInput
             v-model:value="formState.i18nConfig"
             :label-map="{
@@ -42,7 +42,7 @@
               email: $t('user.email'),
               age: $t('user.age'),
               department: $t('user.department'),
-              position: $t('user.position')
+              position: $t('user.position'),
             }"
             :placeholder="$t('examples.jsonInput.clickToEdit')"
           />
@@ -71,8 +71,8 @@
         </a-form-item>
       </a-form>
 
-      <a-divider orientation="left">{{ $t('common.preview') }}</a-divider>
-      
+      <a-divider orientation="left">{{ $t("common.preview") }}</a-divider>
+
       <a-card title="Data Preview" size="small">
         <pre class="json-preview">{{ JSON.stringify(formState, null, 2) }}</pre>
       </a-card>
@@ -81,49 +81,49 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
-import JsonInput from '@/components/JsonInput/index.vue'
+import { reactive } from "vue";
+import JsonInput from "@/components/JsonInput/index.vue";
 
 const formState = reactive({
   userConfig: {
-    name: 'John Doe',
-    email: 'john@example.com',
+    name: "John Doe",
+    email: "john@example.com",
     age: 28,
     isActive: true,
-    tags: ['developer', 'admin'],
-    address: '123 Main St, City'
+    tags: ["developer", "admin"],
+    address: "123 Main St, City",
   },
   productInfo: {
-    name: 'MacBook Pro',
+    name: "MacBook Pro",
     price: 1999,
     stock: 50,
-    description: 'High-performance laptop for professionals'
+    description: "High-performance laptop for professionals",
   },
   i18nConfig: {
-    name: '张三',
-    email: 'zhangsan@example.com',
+    name: "张三",
+    email: "zhangsan@example.com",
     age: 30,
-    department: '技术部',
-    position: '高级工程师'
+    department: "技术部",
+    position: "高级工程师",
   },
   systemConfig: {
-    id: 'sys-001',
-    apiKey: 'sk-1234567890abcdef',
-    endpoint: 'https://api.example.com',
-    timeout: 30
+    id: "sys-001",
+    apiKey: "sk-1234567890abcdef",
+    endpoint: "https://api.example.com",
+    timeout: 30,
   },
   nestedData: {
     user: {
-      name: 'Jane Smith',
-      email: 'jane@example.com'
+      name: "Jane Smith",
+      email: "jane@example.com",
     },
     settings: {
-      theme: 'dark',
-      language: 'zh-CN'
-    }
+      theme: "dark",
+      language: "zh-CN",
+    },
   },
-  newConfig: null as Record<string, any> | null
-})
+  newConfig: null as Record<string, any> | null,
+});
 </script>
 
 <style scoped lang="scss">

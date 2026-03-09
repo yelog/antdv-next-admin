@@ -33,8 +33,14 @@
                     <FileOutlined v-else />
                   </div>
                   <div class="item-info">
-                    <span class="item-title" v-html="highlightText(result.title, searchQuery)"></span>
-                    <span class="item-path" v-html="highlightText(formatPath(result.path), searchQuery)"></span>
+                    <span
+                      class="item-title"
+                      v-html="highlightText(result.title, searchQuery)"
+                    ></span>
+                    <span
+                      class="item-path"
+                      v-html="highlightText(formatPath(result.path), searchQuery)"
+                    ></span>
                   </div>
                   <div class="item-actions" @click.stop>
                     <a-button
@@ -54,7 +60,7 @@
                 <div class="empty-icon">
                   <SearchOutlined />
                 </div>
-                <p>{{ $t('layout.noSearchResults') }}</p>
+                <p>{{ $t("layout.noSearchResults") }}</p>
               </div>
             </div>
 
@@ -62,9 +68,9 @@
             <div v-else-if="menuHistory.length > 0" class="search-results">
               <div class="search-group-header">
                 <ClockCircleOutlined class="header-icon" />
-                <span class="header-title">{{ $t('layout.recentMenus') || '最近访问' }}</span>
+                <span class="header-title">{{ $t("layout.recentMenus") || "最近访问" }}</span>
                 <a-button type="link" size="small" class="clear-btn" @click="clearHistory">
-                  {{ $t('common.clear') || '清空' }}
+                  {{ $t("common.clear") || "清空" }}
                 </a-button>
               </div>
               <div
@@ -103,7 +109,7 @@
               <div class="empty-icon">
                 <SearchOutlined />
               </div>
-              <p>{{ $t('layout.searchPlaceholder') }}</p>
+              <p>{{ $t("layout.searchPlaceholder") }}</p>
             </div>
           </div>
 
@@ -115,17 +121,17 @@
               <span class="key-badge">
                 <ArrowDownOutlined />
               </span>
-              <span class="footer-text">{{ $t('common.navigate') || 'Navigate' }}</span>
+              <span class="footer-text">{{ $t("common.navigate") || "Navigate" }}</span>
             </div>
             <div class="footer-item">
               <span class="key-badge">
                 <EnterOutlined />
               </span>
-              <span class="footer-text">{{ $t('common.select') || 'Select' }}</span>
+              <span class="footer-text">{{ $t("common.select") || "Select" }}</span>
             </div>
             <div class="footer-item">
               <span class="key-badge">ESC</span>
-              <span class="footer-text">{{ $t('common.close') || 'Close' }}</span>
+              <span class="footer-text">{{ $t("common.close") || "Close" }}</span>
             </div>
           </div>
         </div>
@@ -135,8 +141,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
+import { useRouter } from "vue-router";
 import {
   SearchOutlined,
   FileOutlined,
@@ -146,245 +152,247 @@ import {
   ClockCircleOutlined,
   CloseOutlined,
   StarOutlined,
-  StarFilled
-} from '@antdv-next/icons'
-import { basicRoutes } from '@/router/routes'
-import { routesToMenuTree } from '@/router/utils'
-import { usePermissionStore } from '@/stores/permission'
-import { useTabsStore } from '@/stores/tabs'
-import type { MenuItem } from '@/types/router'
-import { resolveLocaleText } from '@/utils/i18n'
-import { resolveIcon } from '@/utils/icon'
-import { match as pinyinMatch } from 'pinyin-pro'
+  StarFilled,
+} from "@antdv-next/icons";
+import { basicRoutes } from "@/router/routes";
+import { routesToMenuTree } from "@/router/utils";
+import { usePermissionStore } from "@/stores/permission";
+import { useTabsStore } from "@/stores/tabs";
+import type { MenuItem } from "@/types/router";
+import { resolveLocaleText } from "@/utils/i18n";
+import { resolveIcon } from "@/utils/icon";
+import { match as pinyinMatch } from "pinyin-pro";
 
-const MENU_HISTORY_KEY = 'app-menu-history'
-const MAX_HISTORY_ITEMS = 10
+const MENU_HISTORY_KEY = "app-menu-history";
+const MAX_HISTORY_ITEMS = 10;
 
 interface SearchItem {
-  path: string
-  title: string
-  icon?: string
-  rawTitle: string
+  path: string;
+  title: string;
+  icon?: string;
+  rawTitle: string;
 }
 
 interface MenuHistoryItem {
-  path: string
-  title: string
-  icon?: string
-  timestamp: number
+  path: string;
+  title: string;
+  icon?: string;
+  timestamp: number;
 }
 
-const router = useRouter()
-const permissionStore = usePermissionStore()
-const tabsStore = useTabsStore()
-const visible = ref(false)
-const searchQuery = ref('')
-const searchResults = ref<SearchItem[]>([])
-const activeIndex = ref(0)
-const searchInputRef = ref<HTMLInputElement | null>(null)
-const menuHistory = ref<MenuHistoryItem[]>([])
+const router = useRouter();
+const permissionStore = usePermissionStore();
+const tabsStore = useTabsStore();
+const visible = ref(false);
+const searchQuery = ref("");
+const searchResults = ref<SearchItem[]>([]);
+const activeIndex = ref(0);
+const searchInputRef = ref<HTMLInputElement | null>(null);
+const menuHistory = ref<MenuHistoryItem[]>([]);
 
 const fallbackMenus = computed<MenuItem[]>(() => {
-  const basicChildren = basicRoutes.flatMap(route => route.children || [])
-  return routesToMenuTree(basicChildren)
-})
+  const basicChildren = basicRoutes.flatMap((route) => route.children || []);
+  return routesToMenuTree(basicChildren);
+});
 
 const menuSource = computed<MenuItem[]>(() => {
   if (permissionStore.menuTree.length > 0) {
-    return permissionStore.menuTree
+    return permissionStore.menuTree;
   }
-  return fallbackMenus.value
-})
+  return fallbackMenus.value;
+});
 
 const searchSource = computed<SearchItem[]>(() => {
-  const items: SearchItem[] = []
+  const items: SearchItem[] = [];
 
   const traverse = (menus: MenuItem[], parentLabels: string[] = []) => {
-    menus.forEach(menu => {
-      const currentLabel = resolveLocaleText(menu.label, menu.path)
-      const currentLabels = [...parentLabels, currentLabel]
+    menus.forEach((menu) => {
+      const currentLabel = resolveLocaleText(menu.label, menu.path);
+      const currentLabels = [...parentLabels, currentLabel];
 
       if (menu.children && menu.children.length > 0) {
         // Only recurse into children, skip non-leaf nodes
-        traverse(menu.children, currentLabels)
+        traverse(menu.children, currentLabels);
       } else if (menu.path) {
         // Leaf node: show full parent path
         items.push({
           path: menu.path,
-          title: currentLabels.join(' > '),
+          title: currentLabels.join(" > "),
           icon: menu.icon,
-          rawTitle: menu.label
-        })
+          rawTitle: menu.label,
+        });
       }
-    })
-  }
+    });
+  };
 
-  traverse(menuSource.value)
+  traverse(menuSource.value);
 
   // Deduplicate
-  const uniqueByPath = new Map<string, SearchItem>()
-  items.forEach(item => {
+  const uniqueByPath = new Map<string, SearchItem>();
+  items.forEach((item) => {
     if (!uniqueByPath.has(item.path)) {
-      uniqueByPath.set(item.path, item)
+      uniqueByPath.set(item.path, item);
     }
-  })
-  return Array.from(uniqueByPath.values())
-})
+  });
+  return Array.from(uniqueByPath.values());
+});
 
-const getIconComponent = (icon?: string) => resolveIcon(icon)
+const getIconComponent = (icon?: string) => resolveIcon(icon);
 
 const formatPath = (path: string) => {
-  return path.split('/').filter(Boolean).join(' > ')
-}
+  return path.split("/").filter(Boolean).join(" > ");
+};
 
 const highlightText = (text: string, query: string): string => {
-  if (!query) return text
+  if (!query) return text;
 
   // 1. Try direct text match
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const regex = new RegExp(`(${escaped})`, 'gi')
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`(${escaped})`, "gi");
   if (regex.test(text)) {
-    return text.replace(regex, '<span class="highlight">$1</span>')
+    return text.replace(regex, '<span class="highlight">$1</span>');
   }
 
   // 2. Try pinyin match (full pinyin / first letter / mixed)
-  const matched = pinyinMatch(text, query)
+  const matched = pinyinMatch(text, query);
   if (matched && matched.length > 0) {
-    const indexSet = new Set(matched)
-    return Array.from(text).map((char, i) =>
-      indexSet.has(i) ? `<span class="highlight">${char}</span>` : char
-    ).join('')
+    const indexSet = new Set(matched);
+    return Array.from(text)
+      .map((char, i) => (indexSet.has(i) ? `<span class="highlight">${char}</span>` : char))
+      .join("");
   }
 
-  return text
-}
+  return text;
+};
 
 const handleSearch = () => {
   if (!searchQuery.value) {
-    searchResults.value = []
-    return
+    searchResults.value = [];
+    return;
   }
 
-  const query = searchQuery.value.toLowerCase()
-  searchResults.value = searchSource.value.filter(
-    item =>
-      item.title.toLowerCase().includes(query) ||
-      item.path.toLowerCase().includes(query) ||
-      pinyinMatch(item.title, query) !== null
-  ).slice(0, 20)
-  activeIndex.value = 0
-}
+  const query = searchQuery.value.toLowerCase();
+  searchResults.value = searchSource.value
+    .filter(
+      (item) =>
+        item.title.toLowerCase().includes(query) ||
+        item.path.toLowerCase().includes(query) ||
+        pinyinMatch(item.title, query) !== null,
+    )
+    .slice(0, 20);
+  activeIndex.value = 0;
+};
 
 const handleResultClick = (result: SearchItem) => {
-  router.push(result.path)
-  close()
-}
+  router.push(result.path);
+  close();
+};
 
 const isFavorite = (path: string) => {
-  const tab = tabsStore.tabs.find(t => t.path === path)
-  return tab?.favorite ?? false
-}
+  const tab = tabsStore.tabs.find((t) => t.path === path);
+  return tab?.favorite ?? false;
+};
 
 const toggleFavorite = (path: string) => {
-  tabsStore.toggleFavoriteTab(path)
-}
+  tabsStore.toggleFavoriteTab(path);
+};
 
 const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') {
-    e.preventDefault()
-    close()
-    return
+  if (e.key === "Escape") {
+    e.preventDefault();
+    close();
+    return;
   }
 
-  const items = searchQuery.value ? searchResults.value : menuHistory.value
-  if (items.length === 0) return
+  const items = searchQuery.value ? searchResults.value : menuHistory.value;
+  if (items.length === 0) return;
 
   switch (e.key) {
-    case 'ArrowUp':
-      e.preventDefault()
-      activeIndex.value = activeIndex.value > 0 ? activeIndex.value - 1 : items.length - 1
-      scrollActiveIntoView()
-      break
-    case 'ArrowDown':
-      e.preventDefault()
-      activeIndex.value = activeIndex.value < items.length - 1 ? activeIndex.value + 1 : 0
-      scrollActiveIntoView()
-      break
-    case 'Enter':
-      e.preventDefault()
+    case "ArrowUp":
+      e.preventDefault();
+      activeIndex.value = activeIndex.value > 0 ? activeIndex.value - 1 : items.length - 1;
+      scrollActiveIntoView();
+      break;
+    case "ArrowDown":
+      e.preventDefault();
+      activeIndex.value = activeIndex.value < items.length - 1 ? activeIndex.value + 1 : 0;
+      scrollActiveIntoView();
+      break;
+    case "Enter":
+      e.preventDefault();
       if (searchQuery.value) {
-        handleResultClick(searchResults.value[activeIndex.value])
+        handleResultClick(searchResults.value[activeIndex.value]);
       } else {
-        handleHistoryClick(menuHistory.value[activeIndex.value])
+        handleHistoryClick(menuHistory.value[activeIndex.value]);
       }
-      break
+      break;
   }
-}
+};
 
 const scrollActiveIntoView = () => {
   nextTick(() => {
-    const activeEl = document.querySelector('.search-item.active')
+    const activeEl = document.querySelector(".search-item.active");
     if (activeEl) {
-      activeEl.scrollIntoView({ block: 'nearest' })
+      activeEl.scrollIntoView({ block: "nearest" });
     }
-  })
-}
+  });
+};
 
 const loadMenuHistory = () => {
   try {
-    const saved = localStorage.getItem(MENU_HISTORY_KEY)
+    const saved = localStorage.getItem(MENU_HISTORY_KEY);
     if (saved) {
-      menuHistory.value = JSON.parse(saved)
+      menuHistory.value = JSON.parse(saved);
     } else {
-      menuHistory.value = []
+      menuHistory.value = [];
     }
   } catch {
-    menuHistory.value = []
+    menuHistory.value = [];
   }
-}
+};
 
 const handleHistoryClick = (item: MenuHistoryItem) => {
-  router.push(item.path)
-  close()
-}
+  router.push(item.path);
+  close();
+};
 
 const clearHistory = () => {
-  menuHistory.value = []
-  localStorage.removeItem(MENU_HISTORY_KEY)
-}
+  menuHistory.value = [];
+  localStorage.removeItem(MENU_HISTORY_KEY);
+};
 
 const open = () => {
-  visible.value = true
-  searchQuery.value = ''
-  searchResults.value = []
-  activeIndex.value = 0
-  loadMenuHistory()
+  visible.value = true;
+  searchQuery.value = "";
+  searchResults.value = [];
+  activeIndex.value = 0;
+  loadMenuHistory();
   nextTick(() => {
-    searchInputRef.value?.focus()
-  })
-  window.addEventListener('keydown', handleGlobalKeydown)
-}
+    searchInputRef.value?.focus();
+  });
+  window.addEventListener("keydown", handleGlobalKeydown);
+};
 
 const close = () => {
-  visible.value = false
-  window.removeEventListener('keydown', handleGlobalKeydown)
-}
+  visible.value = false;
+  window.removeEventListener("keydown", handleGlobalKeydown);
+};
 
 const handleGlobalKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') {
-    close()
+  if (e.key === "Escape") {
+    close();
   }
-}
+};
 
 watch(searchQuery, () => {
-  handleSearch()
-})
+  handleSearch();
+});
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleGlobalKeydown)
-})
+  window.removeEventListener("keydown", handleGlobalKeydown);
+});
 
-defineExpose({ open, close })
+defineExpose({ open, close });
 </script>
 
 <style scoped lang="scss">
@@ -405,7 +413,9 @@ defineExpose({ open, close })
   max-width: 600px;
   background-color: var(--color-bg-container);
   border-radius: 12px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.12),
+    0 8px 16px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   overflow: hidden;

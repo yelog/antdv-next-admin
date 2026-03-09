@@ -29,27 +29,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import type { MenuItem as MenuItemType } from '@/types/router'
-import { resolveIcon } from '@/utils/icon'
-import { resolveLocaleText } from '@/utils/i18n'
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+import type { MenuItem as MenuItemType } from "@/types/router";
+import { resolveIcon } from "@/utils/icon";
+import { resolveLocaleText } from "@/utils/i18n";
 
 interface Props {
-  item: MenuItemType
-  collapsed?: boolean
+  item: MenuItemType;
+  collapsed?: boolean;
 }
 
-const props = defineProps<Props>()
-const router = useRouter()
-const iconComponent = computed(() => resolveIcon(props.item.icon))
+const props = defineProps<Props>();
+const router = useRouter();
+const iconComponent = computed(() => resolveIcon(props.item.icon));
 const displayLabel = computed(() => {
-  return resolveLocaleText(props.item.label, props.item.id)
-})
+  return resolveLocaleText(props.item.label, props.item.id);
+});
 
 const handleClick = () => {
   if (props.item.path) {
-    router.push(props.item.path)
+    router.push(props.item.path);
   }
-}
+};
 </script>
