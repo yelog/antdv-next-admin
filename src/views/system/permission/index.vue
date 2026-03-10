@@ -310,7 +310,7 @@ const formItems = computed<ProFormItem[]>(() => [
     hidden: currentType.value !== "menu",
     rules: [
       {
-        validator: (_rule: any, value: any) => {
+        validator: (_rule: Rule, value: unknown) => {
           if (currentType.value === "menu" && !String(value || "").trim()) {
             return Promise.reject(
               new Error($t("permission.menuRouteRequired")),
@@ -426,7 +426,7 @@ function findPermissionName(list: Permission[], id: string): string {
   return "";
 }
 
-const fetchTableData = async (params: Record<string, any>) => {
+const fetchTableData = async (params: Record<string, unknown>) => {
   const response = await getPermissionList({
     keyword: params.keyword?.trim() || undefined,
     type: params.type || undefined,
@@ -538,7 +538,7 @@ const handleDelete = async (record: Permission) => {
   });
 };
 
-const handleFormValuesChange = (values: Record<string, any>) => {
+const handleFormValuesChange = (values: Record<string, unknown>) => {
   formValues.value = {
     ...formValues.value,
     ...values,

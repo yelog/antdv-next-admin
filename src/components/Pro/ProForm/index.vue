@@ -159,72 +159,6 @@ defineExpose({
   getFieldsValue,
 });
 
-const emit = defineEmits(["submit", "valuesChange", "finish"]);
-
-const formRef = ref();
-const formData = ref<Record<string, any>>({});
-
-// Computed
-const visibleFormItems = computed(() => {
-  return props.formItems.filter((item) => {
-    if (typeof item.hidden === "function") return !item.hidden(formData.value);
-    return !item.hidden;
-  });
-});
-
-const formRules = computed(() => {
-  const rules: Record<string, any> = {};
-  props.formItems.forEach((item) => {
-    const itemRules = [];
-
-    // 如果字段标记为 required，自动添加 required 规则
-    if (item.required) {
-      itemRules.push({
-        required: true,
-        message: $t("proForm.enterPlaceholder", {
-          label: String(item.label ?? ""),
-        }),
-      });
-    }
-
-    // 添加自定义规则
-    if (item.rules) {
-      itemRules.push(
-        ...(Array.isArray(item.rules) ? item.rules : [item.rules]),
-      );
-    }
-
-    if (itemRules.length > 0) {
-      rules[item.name] = itemRules;
-    }
-  });
-  return rules;
-});
-
-// Methods
-const getColSpan = (item: ProFormItem) => {
-  if (item.colSpan) {
-    return (24 / (props.grid?.cols || 1)) * item.colSpan;
-  }
-  return 24 / (props.grid?.cols || 1);
-};
-
-const handleFinish = (values: any) => {
-  emit("finish", values);
-  emit("submit", values);
-};
-
-// Watch initial values
-watch(
-  () => props.initialValues,
-  (values) => {
-    if (values) {
-      formData.value = { ...values };
-    }
-  },
-  { immediate: true, deep: true },
-);
-
 // Watch form data changes
 watch(
   formData,
@@ -233,36 +167,6 @@ watch(
   },
   { deep: true },
 );
-
-// Expose methods
-const validate = async () => {
-  try {
-    await formRef.value?.validate();
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-const resetFields = () => {
-  formRef.value?.resetFields();
-};
-
-const setFieldsValue = (values: Record<string, any>) => {
-  formData.value = { ...formData.value, ...values };
-};
-
-const getFieldsValue = () => {
-  return formData.value;
-};
-
-defineExpose({
-  validate,
-  resetFields,
-  setFieldsValue,
-  getFieldsValue,
-  formRef,
-});
 </script>
 
 <style scoped lang="scss">

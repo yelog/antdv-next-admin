@@ -281,26 +281,26 @@ const columns: ProTableColumn[] = [
 // load dict type list
 const loadDictTypes = async () => {
   try {
-    const response = (await getDictTypes()) as any;
+    const response = await getDictTypes();
     if (response.code === 200) {
       dictTypes.value = response.data;
       if (dictTypes.value.length > 0 && !selectedTypeCode.value) {
         selectedTypeCode.value = dictTypes.value[0].code;
       }
     }
-  } catch (error) {
-    console.error(t("dict.loadTypeFailed"), error);
+  } catch (error: unknown) {
+    console.error(t("dict.loadTypeFailed"), (error as Error).message);
   }
 };
 
 // load dict data list
-const loadData = async (params: any) => {
+const loadData = async (params: Record<string, unknown>) => {
   try {
-    const response = (await getDictDataList({
+    const response = await getDictDataList({
       typeCode: selectedTypeCode.value,
-      page: params.current,
-      pageSize: params.pageSize,
-    })) as any;
+      page: params.current as number,
+      pageSize: params.pageSize as number,
+    });
     if (response.code === 200) {
       return {
         data: response.data.list,
@@ -308,8 +308,8 @@ const loadData = async (params: any) => {
         success: true,
       };
     }
-  } catch (error) {
-    console.error(t("dict.loadDataFailed"), error);
+  } catch (error: unknown) {
+    console.error(t("dict.loadDataFailed"), (error as Error).message);
   }
   return {
     data: [],
@@ -347,7 +347,7 @@ const handleDeleteType = (type: DictType) => {
     content: t("dict.confirmDeleteType", { name: type.name }),
     onOk: async () => {
       try {
-        const response = (await deleteDictType(type.id)) as any;
+        const response = await deleteDictType(type.id);
         if (response.code === 200) {
           message.success(t("dict.deleteSuccess"));
           loadDictTypes();
@@ -355,7 +355,7 @@ const handleDeleteType = (type: DictType) => {
             selectedTypeCode.value = "";
           }
         }
-      } catch (error) {
+      } catch (_error: unknown) {
         message.error(t("dict.deleteFailed"));
       }
     },
@@ -371,24 +371,21 @@ const handleTypeSubmit = async () => {
 
   try {
     if (typeForm.value.id) {
-      const response = (await updateDictType(
-        typeForm.value.id,
-        typeForm.value,
-      )) as any;
+      const response = await updateDictType(typeForm.value.id, typeForm.value);
       if (response.code === 200) {
         message.success(t("dict.updateSuccess"));
         typeModalVisible.value = false;
         loadDictTypes();
       }
     } else {
-      const response = (await createDictType(typeForm.value)) as any;
+      const response = await createDictType(typeForm.value);
       if (response.code === 200) {
         message.success(t("dict.createSuccess"));
         typeModalVisible.value = false;
         loadDictTypes();
       }
     }
-  } catch (error) {
+  } catch (_error: unknown) {
     message.error(t("dict.operateFailed"));
   }
 };
@@ -419,13 +416,12 @@ const handleDelete = (record: DictData) => {
     content: t("dict.confirmDeleteData", { label: record.label }),
     onOk: async () => {
       try {
-        const response = (await deleteDictData(record.id)) as any;
+        const response = await deleteDictData(record.id);
         if (response.code === 200) {
           message.success(t("dict.deleteSuccess"));
-          // refresh dict cache
           dictStore.refreshDictData();
         }
-      } catch (error) {
+      } catch (_error: unknown) {
         message.error(t("dict.deleteFailed"));
       }
     },
@@ -441,26 +437,21 @@ const handleDataSubmit = async () => {
 
   try {
     if (dataForm.value.id) {
-      const response = (await updateDictData(
-        dataForm.value.id,
-        dataForm.value,
-      )) as any;
+      const response = await updateDictData(dataForm.value.id, dataForm.value);
       if (response.code === 200) {
         message.success(t("dict.updateSuccess"));
         dataModalVisible.value = false;
-        // refresh dict cache
         dictStore.refreshDictData();
       }
     } else {
-      const response = (await createDictData(dataForm.value)) as any;
+      const response = await createDictData(dataForm.value);
       if (response.code === 200) {
         message.success(t("dict.createSuccess"));
         dataModalVisible.value = false;
-        // refresh dict cache
         dictStore.refreshDictData();
       }
     }
-  } catch (error) {
+  } catch (_error: unknown) {
     message.error(t("dict.operateFailed"));
   }
 };
