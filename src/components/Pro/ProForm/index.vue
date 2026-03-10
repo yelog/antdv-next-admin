@@ -141,7 +141,7 @@ const validate = async () => {
 
 const resetFields = () => {
   formRef.value?.resetFields();
-  formData.value = { ...props.initialValues } ?? {};
+  formData.value = props.initialValues ? { ...props.initialValues } : {};
 };
 
 const setFieldsValue = (values: Record<string, unknown>) => {

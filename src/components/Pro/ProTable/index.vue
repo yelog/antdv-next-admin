@@ -2058,18 +2058,6 @@ const openCreateModal = (initialValues?: Record<string, unknown>) => {
   crudModalOpen.value = true;
 };
 
-const openEditModal = (record: Record<string, unknown>) => {
-  editingRecord.value = record;
-  crudFormInitialValues.value = { ...record };
-  crudModalOpen.value = true;
-};
-
-const openEditModal = (record: Record<string, unknown>) => {
-  editingRecord.value = record;
-  crudFormInitialValues.value = { ...record };
-  crudModalOpen.value = true;
-};
-
 const handleCrudSubmit = async () => {
   if (!crudFormRef.value) return;
   const valid = await crudFormRef.value.validate();
