@@ -1,11 +1,11 @@
-import type { DictData, DictGroup } from '@/types/dict';
+import type { DictData, DictGroup } from "@/types/dict";
 
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
 
-import { getAllDictData } from '@/api/dict';
+import { getAllDictData } from "@/api/dict";
 
-export const useDictStore = defineStore('dict', () => {
+export const useDictStore = defineStore("dict", () => {
   // 所有字典数据
   const dictData = ref<DictData[]>([]);
 
@@ -47,13 +47,15 @@ export const useDictStore = defineStore('dict', () => {
 
     try {
       loading.value = true;
-      const response = (await getAllDictData()) as any;
+      const response = await getAllDictData();
       if (response.code === 200) {
-        dictData.value = response.data.filter((item: DictData) => item.status === 'enabled');
+        dictData.value = response.data.filter(
+          (item: DictData) => item.status === "enabled",
+        );
         loaded.value = true;
       }
     } catch (error) {
-      console.error('加载字典数据失败:', error);
+      console.error("加载字典数据失败:", error);
     } finally {
       loading.value = false;
     }
@@ -70,7 +72,9 @@ export const useDictStore = defineStore('dict', () => {
    * 根据类型和值获取标签
    */
   const getDictLabel = (typeCode: string, value: string): string => {
-    const dict = dictGroup.value[typeCode]?.find((item) => item.value === value);
+    const dict = dictGroup.value[typeCode]?.find(
+      (item) => item.value === value,
+    );
     return dict?.label || value;
   };
 
@@ -78,7 +82,9 @@ export const useDictStore = defineStore('dict', () => {
    * 根据类型和标签获取值
    */
   const getDictValue = (typeCode: string, label: string): string => {
-    const dict = dictGroup.value[typeCode]?.find((item) => item.label === label);
+    const dict = dictGroup.value[typeCode]?.find(
+      (item) => item.label === label,
+    );
     return dict?.value || label;
   };
 

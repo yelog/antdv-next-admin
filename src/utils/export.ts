@@ -7,28 +7,33 @@ export interface ExportColumn {
   title: string;
   dataIndex: string;
   /** 自定义格式化 */
-  render?: (value: any, record: any) => string;
+  render?: (value: unknown, record: unknown) => string;
 }
 
 /**
  * 导出数据为 CSV 文件
  */
-export function exportToCSV(columns: ExportColumn[], data: any[], filename: string = 'export') {
-  const BOM = '\uFEFF';
-  const header = columns.map((col) => `"${col.title}"`).join(',');
+export function exportToCSV(
+  columns: ExportColumn[],
+  data: unknown[],
+  filename: string = "export",
+) {
+  const BOM = "\uFEFF";
+  const header = columns.map((col) => `"${col.title}"`).join(",");
   const rows = data.map((record) =>
     columns
       .map((col) => {
+        const recordObj = record as Record<string, unknown>;
         const value = col.render
-          ? col.render(record[col.dataIndex], record)
-          : (record[col.dataIndex] ?? '');
+          ? col.render(recordObj[col.dataIndex], record)
+          : (recordObj[col.dataIndex] ?? "");
         return `"${String(value).replace(/"/g, '""')}"`;
       })
-      .join(','),
+      .join(","),
   );
 
-  const csv = BOM + [header, ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const csv = BOM + [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   downloadBlob(blob, `${filename}.csv`);
 }
 
@@ -40,11 +45,11 @@ export function parseCSV(file: File): Promise<string[][]> {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const text = (e.target?.result ?? '').toString().replace(/^\uFEFF/, '');
-        const rows = text.split('\n').filter((row) => row.trim());
+        const text = (e.target?.result ?? "").toString().replace(/^\uFEFF/, "");
+        const rows = text.split("\n").filter((row) => row.trim());
         const result = rows.map((row) => {
           const cells: string[] = [];
-          let current = '';
+          let current = "";
           let inQuotes = false;
           for (let i = 0; i < row.length; i++) {
             const char = row[i];
@@ -60,9 +65,9 @@ export function parseCSV(file: File): Promise<string[][]> {
             } else {
               if (char === '"') {
                 inQuotes = true;
-              } else if (char === ',') {
+              } else if (char === ",") {
                 cells.push(current.trim());
-                current = '';
+                current = "";
               } else {
                 current += char;
               }
@@ -77,22 +82,22 @@ export function parseCSV(file: File): Promise<string[][]> {
       }
     };
     reader.onerror = reject;
-    reader.readAsText(file, 'utf-8');
+    reader.readAsText(file, "utf-8");
   });
 }
 
 /**
  * 导出数据为 JSON 文件
  */
-export function exportToJSON(data: any[], filename: string = 'export') {
+export function exportToJSON(data: unknown[], filename: string = "export") {
   const json = JSON.stringify(data, null, 2);
-  const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+  const blob = new Blob([json], { type: "application/json;charset=utf-8;" });
   downloadBlob(blob, `${filename}.json`);
 }
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = url;
   link.download = filename;
   document.body.appendChild(link);

@@ -1,15 +1,17 @@
-import type { Router, RouteLocationNormalized } from 'vue-router';
+import type { Router, RouteLocationNormalized } from "vue-router";
 
-import { useAuthStore } from '@/stores/auth';
-import { useDictStore } from '@/stores/dict';
-import { usePermissionStore } from '@/stores/permission';
-import { useTabsStore } from '@/stores/tabs';
-import { isLoggedIn } from '@/utils/auth';
-import { resolveLocaleText } from '@/utils/i18n';
+import type { AppRouteRecordRaw } from "@/types/router";
 
-import { basicRoutes } from './routes';
+import { useAuthStore } from "@/stores/auth";
+import { useDictStore } from "@/stores/dict";
+import { usePermissionStore } from "@/stores/permission";
+import { useTabsStore } from "@/stores/tabs";
+import { isLoggedIn } from "@/utils/auth";
+import { resolveLocaleText } from "@/utils/i18n";
 
-const MENU_HISTORY_KEY = 'app-menu-history';
+import { basicRoutes } from "./routes";
+
+const MENU_HISTORY_KEY = "app-menu-history";
 const MAX_HISTORY_ITEMS = 10;
 
 interface MenuHistoryItem {
@@ -21,8 +23,13 @@ interface MenuHistoryItem {
 
 function recordMenuHistory(route: RouteLocationNormalized) {
   try {
-    const history: MenuHistoryItem[] = JSON.parse(localStorage.getItem(MENU_HISTORY_KEY) || '[]');
-    const title = resolveLocaleText(route.meta?.title as string, String(route.name || route.path));
+    const history: MenuHistoryItem[] = JSON.parse(
+      localStorage.getItem(MENU_HISTORY_KEY) || "[]",
+    );
+    const title = resolveLocaleText(
+      route.meta?.title as string,
+      String(route.name || route.path),
+    );
 
     const filtered = history.filter((item) => item.path !== route.path);
 
@@ -63,7 +70,7 @@ export function setupRouterGuards(router: Router) {
       );
 
       accessRoutes.forEach((route) => {
-        const routeName = route.name ? String(route.name) : '';
+        const routeName = route.name ? String(route.name) : "";
         if (routeName && router.hasRoute(routeName)) {
           return;
         }
@@ -77,7 +84,10 @@ export function setupRouterGuards(router: Router) {
     const initTabsIfNeeded = () => {
       if (tabsStore.tabs.length > 0) return;
 
-      const routeSources = [...basicRoutes, ...(permissionStore.routes as any[])];
+      const routeSources = [
+        ...basicRoutes,
+        ...(permissionStore.routes as unknown as AppRouteRecordRaw[]),
+      ];
 
       tabsStore.restoreTabsState(routeSources);
 
@@ -90,18 +100,18 @@ export function setupRouterGuards(router: Router) {
     if (to.meta.title) {
       const title = resolveLocaleText(
         to.meta.title as string,
-        String(to.name || to.path || 'Dashboard'),
+        String(to.name || to.path || "Dashboard"),
       );
-      document.title = `${title} - ${import.meta.env.VITE_APP_TITLE || 'Antdv Next Admin'}`;
+      document.title = `${title} - ${import.meta.env.VITE_APP_TITLE || "Antdv Next Admin"}`;
     }
 
     // If first refresh hits catch-all and is redirected to 404,
     // restore dynamic routes first, then retry the original target.
     const redirectedFromPath = to.redirectedFrom?.fullPath;
     const shouldRecoverFromNotFound =
-      to.path === '/404' &&
+      to.path === "/404" &&
       !!redirectedFromPath &&
-      redirectedFromPath !== '/404' &&
+      redirectedFromPath !== "/404" &&
       isLoggedIn() &&
       !permissionStore.isRoutesGenerated;
 
@@ -112,8 +122,11 @@ export function setupRouterGuards(router: Router) {
         next({ path: redirectedFromPath, replace: true });
         return;
       } catch (error) {
-        console.error('Failed to recover routes from not found redirect:', error);
-        next('/403');
+        console.error(
+          "Failed to recover routes from not found redirect:",
+          error,
+        );
+        next("/403");
         return;
       }
     }
@@ -121,12 +134,12 @@ export function setupRouterGuards(router: Router) {
     // If catch-all redirected to 404 but user is not logged in,
     // redirect to login instead of showing 404
     if (
-      to.path === '/404' &&
+      to.path === "/404" &&
       !!redirectedFromPath &&
-      redirectedFromPath !== '/404' &&
+      redirectedFromPath !== "/404" &&
       !isLoggedIn()
     ) {
-      next({ path: '/login', query: { redirect: redirectedFromPath } });
+      next({ path: "/login", query: { redirect: redirectedFromPath } });
       return;
     }
 
@@ -138,7 +151,7 @@ export function setupRouterGuards(router: Router) {
       if (!isLoggedIn()) {
         // Redirect to login page
         next({
-          path: '/login',
+          path: "/login",
           query: { redirect: to.fullPath },
         });
         return;
@@ -154,14 +167,16 @@ export function setupRouterGuards(router: Router) {
           next({ ...to, replace: true });
           return;
         } catch (error) {
-          console.error('Failed to generate routes:', error);
-          next('/403');
+          console.error("Failed to generate routes:", error);
+          next("/403");
           return;
         }
       }
 
       // Check permissions
-      const requiredPermissions = to.meta.requiredPermissions as string[] | undefined;
+      const requiredPermissions = to.meta.requiredPermissions as
+        | string[]
+        | undefined;
       if (
         requiredPermissions &&
         Array.isArray(requiredPermissions) &&
@@ -169,17 +184,21 @@ export function setupRouterGuards(router: Router) {
       ) {
         const hasPermission = authStore.hasAnyPermission(requiredPermissions);
         if (!hasPermission) {
-          next('/403');
+          next("/403");
           return;
         }
       }
 
       // Check roles
       const requiredRoles = to.meta.requiredRoles as string[] | undefined;
-      if (requiredRoles && Array.isArray(requiredRoles) && requiredRoles.length > 0) {
+      if (
+        requiredRoles &&
+        Array.isArray(requiredRoles) &&
+        requiredRoles.length > 0
+      ) {
         const hasRole = authStore.hasAnyRole(requiredRoles);
         if (!hasRole) {
-          next('/403');
+          next("/403");
           return;
         }
       }
@@ -214,6 +233,6 @@ export function setupRouterGuards(router: Router) {
 
   // On error
   router.onError((error) => {
-    console.error('Router error:', error);
+    console.error("Router error:", error);
   });
 }

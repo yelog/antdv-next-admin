@@ -11,14 +11,14 @@
 </template>
 
 <script setup lang="ts">
-import { theme as antdTheme, type ThemeConfig } from 'antdv-next';
-import { computed, onMounted } from 'vue';
+import { theme as antdTheme, type ThemeConfig } from "antdv-next";
+import { computed, onMounted } from "vue";
 
-import { appDefaultSettings } from './settings';
-import { useNotificationStore } from './stores/notification';
-import { useSettingsStore } from './stores/settings';
-import { useThemeStore } from './stores/theme';
-import { useWatermarkStore } from './stores/watermark';
+import { appDefaultSettings } from "./settings";
+import { useNotificationStore } from "./stores/notification";
+import { useSettingsStore } from "./stores/settings";
+import { useThemeStore } from "./stores/theme";
+import { useWatermarkStore } from "./stores/watermark";
 
 const themeStore = useThemeStore();
 const settingsStore = useSettingsStore();
@@ -26,7 +26,9 @@ const watermarkStore = useWatermarkStore();
 const notificationStore = useNotificationStore();
 
 const antdThemeConfig = computed<ThemeConfig>(() => ({
-  algorithm: themeStore.isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+  algorithm: themeStore.isDark
+    ? antdTheme.darkAlgorithm
+    : antdTheme.defaultAlgorithm,
   token: {
     colorPrimary: settingsStore.primaryColorHex,
     colorLink: settingsStore.primaryColorHex,
@@ -34,8 +36,12 @@ const antdThemeConfig = computed<ThemeConfig>(() => ({
 }));
 
 const inputConfig = computed(() => appDefaultSettings.input);
-const selectConfig = computed(() => appDefaultSettings.select as any);
-const datePickerConfig = computed(() => appDefaultSettings.datePicker as any);
+const selectConfig = computed(
+  () => appDefaultSettings.select as unknown as Record<string, unknown>,
+);
+const datePickerConfig = computed(
+  () => appDefaultSettings.datePicker as unknown as Record<string, unknown>,
+);
 
 onMounted(() => {
   // Initialize theme and settings from localStorage

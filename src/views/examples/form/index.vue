@@ -166,7 +166,7 @@ const formItems: ProFormItem[] = [
   },
 ];
 
-const handleSubmit = (values: any) => {
+const handleSubmit = (values: Record<string, unknown>) => {
   console.log("Form values:", values);
   message.success($t("exampleForm.submitSuccess"));
 };

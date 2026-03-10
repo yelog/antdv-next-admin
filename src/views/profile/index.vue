@@ -5,10 +5,16 @@
       <a-col :xs="24" :lg="8">
         <a-card :bordered="false" class="profile-card">
           <div class="profile-header">
-            <a-avatar :src="authStore.user?.avatar" :size="80" class="profile-avatar">
+            <a-avatar
+              :src="authStore.user?.avatar"
+              :size="80"
+              class="profile-avatar"
+            >
               {{ authStore.user?.username?.charAt(0).toUpperCase() }}
             </a-avatar>
-            <h2 class="profile-name">{{ authStore.user?.realName || authStore.user?.username }}</h2>
+            <h2 class="profile-name">
+              {{ authStore.user?.realName || authStore.user?.username }}
+            </h2>
             <p class="profile-username">@{{ authStore.user?.username }}</p>
           </div>
 
@@ -18,7 +24,7 @@
             <div class="info-item">
               <span class="info-label">
                 <UserOutlined class="info-icon" />
-                {{ $t('profile.username') }}
+                {{ $t("profile.username") }}
               </span>
               <span class="info-value">{{ authStore.user?.username }}</span>
             </div>
@@ -26,7 +32,7 @@
             <div class="info-item">
               <span class="info-label">
                 <MailOutlined class="info-icon" />
-                {{ $t('profile.email') }}
+                {{ $t("profile.email") }}
               </span>
               <span class="info-value">{{ authStore.user?.email }}</span>
             </div>
@@ -34,7 +40,7 @@
             <div class="info-item" v-if="authStore.user?.phone">
               <span class="info-label">
                 <PhoneOutlined class="info-icon" />
-                {{ $t('profile.phone') }}
+                {{ $t("profile.phone") }}
               </span>
               <span class="info-value">{{ authStore.user?.phone }}</span>
             </div>
@@ -42,10 +48,14 @@
             <div class="info-item">
               <span class="info-label">
                 <TeamOutlined class="info-icon" />
-                {{ $t('profile.role') }}
+                {{ $t("profile.role") }}
               </span>
               <span class="info-value">
-                <a-tag v-for="role in authStore.user?.roles" :key="role.id" color="blue">
+                <a-tag
+                  v-for="role in authStore.user?.roles"
+                  :key="role.id"
+                  color="blue"
+                >
                   {{ role.name }}
                 </a-tag>
               </span>
@@ -54,9 +64,11 @@
             <div class="info-item">
               <span class="info-label">
                 <ClockCircleOutlined class="info-icon" />
-                {{ $t('profile.joinDate') }}
+                {{ $t("profile.joinDate") }}
               </span>
-              <span class="info-value">{{ formatDate(authStore.user?.createdAt) }}</span>
+              <span class="info-value">{{
+                formatDate(authStore.user?.createdAt)
+              }}</span>
             </div>
           </div>
         </a-card>
@@ -64,7 +76,11 @@
 
       <!-- Change Password Card -->
       <a-col :xs="24" :lg="16">
-        <a-card :bordered="false" :title="$t('profile.changePassword')" class="password-card">
+        <a-card
+          :bordered="false"
+          :title="$t('profile.changePassword')"
+          class="password-card"
+        >
           <a-form
             ref="formRef"
             :model="passwordForm"
@@ -72,7 +88,10 @@
             :label-col="{ span: 6 }"
             :wrapper-col="{ span: 18 }"
           >
-            <a-form-item :label="$t('profile.currentPassword')" name="oldPassword">
+            <a-form-item
+              :label="$t('profile.currentPassword')"
+              name="oldPassword"
+            >
               <a-input-password
                 v-model:value="passwordForm.oldPassword"
                 :placeholder="$t('profile.enterCurrentPassword')"
@@ -88,7 +107,10 @@
               />
             </a-form-item>
 
-            <a-form-item :label="$t('profile.confirmPassword')" name="confirmPassword">
+            <a-form-item
+              :label="$t('profile.confirmPassword')"
+              name="confirmPassword"
+            >
               <a-input-password
                 v-model:value="passwordForm.confirmPassword"
                 :placeholder="$t('profile.enterConfirmPassword')"
@@ -98,11 +120,15 @@
 
             <a-form-item :wrapper-col="{ offset: 6, span: 18 }">
               <a-space>
-                <a-button type="primary" :loading="loading" @click="handleChangePassword">
-                  {{ $t('common.submit') }}
+                <a-button
+                  type="primary"
+                  :loading="loading"
+                  @click="handleChangePassword"
+                >
+                  {{ $t("common.submit") }}
                 </a-button>
                 <a-button @click="handleReset">
-                  {{ $t('common.reset') }}
+                  {{ $t("common.reset") }}
                 </a-button>
               </a-space>
             </a-form-item>
@@ -121,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import type { FormInstance } from 'antdv-next';
+import type { FormInstance } from "antdv-next";
 
 import {
   UserOutlined,
@@ -129,45 +155,59 @@ import {
   PhoneOutlined,
   TeamOutlined,
   ClockCircleOutlined,
-} from '@antdv-next/icons';
-import { message } from 'antdv-next';
-import { ref, reactive } from 'vue';
+} from "@antdv-next/icons";
+import { message } from "antdv-next";
+import { ref, reactive } from "vue";
 
-import { changePassword, type ChangePasswordParams } from '@/api/user';
-import { $t } from '@/locales';
-import { useAuthStore } from '@/stores/auth';
+import { changePassword, type ChangePasswordParams } from "@/api/user";
+import { $t } from "@/locales";
+import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
 const formRef = ref<FormInstance>();
 const loading = ref(false);
 
 const passwordForm = reactive({
-  oldPassword: '',
-  newPassword: '',
-  confirmPassword: '',
+  oldPassword: "",
+  newPassword: "",
+  confirmPassword: "",
 });
 
-const validateConfirmPassword = (_rule: any, value: string) => {
+const validateConfirmPassword = (_rule: unknown, value: string) => {
   if (value && value !== passwordForm.newPassword) {
-    return Promise.reject($t('profile.passwordMismatch'));
+    return Promise.reject($t("profile.passwordMismatch"));
   }
   return Promise.resolve();
 };
 
 const passwordRules = {
-  oldPassword: [{ required: true, message: $t('profile.enterCurrentPassword'), trigger: 'blur' }],
+  oldPassword: [
+    {
+      required: true,
+      message: $t("profile.enterCurrentPassword"),
+      trigger: "blur",
+    },
+  ],
   newPassword: [
-    { required: true, message: $t('profile.enterNewPassword'), trigger: 'blur' },
-    { min: 6, message: $t('profile.passwordMinLength'), trigger: 'blur' },
+    {
+      required: true,
+      message: $t("profile.enterNewPassword"),
+      trigger: "blur",
+    },
+    { min: 6, message: $t("profile.passwordMinLength"), trigger: "blur" },
   ],
   confirmPassword: [
-    { required: true, message: $t('profile.enterConfirmPassword'), trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' },
+    {
+      required: true,
+      message: $t("profile.enterConfirmPassword"),
+      trigger: "blur",
+    },
+    { validator: validateConfirmPassword, trigger: "blur" },
   ],
 };
 
 const formatDate = (dateString?: string) => {
-  if (!dateString) return '-';
+  if (!dateString) return "-";
   const date = new Date(dateString);
   return date.toLocaleDateString();
 };
@@ -187,22 +227,22 @@ const handleChangePassword = async () => {
     const response = await changePassword(params);
 
     if (response.success) {
-      message.success(response.message || $t('profile.passwordChangeSuccess'));
+      message.success(response.message || $t("profile.passwordChangeSuccess"));
       handleReset();
     } else {
-      message.error(response.message || $t('profile.passwordChangeFailed'));
+      message.error(response.message || $t("profile.passwordChangeFailed"));
     }
-  } catch (error: any) {
-    console.error('Change password error:', error);
+  } catch (error: unknown) {
+    console.error("Change password error:", (error as Error).message);
   } finally {
     loading.value = false;
   }
 };
 
 const handleReset = () => {
-  passwordForm.oldPassword = '';
-  passwordForm.newPassword = '';
-  passwordForm.confirmPassword = '';
+  passwordForm.oldPassword = "";
+  passwordForm.newPassword = "";
+  passwordForm.confirmPassword = "";
   formRef.value?.clearValidate();
 };
 </script>

@@ -10,8 +10,8 @@ export interface Tab {
   icon?: string;
   path: string;
   fullPath: string;
-  query?: Record<string, any>;
-  params?: Record<string, any>;
+  query?: Record<string, unknown>;
+  params?: Record<string, unknown>;
   closable: boolean;
   // User pinned tab (cannot be closed by batch close actions)
   pinned?: boolean;
@@ -20,13 +20,18 @@ export interface Tab {
   favorite?: boolean;
 }
 
-export type NotificationCategory = 'system' | 'message' | 'security' | 'task' | 'error';
+export type NotificationCategory =
+  | "system"
+  | "message"
+  | "security"
+  | "task"
+  | "error";
 
 export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: "success" | "error" | "warning" | "info";
   category?: NotificationCategory;
   timestamp: number;
   read: boolean;
@@ -40,16 +45,22 @@ export interface BreadcrumbItem {
   icon?: string;
 }
 
-export type ThemeMode = 'light' | 'dark' | 'system';
-export type LayoutMode = 'vertical' | 'horizontal';
-export type SidebarTheme = 'light' | 'dark';
-export type PrimaryColor = 'blue' | 'green' | 'purple' | 'red' | 'orange' | 'cyan';
+export type ThemeMode = "light" | "dark" | "system";
+export type LayoutMode = "vertical" | "horizontal";
+export type SidebarTheme = "light" | "dark";
+export type PrimaryColor =
+  | "blue"
+  | "green"
+  | "purple"
+  | "red"
+  | "orange"
+  | "cyan";
 export type PageAnimation =
-  | 'fade'
-  | 'slide-left'
-  | 'slide-right'
-  | 'slide-up'
-  | 'slide-down'
-  | 'zoom'
-  | 'zoom-big'
-  | 'none';
+  | "fade"
+  | "slide-left"
+  | "slide-right"
+  | "slide-up"
+  | "slide-down"
+  | "zoom"
+  | "zoom-big"
+  | "none";

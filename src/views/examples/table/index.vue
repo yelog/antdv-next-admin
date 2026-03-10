@@ -64,6 +64,7 @@
 <script setup lang="ts">
 import type { ProTableColumn, ProFormItem } from "@/types/pro";
 import type { User } from "@/types/auth";
+import type { PageParams } from "@/types/api";
 
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@antdv-next/icons";
 import { message } from "antdv-next";
@@ -172,14 +173,14 @@ const columns = computed<ProTableColumn[]>(() => [
       {
         label: $t("common.edit"),
         icon: EditOutlined,
-        onClick: (record) => handleEdit(record),
+        onClick: (record: User) => handleEdit(record),
       },
       {
         label: $t("common.delete"),
         icon: DeleteOutlined,
         danger: true,
         confirm: $t("user.confirmDelete"),
-        onClick: (record) => handleDelete(record),
+        onClick: (record: User) => handleDelete(record),
       },
     ],
   },
@@ -249,7 +250,7 @@ const formItems = computed<ProFormItem[]>(() => [
 ]);
 
 // Methods
-const fetchData = async (params: Record<string, unknown>) => {
+const fetchData = async (params: PageParams) => {
   const res = await getUserList(params);
   return {
     data: res.data.list,
@@ -258,17 +259,6 @@ const fetchData = async (params: Record<string, unknown>) => {
   };
 };
 
-const handleStatusChange = async (record: User, checked: boolean) => {
-  try {
-    const newStatus = checked ? 'active' : 'inactive';
-    await updateUser(record.id, { ...record, status: newStatus });
-    record.status = newStatus;
-    message.success($t('exampleTable.updateSuccess'));
-  } catch (error: unknown) {
-    message.error((error as Error).message || $t('common.error'));
-  }
-};
-
 const handleCreate = () => {
   editingId.value = null;
   formData.value = {};
@@ -282,104 +272,6 @@ const handleEdit = (record: User) => {
 };
 
 const handleDelete = async (record: User) => {
-  await deleteUser(record.id);
-  message.success($t('exampleTable.deleteSuccess'));
-};
-
-const handleSubmit = async () => {
-  const valid = await formRef.value?.validate();
-  if (!valid) return;
-
-  const values = formRef.value?.getFieldsValue();
-
-  try {
-    if (editingId.value) {
-      await updateUser(editingId.value, values);
-      message.success($t('exampleTable.updateSuccess'));
-    } else {
-      await createUser(values);
-      message.success($t('exampleTable.createSuccess'));
-    }
-    modalVisible.value = false;
-  } catch (error: unknown) {
-    message.error((error as Error).message || $t('common.error'));
-  }
-};
-};
-
-const handleStatusChange = async (record: User, checked: boolean) => {
-  try {
-    const newStatus = checked ? 'active' : 'inactive';
-    await updateUser(record.id, { ...record, status: newStatus });
-    record.status = newStatus;
-    message.success($t('exampleTable.updateSuccess'));
-  } catch (error: unknown) {
-    message.error((error as Error).message || $t('common.error'));
-  }
-};
-
-const handleCreate = () => {
-  editingId.value = null;
-  formData.value = {};
-  modalVisible.value = true;
-};
-
-const handleEdit = (record: User) => {
-  editingId.value = record.id;
-  formData.value = { ...record };
-  modalVisible.value = true;
-};
-
-const handleDelete = async (record: User) => {
-  await deleteUser(record.id);
-  message.success($t('exampleTable.deleteSuccess'));
-};
-
-const handleSubmit = async () => {
-  const valid = await formRef.value?.validate();
-  if (!valid) return;
-
-  const values = formRef.value?.getFieldsValue();
-
-  try {
-    if (editingId.value) {
-      await updateUser(editingId.value, values);
-      message.success($t('exampleTable.updateSuccess'));
-    } else {
-      await createUser(values);
-      message.success($t('exampleTable.createSuccess'));
-    }
-    modalVisible.value = false;
-  } catch (error: unknown) {
-    message.error((error as Error).message || $t('common.error'));
-  }
-};
-};
-
-const handleStatusChange = async (record: any, checked: boolean) => {
-  try {
-    const newStatus = checked ? "active" : "inactive";
-    await updateUser(record.id, { ...record, status: newStatus });
-    record.status = newStatus;
-    message.success($t("exampleTable.updateSuccess"));
-  } catch (error: any) {
-    message.error(error.message || $t("common.error"));
-  }
-};
-
-const handleCreate = () => {
-  editingId.value = null;
-  formData.value = {};
-  modalVisible.value = true;
-};
-
-const handleEdit = (record: any) => {
-  editingId.value = record.id;
-  formData.value = { ...record };
-  modalVisible.value = true;
-};
-
-const handleDelete = async (record: any) => {
   await deleteUser(record.id);
   message.success($t("exampleTable.deleteSuccess"));
 };
@@ -399,8 +291,19 @@ const handleSubmit = async () => {
       message.success($t("exampleTable.createSuccess"));
     }
     modalVisible.value = false;
-  } catch (error: any) {
-    message.error(error.message || $t("common.error"));
+  } catch (error: unknown) {
+    message.error((error as Error).message || $t("exampleTable.createSuccess"));
+  }
+};
+
+const handleStatusChange = async (record: User, checked: boolean) => {
+  try {
+    const newStatus = checked ? "active" : "inactive";
+    await updateUser(record.id, { ...record, status: newStatus });
+    record.status = newStatus;
+    message.success($t("exampleTable.updateSuccess"));
+  } catch (error: unknown) {
+    message.error((error as Error).message || $t("common.error"));
   }
 };
 </script>

@@ -1,21 +1,21 @@
-import type { ApiResponse } from '@/types/api';
-import type { Permission } from '@/types/auth';
+import type { ApiResponse } from "@/types/api";
+import type { Permission } from "@/types/auth";
 
-import { request } from '@/utils/request';
+import { request } from "@/utils/request";
 
-const isMock = import.meta.env.VITE_USE_MOCK === 'true';
+const isMock = import.meta.env.VITE_USE_MOCK === "true";
 
-const ok = <T>(data: T, message = 'Success'): ApiResponse<T> => ({
+const ok = <T>(data: T, message = "Success"): ApiResponse<T> => ({
   code: 200,
   message,
   data,
   success: true,
 });
 
-const notFound = (message = 'Not found'): ApiResponse<any> => ({
+const notFound = <T = null>(message = "Not found"): ApiResponse<T> => ({
   code: 404,
   message,
-  data: null,
+  data: null as T,
   success: false,
 });
 
@@ -23,11 +23,11 @@ const notFound = (message = 'Not found'): ApiResponse<any> => ({
  * Get permission list
  */
 export async function getPermissionList(
-  params?: Record<string, any>,
+  params?: Record<string, unknown>,
 ): Promise<ApiResponse<Permission[]>> {
-  if (!isMock) return request.get('/permissions', { params });
+  if (!isMock) return request.get("/permissions", { params });
 
-  const { mockPermissions } = await import('../../mock/data/permissions.data');
+  const { mockPermissions } = await import("../../mock/data/permissions.data");
   return ok(mockPermissions);
 }
 
@@ -35,19 +35,21 @@ export async function getPermissionList(
  * Get permission tree
  */
 export async function getPermissionTree(): Promise<ApiResponse<Permission[]>> {
-  if (!isMock) return request.get('/permissions/tree');
+  if (!isMock) return request.get("/permissions/tree");
 
-  const { mockPermissions } = await import('../../mock/data/permissions.data');
+  const { mockPermissions } = await import("../../mock/data/permissions.data");
   return ok(mockPermissions);
 }
 
 /**
  * Get permission by ID
  */
-export async function getPermissionById(id: string): Promise<ApiResponse<Permission>> {
+export async function getPermissionById(
+  id: string,
+): Promise<ApiResponse<Permission>> {
   if (!isMock) return request.get(`/permissions/${id}`);
 
-  const { mockPermissions } = await import('../../mock/data/permissions.data');
+  const { mockPermissions } = await import("../../mock/data/permissions.data");
 
   const find = (list: Permission[]): Permission | undefined => {
     for (const p of list) {
@@ -61,7 +63,7 @@ export async function getPermissionById(id: string): Promise<ApiResponse<Permiss
   };
 
   const perm = find(mockPermissions);
-  if (!perm) return notFound('Permission not found');
+  if (!perm) return notFound("Permission not found");
   return ok(perm);
 }
 
@@ -71,22 +73,22 @@ export async function getPermissionById(id: string): Promise<ApiResponse<Permiss
 export async function createPermission(
   data: Partial<Permission>,
 ): Promise<ApiResponse<Permission>> {
-  if (!isMock) return request.post('/permissions', data);
+  if (!isMock) return request.post("/permissions", data);
 
-  const { mockPermissions } = await import('../../mock/data/permissions.data');
+  const { mockPermissions } = await import("../../mock/data/permissions.data");
   const nowId = String(Date.now());
   const perm: Permission = {
     id: nowId,
-    name: data.name || 'New Permission',
+    name: data.name || "New Permission",
     code: data.code || `perm_${nowId}`,
-    description: data.description || '',
-    resource: data.resource || '',
-    action: data.action || 'view',
-    type: (data.type as any) || 'api',
+    description: data.description || "",
+    resource: data.resource || "",
+    action: data.action || "view",
+    type: (data.type as Permission["type"]) || "api",
   };
 
   mockPermissions.unshift(perm);
-  return ok(perm, 'Permission created successfully');
+  return ok(perm, "Permission created successfully");
 }
 
 /**
@@ -98,7 +100,7 @@ export async function updatePermission(
 ): Promise<ApiResponse<Permission>> {
   if (!isMock) return request.put(`/permissions/${id}`, data);
 
-  const { mockPermissions } = await import('../../mock/data/permissions.data');
+  const { mockPermissions } = await import("../../mock/data/permissions.data");
 
   const updateRec = (list: Permission[]): Permission | undefined => {
     for (let i = 0; i < list.length; i++) {
@@ -116,8 +118,8 @@ export async function updatePermission(
   };
 
   const updated = updateRec(mockPermissions);
-  if (!updated) return notFound('Permission not found');
-  return ok(updated, 'Permission updated successfully');
+  if (!updated) return notFound("Permission not found");
+  return ok(updated, "Permission updated successfully");
 }
 
 /**
@@ -126,7 +128,7 @@ export async function updatePermission(
 export async function deletePermission(id: string): Promise<ApiResponse<null>> {
   if (!isMock) return request.delete(`/permissions/${id}`);
 
-  const { mockPermissions } = await import('../../mock/data/permissions.data');
+  const { mockPermissions } = await import("../../mock/data/permissions.data");
 
   const deleteRec = (list: Permission[]): boolean => {
     const idx = list.findIndex((p) => p.id === id);
@@ -135,21 +137,22 @@ export async function deletePermission(id: string): Promise<ApiResponse<null>> {
       return true;
     }
     for (const p of list) {
-      if (p.children?.length && deleteRec(p.children as Permission[])) return true;
+      if (p.children?.length && deleteRec(p.children as Permission[]))
+        return true;
     }
     return false;
   };
 
-  if (!deleteRec(mockPermissions)) return notFound('Permission not found');
-  return ok(null, 'Permission deleted successfully');
+  if (!deleteRec(mockPermissions)) return notFound("Permission not found");
+  return ok(null, "Permission deleted successfully");
 }
 
 /**
  * Get permissions for current user
  */
 export async function getUserPermissions(): Promise<ApiResponse<Permission[]>> {
-  if (!isMock) return request.get('/permissions/user');
+  if (!isMock) return request.get("/permissions/user");
 
-  const { mockPermissions } = await import('../../mock/data/permissions.data');
+  const { mockPermissions } = await import("../../mock/data/permissions.data");
   return ok(mockPermissions);
 }

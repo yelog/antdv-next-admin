@@ -16,11 +16,16 @@
           <img :src="logoImg" alt="Logo" class="logo" />
         </div>
         <p class="eyebrow">Antdv Next Admin</p>
-        <h1 class="title">{{ $t('login.title') }}</h1>
+        <h1 class="title">{{ $t("login.title") }}</h1>
         <p class="subtitle">Secure workspace entrance</p>
       </div>
 
-      <a-form :model="formState" :rules="rules" @finish="handleSubmit" class="login-form">
+      <a-form
+        :model="formState"
+        :rules="rules"
+        @finish="handleSubmit"
+        class="login-form"
+      >
         <a-form-item name="username">
           <a-input
             v-model:value="formState.username"
@@ -58,7 +63,7 @@
 
         <a-form-item>
           <a-checkbox v-model:checked="formState.remember">
-            {{ $t('login.remember') }}
+            {{ $t("login.remember") }}
           </a-checkbox>
         </a-form-item>
 
@@ -71,18 +76,18 @@
             :loading="loading"
             :disabled="!captchaVerified"
           >
-            {{ $t('login.login') }}
+            {{ $t("login.login") }}
           </a-button>
         </a-form-item>
       </a-form>
 
       <div class="login-tips">
         <p>
-          <span>{{ $t('login.username') }}</span>
+          <span>{{ $t("login.username") }}</span>
           <code>admin / user</code>
         </p>
         <p>
-          <span>{{ $t('login.password') }}</span>
+          <span>{{ $t("login.password") }}</span>
           <code>123456</code>
         </p>
       </div>
@@ -91,17 +96,17 @@
 </template>
 
 <script setup lang="ts">
-import { UserOutlined, LockOutlined } from '@antdv-next/icons';
-import { message } from 'antdv-next';
-import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { UserOutlined, LockOutlined } from "@antdv-next/icons";
+import { message } from "antdv-next";
+import { reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 
-import logoImg from '@/assets/images/logo.png';
-import { SliderCaptcha } from '@/components/Captcha';
-import LanguageSwitch from '@/components/Layout/LanguageSwitch.vue';
-import ThemeToggle from '@/components/Layout/ThemeToggle.vue';
-import { $t } from '@/locales';
-import { useAuthStore } from '@/stores/auth';
+import logoImg from "@/assets/images/logo.png";
+import { SliderCaptcha } from "@/components/Captcha";
+import LanguageSwitch from "@/components/Layout/LanguageSwitch.vue";
+import ThemeToggle from "@/components/Layout/ThemeToggle.vue";
+import { $t } from "@/locales";
+import { useAuthStore } from "@/stores/auth";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -110,14 +115,14 @@ const loading = ref(false);
 const captchaVerified = ref(false);
 const captchaRef = ref<InstanceType<typeof SliderCaptcha>>();
 const formState = reactive({
-  username: 'admin',
-  password: '123456',
+  username: "admin",
+  password: "123456",
   remember: false,
 });
 
 const rules = {
-  username: [{ required: true, message: $t('login.usernameRequired') }],
-  password: [{ required: true, message: $t('login.passwordRequired') }],
+  username: [{ required: true, message: $t("login.usernameRequired") }],
+  password: [{ required: true, message: $t("login.passwordRequired") }],
 };
 
 const onCaptchaSuccess = () => {
@@ -132,10 +137,13 @@ const handleSubmit = async () => {
   loading.value = true;
   try {
     await authStore.login(formState.username, formState.password);
-    message.success($t('login.loginSuccess'));
-    router.push('/');
-  } catch (error: any) {
-    message.error(error.message || $t('login.loginFailed'));
+    message.success($t("login.loginSuccess"));
+    router.push("/");
+  } catch (error: unknown) {
+    message.error(
+      (error instanceof Error ? error.message : String(error)) ||
+        $t("login.loginFailed"),
+    );
     captchaVerified.value = false;
     captchaRef.value?.reset();
   } finally {
@@ -146,11 +154,24 @@ const handleSubmit = async () => {
 
 <style scoped lang="scss">
 .login-shell {
-  --login-font-family: 'Outfit', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --login-font-family:
+    "Outfit", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   --login-bg:
-    radial-gradient(circle at 10% 20%, rgba(67, 160, 255, 0.35), transparent 46%),
-    radial-gradient(circle at 92% 15%, rgba(122, 214, 255, 0.36), transparent 44%),
-    radial-gradient(circle at 85% 88%, rgba(90, 136, 255, 0.24), transparent 36%),
+    radial-gradient(
+      circle at 10% 20%,
+      rgba(67, 160, 255, 0.35),
+      transparent 46%
+    ),
+    radial-gradient(
+      circle at 92% 15%,
+      rgba(122, 214, 255, 0.36),
+      transparent 44%
+    ),
+    radial-gradient(
+      circle at 85% 88%,
+      rgba(90, 136, 255, 0.24),
+      transparent 36%
+    ),
     linear-gradient(132deg, #e8f5ff 0%, #cfe8ff 42%, #b9e0ff 100%);
   --login-panel-bg: rgba(255, 255, 255, 0.72);
   --login-panel-border: rgba(255, 255, 255, 0.65);
@@ -276,7 +297,11 @@ const handleSubmit = async () => {
         height: 78px;
         margin: 0 auto 14px;
         border-radius: 22px;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.85), rgba(208, 232, 255, 0.8));
+        background: linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.85),
+          rgba(208, 232, 255, 0.8)
+        );
         border: 1px solid rgba(255, 255, 255, 0.8);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
         display: flex;
@@ -431,14 +456,22 @@ const handleSubmit = async () => {
       }
 
       .slider-track {
-        background: linear-gradient(90deg, rgba(47, 132, 255, 0.08), rgba(47, 132, 255, 0.15));
+        background: linear-gradient(
+          90deg,
+          rgba(47, 132, 255, 0.08),
+          rgba(47, 132, 255, 0.15)
+        );
         border-right: 1px solid rgba(47, 132, 255, 0.3);
         border-radius: 12px 0 0 12px;
       }
 
       .slider-handle {
         border-radius: 0 12px 12px 0;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(230, 242, 255, 0.9));
+        background: linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.95),
+          rgba(230, 242, 255, 0.9)
+        );
         border-color: rgba(47, 132, 255, 0.4);
         box-shadow: 0 2px 8px rgba(47, 132, 255, 0.15);
         color: rgba(47, 132, 255, 0.8);
@@ -510,9 +543,21 @@ const handleSubmit = async () => {
 
 :root.dark .login-shell {
   --login-bg:
-    radial-gradient(circle at 12% 18%, rgba(80, 140, 255, 0.34), transparent 44%),
-    radial-gradient(circle at 88% 12%, rgba(48, 191, 255, 0.22), transparent 34%),
-    radial-gradient(circle at 80% 85%, rgba(119, 80, 255, 0.2), transparent 35%),
+    radial-gradient(
+      circle at 12% 18%,
+      rgba(80, 140, 255, 0.34),
+      transparent 44%
+    ),
+    radial-gradient(
+      circle at 88% 12%,
+      rgba(48, 191, 255, 0.22),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 80% 85%,
+      rgba(119, 80, 255, 0.2),
+      transparent 35%
+    ),
     linear-gradient(130deg, #060b18 0%, #0a1327 48%, #101c33 100%);
   --login-panel-bg: rgba(9, 15, 30, 0.7);
   --login-panel-border: rgba(138, 168, 230, 0.24);
@@ -522,7 +567,8 @@ const handleSubmit = async () => {
   --login-input-border: rgba(127, 165, 234, 0.34);
   --login-tip-bg: rgba(12, 24, 48, 0.74);
   --login-tip-border: rgba(122, 165, 243, 0.3);
-  --login-shadow: 0 30px 70px rgba(2, 8, 22, 0.66), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --login-shadow:
+    0 30px 70px rgba(2, 8, 22, 0.66), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 :root.dark .login-shell {
@@ -565,14 +611,22 @@ const handleSubmit = async () => {
   .login-box {
     .login-header {
       .logo-wrap {
-        background: linear-gradient(145deg, rgba(26, 44, 84, 0.92), rgba(13, 25, 52, 0.86));
+        background: linear-gradient(
+          145deg,
+          rgba(26, 44, 84, 0.92),
+          rgba(13, 25, 52, 0.86)
+        );
         border-color: rgba(124, 161, 233, 0.34);
       }
     }
 
     :deep(.slider-captcha) {
       .slider-handle {
-        background: linear-gradient(145deg, rgba(18, 32, 62, 0.95), rgba(12, 22, 44, 0.9));
+        background: linear-gradient(
+          145deg,
+          rgba(18, 32, 62, 0.95),
+          rgba(12, 22, 44, 0.9)
+        );
         border-color: rgba(47, 132, 255, 0.45);
         color: rgba(100, 170, 255, 0.9);
 

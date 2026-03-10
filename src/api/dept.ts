@@ -1,31 +1,34 @@
-import type { ApiResponse } from '@/types/api';
-import type { Department, DeptQueryParams } from '@/types/dept';
+import type { ApiResponse } from "@/types/api";
+import type { Department, DeptQueryParams } from "@/types/dept";
 
-import { request } from '@/utils/request';
+import { request } from "@/utils/request";
 
-const isMock = import.meta.env.VITE_USE_MOCK === 'true';
+const isMock = import.meta.env.VITE_USE_MOCK === "true";
 
-const ok = <T>(data: T, message = 'success'): ApiResponse<T> => ({
+const ok = <T>(data: T, message = "success"): ApiResponse<T> => ({
   code: 200,
   message,
   data,
   success: true,
 });
 
-const error = (code: number, message: string): ApiResponse<any> => ({
+const error = <T = null>(code: number, message: string): ApiResponse<T> => ({
   code,
   message,
-  data: null,
+  data: null as T,
   success: false,
 });
 
 /**
  * 获取部门树
  */
-export async function getDeptTree(params?: DeptQueryParams): Promise<ApiResponse<Department[]>> {
-  if (!isMock) return request.get('/dept/tree', { params });
+export async function getDeptTree(
+  params?: DeptQueryParams,
+): Promise<ApiResponse<Department[]>> {
+  if (!isMock) return request.get("/dept/tree", { params });
 
-  const { departments, buildDeptTree } = await import('../../mock/data/dept.data');
+  const { departments, buildDeptTree } =
+    await import("../../mock/data/dept.data");
   const { name, status } = params || {};
   let filtered = [...departments];
 
@@ -38,10 +41,12 @@ export async function getDeptTree(params?: DeptQueryParams): Promise<ApiResponse
 /**
  * 获取部门列表（扁平）
  */
-export async function getDeptList(params?: DeptQueryParams): Promise<ApiResponse<Department[]>> {
-  if (!isMock) return request.get('/dept/list', { params });
+export async function getDeptList(
+  params?: DeptQueryParams,
+): Promise<ApiResponse<Department[]>> {
+  if (!isMock) return request.get("/dept/list", { params });
 
-  const { departments } = await import('../../mock/data/dept.data');
+  const { departments } = await import("../../mock/data/dept.data");
   const { name, status } = params || {};
   let filtered = [...departments];
 
@@ -55,25 +60,27 @@ export async function getDeptList(params?: DeptQueryParams): Promise<ApiResponse
 /**
  * 创建部门
  */
-export async function createDept(data: Partial<Department>): Promise<ApiResponse<Department>> {
-  if (!isMock) return request.post('/dept', data);
+export async function createDept(
+  data: Partial<Department>,
+): Promise<ApiResponse<Department>> {
+  if (!isMock) return request.post("/dept", data);
 
-  const { departments } = await import('../../mock/data/dept.data');
+  const { departments } = await import("../../mock/data/dept.data");
   const newDept: Department = {
     id: String(Date.now()),
-    name: data.name || '',
+    name: data.name || "",
     parentId: data.parentId || null,
     leader: data.leader,
     phone: data.phone,
     email: data.email,
     sort: data.sort || 0,
-    status: data.status || 'enabled',
+    status: data.status || "enabled",
     remark: data.remark,
-    createTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
-    updateTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
+    createTime: new Date().toISOString().replace("T", " ").slice(0, 19),
+    updateTime: new Date().toISOString().replace("T", " ").slice(0, 19),
   };
   departments.push(newDept);
-  return ok(newDept, '创建成功');
+  return ok(newDept, "创建成功");
 }
 
 /**
@@ -85,16 +92,16 @@ export async function updateDept(
 ): Promise<ApiResponse<Department>> {
   if (!isMock) return request.put(`/dept/${id}`, data);
 
-  const { departments } = await import('../../mock/data/dept.data');
+  const { departments } = await import("../../mock/data/dept.data");
   const index = departments.findIndex((item) => item.id === id);
-  if (index === -1) return error(404, '部门不存在');
+  if (index === -1) return error(404, "部门不存在");
 
   departments[index] = {
     ...departments[index],
     ...data,
-    updateTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
+    updateTime: new Date().toISOString().replace("T", " ").slice(0, 19),
   };
-  return ok(departments[index], '更新成功');
+  return ok(departments[index], "更新成功");
 }
 
 /**
@@ -103,13 +110,13 @@ export async function updateDept(
 export async function deleteDept(id: string): Promise<ApiResponse<void>> {
   if (!isMock) return request.delete(`/dept/${id}`);
 
-  const { departments } = await import('../../mock/data/dept.data');
+  const { departments } = await import("../../mock/data/dept.data");
   const hasChildren = departments.some((item) => item.parentId === id);
-  if (hasChildren) return error(400, '存在子部门，无法删除');
+  if (hasChildren) return error(400, "存在子部门，无法删除");
 
   const index = departments.findIndex((item) => item.id === id);
-  if (index === -1) return error(404, '部门不存在');
+  if (index === -1) return error(404, "部门不存在");
 
   departments.splice(index, 1);
-  return ok(undefined as any, '删除成功');
+  return ok(undefined as unknown as void, "删除成功");
 }

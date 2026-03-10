@@ -1,17 +1,17 @@
-import type { AppRouteRecordRaw, MenuItem, RouteConfig } from '@/types/router';
+import type { AppRouteRecordRaw, MenuItem, RouteConfig } from "@/types/router";
 
-function resolveRoutePath(path: string, basePath = ''): string {
+function resolveRoutePath(path: string, basePath = ""): string {
   if (!path) {
-    return basePath || '/';
+    return basePath || "/";
   }
 
-  if (path.startsWith('/')) {
+  if (path.startsWith("/")) {
     return path;
   }
 
-  const normalizedBase = basePath === '/' ? '' : basePath.replace(/\/$/, '');
-  const resolved = `${normalizedBase}/${path}`.replace(/\/+/g, '/');
-  return resolved.startsWith('/') ? resolved : `/${resolved}`;
+  const normalizedBase = basePath === "/" ? "" : basePath.replace(/\/$/, "");
+  const resolved = `${normalizedBase}/${path}`.replace(/\/+/g, "/");
+  return resolved.startsWith("/") ? resolved : `/${resolved}`;
 }
 
 /**
@@ -21,7 +21,7 @@ export function filterRoutesByPermission(
   routes: AppRouteRecordRaw[],
   permissions: string[],
 ): AppRouteRecordRaw[] {
-  const hasAllPermission = permissions.includes('*');
+  const hasAllPermission = permissions.includes("*");
 
   return routes.filter((route) => {
     if (route.meta?.requiredPermissions && !hasAllPermission) {
@@ -52,7 +52,9 @@ export function filterRoutesByRole(
 ): AppRouteRecordRaw[] {
   return routes.filter((route) => {
     if (route.meta?.requiredRoles) {
-      const hasRole = route.meta.requiredRoles.some((role) => roles.includes(role));
+      const hasRole = route.meta.requiredRoles.some((role) =>
+        roles.includes(role),
+      );
       if (!hasRole) return false;
     }
 
@@ -71,7 +73,10 @@ export function filterRoutesByRole(
 /**
  * Convert routes to menu tree
  */
-export function routesToMenuTree(routes: AppRouteRecordRaw[], basePath = ''): MenuItem[] {
+export function routesToMenuTree(
+  routes: AppRouteRecordRaw[],
+  basePath = "",
+): MenuItem[] {
   return routes
     .filter((route) => !route.meta?.hidden)
     .map((route) => {
@@ -82,7 +87,9 @@ export function routesToMenuTree(routes: AppRouteRecordRaw[], basePath = ''): Me
         icon: route.meta?.icon,
         // Allow routes to render as external links in the sidebar menu.
         // Sidebar click handler will open these in a new browser tab.
-        path: (route.meta as any)?.externalLink || fullPath,
+        path:
+          ((route.meta as unknown as Record<string, unknown>)
+            ?.externalLink as string) || fullPath,
         badge: route.meta?.badge,
         requiredPermissions: route.meta?.requiredPermissions,
         requiredRoles: route.meta?.requiredRoles,
@@ -105,7 +112,9 @@ export function routesToMenuTree(routes: AppRouteRecordRaw[], basePath = ''): Me
 /**
  * Flatten routes for easier searching
  */
-export function flattenRoutes(routes: AppRouteRecordRaw[]): AppRouteRecordRaw[] {
+export function flattenRoutes(
+  routes: AppRouteRecordRaw[],
+): AppRouteRecordRaw[] {
   let result: AppRouteRecordRaw[] = [];
 
   routes.forEach((route) => {
@@ -143,7 +152,9 @@ export function findRouteByName(
 /**
  * Convert backend route config to Vue Router route
  */
-export function convertBackendRouteConfig(config: RouteConfig): AppRouteRecordRaw {
+export function convertBackendRouteConfig(
+  config: RouteConfig,
+): AppRouteRecordRaw {
   const route: AppRouteRecordRaw = {
     path: config.path,
     name: config.name,
@@ -156,7 +167,9 @@ export function convertBackendRouteConfig(config: RouteConfig): AppRouteRecordRa
   }
 
   if (config.children && config.children.length > 0) {
-    route.children = config.children.map((child) => convertBackendRouteConfig(child));
+    route.children = config.children.map((child) =>
+      convertBackendRouteConfig(child),
+    );
   }
 
   return route;
@@ -189,8 +202,11 @@ export function getBreadcrumbFromRoute(
 /**
  * Check if route has permission
  */
-export function hasRoutePermission(route: AppRouteRecordRaw, permissions: string[]): boolean {
-  if (permissions.includes('*')) {
+export function hasRoutePermission(
+  route: AppRouteRecordRaw,
+  permissions: string[],
+): boolean {
+  if (permissions.includes("*")) {
     return true;
   }
 
@@ -198,7 +214,9 @@ export function hasRoutePermission(route: AppRouteRecordRaw, permissions: string
     return true;
   }
 
-  return route.meta.requiredPermissions.some((perm) => permissions.includes(perm));
+  return route.meta.requiredPermissions.some((perm) =>
+    permissions.includes(perm),
+  );
 }
 
 /**
@@ -211,7 +229,7 @@ export function getAllMenuPaths(routes: AppRouteRecordRaw[]): Array<{
 }> {
   const result: Array<{ path: string; title: string; icon?: string }> = [];
 
-  const traverse = (routes: AppRouteRecordRaw[], basePath = '') => {
+  const traverse = (routes: AppRouteRecordRaw[], basePath = "") => {
     routes.forEach((route) => {
       const fullPath = resolveRoutePath(route.path, basePath);
 

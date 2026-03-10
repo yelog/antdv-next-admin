@@ -1,21 +1,21 @@
-import type { ApiResponse } from '@/types/api';
-import type { SysFile, SysFileQueryParams } from '@/types/file';
+import type { ApiResponse } from "@/types/api";
+import type { SysFile, SysFileQueryParams } from "@/types/file";
 
-import { request } from '@/utils/request';
+import { request } from "@/utils/request";
 
-const isMock = import.meta.env.VITE_USE_MOCK === 'true';
+const isMock = import.meta.env.VITE_USE_MOCK === "true";
 
-const ok = <T>(data: T, message = 'success'): ApiResponse<T> => ({
+const ok = <T>(data: T, message = "success"): ApiResponse<T> => ({
   code: 200,
   message,
   data,
   success: true,
 });
 
-const error = (code: number, message: string): ApiResponse<any> => ({
+const error = <T = null>(code: number, message: string): ApiResponse<T> => ({
   code,
   message,
-  data: null,
+  data: null as T,
   success: false,
 });
 
@@ -27,14 +27,16 @@ export async function getFileList(params: SysFileQueryParams): Promise<
     pageSize: number;
   }>
 > {
-  if (!isMock) return request.get('/file/list', { params });
+  if (!isMock) return request.get("/file/list", { params });
 
-  const { sysFiles } = await import('../../mock/data/file.data');
+  const { sysFiles } = await import("../../mock/data/file.data");
   const { page = 1, pageSize = 10, name, ext, storage } = params;
   let filtered = [...sysFiles];
 
   if (name)
-    filtered = filtered.filter((f) => f.originalName.toLowerCase().includes(name.toLowerCase()));
+    filtered = filtered.filter((f) =>
+      f.originalName.toLowerCase().includes(name.toLowerCase()),
+    );
   if (ext) filtered = filtered.filter((f) => f.ext === ext);
   if (storage) filtered = filtered.filter((f) => f.storage === storage);
 
@@ -47,10 +49,10 @@ export async function getFileList(params: SysFileQueryParams): Promise<
 export async function deleteFile(id: string): Promise<ApiResponse<void>> {
   if (!isMock) return request.delete(`/file/${id}`);
 
-  const { sysFiles } = await import('../../mock/data/file.data');
+  const { sysFiles } = await import("../../mock/data/file.data");
   const index = sysFiles.findIndex((f) => f.id === id);
-  if (index === -1) return error(404, '文件不存在');
+  if (index === -1) return error(404, "文件不存在");
 
   sysFiles.splice(index, 1);
-  return ok(undefined as any, '删除成功');
+  return ok(undefined, "删除成功");
 }

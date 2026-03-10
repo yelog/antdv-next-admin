@@ -1,33 +1,42 @@
-import type { ApiResponse, PageParams, PageResult } from '@/types/api';
-import type { User } from '@/types/auth';
+import type { ApiResponse, PageParams, PageResult } from "@/types/api";
+import type { User } from "@/types/auth";
 
-import { request } from '@/utils/request';
+import { request } from "@/utils/request";
 
-const isMock = import.meta.env.VITE_USE_MOCK === 'true';
+const isMock = import.meta.env.VITE_USE_MOCK === "true";
 
-const ok = <T>(data: T, message = 'Success'): ApiResponse<T> => ({
+const ok = <T>(data: T, message = "Success"): ApiResponse<T> => ({
   code: 200,
   message,
   data,
   success: true,
 });
 
-const notFound = (message = 'Not found'): ApiResponse<any> => ({
+const notFound = <T = null>(message = "Not found"): ApiResponse<T> => ({
   code: 404,
   message,
-  data: null,
+  data: null as T,
   success: false,
 });
 
 /**
  * Get user list
  */
-export async function getUserList(params: PageParams): Promise<ApiResponse<PageResult<User>>> {
-  if (!isMock) return request.get('/users', { params });
+export async function getUserList(
+  params: PageParams,
+): Promise<ApiResponse<PageResult<User>>> {
+  if (!isMock) return request.get("/users", { params });
 
-  const { mockUsers } = await import('../../mock/data/users.data');
+  const { mockUsers } = await import("../../mock/data/users.data");
 
-  const { current = 1, pageSize = 10, username, email, status, gender } = (params || {}) as any;
+  const {
+    current = 1,
+    pageSize = 10,
+    username,
+    email,
+    status,
+    gender,
+  } = params || {};
 
   let filtered = [...mockUsers];
   if (username)
@@ -35,16 +44,20 @@ export async function getUserList(params: PageParams): Promise<ApiResponse<PageR
       u.username?.toLowerCase().includes(String(username).toLowerCase()),
     );
   if (email)
-    filtered = filtered.filter((u) => u.email?.toLowerCase().includes(String(email).toLowerCase()));
+    filtered = filtered.filter((u) =>
+      u.email?.toLowerCase().includes(String(email).toLowerCase()),
+    );
   if (gender) {
     const genderValues = Array.isArray(gender)
       ? gender.map((item) => String(item))
       : String(gender)
-          .split(',')
+          .split(",")
           .map((item) => item.trim())
           .filter(Boolean);
     if (genderValues.length > 0) {
-      filtered = filtered.filter((u) => genderValues.includes(String(u.gender)));
+      filtered = filtered.filter((u) =>
+        genderValues.includes(String(u.gender)),
+      );
     }
   }
   if (status) filtered = filtered.filter((u) => u.status === status);
@@ -68,20 +81,24 @@ export async function getUserList(params: PageParams): Promise<ApiResponse<PageR
 export async function getUserById(id: string): Promise<ApiResponse<User>> {
   if (!isMock) return request.get(`/users/${id}`);
 
-  const { mockUsers, adminUser } = await import('../../mock/data/users.data');
-  const user = (id === '1' ? adminUser : mockUsers.find((u) => u.id === id)) as User | undefined;
-  if (!user) return notFound('User not found');
+  const { mockUsers, adminUser } = await import("../../mock/data/users.data");
+  const user = (id === "1" ? adminUser : mockUsers.find((u) => u.id === id)) as
+    | User
+    | undefined;
+  if (!user) return notFound("User not found");
   return ok(user);
 }
 
 /**
  * Create user
  */
-export async function createUser(data: Partial<User>): Promise<ApiResponse<User>> {
-  if (!isMock) return request.post('/users', data);
+export async function createUser(
+  data: Partial<User>,
+): Promise<ApiResponse<User>> {
+  if (!isMock) return request.post("/users", data);
 
-  const { mockUsers } = await import('../../mock/data/users.data');
-  const { faker } = await import('@faker-js/faker');
+  const { mockUsers } = await import("../../mock/data/users.data");
+  const { faker } = await import("@faker-js/faker");
 
   const now = new Date().toISOString();
   const newUser: User = {
@@ -91,10 +108,10 @@ export async function createUser(data: Partial<User>): Promise<ApiResponse<User>
     realName: data.realName || faker.person.fullName(),
     avatar: data.avatar || faker.image.avatar(),
     phone: data.phone || `1${faker.string.numeric(10)}`,
-    gender: (data.gender as any) || 'male',
-    birthDate: data.birthDate || '1990-01-01',
-    bio: data.bio || '',
-    status: (data.status as any) || 'active',
+    gender: (data.gender as User["gender"]) || "male",
+    birthDate: data.birthDate || "1990-01-01",
+    bio: data.bio || "",
+    status: (data.status as User["status"]) || "active",
     createdAt: now,
     updatedAt: now,
     roles: data.roles || [],
@@ -102,28 +119,31 @@ export async function createUser(data: Partial<User>): Promise<ApiResponse<User>
   };
 
   mockUsers.unshift(newUser);
-  return ok(newUser, 'User created successfully');
+  return ok(newUser, "User created successfully");
 }
 
 /**
  * Update user
  */
-export async function updateUser(id: string, data: Partial<User>): Promise<ApiResponse<User>> {
+export async function updateUser(
+  id: string,
+  data: Partial<User>,
+): Promise<ApiResponse<User>> {
   if (!isMock) return request.put(`/users/${id}`, data);
 
-  const { mockUsers, adminUser } = await import('../../mock/data/users.data');
+  const { mockUsers, adminUser } = await import("../../mock/data/users.data");
   const now = new Date().toISOString();
 
-  if (id === '1') {
+  if (id === "1") {
     Object.assign(adminUser, data, { updatedAt: now });
-    return ok(adminUser, 'User updated successfully');
+    return ok(adminUser, "User updated successfully");
   }
 
   const idx = mockUsers.findIndex((u) => u.id === id);
-  if (idx === -1) return notFound('User not found');
+  if (idx === -1) return notFound("User not found");
 
   mockUsers[idx] = { ...mockUsers[idx], ...data, updatedAt: now } as User;
-  return ok(mockUsers[idx], 'User updated successfully');
+  return ok(mockUsers[idx], "User updated successfully");
 }
 
 /**
@@ -132,15 +152,20 @@ export async function updateUser(id: string, data: Partial<User>): Promise<ApiRe
 export async function deleteUser(id: string): Promise<ApiResponse<null>> {
   if (!isMock) return request.delete(`/users/${id}`);
 
-  if (id === '1')
-    return { code: 400, message: 'Cannot delete admin user', data: null, success: false };
+  if (id === "1")
+    return {
+      code: 400,
+      message: "Cannot delete admin user",
+      data: null,
+      success: false,
+    };
 
-  const { mockUsers } = await import('../../mock/data/users.data');
+  const { mockUsers } = await import("../../mock/data/users.data");
   const idx = mockUsers.findIndex((u) => u.id === id);
-  if (idx === -1) return notFound('User not found');
+  if (idx === -1) return notFound("User not found");
 
   mockUsers.splice(idx, 1);
-  return ok(null, 'User deleted successfully');
+  return ok(null, "User deleted successfully");
 }
 
 /**
@@ -151,29 +176,41 @@ export interface ChangePasswordParams {
   newPassword: string;
 }
 
-export async function changePassword(params: ChangePasswordParams): Promise<ApiResponse<null>> {
-  if (!isMock) return request.post('/users/change-password', params);
+export async function changePassword(
+  params: ChangePasswordParams,
+): Promise<ApiResponse<null>> {
+  if (!isMock) return request.post("/users/change-password", params);
 
   // Mock implementation
   const { oldPassword, newPassword } = params;
 
   // Simple validation
   if (!oldPassword || !newPassword) {
-    return { code: 400, message: 'Password cannot be empty', data: null, success: false };
-  }
-
-  if (oldPassword !== '123456') {
-    return { code: 400, message: 'Current password is incorrect', data: null, success: false };
-  }
-
-  if (newPassword.length < 6) {
     return {
       code: 400,
-      message: 'Password must be at least 6 characters',
+      message: "Password cannot be empty",
       data: null,
       success: false,
     };
   }
 
-  return ok(null, 'Password changed successfully');
+  if (oldPassword !== "123456") {
+    return {
+      code: 400,
+      message: "Current password is incorrect",
+      data: null,
+      success: false,
+    };
+  }
+
+  if (newPassword.length < 6) {
+    return {
+      code: 400,
+      message: "Password must be at least 6 characters",
+      data: null,
+      success: false,
+    };
+  }
+
+  return ok(null, "Password changed successfully");
 }
