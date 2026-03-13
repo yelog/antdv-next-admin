@@ -83,14 +83,13 @@
       </template>
 
       <template v-else>
-        <a-form-item label="JSON 内容">
-          <a-textarea
-            v-model:value="rawJsonText"
-            :auto-size="{ minRows: 10, maxRows: 20 }"
-            placeholder="输入有效的 JSON..."
-            class="raw-editor"
-          />
-        </a-form-item>
+        <ProCodeEditor
+          v-model="rawJsonText"
+          language="json"
+          :height="400"
+          :show-toolbar="true"
+          :format-on-blur="true"
+        />
       </template>
 
       <template #footer>
@@ -114,6 +113,8 @@
 import { EditOutlined } from "@antdv-next/icons";
 import { message } from "antdv-next";
 import { ref, computed, watch, type PropType } from "vue";
+
+import ProCodeEditor from "@/components/Pro/ProCodeEditor/index.vue";
 
 import JsonFieldTreeList, {
   type FieldType,
@@ -1030,10 +1031,5 @@ watch(
     overflow: auto;
     max-height: 420px;
   }
-}
-
-.raw-editor {
-  font-family: "Monaco", "Menlo", "Consolas", monospace;
-  font-size: 13px;
 }
 </style>
