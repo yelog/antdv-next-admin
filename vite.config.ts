@@ -3,6 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import { mockDevServerPlugin } from "vite-plugin-mock-dev-server";
 import { fileURLToPath, URL } from "node:url";
 import pkg from "./package.json";
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   base: "/",
@@ -11,6 +12,7 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    tailwindcss(),
     mockDevServerPlugin({
       prefix: "/api",
       log: "error",
