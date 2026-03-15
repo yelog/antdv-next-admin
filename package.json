@@ -86,11 +86,13 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
+    "@tailwindcss/vite": "^4.2.1",
     "@types/lodash-es": "^4.17.12",
     "@vitejs/plugin-vue": "^6.0.4",
     "oxfmt": "^0.40.0",
     "oxlint": "^1.51.0",
     "sass": "^1.69.7",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5.3.3",
     "vite": "8.0.0",
     "vite-plugin-mock-dev-server": "^2.1.0",

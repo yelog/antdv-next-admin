@@ -12,6 +12,7 @@ import 'antdv-next/dist/reset.css';
 import './assets/styles/global.css';
 import './assets/styles/variables.css';
 import './assets/styles/animations.css';
+import './assets/styles/tailwind.css'
 
 const app = createApp(App);
 
