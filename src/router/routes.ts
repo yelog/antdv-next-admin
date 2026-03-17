@@ -496,6 +496,17 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
               order: 6,
             },
           },
+          {
+            path: "/examples/splitter",
+            name: "ExamplesSplitter",
+            component: () => import("@/views/examples/splitter/index.vue"),
+            meta: {
+              title: "menu.splitter",
+              icon: "ColumnHeightOutlined",
+              requiresAuth: true,
+              order: 7,
+            },
+          },
         ],
       },
       {
