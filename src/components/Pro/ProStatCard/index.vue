@@ -1,6 +1,6 @@
 <template>
   <article
-    class="relative overflow-hidden min-h-[168px] p-5 rounded-[var(--radius-lg)] border border-[var(--color-border-secondary)] bg-[var(--color-bg-container)] shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] md:min-h-[150px]"
+    class="relative overflow-hidden min-h-[168px] !p-5 rounded-[var(--radius-lg)] border border-[var(--color-border-secondary)] bg-[var(--color-bg-container)] shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] md:min-h-[150px]"
   >
     <p class="text-xs text-[var(--color-text-tertiary)] mb-2.5">{{ label }}</p>
     <p
