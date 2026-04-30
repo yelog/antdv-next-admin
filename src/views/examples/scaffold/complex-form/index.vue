@@ -260,10 +260,9 @@ const operatorOptions = [
 ];
 
 const checkProjectNameUnique = async (_rule: unknown, value: string) => {
+  // 空值由 required 规则处理,这里只负责唯一性校验,避免重复提示
   if (!value) {
-    return Promise.reject(
-      new Error($t("examples.scaffold.complexForm.projectNameRequired")),
-    );
+    return Promise.resolve();
   }
 
   await new Promise((resolve) => setTimeout(resolve, 300));
