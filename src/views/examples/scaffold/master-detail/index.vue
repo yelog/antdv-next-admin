@@ -9,7 +9,7 @@
         :data-source="listData"
         row-key="id"
         :pagination="{ pageSize: 8 }"
-        :custom-row="buildRowProps"
+        :on-row="buildRowProps"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'status'">
