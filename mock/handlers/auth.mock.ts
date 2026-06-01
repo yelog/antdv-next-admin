@@ -2,6 +2,24 @@ import { defineMock } from 'vite-plugin-mock-dev-server';
 
 import { adminUser, regularUser } from '../data/users.data';
 
+function resolveMockUserIdFromToken(token?: string) {
+  if (!token) return null;
+  const parts = token.split('-');
+  const tokenIndex = parts.indexOf('token');
+  const refreshIndex = parts.indexOf('refresh');
+  const userIdIndex = tokenIndex !== -1 ? tokenIndex + 1 : refreshIndex + 2;
+  const userId = parts[userIdIndex];
+  return userId === '1' || userId === '2' ? userId : null;
+}
+
+function createMockToken(userId: string) {
+  return `mock-token-${userId}-${Date.now()}`;
+}
+
+function createMockRefreshToken(userId: string) {
+  return `mock-refresh-token-${userId}-${Date.now()}`;
+}
+
 export default defineMock([
   // Login
   {
@@ -23,8 +41,8 @@ export default defineMock([
           code: 200,
           message: 'Login successful',
           data: {
-            token: `mock-token-${user.id}-${Date.now()}`,
-            refreshToken: `mock-refresh-token-${user.id}-${Date.now()}`,
+            token: createMockToken(user.id),
+            refreshToken: createMockRefreshToken(user.id),
             expiresIn: 7200,
           },
           success: true,
@@ -70,7 +88,15 @@ export default defineMock([
       }
 
       // Extract user ID from token
-      const userId = token.split('-')[2];
+      const userId = resolveMockUserIdFromToken(token);
+      if (!userId) {
+        return {
+          code: 401,
+          message: 'Invalid token',
+          data: null,
+          success: false,
+        };
+      }
       const user = userId === '1' ? adminUser : regularUser;
 
       return {
@@ -89,13 +115,15 @@ export default defineMock([
     body: (req) => {
       const { refreshToken } = req.body;
 
-      if (refreshToken) {
+      const userId = resolveMockUserIdFromToken(refreshToken);
+
+      if (userId) {
         return {
           code: 200,
           message: 'Token refreshed',
           data: {
-            token: `new-mock-token-${Date.now()}`,
-            refreshToken: `new-mock-refresh-token-${Date.now()}`,
+            token: createMockToken(userId),
+            refreshToken: createMockRefreshToken(userId),
             expiresIn: 7200,
           },
           success: true,

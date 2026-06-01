@@ -62,7 +62,11 @@
 </template>
 
 <script setup lang="ts">
-import type { ProTableColumn, ProFormItem } from "@/types/pro";
+import type {
+  ProTableColumn,
+  ProFormItem,
+  ProTableRequestParams,
+} from "@/types/pro";
 import type { User } from "@/types/auth";
 import type { PageParams } from "@/types/api";
 
@@ -250,8 +254,12 @@ const formItems = computed<ProFormItem[]>(() => [
 ]);
 
 // Methods
-const fetchData = async (params: PageParams) => {
-  const res = await getUserList(params);
+const fetchData = async (params: ProTableRequestParams) => {
+  const res = await getUserList({
+    ...params,
+    current: Number(params.current || 1),
+    pageSize: Number(params.pageSize || 10),
+  } as PageParams);
   return {
     data: res.data.list,
     total: res.data.total,

@@ -1753,7 +1753,7 @@ const loadData = async () => {
     const result = await props.request(params);
 
     if (result.success) {
-      dataSource.value = result.data;
+      dataSource.value = result.data as Record<string, unknown>[];
       total.value = result.total || result.data.length;
       scheduleMeasureTable();
     }

@@ -1,5 +1,21 @@
 // Pro Component Types
 
+export type ProTableRecord = object;
+
+export interface ProTableRequestParams {
+  current?: number;
+  pageSize?: number;
+  [key: string]: unknown;
+}
+
+export interface ProTableRequestResult<
+  TRecord extends ProTableRecord = ProTableRecord,
+> {
+  data: TRecord[];
+  total?: number;
+  success: boolean;
+}
+
 // ProTable Types
 export type ValueType =
   | 'text'
@@ -34,7 +50,9 @@ export interface ProTableHeaderFilterOption {
   value: string | number | boolean;
 }
 
-export interface ProTableHeaderFilter {
+export interface ProTableHeaderFilter<
+  TRecord extends ProTableRecord = ProTableRecord,
+> {
   type: ProTableHeaderFilterType;
   mode?: HeaderFilterMode;
   icon?: 'search' | 'filter';
@@ -44,7 +62,7 @@ export interface ProTableHeaderFilter {
   options?: ProTableHeaderFilterOption[];
   caseSensitive?: boolean;
   matchAllKeywords?: boolean;
-  clientFilter?: (filterValue: unknown, record: Record<string, unknown>, column: ProTableColumn) => boolean;
+  clientFilter?: (filterValue: unknown, record: TRecord, column: ProTableColumn<TRecord>) => boolean;
   transformRequestValue?: (value: unknown, selectedValues: unknown[]) => unknown;
 }
 
@@ -55,7 +73,9 @@ export interface ProTableHeaderFilterConfig {
   resetPageOnFilterChange?: boolean;
 }
 
-export interface ProTableColumn {
+export interface ProTableColumn<
+  TRecord extends ProTableRecord = ProTableRecord,
+> {
   title: string;
   dataIndex: string;
   key?: string;
@@ -89,10 +109,10 @@ export interface ProTableColumn {
   searchProps?: Record<string, unknown>;
 
   // Header filter
-  headerFilter?: ProTableHeaderFilter;
+  headerFilter?: ProTableHeaderFilter<TRecord>;
 
   // Sorting
-  sorter?: boolean | ((a: Record<string, unknown>, b: Record<string, unknown>) => number);
+  sorter?: boolean | ((a: TRecord, b: TRecord) => number);
   defaultSortOrder?: 'ascend' | 'descend';
 
   // Native table filter compatibility
@@ -102,7 +122,7 @@ export interface ProTableColumn {
   filters?: Array<{ text: string; value: string | number | boolean }>;
   filterMultiple?: boolean;
   filteredValue?: (string | number | boolean)[] | null;
-  onFilter?: (value: unknown, record: Record<string, unknown>) => boolean;
+  onFilter?: (value: unknown, record: TRecord) => boolean;
   sortDirections?: Array<'ascend' | 'descend'>;
   customFilterDropdown?: boolean;
 
@@ -110,7 +130,7 @@ export interface ProTableColumn {
   actions?: ProTableAction[];
 
   // Custom render
-  render?: (text: unknown, record: Record<string, unknown>, index: number) => unknown;
+  render?: (text: unknown, record: TRecord, index: number) => unknown;
 }
 
 export interface ProTableAction {
@@ -149,14 +169,11 @@ export interface ProTablePagination {
   pageSizeOptions?: string[];
 }
 
-export interface ProTableRequest {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (params: any): Promise<{
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    data: any[];
-    total?: number;
-    success: boolean;
-  }>;
+export interface ProTableRequest<
+  TRecord extends ProTableRecord = ProTableRecord,
+  TParams extends ProTableRequestParams = ProTableRequestParams,
+> {
+  (params: TParams): Promise<ProTableRequestResult<TRecord>>;
 }
 
 // ProForm Types

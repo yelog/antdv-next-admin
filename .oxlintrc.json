@@ -14,12 +14,6 @@
   },
   "overrides": [
     {
-      "files": ["**/*.vue"],
-      "rules": {
-        "vue/no-unused-vars": "warn"
-      }
-    },
-    {
       "files": ["mock/**/*"],
       "rules": {
         "no-console": "off"

@@ -1,5 +1,7 @@
 import type { AppRouteRecordRaw } from "@/types/router";
 
+import { PERMISSIONS } from "@/constants/permissions";
+
 /**
  * Static routes that don't require authentication
  */
@@ -142,7 +144,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: "menu.dept",
           icon: "ApartmentOutlined",
           requiresAuth: true,
-          requiredPermissions: ["system.dept.view"],
+          requiredPermissions: [PERMISSIONS.SYSTEM_DEPT_VIEW],
         },
       },
       {
@@ -153,7 +155,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: "menu.user",
           icon: "UserOutlined",
           requiresAuth: true,
-          requiredPermissions: ["system.user.view"],
+          requiredPermissions: [PERMISSIONS.SYSTEM_USER_VIEW],
         },
       },
       {
@@ -164,7 +166,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: "menu.role",
           icon: "TeamOutlined",
           requiresAuth: true,
-          requiredPermissions: ["system.role.view"],
+          requiredPermissions: [PERMISSIONS.SYSTEM_ROLE_VIEW],
         },
       },
       {
@@ -175,7 +177,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: "menu.permission",
           icon: "SafetyOutlined",
           requiresAuth: true,
-          requiredPermissions: ["system.permission.view"],
+          requiredPermissions: [PERMISSIONS.SYSTEM_PERMISSION_VIEW],
         },
       },
     ],
@@ -200,7 +202,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: "menu.config",
           icon: "ControlOutlined",
           requiresAuth: true,
-          requiredPermissions: ["system.config.view"],
+          requiredPermissions: [PERMISSIONS.SYSTEM_CONFIG_VIEW],
         },
       },
       {
@@ -211,7 +213,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: "menu.dict",
           icon: "BookOutlined",
           requiresAuth: true,
-          requiredPermissions: ["system.dict.view"],
+          requiredPermissions: [PERMISSIONS.SYSTEM_DICT_VIEW],
         },
       },
       {
@@ -222,7 +224,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: "menu.file",
           icon: "FolderOutlined",
           requiresAuth: true,
-          requiredPermissions: ["system.file.view"],
+          requiredPermissions: [PERMISSIONS.SYSTEM_FILE_VIEW],
         },
       },
       {
@@ -233,7 +235,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           title: "menu.log",
           icon: "FileTextOutlined",
           requiresAuth: true,
-          requiredPermissions: ["system.log.view"],
+          requiredPermissions: [PERMISSIONS.SYSTEM_LOG_VIEW],
         },
       },
     ],

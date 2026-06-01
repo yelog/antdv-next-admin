@@ -108,7 +108,7 @@ import {
   MobileOutlined,
   UnorderedListOutlined,
 } from '@antdv-next/icons'
-import { ref } from 'vue'
+import { h, ref } from 'vue'
 
 const activeTab = ref('basic')
 
@@ -160,7 +160,6 @@ const filterOptions = [
   { label: 'Closed', value: 'closed' },
 ]
 
-import { h } from 'vue'
 </script>
 
 <style scoped lang="scss">

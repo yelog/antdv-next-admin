@@ -7,7 +7,7 @@ import { request } from '@/utils/request';
  * Login
  */
 export function login(data: LoginParams): Promise<ApiResponse<LoginResult>> {
-  return request.post('/auth/login', data);
+  return request.post('/auth/login', data, { skipAuth: true });
 }
 
 /**
@@ -27,6 +27,12 @@ export function getUserInfo(): Promise<ApiResponse<User>> {
 /**
  * Refresh token
  */
-export function refreshToken(refreshToken: string): Promise<ApiResponse<LoginResult>> {
-  return request.post('/auth/refresh', { refreshToken });
+export function refreshToken(
+  refreshToken: string,
+): Promise<ApiResponse<LoginResult>> {
+  return request.post(
+    '/auth/refresh',
+    { refreshToken },
+    { skipAuth: true, skipAuthRefresh: true },
+  );
 }

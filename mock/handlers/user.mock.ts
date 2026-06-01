@@ -1,7 +1,14 @@
 import { faker } from "@faker-js/faker";
 import { defineMock } from "vite-plugin-mock-dev-server";
 
-import { mockUsers } from "../data/users.data";
+import type { User } from "@/types/auth";
+
+import { adminUser, mockUsers } from "../data/users.data";
+
+const allUsers = () => [
+  adminUser,
+  ...mockUsers.filter((user) => user.id !== adminUser.id),
+];
 
 export default defineMock([
   // Get user list (with pagination and search)
@@ -19,7 +26,7 @@ export default defineMock([
       } = req.query;
 
       // Filter users
-      let filteredUsers = [...mockUsers];
+      let filteredUsers = allUsers();
 
       if (username) {
         filteredUsers = filteredUsers.filter((user) =>
@@ -76,7 +83,7 @@ export default defineMock([
     method: "GET",
     body: (req) => {
       const { id } = req.params;
-      const user = mockUsers.find((u) => u.id === id);
+      const user = allUsers().find((u) => u.id === id);
 
       if (user) {
         return {
@@ -103,7 +110,7 @@ export default defineMock([
     body: (req) => {
       const userData = req.body;
 
-      const newUser = {
+      const newUser: User = {
         id: faker.string.uuid(),
         username: userData.username || `user_${faker.string.alphanumeric(6)}`,
         email: userData.email || faker.internet.email(),
@@ -125,7 +132,7 @@ export default defineMock([
         permissions: userData.permissions || [],
       };
 
-      mockUsers.push(newUser);
+      mockUsers.unshift(newUser);
 
       return {
         code: 200,
@@ -143,6 +150,18 @@ export default defineMock([
     body: (req) => {
       const { id } = req.params;
       const userData = req.body;
+
+      if (id === adminUser.id) {
+        Object.assign(adminUser, userData, {
+          updatedAt: new Date().toISOString(),
+        });
+        return {
+          code: 200,
+          message: "User updated successfully",
+          data: adminUser,
+          success: true,
+        };
+      }
 
       const index = mockUsers.findIndex((u) => u.id === id);
 
@@ -176,6 +195,15 @@ export default defineMock([
     method: "DELETE",
     body: (req) => {
       const { id } = req.params;
+      if (id === adminUser.id) {
+        return {
+          code: 400,
+          message: "Cannot delete admin user",
+          data: null,
+          success: false,
+        };
+      }
+
       const index = mockUsers.findIndex((u) => u.id === id);
 
       if (index !== -1) {
@@ -227,6 +255,49 @@ export default defineMock([
         code: 200,
         message: `Deleted ${deletedCount} users successfully`,
         data: { deletedCount },
+        success: true,
+      };
+    },
+  },
+
+  // Change password
+  {
+    url: "/api/users/change-password",
+    method: "POST",
+    body: (req) => {
+      const { oldPassword, newPassword } = req.body;
+
+      if (!oldPassword || !newPassword) {
+        return {
+          code: 400,
+          message: "Password cannot be empty",
+          data: null,
+          success: false,
+        };
+      }
+
+      if (oldPassword !== "123456") {
+        return {
+          code: 400,
+          message: "Current password is incorrect",
+          data: null,
+          success: false,
+        };
+      }
+
+      if (String(newPassword).length < 6) {
+        return {
+          code: 400,
+          message: "Password must be at least 6 characters",
+          data: null,
+          success: false,
+        };
+      }
+
+      return {
+        code: 200,
+        message: "Password changed successfully",
+        data: null,
         success: true,
       };
     },

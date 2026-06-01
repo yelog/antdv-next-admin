@@ -31,5 +31,14 @@ jobs:
       - name: Install rolldown native bindings
         run: pnpm add @rolldown/binding-linux-x64-gnu -D
 
+      - name: Type check
+        run: pnpm run type-check
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Unit tests
+        run: pnpm run test:unit:run
+
       - name: Build
         run: pnpm run build

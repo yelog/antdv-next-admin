@@ -316,7 +316,9 @@ export default defineMock([
       // In a real app, this would be based on the user's roles
       // For now, return all permissions for admin
       const token = req.headers.authorization?.replace('Bearer ', '');
-      const userId = token?.split('-')[2];
+      const parts = token?.split('-') || [];
+      const tokenIndex = parts.indexOf('token');
+      const userId = tokenIndex === -1 ? undefined : parts[tokenIndex + 1];
 
       if (userId === '1') {
         // Admin - all permissions

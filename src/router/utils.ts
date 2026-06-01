@@ -1,5 +1,7 @@
 import type { AppRouteRecordRaw, MenuItem, RouteConfig } from "@/types/router";
 
+import { ALL_PERMISSION } from "@/constants/permissions";
+
 function resolveRoutePath(path: string, basePath = ""): string {
   if (!path) {
     return basePath || "/";
@@ -21,7 +23,7 @@ export function filterRoutesByPermission(
   routes: AppRouteRecordRaw[],
   permissions: string[],
 ): AppRouteRecordRaw[] {
-  const hasAllPermission = permissions.includes("*");
+  const hasAllPermission = permissions.includes(ALL_PERMISSION);
 
   return routes.filter((route) => {
     if (route.meta?.requiredPermissions && !hasAllPermission) {
@@ -206,7 +208,7 @@ export function hasRoutePermission(
   route: AppRouteRecordRaw,
   permissions: string[],
 ): boolean {
-  if (permissions.includes("*")) {
+  if (permissions.includes(ALL_PERMISSION)) {
     return true;
   }
 
