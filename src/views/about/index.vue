@@ -196,14 +196,14 @@ const heroBadges = [
   { label: 'Vue 3', bg: 'rgba(66, 184, 131, 0.25)' },
   { label: 'TypeScript', bg: 'rgba(49, 120, 198, 0.25)' },
   { label: 'Vite', bg: 'rgba(100, 108, 255, 0.25)' },
-  { label: 'Ant Design Vue', bg: 'rgba(255, 255, 255, 0.15)' },
+  { label: 'Antdv Next', bg: 'rgba(255, 255, 255, 0.15)' },
 ];
 
 const techList = [
   { name: 'Vue', version: '3.4', color: '#42b883', url: 'https://vuejs.org' },
   { name: 'TypeScript', version: '5.3', color: '#3178c6', url: 'https://www.typescriptlang.org' },
   { name: 'Vite', version: '5.0', color: '#646cff', url: 'https://vite.dev' },
-  { name: 'Ant Design Vue', version: 'Next', color: '#1677ff', url: 'https://antdv-next.com' },
+  { name: 'Antdv Next', version: 'Next', color: '#1677ff', url: 'https://antdv-next.com' },
   { name: 'Pinia', version: '2.1', color: '#ffd859', url: 'https://pinia.vuejs.org' },
   { name: 'Vue Router', version: '4.2', color: '#42b883', url: 'https://router.vuejs.org' },
   { name: 'Vue I18n', version: '11.0', color: '#42b883', url: 'https://vue-i18n.intlify.dev' },
