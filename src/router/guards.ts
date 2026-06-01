@@ -1,4 +1,4 @@
-import type { Router, RouteLocationNormalized } from "vue-router";
+import type { Router, RouteLocationNormalized, RouteRecordRaw } from "vue-router";
 
 import type { AppRouteRecordRaw } from "@/types/router";
 
@@ -18,6 +18,127 @@ interface MenuHistoryItem {
   title: string;
   icon?: string;
   timestamp: number;
+}
+
+function setDocumentTitle(route: RouteLocationNormalized) {
+  if (!route.meta.title) return;
+
+  const title = resolveLocaleText(
+    route.meta.title as string,
+    String(route.name || route.path || "Dashboard"),
+  );
+  document.title = `${title} - ${import.meta.env.VITE_APP_TITLE || "Antdv Next Admin"}`;
+}
+
+async function ensureDynamicRoutes(
+  router: Router,
+  authStore: ReturnType<typeof useAuthStore>,
+  permissionStore: ReturnType<typeof usePermissionStore>,
+  dictStore: ReturnType<typeof useDictStore>,
+) {
+  if (permissionStore.isRoutesGenerated) return;
+
+  if (!authStore.user) {
+    authStore.initAuth();
+  }
+
+  const accessRoutes = await permissionStore.generateRoutes(
+    authStore.userRoles,
+    authStore.userPermissions,
+  );
+
+  accessRoutes.forEach((route) => {
+    const routeName = route.name ? String(route.name) : "";
+    if (routeName && router.hasRoute(routeName)) {
+      return;
+    }
+    router.addRoute(route);
+  });
+
+  if (!router.hasRoute("NotFound")) {
+    router.addRoute(notFoundRoute as unknown as RouteRecordRaw);
+  }
+
+  dictStore.loadDictData();
+}
+
+function initTabsIfNeeded(
+  tabsStore: ReturnType<typeof useTabsStore>,
+  permissionStore: ReturnType<typeof usePermissionStore>,
+) {
+  if (tabsStore.tabs.length > 0) return;
+
+  const routeSources = [
+    ...basicRoutes,
+    ...(permissionStore.routes as unknown as AppRouteRecordRaw[]),
+  ];
+
+  tabsStore.restoreTabsState(routeSources);
+
+  if (tabsStore.tabs.length === 0) {
+    tabsStore.initAffixTabs(routeSources);
+  }
+}
+
+function getRedirectedFromPath(route: RouteLocationNormalized) {
+  return route.redirectedFrom?.fullPath;
+}
+
+function shouldRecoverFromNotFound(
+  route: RouteLocationNormalized,
+  authStore: ReturnType<typeof useAuthStore>,
+  permissionStore: ReturnType<typeof usePermissionStore>,
+) {
+  const redirectedFromPath = getRedirectedFromPath(route);
+  return (
+    route.path === "/404" &&
+    !!redirectedFromPath &&
+    redirectedFromPath !== "/404" &&
+    !!authStore.token &&
+    !permissionStore.isRoutesGenerated
+  );
+}
+
+function shouldRedirectNotFoundToLogin(
+  route: RouteLocationNormalized,
+  authStore: ReturnType<typeof useAuthStore>,
+) {
+  const redirectedFromPath = getRedirectedFromPath(route);
+  return (
+    route.path === "/404" &&
+    !!redirectedFromPath &&
+    redirectedFromPath !== "/404" &&
+    !authStore.token
+  );
+}
+
+function getRouteAccessRedirect(
+  route: RouteLocationNormalized,
+  authStore: ReturnType<typeof useAuthStore>,
+) {
+  const requiredPermissions = route.meta.requiredPermissions as
+    | string[]
+    | undefined;
+  if (Array.isArray(requiredPermissions) && requiredPermissions.length > 0) {
+    const hasPermission = authStore.hasAnyPermission(requiredPermissions);
+    if (!hasPermission) {
+      return "/403";
+    }
+  }
+
+  const requiredRoles = route.meta.requiredRoles as string[] | undefined;
+  if (Array.isArray(requiredRoles) && requiredRoles.length > 0) {
+    const hasRole = authStore.hasAnyRole(requiredRoles);
+    if (!hasRole) {
+      return "/403";
+    }
+  }
+
+  return undefined;
+}
+
+function shouldAddTab(route: RouteLocationNormalized) {
+  return Boolean(route.name && route.meta.requiresAuth !== false && !route.meta.hidden);
 }
 
 function recordMenuHistory(route: RouteLocationNormalized) {
@@ -56,73 +177,17 @@ export function setupRouterGuards(router: Router) {
     const tabsStore = useTabsStore();
     const dictStore = useDictStore();
 
-    const generateDynamicRoutes = async () => {
-      if (permissionStore.isRoutesGenerated) return;
-
-      if (!authStore.user) {
-        authStore.initAuth();
-      }
-
-      const accessRoutes = await permissionStore.generateRoutes(
-        authStore.userRoles,
-        authStore.userPermissions,
-      );
-
-      accessRoutes.forEach((route) => {
-        const routeName = route.name ? String(route.name) : "";
-        if (routeName && router.hasRoute(routeName)) {
-          return;
-        }
-        router.addRoute(route);
-      });
-
-      if (!router.hasRoute("NotFound")) {
-        router.addRoute(
-          notFoundRoute as unknown as import("vue-router").RouteRecordRaw,
-        );
-      }
-
-      dictStore.loadDictData();
-    };
-
-    const initTabsIfNeeded = () => {
-      if (tabsStore.tabs.length > 0) return;
-
-      const routeSources = [
-        ...basicRoutes,
-        ...(permissionStore.routes as unknown as AppRouteRecordRaw[]),
-      ];
-
-      tabsStore.restoreTabsState(routeSources);
-
-      if (tabsStore.tabs.length === 0) {
-        tabsStore.initAffixTabs(routeSources);
-      }
-    };
-
     // Set page title
-    if (to.meta.title) {
-      const title = resolveLocaleText(
-        to.meta.title as string,
-        String(to.name || to.path || "Dashboard"),
-      );
-      document.title = `${title} - ${import.meta.env.VITE_APP_TITLE || "Antdv Next Admin"}`;
-    }
+    setDocumentTitle(to);
 
     // If first refresh hits catch-all and is redirected to 404,
     // restore dynamic routes first, then retry the original target.
     const redirectedFromPath = to.redirectedFrom?.fullPath;
-    const shouldRecoverFromNotFound =
-      to.path === "/404" &&
-      !!redirectedFromPath &&
-      redirectedFromPath !== "/404" &&
-      !!authStore.token &&
-      !permissionStore.isRoutesGenerated;
 
-    if (shouldRecoverFromNotFound) {
+    if (shouldRecoverFromNotFound(to, authStore, permissionStore)) {
       try {
-        await generateDynamicRoutes();
-        initTabsIfNeeded();
+        await ensureDynamicRoutes(router, authStore, permissionStore, dictStore);
+        initTabsIfNeeded(tabsStore, permissionStore);
         next({ path: redirectedFromPath, replace: true });
         return;
       } catch (error) {
@@ -137,12 +202,7 @@ export function setupRouterGuards(router: Router) {
 
     // If catch-all redirected to 404 but user is not logged in,
     // redirect to login instead of showing 404
-    if (
-      to.path === "/404" &&
-      !!redirectedFromPath &&
-      redirectedFromPath !== "/404" &&
-      !authStore.token
-    ) {
+    if (shouldRedirectNotFoundToLogin(to, authStore)) {
       next({ path: "/login", query: { redirect: redirectedFromPath } });
       return;
     }
@@ -164,8 +224,8 @@ export function setupRouterGuards(router: Router) {
       // Generate dynamic routes if not already generated
       if (!permissionStore.isRoutesGenerated) {
         try {
-          await generateDynamicRoutes();
-          initTabsIfNeeded();
+          await ensureDynamicRoutes(router, authStore, permissionStore, dictStore);
+          initTabsIfNeeded(tabsStore, permissionStore);
 
           // Continue to the target route
           next({ ...to, replace: true });
@@ -177,41 +237,17 @@ export function setupRouterGuards(router: Router) {
         }
       }
 
-      // Check permissions
-      const requiredPermissions = to.meta.requiredPermissions as
-        | string[]
-        | undefined;
-      if (
-        requiredPermissions &&
-        Array.isArray(requiredPermissions) &&
-        requiredPermissions.length > 0
-      ) {
-        const hasPermission = authStore.hasAnyPermission(requiredPermissions);
-        if (!hasPermission) {
-          next("/403");
-          return;
-        }
+      const accessRedirect = getRouteAccessRedirect(to, authStore);
+      if (accessRedirect) {
+        next(accessRedirect);
+        return;
       }
 
-      // Check roles
-      const requiredRoles = to.meta.requiredRoles as string[] | undefined;
-      if (
-        requiredRoles &&
-        Array.isArray(requiredRoles) &&
-        requiredRoles.length > 0
-      ) {
-        const hasRole = authStore.hasAnyRole(requiredRoles);
-        if (!hasRole) {
-          next("/403");
-          return;
-        }
-      }
-
-      initTabsIfNeeded();
+      initTabsIfNeeded(tabsStore, permissionStore);
     }
 
     // Add to tabs
-    if (to.name && to.meta.requiresAuth !== false && !to.meta.hidden) {
+    if (shouldAddTab(to)) {
       tabsStore.addTab(to);
     }
 
@@ -230,7 +266,7 @@ export function setupRouterGuards(router: Router) {
     }
 
     // Record menu visit history
-    if (to.name && to.meta.requiresAuth !== false && !to.meta.hidden) {
+    if (shouldAddTab(to)) {
       recordMenuHistory(to);
     }
   });

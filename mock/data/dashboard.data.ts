@@ -31,7 +31,7 @@ export const mockUserDistribution = [
 ];
 
 // Recent activities
-export const mockActivities = Array.from({ length: 10 }, (_, index) => ({
+export const mockActivities = Array.from({ length: 10 }, () => ({
   id: faker.string.uuid(),
   user: faker.person.fullName(),
   avatar: faker.image.avatar(),

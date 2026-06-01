@@ -224,15 +224,15 @@ export function hasRoutePermission(
 /**
  * Get all menu paths for search
  */
-export function getAllMenuPaths(routes: AppRouteRecordRaw[]): Array<{
+export function getAllMenuPaths(routeList: AppRouteRecordRaw[]): Array<{
   path: string;
   title: string;
   icon?: string;
 }> {
   const result: Array<{ path: string; title: string; icon?: string }> = [];
 
-  const traverse = (routes: AppRouteRecordRaw[], basePath = "") => {
-    routes.forEach((route) => {
+  const traverse = (items: AppRouteRecordRaw[], basePath = "") => {
+    items.forEach((route) => {
       const fullPath = resolveRoutePath(route.path, basePath);
 
       if (!route.meta?.hidden && route.meta?.title) {
@@ -249,6 +249,6 @@ export function getAllMenuPaths(routes: AppRouteRecordRaw[]): Array<{
     });
   };
 
-  traverse(routes);
+  traverse(routeList);
   return result;
 }

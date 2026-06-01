@@ -107,7 +107,7 @@ export const useThemeStore = defineStore('theme', () => {
         applyTheme();
       });
       transition.finished.finally(cleanup);
-    } catch (error) {
+    } catch {
       cleanup();
       applyTheme();
       return false;

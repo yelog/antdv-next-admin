@@ -123,27 +123,18 @@
           />
         </a-form-item>
         <a-form-item :label="$t('config.valueType')">
-          <a-select v-model:value="form.valueType" :disabled="!!form.id">
-            <a-select-option value="string">{{
-              $t("config.valueTypes.string")
-            }}</a-select-option>
-            <a-select-option value="number">{{
-              $t("config.valueTypes.number")
-            }}</a-select-option>
-            <a-select-option value="boolean">{{
-              $t("config.valueTypes.boolean")
-            }}</a-select-option>
-            <a-select-option value="json">{{
-              $t("config.valueTypes.json")
-            }}</a-select-option>
-          </a-select>
+          <a-select
+            v-model:value="form.valueType"
+            :disabled="!!form.id"
+            :options="valueTypeOptions"
+          />
         </a-form-item>
         <a-form-item :label="$t('config.group')">
-          <a-select v-model:value="form.group" allow-clear>
-            <a-select-option v-for="g in groups" :key="g" :value="g">{{
-              $t(`config.groups.${g}`)
-            }}</a-select-option>
-          </a-select>
+          <a-select
+            v-model:value="form.group"
+            allow-clear
+            :options="groupOptions"
+          />
         </a-form-item>
         <a-form-item :label="$t('config.sort')">
           <a-input-number
@@ -189,6 +180,18 @@ const groups = ref<string[]>(["basic", "security", "upload", "notification"]);
 const selectedGroup = ref("basic");
 const allConfigs = ref<SysConfig[]>([]);
 const refreshKey = ref(0);
+const valueTypeOptions = computed(() =>
+  ["string", "number", "boolean", "json"].map((value) => ({
+    label: t(`config.valueTypes.${value}`),
+    value,
+  })),
+);
+const groupOptions = computed(() =>
+  groups.value.map((group) => ({
+    label: t(`config.groups.${group}`),
+    value: group,
+  })),
+);
 const selectedMenuKeys = computed({
   get: () => [selectedGroup.value],
   set: (keys: string[]) => {

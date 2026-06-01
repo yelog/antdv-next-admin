@@ -28,11 +28,11 @@ export function getUserInfo(): Promise<ApiResponse<User>> {
  * Refresh token
  */
 export function refreshToken(
-  refreshToken: string,
+  token: string,
 ): Promise<ApiResponse<LoginResult>> {
   return request.post(
     '/auth/refresh',
-    { refreshToken },
+    { refreshToken: token },
     { skipAuth: true, skipAuthRefresh: true },
   );
 }

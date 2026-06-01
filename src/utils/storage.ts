@@ -60,7 +60,7 @@ class Storage {
 
       // Compatible with plain values stored by native localStorage APIs
       return data as T;
-    } catch (error) {
+    } catch {
       // Compatible with plain string values (e.g. legacy token format)
       return item as unknown as T;
     }

@@ -23,7 +23,7 @@
     <!-- Badge -->
     <a-badge
       v-else-if="type === 'badge'"
-      :status="getEnumConfig(value)?.status as any"
+      :status="getBadgeStatus(value)"
       :text="getEnumConfig(value)?.text || value"
     />
 
@@ -87,6 +87,8 @@ interface ValueTypeProps {
   width?: number;
 }
 
+type BadgeStatus = "success" | "processing" | "default" | "error" | "warning";
+
 interface Props {
   value: unknown;
   type?: ValueType;
@@ -113,6 +115,20 @@ const asNumber = (val: unknown): number | undefined => {
 const getEnumConfig = (value: unknown) => {
   if (typeof value === "string" || typeof value === "number") {
     return props.enum?.[value];
+  }
+  return undefined;
+};
+
+const getBadgeStatus = (value: unknown): BadgeStatus | undefined => {
+  const status = getEnumConfig(value)?.status;
+  if (
+    status === "success" ||
+    status === "processing" ||
+    status === "default" ||
+    status === "error" ||
+    status === "warning"
+  ) {
+    return status;
   }
   return undefined;
 };

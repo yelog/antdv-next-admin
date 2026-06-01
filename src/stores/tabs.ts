@@ -203,14 +203,14 @@ export const useTabsStore = defineStore("tabs", () => {
   };
 
   // Initialize affix tabs
-  const initAffixTabs = (routes: AppRouteRecordRaw[]) => {
+  const initAffixTabs = (routeList: AppRouteRecordRaw[]) => {
     const affixTabs: Tab[] = [];
 
     const findAffixRoutes = (
-      routes: AppRouteRecordRaw[],
+      items: AppRouteRecordRaw[],
       basePath = "",
     ) => {
-      routes.forEach((route) => {
+      items.forEach((route) => {
         const routePath = route.path ? String(route.path) : "";
         const fullPath = resolveRoutePath(routePath, basePath);
         const meta = route.meta;
@@ -240,7 +240,7 @@ export const useTabsStore = defineStore("tabs", () => {
       });
     };
 
-    findAffixRoutes(routes);
+    findAffixRoutes(routeList);
     tabs.value = affixTabs;
     if (affixTabs.length > 0) {
       activeTabPath.value = affixTabs[0].path;

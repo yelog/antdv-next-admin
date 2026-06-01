@@ -10,7 +10,8 @@
     "no-unused-vars": "warn",
     "typescript/no-explicit-any": "warn",
     "typescript/no-unnecessary-type-assertion": "warn",
-    "import/no-duplicates": "error"
+    "import/no-duplicates": "error",
+    "import/no-unassigned-import": "off"
   },
   "overrides": [
     {

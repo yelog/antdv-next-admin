@@ -494,22 +494,21 @@ const handleImport = async (file: File) => {
       return false;
     }
 
-    let successCount = 0;
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-      if (!row[usernameIdx]) continue;
-      try {
-        await createUser({
+    const importTasks = rows
+      .slice(1)
+      .filter((row) => row[usernameIdx])
+      .map((row) =>
+        createUser({
           username: row[usernameIdx],
           realName: row[realNameIdx] || "",
           email: row[emailIdx] || "",
           status: "active",
-        });
-        successCount++;
-      } catch {
-        /* skip duplicates */
-      }
-    }
+        }),
+      );
+    const results = await Promise.allSettled(importTasks);
+    const successCount = results.filter(
+      (result) => result.status === "fulfilled",
+    ).length;
     message.success($t("user.importSuccess", { count: successCount }));
     refreshTable();
   } catch {

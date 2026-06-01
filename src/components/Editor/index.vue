@@ -160,10 +160,10 @@ import {
   UndoOutlined,
   RedoOutlined,
 } from '@antdv-next/icons';
-import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
-import Placeholder from '@tiptap/extension-placeholder';
-import StarterKit from '@tiptap/starter-kit';
+import ImageExtension from '@tiptap/extension-image';
+import LinkExtension from '@tiptap/extension-link';
+import PlaceholderExtension from '@tiptap/extension-placeholder';
+import StarterKitExtension from '@tiptap/starter-kit';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import { message } from 'antdv-next';
 import { ref, watch, onBeforeUnmount, computed } from 'vue';
@@ -201,24 +201,24 @@ const editor = useEditor({
   content: props.modelValue,
   editable: !props.disabled,
   extensions: [
-    StarterKit,
-    Image.configure({
+    StarterKitExtension,
+    ImageExtension.configure({
       inline: true,
       allowBase64: true,
     }),
-    Link.configure({
+    LinkExtension.configure({
       openOnClick: false,
       HTMLAttributes: {
         target: '_blank',
         rel: 'noopener noreferrer',
       },
     }),
-    Placeholder.configure({
+    PlaceholderExtension.configure({
       placeholder: resolvedPlaceholder.value,
     }),
   ],
-  onUpdate: ({ editor }) => {
-    const html = editor.getHTML();
+  onUpdate: ({ editor: currentEditor }) => {
+    const html = currentEditor.getHTML();
     emit('update:modelValue', html);
     emit('change', html);
   },
