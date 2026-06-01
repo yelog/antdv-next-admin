@@ -8,7 +8,7 @@
     @open-change="onOpenChange"
   >
     <template #default>
-      <a-input-search
+      <a-input
         v-model:value="inputValue"
         class="ip-input-trigger"
         :placeholder="placeholder"
@@ -18,12 +18,16 @@
         allow-clear
         @change="onInputChange"
       >
-        <template #enterButton>
-          <a-button class="ip-addon" @mousedown.prevent.stop="togglePopover">
+        <template #suffix>
+          <button
+            type="button"
+            class="ip-icon-trigger"
+            @mousedown.prevent.stop="togglePopover"
+          >
             <IconView :icon="inputValue || 'ion:apps-outline'" :size="18" />
-          </a-button>
+          </button>
         </template>
-      </a-input-search>
+      </a-input>
     </template>
 
     <template #content>
@@ -533,6 +537,25 @@ watch([category, keyword], () => {
 </script>
 
 <style scoped lang="scss">
+.ip-icon-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  transition: color 0.2s;
+  border: 0;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+
+  &:hover {
+    color: #1677ff;
+  }
+}
+
 /* 主容器 */
 .ip-wrap {
   display: flex;
