@@ -174,6 +174,7 @@
     <component
       v-else-if="item.type === 'custom' && item.render"
       :is="item.render"
+      v-bind="item.props"
       v-model:value="modelValue"
       @update:value="handleChange"
     />

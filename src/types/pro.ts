@@ -1,5 +1,7 @@
 // Pro Component Types
 
+import type { Component } from 'vue';
+
 export type ProTableRecord = object;
 
 export interface ProTableRequestParams {
@@ -227,7 +229,7 @@ export interface ProFormItem {
   valuePropName?: string;
 
   // Custom render
-  render?: (form: unknown) => unknown;
+  render?: Component;
 
   // Request for dynamic options
   request?: () => Promise<Array<{ label: string; value: string | number | boolean }>>;

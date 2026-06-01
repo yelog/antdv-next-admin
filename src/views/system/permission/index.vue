@@ -13,6 +13,7 @@
       row-key="id"
       :expanded-row-keys="expandedRowKeys"
       :children-column-name="'children'"
+      :expandable="{ expandIconColumnIndex: 1 }"
       @expanded-rows-change="handleExpandedRowsChange"
     >
       <template #toolbar-actions>
@@ -79,6 +80,7 @@ import {
   getPermissionList,
   updatePermission,
 } from "@/api/permission";
+import IconPicker from "@/components/IconPicker/index.vue";
 import ProForm from "@/components/Pro/ProForm/index.vue";
 import ProTable from "@/components/Pro/ProTable/index.vue";
 import { $t } from "@/locales";
@@ -192,6 +194,7 @@ const columns = computed((): ProTableColumn[] => [
     title: $t("permission.name"),
     dataIndex: "name",
     width: 220,
+    fixed: "left",
   },
   {
     title: $t("permission.code"),
@@ -243,15 +246,9 @@ const columns = computed((): ProTableColumn[] => [
   {
     title: $t("common.actions"),
     dataIndex: "action",
-    width: 220,
+    width: 260,
     fixed: "right",
     actions: [
-      {
-        label: $t("permission.addChild"),
-        icon: PlusOutlined,
-        hidden: (record) => (record as unknown as Permission).type !== "menu",
-        onClick: (record) => handleCreateChild(record as unknown as Permission),
-      },
       {
         label: $t("common.edit"),
         icon: EditOutlined,
@@ -263,6 +260,12 @@ const columns = computed((): ProTableColumn[] => [
         danger: true,
         confirm: $t("permission.confirmDelete"),
         onClick: (record) => handleDelete(record as unknown as Permission),
+      },
+      {
+        label: $t("permission.addChild"),
+        icon: PlusOutlined,
+        hidden: (record) => (record as unknown as Permission).type !== "menu",
+        onClick: (record) => handleCreateChild(record as unknown as Permission),
       },
     ],
   },
@@ -328,9 +331,13 @@ const formItems = computed<ProFormItem[]>(() => [
   {
     name: "icon",
     label: $t("permission.icon"),
-    type: "input",
+    type: "custom",
     hidden: currentType.value !== "menu",
-    placeholder: $t("permission.iconPlaceholder"),
+    render: IconPicker,
+    props: {
+      placeholder: $t("permission.iconPlaceholder"),
+      onlineLimit: 160,
+    },
   },
   {
     name: "sort",
