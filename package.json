@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:demo": "vite build --mode demo",
     "build:check": "vue-tsc && vite build",
+    "build:demo:check": "vue-tsc && vite build --mode demo",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
     "test:unit": "vitest",

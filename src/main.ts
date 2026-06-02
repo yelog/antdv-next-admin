@@ -31,7 +31,7 @@ function restoreGitHubPagesRedirect() {
 }
 
 async function bootstrap() {
-  if (import.meta.env.VITE_USE_MOCK === 'true') {
+  if (import.meta.env.VITE_DEMO_MODE === 'true') {
     const { setupBrowserMock } = await import('./mock/browser');
     setupBrowserMock(service);
   }

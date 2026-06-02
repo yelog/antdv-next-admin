@@ -73,4 +73,47 @@ describe("setupBrowserMock", () => {
     expect(tree.data.code).toBe(200);
     expect(Array.isArray(tree.data.data)).toBe(true);
   });
+
+  it("handles paginated config list endpoints", async () => {
+    const client = axios.create({ baseURL: "/api" });
+    setupBrowserMock(client);
+
+    const all = await client.get("/config/list?page=1&pageSize=100");
+    const basic = await client.get("/config/list?group=basic&page=1&pageSize=10");
+
+    expect(all.data.code).toBe(200);
+    expect(all.data.data.total).toBeGreaterThan(0);
+    expect(basic.data.code).toBe(200);
+    expect(basic.data.data.list.every((item: { group: string }) => item.group === "basic")).toBe(true);
+  });
+
+  it("handles paginated user and role list endpoints", async () => {
+    const client = axios.create({ baseURL: "/api" });
+    setupBrowserMock(client);
+
+    const users = await client.get("/users?current=1&pageSize=10");
+    const roles = await client.get("/roles?current=1&pageSize=200");
+
+    expect(users.data.code).toBe(200);
+    expect(users.data.data.total).toBeGreaterThan(0);
+    expect(users.data.data.list[0].username).toBe("admin");
+    expect(roles.data.code).toBe(200);
+    expect(roles.data.data.total).toBeGreaterThan(0);
+    expect(roles.data.data.list[0].code).toBe("admin");
+  });
+
+  it("falls back for uncovered demo api list endpoints", async () => {
+    const client = axios.create({ baseURL: "/api" });
+    setupBrowserMock(client);
+
+    const response = await client.get("/new-example/list?current=2&pageSize=15");
+
+    expect(response.data.code).toBe(200);
+    expect(response.data.data).toEqual({
+      list: [],
+      total: 0,
+      current: 2,
+      pageSize: 15,
+    });
+  });
 });

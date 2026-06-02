@@ -53,7 +53,7 @@ jobs:
         run: pnpm run test:unit:run
 
       - name: Build
-        run: pnpm run build
+        run: pnpm run build:demo
         env:
           NODE_ENV: production
 

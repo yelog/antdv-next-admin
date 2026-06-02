@@ -37,7 +37,9 @@ npm run format:check     # oxfmt --check src mock
 npm run type-check       # vue-tsc --noEmit
 npm run test:unit:run    # Vitest one-shot
 npm run build            # 仅生产构建
+npm run build:demo       # 在线 Demo 构建，启用浏览器端 Mock
 npm run build:check      # 类型检查 + 生产构建
+npm run build:demo:check # 类型检查 + 在线 Demo 构建
 npm run preview          # 预览生产构建
 ```
 
@@ -211,19 +213,23 @@ VITE_USE_MOCK=true
 VITE_API_BASE_URL=/api
 ```
 
-生产构建默认用于静态 Demo，因此启用浏览器端 Mock，并保持 `/api` 前缀:
-
-```bash
-VITE_USE_MOCK=true
-VITE_API_BASE_URL=/api
-```
-
-接入真实后端时，改为:
+真实生产构建默认关闭 Mock。发布真实项目时，请将 `.env.production` 中的 API 地址替换为你的后端服务:
 
 ```bash
 VITE_USE_MOCK=false
+VITE_DEMO_MODE=false
 VITE_API_BASE_URL=https://your-api-domain.com/api
 ```
+
+在线 Demo 使用独立的 `.env.demo`，通过浏览器端 Mock 支持 GitHub Pages 等纯静态托管:
+
+```bash
+VITE_USE_MOCK=true
+VITE_DEMO_MODE=true
+VITE_API_BASE_URL=/api
+```
+
+真实生产发布使用 `npm run build`；在线 Demo 发布使用 `npm run build:demo`。不要将 `.env.demo` 作为真实项目的生产配置。
 
 接口响应建议遵循:
 
@@ -239,7 +245,7 @@ interface ApiResponse<T> {
 
 ## Mock 数据
 
-开发环境通过 `vite-plugin-mock-dev-server` 提供 `/api` 前缀的 Mock 接口。静态 Demo 模式下通过浏览器端 Mock 拦截 `/api` 请求，避免 GitHub Pages 等静态站点请求不存在的后端接口。
+开发环境通过 `vite-plugin-mock-dev-server` 提供 `/api` 前缀的 Mock 接口。在线 Demo 模式由 `VITE_DEMO_MODE=true` 启用浏览器端 Mock，并兜底拦截未显式覆盖的 `/api/*` 请求，避免 GitHub Pages 等静态站点请求不存在的后端接口。
 
 已覆盖模块:
 

@@ -1,4 +1,5 @@
-import type { Permission, User } from "@/types/auth";
+import type { Permission, Role, User } from "@/types/auth";
+import type { SysConfig } from "@/types/config";
 import type { DictData } from "@/types/dict";
 import type { AxiosInstance } from "axios";
 
@@ -11,8 +12,10 @@ import {
   mockStats,
   mockUserDistribution,
 } from "../../mock/data/dashboard.data";
+import { sysConfigs } from "../../mock/data/config.data";
 import { dictData } from "../../mock/data/dict.data";
 import { mockPermissions } from "../../mock/data/permissions.data";
+import { mockRoles } from "../../mock/data/roles.data";
 
 const SUCCESS_MESSAGE = "success";
 const DEMO_CREATED_AT = "2023-01-01T00:00:00.000Z";
@@ -92,6 +95,43 @@ const regularUser: User = {
   ],
 };
 
+const demoUsers: User[] = [
+  adminUser,
+  regularUser,
+  {
+    id: "3",
+    username: "manager",
+    email: "manager@example.com",
+    realName: "Demo Manager",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=manager",
+    phone: "13800138002",
+    gender: "male",
+    birthDate: "1992-08-12",
+    bio: "Demo Manager",
+    status: "active",
+    createdAt: DEMO_CREATED_AT,
+    updatedAt: DEMO_UPDATED_AT,
+    roles: [mockRoles[1]],
+    permissions: [],
+  },
+  {
+    id: "4",
+    username: "guest",
+    email: "guest@example.com",
+    realName: "Demo Guest",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=guest",
+    phone: "13800138003",
+    gender: "female",
+    birthDate: "1998-03-20",
+    bio: "Demo Guest",
+    status: "inactive",
+    createdAt: DEMO_CREATED_AT,
+    updatedAt: DEMO_UPDATED_AT,
+    roles: [mockRoles[3]],
+    permissions: [],
+  },
+];
+
 function successResponse<T>(data: T) {
   return {
     code: 200,
@@ -139,6 +179,123 @@ function parseJsonBody<T>(data: unknown, fallback: T): T {
 
 function cloneData<T>(data: T): T {
   return JSON.parse(JSON.stringify(data)) as T;
+}
+
+function getQueryParam(configUrl: string | undefined, key: string): string {
+  const url = new URL(configUrl || "", "https://mock.local");
+  return url.searchParams.get(key) || "";
+}
+
+function getConfigList(url: string | undefined) {
+  const name = getQueryParam(url, "name");
+  const key = getQueryParam(url, "key");
+  const group = getQueryParam(url, "group");
+  const page = Number(getQueryParam(url, "page") || 1);
+  const pageSize = Number(getQueryParam(url, "pageSize") || 20);
+
+  let filtered = cloneData<SysConfig[]>(sysConfigs);
+
+  if (name) {
+    filtered = filtered.filter((item) => item.name.includes(name));
+  }
+  if (key) {
+    filtered = filtered.filter((item) => item.key.includes(key));
+  }
+  if (group) {
+    filtered = filtered.filter((item) => item.group === group);
+  }
+
+  filtered.sort((a, b) => a.sort - b.sort);
+  const start = (page - 1) * pageSize;
+
+  return {
+    list: filtered.slice(start, start + pageSize),
+    total: filtered.length,
+    current: page,
+    pageSize,
+  };
+}
+
+function getPaginatedUsers(url: string | undefined) {
+  const username = getQueryParam(url, "username").toLowerCase();
+  const email = getQueryParam(url, "email").toLowerCase();
+  const status = getQueryParam(url, "status");
+  const gender = getQueryParam(url, "gender");
+  const current = Number(getQueryParam(url, "current") || 1);
+  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
+
+  let filtered = cloneData<User[]>(demoUsers);
+
+  if (username) {
+    filtered = filtered.filter((item) => item.username.toLowerCase().includes(username));
+  }
+  if (email) {
+    filtered = filtered.filter((item) => item.email.toLowerCase().includes(email));
+  }
+  if (status) {
+    filtered = filtered.filter((item) => item.status === status);
+  }
+  if (gender) {
+    const genderValues = gender.split(",").map((item) => item.trim()).filter(Boolean);
+    filtered = filtered.filter((item) => genderValues.includes(String(item.gender)));
+  }
+
+  const start = (current - 1) * pageSize;
+
+  return {
+    list: filtered.slice(start, start + pageSize),
+    total: filtered.length,
+    current,
+    pageSize,
+  };
+}
+
+function getPaginatedRoles(url: string | undefined) {
+  const name = getQueryParam(url, "name").toLowerCase();
+  const code = getQueryParam(url, "code").toLowerCase();
+  const current = Number(getQueryParam(url, "current") || 1);
+  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
+
+  let filtered = cloneData<Role[]>(mockRoles);
+
+  if (name) {
+    filtered = filtered.filter((item) => item.name.toLowerCase().includes(name));
+  }
+  if (code) {
+    filtered = filtered.filter((item) => item.code.toLowerCase().includes(code));
+  }
+
+  const start = (current - 1) * pageSize;
+
+  return {
+    list: filtered.slice(start, start + pageSize),
+    total: filtered.length,
+    current,
+    pageSize,
+  };
+}
+
+function getPageParams(url: string | undefined) {
+  return {
+    current: Number(getQueryParam(url, "current") || getQueryParam(url, "page") || 1),
+    pageSize: Number(getQueryParam(url, "pageSize") || 10),
+  };
+}
+
+function fallbackDemoResponse(config: { data?: unknown; method?: string; url?: string }) {
+  const method = config.method?.toLowerCase() || "get";
+  const url = config.url || "";
+
+  if (method === "get" && /\/list(?:\?.*)?$|[?&](current|page|pageSize)=/.test(url)) {
+    const { current, pageSize } = getPageParams(url);
+    return successResponse({ list: [], total: 0, current, pageSize });
+  }
+
+  if (method === "post" || method === "put" || method === "patch") {
+    return successResponse(parseJsonBody(config.data, null));
+  }
+
+  return successResponse(null);
 }
 
 export function setupBrowserMock(service: AxiosInstance): AxiosMockAdapter {
@@ -251,6 +408,146 @@ export function setupBrowserMock(service: AxiosInstance): AxiosMockAdapter {
   mock
     .onGet(/\/api\/permissions\/tree$|\/permissions\/tree$/)
     .reply(200, successResponse(cloneData<Permission[]>(mockPermissions)));
+
+  mock
+    .onGet(/\/api\/users(?:\?.*)?$|\/users(?:\?.*)?$/)
+    .reply((config) => [200, successResponse(getPaginatedUsers(config.url))]);
+
+  mock.onGet(/\/api\/users\/[^/]+$|\/users\/[^/]+$/).reply((config) => {
+    const id = config.url?.split("/users/")[1]?.split("?")[0] || "";
+    const item = demoUsers.find((user) => user.id === id);
+
+    if (!item) {
+      return [200, { code: 404, message: "User not found", success: false, data: null }];
+    }
+
+    return [200, successResponse(cloneData(item))];
+  });
+
+  mock.onPost(/\/api\/users$|\/users$/).reply((config) => {
+    const body = parseJsonBody<Partial<User>>(config.data, {});
+    return [
+      200,
+      successResponse({
+        ...regularUser,
+        ...body,
+        id: String(Date.now()),
+        username: body.username || `user_${Date.now()}`,
+        email: body.email || "user@example.com",
+        realName: body.realName || "Demo User",
+        avatar: body.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=user",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    ];
+  });
+
+  mock.onPut(/\/api\/users\/[^/]+$|\/users\/[^/]+$/).reply((config) => {
+    const body = parseJsonBody<Partial<User>>(config.data, {});
+    const id = config.url?.split("/users/")[1]?.split("?")[0] || "";
+    const item = demoUsers.find((user) => user.id === id) || regularUser;
+    return [200, successResponse({ ...item, ...body, updatedAt: new Date().toISOString() })];
+  });
+
+  mock.onDelete(/\/api\/users\/[^/]+$|\/users\/[^/]+$/).reply(200, successResponse(null));
+  mock.onPost(/\/api\/users\/change-password$|\/users\/change-password$/).reply(200, successResponse(null));
+
+  mock
+    .onGet(/\/api\/roles(?:\?.*)?$|\/roles(?:\?.*)?$/)
+    .reply((config) => [200, successResponse(getPaginatedRoles(config.url))]);
+
+  mock.onGet(/\/api\/roles\/[^/]+$|\/roles\/[^/]+$/).reply((config) => {
+    const id = config.url?.split("/roles/")[1]?.split("?")[0] || "";
+    const item = mockRoles.find((role) => role.id === id);
+
+    if (!item) {
+      return [200, { code: 404, message: "Role not found", success: false, data: null }];
+    }
+
+    return [200, successResponse(cloneData(item))];
+  });
+
+  mock.onPost(/\/api\/roles$|\/roles$/).reply((config) => {
+    const body = parseJsonBody<Partial<Role>>(config.data, {});
+    return [
+      200,
+      successResponse({
+        id: String(Date.now()),
+        name: body.name || "Custom Role",
+        code: body.code || `role_${Date.now()}`,
+        description: body.description || "",
+        permissions: body.permissions || [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    ];
+  });
+
+  mock.onPut(/\/api\/roles\/[^/]+$|\/roles\/[^/]+$/).reply((config) => {
+    const body = parseJsonBody<Partial<Role>>(config.data, {});
+    const id = config.url?.split("/roles/")[1]?.split("?")[0] || "";
+    const item = mockRoles.find((role) => role.id === id) || mockRoles[0];
+    return [200, successResponse({ ...item, ...body, updatedAt: new Date().toISOString() })];
+  });
+
+  mock.onDelete(/\/api\/roles\/[^/]+$|\/roles\/[^/]+$/).reply(200, successResponse(null));
+
+  mock
+    .onGet(/\/api\/config\/list(?:\?.*)?$|\/config\/list(?:\?.*)?$/)
+    .reply((config) => [200, successResponse(getConfigList(config.url))]);
+
+  mock.onGet(/\/api\/config\/key\/[^/]+$|\/config\/key\/[^/]+$/).reply((config) => {
+    const key = config.url?.split("/config/key/")[1]?.split("?")[0] || "";
+    const item = sysConfigs.find((configItem) => configItem.key === key);
+
+    if (!item) {
+      return [200, { code: 404, message: "Config not found", success: false }];
+    }
+
+    return [200, successResponse(cloneData(item))];
+  });
+
+  mock.onPost(/\/api\/config$|\/config$/).reply((config) => {
+    const body = parseJsonBody<Partial<SysConfig>>(config.data, {});
+    const newConfig: SysConfig = {
+      id: String(Date.now()),
+      name: body.name || "Custom Config",
+      key: body.key || `custom.${Date.now()}`,
+      value: body.value || "",
+      valueType: body.valueType || "string",
+      group: body.group || "basic",
+      description: body.description || "",
+      builtIn: false,
+      sort: body.sort || 100,
+      createTime: new Date().toISOString().replace("T", " ").slice(0, 19),
+      updateTime: new Date().toISOString().replace("T", " ").slice(0, 19),
+    };
+
+    return [200, successResponse(newConfig)];
+  });
+
+  mock.onPut(/\/api\/config\/[^/]+$|\/config\/[^/]+$/).reply((config) => {
+    const body = parseJsonBody<Partial<SysConfig>>(config.data, {});
+    const id = config.url?.split("/config/")[1]?.split("?")[0] || "";
+    const item = sysConfigs.find((configItem) => configItem.id === id);
+
+    if (!item) {
+      return [200, { code: 404, message: "Config not found", success: false }];
+    }
+
+    return [
+      200,
+      successResponse({
+        ...item,
+        ...body,
+        updateTime: new Date().toISOString().replace("T", " ").slice(0, 19),
+      }),
+    ];
+  });
+
+  mock.onDelete(/\/api\/config\/[^/]+$|\/config\/[^/]+$/).reply(200, successResponse(null));
+
+  mock.onAny(/^\/|\/api\//).reply((config) => [200, fallbackDemoResponse(config)]);
 
   mock.onAny().passThrough();
 

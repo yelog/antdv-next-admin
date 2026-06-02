@@ -9,6 +9,7 @@ const TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 const USER_KEY = "user_info";
 const TOKEN_EXPIRES_KEY = "token_expires_at";
+const LEGACY_ASSET_AVATAR_PATTERN = /^\/assets\/avatar-[\w-]+\.png$/;
 
 const DEFAULT_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
@@ -27,6 +28,17 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
   } catch {
     return null;
   }
+}
+
+function normalizeUserInfo(userInfo: User): User {
+  if (!LEGACY_ASSET_AVATAR_PATTERN.test(userInfo.avatar)) {
+    return userInfo;
+  }
+
+  return {
+    ...userInfo,
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userInfo.username}`,
+  };
 }
 
 export const useAuthStore = defineStore("auth", () => {
@@ -97,11 +109,12 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   const setUserInfo = (userInfo: User | null) => {
-    user.value = userInfo;
-    if (userInfo) {
-      roles.value = userInfo.roles || [];
-      permissions.value = userInfo.permissions || [];
-      localStorage.setItem(USER_KEY, JSON.stringify(userInfo));
+    const normalizedUserInfo = userInfo ? normalizeUserInfo(userInfo) : null;
+    user.value = normalizedUserInfo;
+    if (normalizedUserInfo) {
+      roles.value = normalizedUserInfo.roles || [];
+      permissions.value = normalizedUserInfo.permissions || [];
+      localStorage.setItem(USER_KEY, JSON.stringify(normalizedUserInfo));
     } else {
       roles.value = [];
       permissions.value = [];
