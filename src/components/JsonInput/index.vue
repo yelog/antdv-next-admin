@@ -63,8 +63,8 @@
                 :allow-add="allowAdd"
                 :allow-delete="allowDelete"
                 :allow-sort="allowSort"
-                :allow-edit-key="true"
-                :allow-edit-type="true"
+                :allow-edit-key="allowEditKey"
+                :allow-edit-type="allowEditType"
                 :hovered-path-key="hoveredFieldPathKey"
                 :dragging-path-key="draggingFieldPathKey"
                 :api="treeEditorApi"
@@ -94,7 +94,7 @@
 
       <template #footer>
         <a-space>
-          <a-button @click="toggleEditMode" size="small">
+          <a-button v-if="allowRawEdit" @click="toggleEditMode" size="small">
             {{ useRawEdit ? "结构编辑" : "原始编辑" }}
           </a-button>
           <a-button @click="handleCancel" size="small">
@@ -191,6 +191,18 @@ const props = defineProps({
     default: true,
   },
   allowSort: {
+    type: Boolean,
+    default: true,
+  },
+  allowEditKey: {
+    type: Boolean,
+    default: true,
+  },
+  allowEditType: {
+    type: Boolean,
+    default: true,
+  },
+  allowRawEdit: {
     type: Boolean,
     default: true,
   },

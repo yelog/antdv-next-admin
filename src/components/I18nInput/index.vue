@@ -8,6 +8,9 @@
     :allow-add="false"
     :allow-delete="false"
     :allow-sort="false"
+    :allow-edit-key="false"
+    :allow-edit-type="false"
+    :allow-raw-edit="false"
   />
 </template>
 
