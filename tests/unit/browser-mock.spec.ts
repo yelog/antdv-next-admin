@@ -116,4 +116,30 @@ describe("setupBrowserMock", () => {
       pageSize: 15,
     });
   });
+
+  it("handles system demo endpoints with expected data shapes", async () => {
+    const client = axios.create({ baseURL: "/api" });
+    setupBrowserMock(client);
+
+    const [dictTypes, dictData, deptTree, deptList, files, operationLogs, loginLogs, userPermissions] =
+      await Promise.all([
+        client.get("/dict/types"),
+        client.get("/dict/data/gender"),
+        client.get("/dept/tree"),
+        client.get("/dept/list"),
+        client.get("/file/list?page=1&pageSize=10"),
+        client.get("/log/operation/list?page=1&pageSize=10"),
+        client.get("/log/login/list?page=1&pageSize=10"),
+        client.get("/permissions/user"),
+      ]);
+
+    expect(Array.isArray(dictTypes.data.data)).toBe(true);
+    expect(Array.isArray(dictData.data.data)).toBe(true);
+    expect(Array.isArray(deptTree.data.data)).toBe(true);
+    expect(Array.isArray(deptList.data.data)).toBe(true);
+    expect(files.data.data.total).toBeGreaterThan(0);
+    expect(operationLogs.data.data.total).toBeGreaterThan(0);
+    expect(loginLogs.data.data.total).toBeGreaterThan(0);
+    expect(Array.isArray(userPermissions.data.data)).toBe(true);
+  });
 });

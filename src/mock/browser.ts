@@ -1,6 +1,9 @@
 import type { Permission, Role, User } from "@/types/auth";
 import type { SysConfig } from "@/types/config";
+import type { Department } from "@/types/dept";
 import type { DictData } from "@/types/dict";
+import type { SysFile } from "@/types/file";
+import type { LoginLog, OperationLog } from "@/types/log";
 import type { AxiosInstance } from "axios";
 
 import AxiosMockAdapter from "axios-mock-adapter";
@@ -13,7 +16,10 @@ import {
   mockUserDistribution,
 } from "../../mock/data/dashboard.data";
 import { sysConfigs } from "../../mock/data/config.data";
-import { dictData } from "../../mock/data/dict.data";
+import { departments, buildDeptTree } from "../../mock/data/dept.data";
+import { dictTypes, dictData } from "../../mock/data/dict.data";
+import { sysFiles } from "../../mock/data/file.data";
+import { operationLogs, loginLogs } from "../../mock/data/log.data";
 import { mockPermissions } from "../../mock/data/permissions.data";
 import { mockRoles } from "../../mock/data/roles.data";
 
@@ -216,6 +222,155 @@ function getConfigList(url: string | undefined) {
   };
 }
 
+function getDictTypeList(url: string | undefined) {
+  const name = getQueryParam(url, "name");
+  const code = getQueryParam(url, "code");
+  const status = getQueryParam(url, "status");
+  const page = Number(getQueryParam(url, "page") || 1);
+  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
+
+  let filtered = cloneData(dictTypes);
+
+  if (name) filtered = filtered.filter((item) => item.name.includes(name));
+  if (code) filtered = filtered.filter((item) => item.code.includes(code));
+  if (status) filtered = filtered.filter((item) => item.status === status);
+
+  const start = (page - 1) * pageSize;
+
+  return {
+    list: filtered.slice(start, start + pageSize),
+    total: filtered.length,
+    current: page,
+    pageSize,
+  };
+}
+
+function getDictDataList(url: string | undefined) {
+  const typeCode = getQueryParam(url, "typeCode");
+  const label = getQueryParam(url, "label");
+  const value = getQueryParam(url, "value");
+  const status = getQueryParam(url, "status");
+  const page = Number(getQueryParam(url, "page") || 1);
+  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
+
+  let filtered = cloneData<DictData[]>(dictData);
+
+  if (typeCode) filtered = filtered.filter((item) => item.typeCode === typeCode);
+  if (label) filtered = filtered.filter((item) => item.label.includes(label));
+  if (value) filtered = filtered.filter((item) => item.value.includes(value));
+  if (status) filtered = filtered.filter((item) => item.status === status);
+
+  const start = (page - 1) * pageSize;
+
+  return {
+    list: filtered.slice(start, start + pageSize),
+    total: filtered.length,
+    current: page,
+    pageSize,
+  };
+}
+
+function getDeptList(url: string | undefined) {
+  const name = getQueryParam(url, "name");
+  const status = getQueryParam(url, "status");
+
+  let filtered = cloneData<Department[]>(departments);
+
+  if (name) filtered = filtered.filter((item) => item.name.includes(name));
+  if (status) filtered = filtered.filter((item) => item.status === status);
+
+  return filtered.sort((a, b) => a.sort - b.sort);
+}
+
+function getFileList(url: string | undefined) {
+  const name = getQueryParam(url, "name");
+  const ext = getQueryParam(url, "ext");
+  const storage = getQueryParam(url, "storage");
+  const page = Number(getQueryParam(url, "page") || 1);
+  const pageSize = Number(getQueryParam(url, "pageSize") || 20);
+
+  let filtered = cloneData<SysFile[]>(sysFiles);
+
+  if (name) filtered = filtered.filter((item) => item.originalName.includes(name));
+  if (ext) filtered = filtered.filter((item) => item.ext === ext);
+  if (storage) filtered = filtered.filter((item) => item.storage === storage);
+
+  const start = (page - 1) * pageSize;
+
+  return {
+    list: filtered.slice(start, start + pageSize),
+    total: filtered.length,
+    current: page,
+    pageSize,
+  };
+}
+
+function getOperationLogList(url: string | undefined) {
+  const username = getQueryParam(url, "username");
+  const module = getQueryParam(url, "module");
+  const action = getQueryParam(url, "action");
+  const status = getQueryParam(url, "status");
+  const startTime = getQueryParam(url, "startTime");
+  const endTime = getQueryParam(url, "endTime");
+  const page = Number(getQueryParam(url, "page") || 1);
+  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
+
+  let filtered = cloneData<OperationLog[]>(operationLogs);
+
+  if (username) filtered = filtered.filter((item) => item.username.includes(username));
+  if (module) filtered = filtered.filter((item) => item.module === module);
+  if (action) filtered = filtered.filter((item) => item.action === action);
+  if (status) filtered = filtered.filter((item) => item.status === status);
+  if (startTime) filtered = filtered.filter((item) => item.createTime >= startTime);
+  if (endTime) filtered = filtered.filter((item) => item.createTime <= endTime);
+
+  const start = (page - 1) * pageSize;
+
+  return {
+    list: filtered.slice(start, start + pageSize),
+    total: filtered.length,
+    current: page,
+    pageSize,
+  };
+}
+
+function getLoginLogList(url: string | undefined) {
+  const username = getQueryParam(url, "username");
+  const ip = getQueryParam(url, "ip");
+  const status = getQueryParam(url, "status");
+  const startTime = getQueryParam(url, "startTime");
+  const endTime = getQueryParam(url, "endTime");
+  const page = Number(getQueryParam(url, "page") || 1);
+  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
+
+  let filtered = cloneData<LoginLog[]>(loginLogs);
+
+  if (username) filtered = filtered.filter((item) => item.username.includes(username));
+  if (ip) filtered = filtered.filter((item) => item.ip.includes(ip));
+  if (status) filtered = filtered.filter((item) => item.status === status);
+  if (startTime) filtered = filtered.filter((item) => item.createTime >= startTime);
+  if (endTime) filtered = filtered.filter((item) => item.createTime <= endTime);
+
+  const start = (page - 1) * pageSize;
+
+  return {
+    list: filtered.slice(start, start + pageSize),
+    total: filtered.length,
+    current: page,
+    pageSize,
+  };
+}
+
+function findPermissionById(list: Permission[], id: string): Permission | null {
+  for (const permission of list) {
+    if (permission.id === id) return permission;
+    const child = permission.children ? findPermissionById(permission.children, id) : null;
+    if (child) return child;
+  }
+
+  return null;
+}
+
 function getPaginatedUsers(url: string | undefined) {
   const username = getQueryParam(url, "username").toLowerCase();
   const email = getQueryParam(url, "email").toLowerCase();
@@ -383,8 +538,60 @@ export function setupBrowserMock(service: AxiosInstance): AxiosMockAdapter {
   mock.onPost(/\/api\/auth\/logout$|\/auth\/logout$/).reply(200, successResponse(null));
 
   mock
+    .onGet(/\/api\/dict\/types$|\/dict\/types$/)
+    .reply(200, successResponse(cloneData(dictTypes)));
+  mock
+    .onGet(/\/api\/dict\/type\/list(?:\?.*)?$|\/dict\/type\/list(?:\?.*)?$/)
+    .reply((config) => [200, successResponse(getDictTypeList(config.url))]);
+  mock.onPost(/\/api\/dict\/type$|\/dict\/type$/).reply((config) => {
+    const body = parseJsonBody(config.data, {});
+    return [200, successResponse({ id: String(Date.now()), ...body })];
+  });
+  mock.onPut(/\/api\/dict\/type\/[^/]+$|\/dict\/type\/[^/]+$/).reply((config) => {
+    const body = parseJsonBody(config.data, {});
+    const id = config.url?.split("/dict/type/")[1]?.split("?")[0] || "";
+    return [200, successResponse({ id, ...body })];
+  });
+  mock.onDelete(/\/api\/dict\/type\/[^/]+$|\/dict\/type\/[^/]+$/).reply(200, successResponse(null));
+
+  mock
     .onGet(/\/api\/dict\/data\/all$|\/dict\/data\/all$/)
     .reply(200, successResponse(cloneData<DictData[]>(dictData)));
+  mock
+    .onGet(/\/api\/dict\/data\/list(?:\?.*)?$|\/dict\/data\/list(?:\?.*)?$/)
+    .reply((config) => [200, successResponse(getDictDataList(config.url))]);
+  mock.onGet(/\/api\/dict\/data\/[^/]+$|\/dict\/data\/[^/]+$/).reply((config) => {
+    const typeCode = config.url?.split("/dict/data/")[1]?.split("?")[0] || "";
+    const list = dictData.filter((item) => item.typeCode === typeCode && item.status === "enabled");
+    return [200, successResponse(cloneData(list))];
+  });
+  mock.onPost(/\/api\/dict\/data$|\/dict\/data$/).reply((config) => {
+    const body = parseJsonBody(config.data, {});
+    return [200, successResponse({ id: String(Date.now()), ...body })];
+  });
+  mock.onPut(/\/api\/dict\/data\/[^/]+$|\/dict\/data\/[^/]+$/).reply((config) => {
+    const body = parseJsonBody(config.data, {});
+    const id = config.url?.split("/dict/data/")[1]?.split("?")[0] || "";
+    return [200, successResponse({ id, ...body })];
+  });
+  mock.onDelete(/\/api\/dict\/data\/[^/]+$|\/dict\/data\/[^/]+$/).reply(200, successResponse(null));
+
+  mock
+    .onGet(/\/api\/dept\/tree(?:\?.*)?$|\/dept\/tree(?:\?.*)?$/)
+    .reply((config) => [200, successResponse(buildDeptTree(getDeptList(config.url)))]);
+  mock
+    .onGet(/\/api\/dept\/list(?:\?.*)?$|\/dept\/list(?:\?.*)?$/)
+    .reply((config) => [200, successResponse(getDeptList(config.url))]);
+  mock.onPost(/\/api\/dept$|\/dept$/).reply((config) => {
+    const body = parseJsonBody(config.data, {});
+    return [200, successResponse({ id: String(Date.now()), ...body })];
+  });
+  mock.onPut(/\/api\/dept\/[^/]+$|\/dept\/[^/]+$/).reply((config) => {
+    const body = parseJsonBody(config.data, {});
+    const id = config.url?.split("/dept/")[1]?.split("?")[0] || "";
+    return [200, successResponse({ id, ...body })];
+  });
+  mock.onDelete(/\/api\/dept\/[^/]+$|\/dept\/[^/]+$/).reply(200, successResponse(null));
 
   mock
     .onGet(/\/api\/dashboard\/stats$|\/dashboard\/stats$/)
@@ -408,6 +615,43 @@ export function setupBrowserMock(service: AxiosInstance): AxiosMockAdapter {
   mock
     .onGet(/\/api\/permissions\/tree$|\/permissions\/tree$/)
     .reply(200, successResponse(cloneData<Permission[]>(mockPermissions)));
+  mock
+    .onGet(/\/api\/permissions\/user$|\/permissions\/user$/)
+    .reply(200, successResponse(cloneData<Permission[]>(adminUser.permissions)));
+  mock.onGet(/\/api\/permissions\/[^/]+$|\/permissions\/[^/]+$/).reply((config) => {
+    const id = config.url?.split("/permissions/")[1]?.split("?")[0] || "";
+    const item = findPermissionById(mockPermissions, id);
+
+    if (!item) {
+      return [200, { code: 404, message: "Permission not found", success: false, data: null }];
+    }
+
+    return [200, successResponse(cloneData(item))];
+  });
+  mock.onPost(/\/api\/permissions$|\/permissions$/).reply((config) => {
+    const body = parseJsonBody(config.data, {});
+    return [200, successResponse({ id: String(Date.now()), ...body })];
+  });
+  mock.onPut(/\/api\/permissions\/[^/]+$|\/permissions\/[^/]+$/).reply((config) => {
+    const body = parseJsonBody(config.data, {});
+    const id = config.url?.split("/permissions/")[1]?.split("?")[0] || "";
+    return [200, successResponse({ id, ...body })];
+  });
+  mock.onDelete(/\/api\/permissions\/[^/]+$|\/permissions\/[^/]+$/).reply(200, successResponse(null));
+
+  mock
+    .onGet(/\/api\/file\/list(?:\?.*)?$|\/file\/list(?:\?.*)?$/)
+    .reply((config) => [200, successResponse(getFileList(config.url))]);
+  mock.onDelete(/\/api\/file\/[^/]+$|\/file\/[^/]+$/).reply(200, successResponse(null));
+
+  mock
+    .onGet(/\/api\/log\/operation\/list(?:\?.*)?$|\/log\/operation\/list(?:\?.*)?$/)
+    .reply((config) => [200, successResponse(getOperationLogList(config.url))]);
+  mock
+    .onGet(/\/api\/log\/login\/list(?:\?.*)?$|\/log\/login\/list(?:\?.*)?$/)
+    .reply((config) => [200, successResponse(getLoginLogList(config.url))]);
+  mock.onDelete(/\/api\/log\/operation\/clear$|\/log\/operation\/clear$/).reply(200, successResponse(null));
+  mock.onDelete(/\/api\/log\/login\/clear$|\/log\/login\/clear$/).reply(200, successResponse(null));
 
   mock
     .onGet(/\/api\/users(?:\?.*)?$|\/users(?:\?.*)?$/)
