@@ -560,20 +560,47 @@ watch([category, keyword], () => {
 .ip-wrap {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   color: #333;
+}
+
+.ip-row1,
+.ip-row2 {
+  margin-bottom: 0;
+}
+
+.ip-search {
+  :deep(.ant-input-affix-wrapper) {
+    height: 36px;
+  }
 }
 
 /* 分类栏样式 */
 .ip-seg {
-  padding: 2px;
+  padding: 1px;
   border-radius: 6px;
   background-color: #f5f5f5;
 
+  :deep(.ant-segmented-group) {
+    align-items: stretch;
+  }
+
+  :deep(.ant-segmented-item) {
+    min-height: 40px;
+  }
+
+  :deep(.ant-segmented-thumb) {
+    min-height: 40px;
+  }
+
   /* 强制调整内部 Ant Design 样式 */
   :deep(.ant-segmented-item-label) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     min-height: unset;
-    padding: 4px 6px !important;
+    height: 40px;
+    padding: 3px 6px !important;
     overflow: hidden;
     font-size: 11px !important;
     line-height: 1.2;
@@ -627,14 +654,14 @@ watch([category, keyword], () => {
 .ip-grid {
   display: grid;
   position: relative;
-  grid-auto-rows: 40px;
+  grid-auto-rows: 38px;
   grid-template-columns: repeat(6, 1fr);
-  height: 305px;
+  height: 292px;
 
   /* 关键修改：增加内边距，防止 hover 上浮时被 overflow 切掉 */
-  padding: 12px;
+  padding: 10px;
   overflow: hidden auto;
-  gap: 8px;
+  gap: 8px 10px;
 
   /* 滚动条样式 */
   &::-webkit-scrollbar {
@@ -670,7 +697,7 @@ watch([category, keyword], () => {
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 0;
+  padding: 6px;
 
   /* 关键：防止底部色条超出圆角 */
   overflow: hidden;
@@ -777,7 +804,7 @@ watch([category, keyword], () => {
   }
 
   .ant-popover-inner-content {
-    padding: 12px;
+    padding: 8px 12px 10px;
   }
 }
 </style>
