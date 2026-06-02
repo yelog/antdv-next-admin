@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Permission } from "@/types/auth";
+import type { LocalizedText, Permission } from "@/types/auth";
 import type { ProFormItem, ProTableColumn } from "@/types/pro";
 
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@antdv-next/icons";
@@ -82,12 +82,13 @@ import {
   updatePermission,
 } from "@/api/permission";
 import IconPicker from "@/components/IconPicker/index.vue";
+import I18nInput from "@/components/I18nInput/index.vue";
 import ProForm from "@/components/Pro/ProForm/index.vue";
 import ProTable from "@/components/Pro/ProTable/index.vue";
-import { $t } from "@/locales";
+import { $t, getLocale } from "@/locales";
 
 type PermissionFormValues = {
-  name: string;
+  name: LocalizedText;
   code: string;
   type: Permission["type"];
   description: string;
@@ -176,6 +177,28 @@ const permissionVisibleValueEnum = computed<
   false: { text: $t("permission.hide"), color: "default" },
 }));
 
+const resolveLocalizedText = (value: string | LocalizedText | undefined) => {
+  if (!value) {
+    return "";
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  const locale = getLocale();
+  return value[locale] || value["zh-CN"] || value["en-US"] || Object.values(value)[0] || "";
+};
+
+function createLocalizedName(value = ""): LocalizedText {
+  return {
+    "zh-CN": value,
+    "en-US": value,
+    "ja-JP": value,
+    "ko-KR": value,
+  };
+}
+
 const columns = computed((): ProTableColumn[] => [
   {
     title: $t("common.search"),
@@ -189,6 +212,7 @@ const columns = computed((): ProTableColumn[] => [
     dataIndex: "name",
     width: 220,
     fixed: "left",
+    render: (value) => resolveLocalizedText(value as Permission["name"]),
   },
   {
     title: $t("permission.code"),
@@ -272,8 +296,13 @@ const formItems = computed<ProFormItem[]>(() => [
   {
     name: "name",
     label: $t("permission.name"),
-    type: "input",
+    type: "custom",
+    render: I18nInput,
     required: true,
+    props: {
+      placeholder: $t("permission.name"),
+      modalTitle: $t("permission.name"),
+    },
   },
   {
     name: "code",
@@ -373,7 +402,7 @@ const formItems = computed<ProFormItem[]>(() => [
 
 function createDefaultFormValues(): PermissionFormValues {
   return {
-    name: "",
+    name: createLocalizedName(),
     code: "",
     type: "menu",
     description: "",
@@ -408,7 +437,7 @@ function collectPermissionIds(list: Permission[]): string[] {
 function findPermissionName(list: Permission[], id: string): string {
   for (const item of list) {
     if (item.id === id) {
-      return item.name;
+      return resolveLocalizedText(item.name);
     }
     if (item.children && item.children.length > 0) {
       const childName = findPermissionName(item.children, id);
@@ -492,7 +521,10 @@ const handleEdit = (record: Permission) => {
   modalMode.value = "edit";
   editingPermissionId.value = record.id;
   const initialValues: PermissionFormValues = {
-    name: record.name,
+    name:
+      typeof record.name === "string"
+        ? createLocalizedName(record.name)
+        : record.name,
     code: record.code,
     type: record.type,
     description: record.description || "",
@@ -546,7 +578,7 @@ const handleSubmit = async () => {
   if (!values) return;
 
   const payload: Partial<Permission> = {
-    name: values.name?.trim(),
+    name: values.name,
     code: values.code?.trim(),
     type: values.type,
     description: values.description?.trim(),

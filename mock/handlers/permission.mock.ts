@@ -9,6 +9,14 @@ const permissionStore: Permission[] = JSON.parse(JSON.stringify(mockPermissions)
 
 const deepClone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
+function getPermissionNameText(name: Permission['name']): string {
+  if (typeof name === 'string') {
+    return name;
+  }
+
+  return Object.values(name).join(' ');
+}
+
 function findPermissionById(
   permissions: Permission[],
   id: string,
@@ -87,7 +95,7 @@ function filterPermissionTree(
 
     const matchedKeyword =
       !normalizedKeyword ||
-      permission.name.toLowerCase().includes(normalizedKeyword) ||
+      getPermissionNameText(permission.name).toLowerCase().includes(normalizedKeyword) ||
       String(permission.code || '')
         .toLowerCase()
         .includes(normalizedKeyword) ||

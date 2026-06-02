@@ -39,9 +39,11 @@ export interface Role {
   updatedAt: string;
 }
 
+export type LocalizedText = Record<string, string>;
+
 export interface Permission {
   id: string;
-  name: string;
+  name: string | LocalizedText;
   code: string;
   description: string;
   resource: string;
