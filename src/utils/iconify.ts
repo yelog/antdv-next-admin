@@ -1,9 +1,13 @@
 import { addCollection } from "@iconify/vue";
-import type { IconifyJSON } from "@iconify/types";
 
 export type LocalIconifyPrefix = "ri" | "mdi" | "ion";
 
-export type IconsJson = IconifyJSON;
+export interface IconsJson {
+  prefix: string;
+  icons: Record<string, unknown>;
+  aliases?: Record<string, unknown>;
+  [key: string]: unknown;
+}
 
 const localPrefixes = new Set<string>(["ri", "mdi", "ion"]);
 const localIconifyLoadPromises = new Map<LocalIconifyPrefix, Promise<IconsJson>>();
@@ -37,7 +41,7 @@ export const loadLocalIconifySet = (prefix: LocalIconifyPrefix) => {
     }
 
     const iconsJson = resolveIconsJson(module);
-    addCollection(iconsJson);
+    addCollection(iconsJson as unknown as Parameters<typeof addCollection>[0]);
     return iconsJson;
   })();
 
