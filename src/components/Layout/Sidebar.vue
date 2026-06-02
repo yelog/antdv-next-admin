@@ -56,6 +56,7 @@ const permissionStore = usePermissionStore();
 
 const selectedKeys = ref<string[]>([]);
 const openKeys = ref<string[]>([]);
+const cachedOpenKeys = ref<string[]>([]);
 
 const fallbackMenuItems = computed(() => {
   const basicChildren = basicRoutes.flatMap((r) => r.children || []);
@@ -164,7 +165,12 @@ const syncMenuState = () => {
     selectedKeys.value = [route.path];
   }
 
-  openKeys.value = findMenuOpenKeys(menuItems.value, route.path);
+  const nextOpenKeys = findMenuOpenKeys(menuItems.value, route.path);
+  cachedOpenKeys.value = nextOpenKeys;
+
+  if (!layoutStore.collapsed) {
+    openKeys.value = nextOpenKeys;
+  }
 };
 
 const closeMobileSidebar = () => {
@@ -205,6 +211,21 @@ watch(
     syncMenuState();
   },
   { immediate: true, deep: true },
+);
+
+watch(
+  () => layoutStore.collapsed,
+  (collapsed) => {
+    if (collapsed) {
+      cachedOpenKeys.value = openKeys.value.length
+        ? [...openKeys.value]
+        : cachedOpenKeys.value;
+      openKeys.value = [];
+      return;
+    }
+
+    openKeys.value = cachedOpenKeys.value;
+  },
 );
 </script>
 
