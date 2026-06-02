@@ -10,9 +10,9 @@
 import { GlobalOutlined } from '@antdv-next/icons';
 import { computed } from 'vue';
 
-import i18n, { setLocale, LOCALE_NATIVE_LABELS } from '@/locales';
+import { getLocale, setLocale, LOCALE_NATIVE_LABELS } from '@/locales';
 
-const currentLocale = computed(() => String(i18n.global.locale.value));
+const currentLocale = computed(() => String(getLocale()));
 const localeOptions = computed(() => [
   { label: LOCALE_NATIVE_LABELS['zh-CN'], value: 'zh-CN' },
   { label: LOCALE_NATIVE_LABELS['en-US'], value: 'en-US' },
@@ -20,7 +20,7 @@ const localeOptions = computed(() => [
   { label: LOCALE_NATIVE_LABELS['ko-KR'], value: 'ko-KR' },
 ]);
 
-const handleLanguageChange = ({ key }: { key: string | number }) => {
+const handleLanguageChange = async ({ key }: { key: string | number }) => {
   const nextLocale = String(key);
   if (!localeOptions.value.some((item) => item.value === nextLocale)) {
     return;
@@ -28,7 +28,7 @@ const handleLanguageChange = ({ key }: { key: string | number }) => {
   if (nextLocale === currentLocale.value) {
     return;
   }
-  setLocale(nextLocale);
+  await setLocale(nextLocale);
 };
 
 const menuProps = computed(() => ({

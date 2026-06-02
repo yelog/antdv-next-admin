@@ -62,7 +62,7 @@
         <FullscreenToggle />
 
         <!-- Notifications -->
-        <NotificationPanel />
+        <NotificationPanel v-if="!layoutStore.isMobile" />
 
         <!-- Theme Toggle -->
         <ThemeToggle />
@@ -98,10 +98,10 @@
     </div>
 
     <!-- Global Search Modal -->
-    <GlobalSearch ref="globalSearchRef" />
+    <GlobalSearch v-if="globalSearchLoaded" ref="globalSearchRef" />
 
     <!-- Settings Drawer -->
-    <SettingsDrawer ref="settingsDrawerRef" />
+    <SettingsDrawer v-if="settingsDrawerLoaded" ref="settingsDrawerRef" />
   </a-layout-header>
 </template>
 
@@ -117,7 +117,16 @@ import {
   BulbOutlined,
   GlobalOutlined,
 } from "@antdv-next/icons";
-import { ref, computed, onMounted, onBeforeUnmount, h, type VNode } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  h,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type VNode,
+} from "vue";
 
 import { $t, setLocale, LOCALE_NATIVE_LABELS } from "@/locales";
 import { useLayoutStore } from "@/stores/layout";
@@ -126,11 +135,16 @@ import { useThemeStore } from "@/stores/theme";
 import AvatarDropdown from "./AvatarDropdown.vue";
 import Breadcrumb from "./Breadcrumb.vue";
 import FullscreenToggle from "./FullscreenToggle.vue";
-import GlobalSearch from "./GlobalSearch.vue";
 import LanguageSwitch from "./LanguageSwitch.vue";
-import NotificationPanel from "./NotificationPanel.vue";
-import SettingsDrawer from "./SettingsDrawer.vue";
 import ThemeToggle from "./ThemeToggle.vue";
+
+const loadGlobalSearch = () => import("./GlobalSearch.vue");
+const loadSettingsDrawer = () => import("./SettingsDrawer.vue");
+const GlobalSearch = defineAsyncComponent(loadGlobalSearch);
+const NotificationPanel = defineAsyncComponent(
+  () => import("./NotificationPanel.vue"),
+);
+const SettingsDrawer = defineAsyncComponent(loadSettingsDrawer);
 
 interface Props {
   showBreadcrumb?: boolean;
@@ -154,13 +168,21 @@ const layoutStore = useLayoutStore();
 const themeStore = useThemeStore();
 const globalSearchRef = ref();
 const settingsDrawerRef = ref();
+const globalSearchLoaded = ref(false);
+const settingsDrawerLoaded = ref(false);
 const isMac = ref(false);
 
-const openGlobalSearch = () => {
+const openGlobalSearch = async () => {
+  await loadGlobalSearch();
+  globalSearchLoaded.value = true;
+  await nextTick();
   globalSearchRef.value?.open();
 };
 
-const openSettings = () => {
+const openSettings = async () => {
+  await loadSettingsDrawer();
+  settingsDrawerLoaded.value = true;
+  await nextTick();
   settingsDrawerRef.value?.open();
 };
 
@@ -174,7 +196,7 @@ const toggleFullscreen = () => {
   }
 };
 
-const handleMoreMenuClick = ({ key }: { key: string }) => {
+const handleMoreMenuClick = async ({ key }: { key: string }) => {
   switch (key) {
     case "fullscreen":
       toggleFullscreen();
@@ -192,19 +214,19 @@ const handleMoreMenuClick = ({ key }: { key: string }) => {
       themeStore.setTheme("system");
       break;
     case "lang-zh":
-      setLocale("zh-CN");
+      await setLocale("zh-CN");
       break;
     case "lang-en":
-      setLocale("en-US");
+      await setLocale("en-US");
       break;
     case "lang-ja":
-      setLocale("ja-JP");
+      await setLocale("ja-JP");
       break;
     case "lang-ko":
-      setLocale("ko-KR");
+      await setLocale("ko-KR");
       break;
     case "settings":
-      openSettings();
+      await openSettings();
       break;
   }
 };

@@ -100,7 +100,7 @@ import {
 import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import ProStatCard from '@/components/Pro/ProStatCard/index.vue';
-import i18n, { $t } from '@/locales';
+import { $t, getLocale } from '@/locales';
 import { useAuthStore } from '@/stores/auth';
 
 const ProChart = defineAsyncComponent(
@@ -131,7 +131,7 @@ const greetingText = computed(() => {
 });
 
 const currentTimeText = computed(() => {
-  const targetLocale = String(i18n.global.locale.value || 'en-US');
+  const targetLocale = String(getLocale() || 'en-US');
 
   try {
     return new Intl.DateTimeFormat(targetLocale, {

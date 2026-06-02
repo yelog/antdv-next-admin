@@ -1,18 +1,23 @@
 import { createI18n } from "vue-i18n";
 
-import enUS from "./en-US";
-import jaJP from "./ja-JP";
-import koKR from "./ko-KR";
 import zhCN from "./zh-CN";
+
+type SupportedLocale = "zh-CN" | "en-US" | "ja-JP" | "ko-KR";
+type AppLocaleMessages = typeof zhCN;
+type LocaleRefLike = { value: string };
 
 export const LOCALE_MESSAGES = {
   "zh-CN": zhCN,
-  "en-US": enUS,
-  "ja-JP": jaJP,
-  "ko-KR": koKR,
 };
 
-export const SUPPORTED_LOCALES = Object.keys(LOCALE_MESSAGES) as string[];
+const SUPPORTED_LOCALE_VALUES: SupportedLocale[] = [
+  "zh-CN",
+  "en-US",
+  "ja-JP",
+  "ko-KR",
+];
+
+export const SUPPORTED_LOCALES: string[] = [...SUPPORTED_LOCALE_VALUES];
 
 export const LOCALE_NATIVE_LABELS: Record<string, string> = {
   "zh-CN": "简体中文",
@@ -21,8 +26,32 @@ export const LOCALE_NATIVE_LABELS: Record<string, string> = {
   "ko-KR": "한국어",
 };
 
+function normalizeLocale(locale: string | null): SupportedLocale {
+  return SUPPORTED_LOCALE_VALUES.includes(locale as SupportedLocale)
+    ? (locale as SupportedLocale)
+    : "zh-CN";
+}
+
 // Get saved locale or use default
-const savedLocale = localStorage.getItem("app-locale") || "zh-CN";
+const savedLocale = normalizeLocale(localStorage.getItem("app-locale"));
+
+const localeLoaders: Record<SupportedLocale, () => Promise<AppLocaleMessages>> = {
+  "zh-CN": () => Promise.resolve(zhCN),
+  "en-US": () =>
+    import("./en-US").then(
+      (module) => module.default as unknown as AppLocaleMessages,
+    ),
+  "ja-JP": () =>
+    import("./ja-JP").then(
+      (module) => module.default as unknown as AppLocaleMessages,
+    ),
+  "ko-KR": () =>
+    import("./ko-KR").then(
+      (module) => module.default as unknown as AppLocaleMessages,
+    ),
+};
+
+const loadedLocales = new Set<SupportedLocale>(["zh-CN"]);
 
 const i18n = createI18n({
   legacy: false,
@@ -33,6 +62,34 @@ const i18n = createI18n({
 });
 
 document.documentElement.lang = savedLocale;
+
+function setCurrentLocale(locale: SupportedLocale) {
+  const currentLocale = i18n.global.locale as string | LocaleRefLike;
+  if (typeof currentLocale === "string") {
+    (i18n.global as unknown as { locale: string }).locale = locale;
+    return;
+  }
+  currentLocale.value = locale;
+}
+
+function getCurrentLocale(): string {
+  const currentLocale = i18n.global.locale as string | LocaleRefLike;
+  return typeof currentLocale === "string" ? currentLocale : currentLocale.value;
+}
+
+export async function loadLocaleMessages(locale: string): Promise<SupportedLocale> {
+  const targetLocale = normalizeLocale(locale);
+  if (loadedLocales.has(targetLocale)) {
+    return targetLocale;
+  }
+
+  const messages = await localeLoaders[targetLocale]();
+  i18n.global.setLocaleMessage(targetLocale, messages);
+  loadedLocales.add(targetLocale);
+  return targetLocale;
+}
+
+void loadLocaleMessages(savedLocale);
 
 type TranslateLike = (key: string, ...args: unknown[]) => unknown;
 
@@ -51,14 +108,15 @@ export function $t(key: string, ...args: unknown[]): string {
 export default i18n;
 
 // Helper function to change locale
-export function setLocale(locale: string) {
-  i18n.global.locale.value = locale as "zh-CN" | "en-US" | "ja-JP" | "ko-KR";
-  localStorage.setItem("app-locale", locale);
+export async function setLocale(locale: string) {
+  const targetLocale = await loadLocaleMessages(locale);
+  setCurrentLocale(targetLocale);
+  localStorage.setItem("app-locale", targetLocale);
 
   // Update HTML lang attribute
-  document.documentElement.lang = locale;
+  document.documentElement.lang = targetLocale;
 }
 
 export function getLocale() {
-  return i18n.global.locale.value;
+  return getCurrentLocale();
 }
