@@ -211,11 +211,11 @@ VITE_USE_MOCK=true
 VITE_API_BASE_URL=/api
 ```
 
-生产构建默认用于静态 Demo，因此仍启用 Mock，且不设置 API baseURL:
+生产构建默认用于静态 Demo，因此启用浏览器端 Mock，并保持 `/api` 前缀:
 
 ```bash
 VITE_USE_MOCK=true
-VITE_API_BASE_URL=
+VITE_API_BASE_URL=/api
 ```
 
 接入真实后端时，改为:
@@ -239,7 +239,7 @@ interface ApiResponse<T> {
 
 ## Mock 数据
 
-开发环境通过 `vite-plugin-mock-dev-server` 提供 `/api` 前缀的 Mock 接口。静态 Demo 模式下也使用 Mock，避免静态站点请求真实 `/api`。
+开发环境通过 `vite-plugin-mock-dev-server` 提供 `/api` 前缀的 Mock 接口。静态 Demo 模式下通过浏览器端 Mock 拦截 `/api` 请求，避免 GitHub Pages 等静态站点请求不存在的后端接口。
 
 已覆盖模块:
 

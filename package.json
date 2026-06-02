@@ -92,6 +92,7 @@
     "@tailwindcss/vite": "^4.2.2",
     "@types/lodash-es": "^4.17.12",
     "@vitejs/plugin-vue": "^6.0.4",
+    "axios-mock-adapter": "^2.1.0",
     "oxfmt": "^0.43.0",
     "oxlint": "^1.58.0",
     "sass": "^1.69.7",
