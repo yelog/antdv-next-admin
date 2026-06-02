@@ -92,7 +92,7 @@ const formItems: ProFormItem[] = [
   {
     name: "gender",
     label: $t("user.gender"),
-    type: "radio",
+    type: "select",
     required: true,
     options: [
       { label: $t("user.male"), value: "male" },

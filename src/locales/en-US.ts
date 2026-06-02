@@ -382,8 +382,6 @@ export default {
     menu: "Menu",
     button: "Button",
     api: "API",
-    resource: "Resource",
-    action: "Action",
     createPermission: "Create Menu",
     editPermission: "Edit Menu",
     deletePermission: "Delete Menu",

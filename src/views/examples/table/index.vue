@@ -225,20 +225,21 @@ const formItems = computed<ProFormItem[]>(() => [
   {
     name: "gender",
     label: $t("user.gender"),
-    type: "radio",
+    type: "select",
     required: true,
     options: genderOptions.value,
   },
   {
     name: "status",
     label: $t("common.status"),
-    type: "radio",
+    type: "switch",
+    valuePropName: "checked",
     required: true,
-    initialValue: "active",
-    options: [
-      { label: $t("user.active"), value: "active" },
-      { label: $t("user.inactive"), value: "inactive" },
-    ],
+    initialValue: true,
+    props: {
+      checkedChildren: $t("user.active"),
+      unCheckedChildren: $t("user.inactive"),
+    },
   },
   {
     name: "bio",
@@ -289,6 +290,9 @@ const handleSubmit = async () => {
   if (!valid) return;
 
   const values = formRef.value?.getFieldsValue();
+  if (typeof values.status === "boolean") {
+    values.status = values.status ? "active" : "inactive";
+  }
 
   try {
     if (editingId.value) {

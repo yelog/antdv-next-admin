@@ -366,8 +366,6 @@ export default {
     menu: "메뉴",
     button: "단추",
     api: "API",
-    resource: "의지",
-    action: "행동",
     createPermission: "메뉴 생성",
     editPermission: "메뉴 편집",
     deletePermission: "메뉴 삭제",

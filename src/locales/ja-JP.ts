@@ -370,8 +370,6 @@ export default {
     menu: "メニュー",
     button: "ボタン",
     api: "API",
-    resource: "リソース",
-    action: "アクション",
     createPermission: "メニューの作成",
     editPermission: "編集メニュー",
     deletePermission: "メニューの削除",

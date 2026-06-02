@@ -374,8 +374,6 @@ export default {
     menu: "菜单",
     button: "按钮",
     api: "API",
-    resource: "资源",
-    action: "操作",
     createPermission: "新增菜单",
     editPermission: "编辑菜单",
     deletePermission: "删除菜单",

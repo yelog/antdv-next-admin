@@ -65,7 +65,7 @@ import {
   DownloadOutlined,
 } from "@antdv-next/icons";
 import { message, Modal } from "antdv-next";
-import { computed, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref } from "vue";
 
 import { getRoleList } from "@/api/role";
 import { createUser, deleteUser, getUserList, updateUser } from "@/api/user";
@@ -92,6 +92,7 @@ const tableRef = ref<{
 const formRef = ref<{
   validate: () => Promise<boolean>;
   getFieldsValue: () => UserFormValues;
+  setFieldsValue: (values: Record<string, unknown>) => void;
 } | null>(null);
 
 const modalVisible = ref(false);
@@ -254,15 +255,19 @@ const formItems = computed<ProFormItem[]>(() => [
   {
     name: "gender",
     label: $t("user.gender"),
-    type: "radio",
+    type: "select",
     options: genderOptions.value,
   },
   {
     name: "status",
     label: $t("user.status"),
-    type: "radio",
-    options: statusOptions.value,
+    type: "switch",
+    valuePropName: "checked",
     required: true,
+    props: {
+      checkedChildren: $t("user.active"),
+      unCheckedChildren: $t("user.inactive"),
+    },
   },
   {
     name: "roleIds",
@@ -344,23 +349,28 @@ const reloadTable = () => {
 
 const handleCreate = () => {
   editingUserId.value = null;
-  formData.value = createDefaultFormValues();
+  const defaults = createDefaultFormValues();
+  formData.value = defaults;
   modalVisible.value = true;
+  nextTick(() => formRef.value?.setFieldsValue({ ...defaults, status: true }));
 };
 
 const handleEdit = (record: User) => {
   editingUserId.value = record.id;
-  formData.value = {
+  const statusStr = record.status || "active";
+  const initialValues = {
     username: record.username,
     realName: record.realName,
     email: record.email,
     phone: record.phone,
     gender: record.gender || "male",
-    status: record.status || "active",
+    status: statusStr,
     roleIds: (record.roles || []).map((role) => role.id),
     bio: record.bio || "",
   };
+  formData.value = initialValues as UserFormValues;
   modalVisible.value = true;
+  nextTick(() => formRef.value?.setFieldsValue({ ...initialValues, status: statusStr === "active" }));
 };
 
 const handleCancel = () => {
@@ -400,7 +410,7 @@ const handleSubmit = async () => {
     email: values.email?.trim(),
     phone: values.phone?.trim(),
     gender: values.gender,
-    status: values.status,
+    status: typeof values.status === "boolean" ? (values.status ? "active" : "inactive") : values.status,
     bio: values.bio?.trim(),
     roles: selectedRoles,
   };
