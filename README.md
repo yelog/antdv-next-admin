@@ -1,409 +1,174 @@
 # Antdv Next Admin
 
-🎉 一个基于 Vue 3 + TypeScript + Ant Design Vue 的现代化、功能完整的后台管理系统脚手架。
+一个基于 Vue 3.5、TypeScript 6、Vite 8 和 antdv-next 的现代化中后台前端脚手架，内置 RBAC 权限、动态路由、主题系统、国际化、Mock 数据、Pro 组件和常见业务示例。
 
-[![Vue](https://img.shields.io/badge/Vue-3.4-brightgreen.svg)](https://vuejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-8.0-purple.svg)](https://vitejs.dev/)
+[![Vue](https://img.shields.io/badge/Vue-3.5-brightgreen.svg)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-blue.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-8-purple.svg)](https://vite.dev/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 📸 预览
+## 预览
 
-**在线体验:** [https://antdv-next-admin.yelog.org/dashboard](https://antdv-next-admin.yelog.org/dashboard)
+在线体验: [https://antdv-next-admin.yelog.org/dashboard](https://antdv-next-admin.yelog.org/dashboard)
 
 ![系统截图](docs/images/screenshot.png)
 
-> 默认账号: admin / 123456 或 user / 123456
+默认账号:
 
-## ✨ 特性
+```text
+管理员: admin / 123456
+普通用户: user / 123456
+```
 
-### 核心功能
-
-- ✅ **最新技术栈**: Vue 3 + Vite + TypeScript + Pinia
-- ✅ **UI 组件**: Ant Design Vue (antdv-next)
-- ✅ **布局系统**: 响应式布局，支持垂直/水平两种模式
-- ✅ **多标签页**: 基于 KeepAlive 的多标签页系统，支持固定、刷新、右键菜单
-- ✅ **主题系统**: 支持亮色/暗色/跟随系统三种模式
-- ✅ **国际化**: 完整的中英文切换，支持运行时动态切换
-- ✅ **权限系统**: RBAC 权限控制，支持动态路由、按钮级权限、指令权限
-- ✅ **Mock 数据**: 开发环境完整的 Mock 数据支持
-
-### 高级功能
-
-- 🎨 **偏好设置**:
-  - 6 种预设主题色 (拂晓蓝、极光绿、酱紫、薄暮红、日暮橙、明青)
-  - 左侧菜单栏样式切换 (深色/浅色)
-  - 布局方式切换 (垂直/水平)
-  - 5种页面切换动画 (淡入、滑动、缩放等)
-  - 灰色模式/色弱模式
-
-- 🎯 **精致设计**:
-  - 流畅的动画效果
-  - 细腻的交互反馈
-  - 响应式设计
-  - 一致的设计语言
-
-### Pro 组件
-
-- 📊 **ProTable**: 高级表格组件
-  - 自动生成查询表单
-  - 列配置化（显示/隐藏、排序、固定）
-  - 内置分页、刷新、密度切换
-  - 支持多种值类型渲染（日期、标签、进度条等）
-- 📝 **ProForm**: 高级表单组件
-  - 配置化表单生成
-  - 自动布局和验证
-  - 支持多种表单类型
-  - 内置提交/重置逻辑
-
-- 🎭 **ProModal**: 高级弹窗组件
-  - 支持拖拽、全屏
-  - 自动表单集成
-  - 统一的确认/取消逻辑
-
-### 业务组件
-
-- 📝 **富文本编辑器**: 基于 TipTap，支持图片、链接、格式化
-- 🔐 **验证码组件**:
-  - 滑块验证码
-  - 拼图验证码
-  - 点选验证码
-  - 旋转验证码
-- 🎨 **图标选择器**: 支持 Iconify 图标库搜索选择
-- 💧 **水印组件**: 支持文字/图片水印，可配置透明度、角度
-
-## 🚀 快速开始
-
-### 安装依赖
+## 快速开始
 
 ```bash
 npm install
-```
-
-### 启动开发服务器
-
-```bash
 npm run dev
 ```
 
-访问 `http://localhost:3000`
+开发服务默认运行在 `http://localhost:3000`。
 
-### 默认账号
-
-```bash
-管理员账号:
-用户名: admin
-密码: 123456
-
-普通用户账号:
-用户名: user
-密码: 123456
-```
-
-### 构建生产版本
+常用验证命令:
 
 ```bash
-npm run build
+npm run lint             # oxlint src mock
+npm run format:check     # oxfmt --check src mock
+npm run type-check       # vue-tsc --noEmit
+npm run test:unit:run    # Vitest one-shot
+npm run build            # 仅生产构建
+npm run build:check      # 类型检查 + 生产构建
+npm run preview          # 预览生产构建
 ```
 
-### 预览生产构建
+发布或提交前建议执行:
 
 ```bash
-npm run preview
+npm run lint && npm run format:check && npm run type-check && npm run test:unit:run && npm run build:check
 ```
 
-## 📁 项目结构
+## 技术栈
 
-```
-antdv-next-admin/
-├── public/                     # 静态资源
-│   └── logo.svg               # 应用Logo
-├── src/
-│   ├── api/                   # API接口
-│   │   ├── auth.ts           # 认证接口
-│   │   ├── user.ts           # 用户管理
-│   │   ├── role.ts           # 角色管理
-│   │   ├── permission.ts     # 权限管理
-│   │   ├── dept.ts           # 部门管理
-│   │   ├── dict.ts           # 字典管理
-│   │   ├── config.ts         # 系统配置
-│   │   ├── file.ts           # 文件管理
-│   │   └── log.ts            # 日志管理
-│   ├── assets/                # 资源文件
-│   │   └── styles/            # 全局样式
-│   │       ├── global.css     # 全局样式
-│   │       ├── variables.css  # CSS变量
-│   │       └── animations.css # 动画定义
-│   ├── components/            # 组件
-│   │   ├── Layout/            # 布局组件
-│   │   │   ├── AdminLayout.vue
-│   │   │   ├── Sidebar.vue
-│   │   │   ├── Header.vue
-│   │   │   ├── TabBar.vue
-│   │   │   ├── MenuItem.vue
-│   │   │   ├── Breadcrumb.vue
-│   │   │   ├── ThemeToggle.vue
-│   │   │   ├── LanguageSwitch.vue
-│   │   │   ├── FullscreenToggle.vue
-│   │   │   ├── NotificationPanel.vue
-│   │   │   ├── AvatarDropdown.vue
-│   │   │   ├── GlobalSearch.vue
-│   │   │   └── SettingsDrawer.vue
-│   │   ├── Pro/               # Pro 高级组件
-│   │   │   ├── ProTable/      # 高级表格
-│   │   │   ├── ProForm/       # 高级表单
-│   │   │   └── ProModal/      # 高级弹窗
-│   │   ├── Permission/        # 权限组件
-│   │   │   └── PermissionButton.vue
-│   │   ├── Editor/            # 富文本编辑器
-│   │   ├── Captcha/           # 验证码组件
-│   │   │   ├── SliderCaptcha.vue    # 滑块验证码
-│   │   │   ├── PuzzleCaptcha.vue    # 拼图验证码
-│   │   │   ├── PointCaptcha.vue     # 点选验证码
-│   │   │   └── RotateCaptcha.vue    # 旋转验证码
-│   │   ├── IconPicker/        # 图标选择器
-│   │   └── Icon/              # 图标组件
-│   ├── composables/           # 组合式函数
-│   │   ├── usePermission.ts  # 权限判断
-│   │   ├── useWatermark.ts   # 水印功能
-│   │   └── useFullscreen.ts  # 全屏切换
-│   ├── directives/            # 自定义指令
-│   │   ├── index.ts
-│   │   └── permission.ts      # 权限指令
-│   ├── locales/              # 国际化
-│   │   ├── index.ts
-│   │   ├── zh-CN.ts          # 中文
-│   │   └── en-US.ts          # 英文
-│   ├── router/               # 路由
-│   │   ├── index.ts
-│   │   ├── routes.ts         # 路由配置
-│   │   ├── guards.ts         # 路由守卫
-│   │   └── utils.ts          # 路由工具
-│   ├── stores/               # Pinia状态管理
-│   │   ├── index.ts
-│   │   ├── auth.ts           # 认证状态
-│   │   ├── layout.ts         # 布局状态
-│   │   ├── theme.ts          # 主题状态
-│   │   ├── tabs.ts           # 标签页状态
-│   │   ├── permission.ts     # 权限状态
-│   │   ├── notification.ts   # 通知状态
-│   │   ├── settings.ts       # 偏好设置
-│   │   ├── dict.ts           # 字典数据
-│   │   ├── watermark.ts      # 水印状态
-│   │   └── demoStateCache.ts # 演示缓存
-│   ├── types/                # TypeScript类型
-│   │   ├── api.ts
-│   │   ├── auth.ts
-│   │   ├── router.ts
-│   │   ├── layout.ts
-│   │   └── pro.ts
-│   ├── utils/                # 工具函数
-│   │   ├── request.ts        # Axios封装
-│   │   ├── storage.ts        # Storage封装
-│   │   ├── auth.ts           # 认证工具
-│   │   ├── helpers.ts        # 辅助函数
-│   │   ├── i18n.ts           # 国际化工具
-│   │   └── icon.ts           # 图标工具
-│   ├── views/                # 页面
-│   │   ├── login/            # 登录页
-│   │   ├── dashboard/        # 数据看板
-│   │   ├── profile/          # 个人中心
-│   │   ├── notification/     # 通知中心
-│   │   ├── system/           # 系统管理
-│   │   │   ├── user/         # 用户管理
-│   │   │   ├── role/         # 角色管理
-│   │   │   ├── permission/   # 权限管理
-│   │   │   ├── dept/         # 部门管理
-│   │   │   ├── dict/         # 字典管理
-│   │   │   ├── config/       # 系统配置
-│   │   │   ├── file/         # 文件管理
-│   │   │   └── log/          # 日志管理
-│   │   ├── examples/         # 示例页面
-│   │   │   ├── table/        # 表格示例
-│   │   │   ├── form/         # 表单示例
-│   │   │   ├── editor/       # 编辑器示例
-│   │   │   ├── icon/         # 图标示例
-│   │   │   ├── modal/        # 弹窗示例
-│   │   │   ├── captcha/      # 验证码示例
-│   │   │   ├── watermark/    # 水印示例
-│   │   │   ├── external/     # 外部链接示例
-│   │   │   └── scaffold/     # 脚手架示例
-│   │   │       ├── rbac/              # RBAC权限示例
-│   │   │       ├── state-cache/       # 状态缓存示例
-│   │   │       ├── upload-system/     # 文件上传示例
-│   │   │       ├── pro-table-advanced/# 高级表格示例
-│   │   │       ├── observability/     # 可观测性示例
-│   │   │       ├── testing/           # 测试示例
-│   │   │       ├── complex-form/      # 复杂表单示例
-│   │   │       ├── request-auth/      # 请求鉴权示例
-│   │   │       └── master-detail/     # 主从表示例
-│   │   └── error/            # 错误页面
-│   │       ├── 404.vue
-│   │       ├── 403.vue
-│   │       └── 500.vue
-│   ├── App.vue
-│   └── main.ts
-├── mock/                     # Mock数据
-│   ├── data/                 # Mock数据源
-│   │   ├── users.data.ts
-│   │   ├── roles.data.ts
-│   │   ├── permissions.data.ts
-│   │   └── dashboard.data.ts
-│   └── handlers/             # Mock处理器
-│       ├── auth.mock.ts
-│       ├── user.mock.ts
-│       ├── role.mock.ts
-│       ├── permission.mock.ts
-│       └── dashboard.mock.ts
-├── docs/                     # 文档资源
-│   └── images/              # 图片资源
-├── .env                      # 环境变量
-├── .env.development          # 开发环境
-├── .env.production           # 生产环境
-├── .gitignore
-├── index.html
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
+- 核心框架: Vue 3.5、TypeScript 6、Vite 8、Pinia 3、Vue Router 5、vue-i18n 11
+- UI 与图标: antdv-next、@antdv-next/icons、Iconify
+- 样式体系: CSS Variables、Tailwind CSS 4、SCSS
+- 数据与 Mock: Axios、vite-plugin-mock-dev-server、@faker-js/faker
+- 编辑器: TipTap、Milkdown、CodeMirror
+- 图表: ECharts、vue-echarts
+- 工程化: vue-tsc、Vitest、oxlint、oxfmt
+
+## 架构概览
+
+核心执行链路:
+
+```text
+src/main.ts
+  -> 注册 Pinia / Router / i18n / directives / 全局组件默认属性
+
+src/router/routes.ts
+  -> staticRoutes / basicRoutes / asyncRoutes
+
+src/router/guards.ts
+  -> 登录态校验 / 动态路由注入 / 字典预加载 / Tabs 初始化
+
+src/stores/permission.ts
+  -> 根据角色与权限过滤 asyncRoutes 并生成菜单
+
+src/utils/request.ts
+  -> Axios 封装 / Token 注入 / 401 refresh / 错误跳转
 ```
 
-## 🎯 项目状态
+关键目录:
 
-### ✅ 已完成功能 (13/15 - 87%)
-
-**核心架构:**
-
-- ✅ 项目初始化和配置
-- ✅ 完整的设计系统（6种主题色、动画、工具类）
-- ✅ TypeScript类型定义体系
-- ✅ 7个Pinia状态管理Store
-- ✅ 路由系统（静态+动态路由、路由守卫）
-- ✅ 权限系统（指令、组合函数、组件）
-- ✅ 国际化（中英文完整翻译）
-- ✅ Mock数据系统（完整的CRUD API）
-- ✅ 工具函数库（30+实用函数）
-- ✅ 组合式函数（usePermission、useWatermark、useFullscreen等）
-
-**布局组件:**
-
-- ✅ AdminLayout（主布局，支持垂直/水平模式）
-- ✅ Sidebar（侧边栏，支持深色/浅色主题）
-- ✅ Header（顶部导航栏）
-- ✅ TabBar（多标签页系统，右键菜单）
-- ✅ MenuItem（递归菜单组件）
-- ✅ Breadcrumb（面包屑导航）
-- ✅ ThemeToggle（主题切换）
-- ✅ LanguageSwitch（语言切换）
-- ✅ FullscreenToggle（全屏切换）
-- ✅ NotificationPanel（通知面板）
-- ✅ AvatarDropdown（用户下拉菜单）
-- ✅ GlobalSearch（全局搜索）
-- ✅ SettingsDrawer（偏好设置抽屉）
-
-**页面视图:**
-
-- ✅ 登录页（完整的登录表单和验证）
-- ✅ Dashboard（统计卡片、图表、活动列表）
-- ✅ 个人中心（用户信息、账号设置）
-- ✅ 通知中心（系统通知、消息管理）
-- ✅ 系统管理模块
-  - 用户管理（CRUD、搜索、分页）
-  - 角色管理（权限分配、菜单权限）
-  - 权限管理（权限树、增删改查）
-  - 部门管理（树形结构、组织架构）
-  - 字典管理（数据字典、键值对）
-  - 系统配置（参数配置、系统设置）
-  - 文件管理（上传、下载、预览）
-  - 日志管理（操作日志、登录日志）
-- ✅ 示例页面（丰富的示例代码）
-  - 表格示例（ProTable 高级表格）
-  - 表单示例（ProForm 高级表单）
-  - 富文本编辑器（TipTap 集成）
-  - 图标示例（Iconify 图标库）
-  - 弹窗示例（ProModal 高级弹窗）
-  - 验证码示例（4种验证码类型）
-  - 水印示例（文字/图片水印）
-  - 外部链接（iframe/新窗口打开）
-- ✅ 脚手架示例（最佳实践模板）
-  - RBAC 权限示例
-  - 状态缓存示例
-  - 文件上传示例
-  - 高级表格示例
-  - 可观测性示例
-  - 测试示例
-  - 复杂表单示例
-  - 请求鉴权示例
-  - 主从表示例
-- ✅ 错误页面（404、403、500）
-
-## 🎨 技术栈
-
-### 核心框架
-
-- **Vue 3.4+** - 渐进式 JavaScript 框架
-- **TypeScript 5+** - JavaScript 的超集
-- **Vite 8+** - 下一代前端构建工具 (基于 Rolldown + Oxc)
-
-### UI & 样式
-
-- **Ant Design Vue** - 企业级 UI 组件库
-- **CSS Variables** - 现代化的主题系统
-- **SCSS** - CSS 预处理器
-
-### 状态管理 & 路由
-
-- **Pinia 2+** - Vue 官方状态管理
-- **Vue Router 4+** - Vue 官方路由
-
-### 工具库
-
-- **vue-i18n** - 国际化
-- **Axios** - HTTP 客户端
-- **dayjs** - 日期处理
-- **lodash-es** - 工具函数库
-- **@faker-js/faker** - 假数据生成
-
-### 开发工具
-
-- **vite-plugin-mock-dev-server** - Mock 服务
-- **oxlint** - 极速代码检查 (50-100x 快于 ESLint)
-- **oxfmt** - 极速代码格式化 (30x 快于 Prettier)
-
-## 🔧 开发指南
-
-### 环境要求
-
-- Node.js >= 16
-- npm >= 8
-
-### 环境变量
-
-**开发环境 (.env.development):**
-
-```bash
-VITE_USE_MOCK=true
-VITE_API_BASE_URL=/api
+```text
+src/api/                  # 业务 API 封装
+src/assets/styles/        # 全局样式、主题变量、动画、Tailwind 入口
+src/components/Layout/    # 后台主布局、菜单、顶部栏、Tabs、设置抽屉
+src/components/Pro/       # 配置化 Pro 组件
+src/components/Captcha/   # 滑块、旋转、拼图、点选验证码统一导出
+src/composables/          # 权限、水印、全屏等组合式函数
+src/constants/            # 权限码等常量
+src/directives/           # 自定义指令，包括 v-permission
+src/locales/              # zh-CN / en-US / ja-JP / ko-KR 国际化资源
+src/router/               # 路由表、守卫、权限过滤工具
+src/stores/               # 按领域拆分的 Pinia stores
+src/types/                # API、路由、Pro 组件等共享类型
+src/utils/                # 请求、存储、i18n、图标等工具
+src/views/                # 页面与示例
+mock/data/                # Mock 数据源
+mock/handlers/            # Mock 接口处理器
+tests/unit/               # Vitest 单元测试
+tests/e2e/                # Playwright starter，依赖未安装
 ```
 
-**生产环境 (.env.production):**
+## 功能矩阵
 
-```bash
-VITE_USE_MOCK=false
-VITE_API_BASE_URL=https://your-api-domain.com/api
+| 能力 | 说明 |
+| --- | --- |
+| 权限系统 | RBAC、动态路由、按钮权限、`v-permission` 指令、`usePermission()` 组合式函数、`PermissionButton` 组件 |
+| 路由系统 | 静态路由、基础登录路由、权限动态路由、404 动态路由恢复 |
+| 布局系统 | 垂直/水平布局、响应式侧边栏、面包屑、多标签页、右键菜单、全局搜索 |
+| 主题系统 | 亮色、暗色、跟随系统、6 种主题色、灰色模式、色弱模式、CSS Variables 驱动 |
+| 国际化 | 支持 `zh-CN`、`en-US`、`ja-JP`、`ko-KR`，非默认语言按需异步加载 |
+| Mock 数据 | 覆盖认证、用户、角色、权限、部门、字典、配置、文件、日志、Dashboard 等模块 |
+| 内容编辑 | TipTap 富文本、Milkdown Markdown、CodeMirror 代码编辑器 |
+| 示例体系 | ProTable、复杂表单、主从表、虚拟表格、JSON 输入、i18n 输入、高级筛选、导入导出、请求鉴权、RBAC、可观测性、测试示例等 |
+| 工程质量 | strict TypeScript、Vitest、oxlint、oxfmt、vue-tsc、生产构建检查 |
+
+## Pro 组件
+
+`src/components/Pro/` 提供以下配置化组件:
+
+| 组件 | 定位 |
+| --- | --- |
+| ProTable | 配置化表格，支持请求、搜索、分页、工具栏、列设置、表头过滤、列宽调整、权限动作 |
+| ProForm | 配置化表单，支持网格布局、校验、动态选项和自定义渲染 |
+| ProModal | 增强弹窗，支持拖拽、全屏和表单集成 |
+| ProDescriptions | 配置化描述列表 |
+| ProDetail | 详情页布局和 Tabs |
+| ProChart | ECharts 图表封装 |
+| ProStatCard | 统计卡片 |
+| ProStepForm | 分步表单 |
+| ProSplitLayout | 分栏布局 |
+| ProUpload | 上传组件封装 |
+| ProStatus | dot/tag/badge 状态展示 |
+| ProCodeEditor | CodeMirror 代码编辑器 |
+
+ProTable 请求函数需要返回 `ProTableRequestResult`:
+
+```ts
+import type {
+  ProTableColumn,
+  ProTableRequestParams,
+  ProTableRequestResult,
+} from "@/types/pro";
+
+interface UserRecord {
+  id: number;
+  name: string;
+  status: "active" | "disabled";
+  createdAt: string;
+}
+
+const columns: ProTableColumn<UserRecord>[] = [
+  { title: "姓名", dataIndex: "name", valueType: "text", search: true },
+  { title: "状态", dataIndex: "status", valueType: "tag" },
+  { title: "创建时间", dataIndex: "createdAt", valueType: "date" },
+];
+
+async function loadData(
+  params: ProTableRequestParams,
+): Promise<ProTableRequestResult<UserRecord>> {
+  console.log(params);
+  return { data: [], total: 0, success: true };
+}
 ```
 
-### 代码规范
+## 权限用法
 
-- 使用 TypeScript 进行类型安全的开发
-- 遵循 Vue 3 Composition API 最佳实践
-- 组件命名使用 PascalCase
-- 文件命名使用 kebab-case
-- 使用 CSS Variables 进行主题定制
+权限码集中维护在 `src/constants/permissions.ts`，路由 `meta.requiredPermissions`、按钮权限和业务判断应优先复用常量，避免散落字符串。
 
-### 权限使用
-
-**指令方式:**
+模板指令:
 
 ```vue
 <a-button v-permission="'user.create'">创建用户</a-button>
@@ -411,21 +176,25 @@ VITE_API_BASE_URL=https://your-api-domain.com/api
 <a-button v-permission.all="['user.edit', 'user.approve']">审批</a-button>
 ```
 
-**组合函数方式:**
+组合式函数:
 
 ```ts
-const { can, canAll } = usePermission();
+const { can, canAll, hasRole } = usePermission();
 
 if (can("user.create")) {
   // 有创建权限
 }
 
 if (canAll(["user.edit", "user.approve"])) {
-  // 同时有编辑和审批权限
+  // 同时拥有编辑和审批权限
+}
+
+if (hasRole("admin")) {
+  // 管理员角色
 }
 ```
 
-**组件方式:**
+组件方式:
 
 ```vue
 <PermissionButton permission="user.create">
@@ -433,186 +202,108 @@ if (canAll(["user.edit", "user.approve"])) {
 </PermissionButton>
 ```
 
-## 📝 Mock 数据
+## 环境变量与后端接入
 
-项目集成了完整的 Mock 数据系统，开发环境下自动启用。
+开发环境默认启用 Vite Mock 服务:
 
-### 可用的 Mock API
-
-- **认证接口**
-  - POST `/api/auth/login` - 登录
-  - POST `/api/auth/logout` - 登出
-  - GET `/api/auth/info` - 获取用户信息
-
-- **用户管理**
-  - GET `/api/users` - 用户列表（支持分页、搜索）
-  - GET `/api/users/:id` - 获取用户详情
-  - POST `/api/users` - 创建用户
-  - PUT `/api/users/:id` - 更新用户
-  - DELETE `/api/users/:id` - 删除用户
-
-- **角色管理**
-  - GET `/api/roles` - 角色列表
-  - GET `/api/roles/:id` - 获取角色详情
-  - POST `/api/roles` - 创建角色
-  - PUT `/api/roles/:id` - 更新角色
-  - DELETE `/api/roles/:id` - 删除角色
-
-- **权限管理**
-  - GET `/api/permissions` - 权限列表
-  - GET `/api/permissions/tree` - 权限树
-
-- **部门管理**
-  - GET `/api/depts` - 部门列表
-  - GET `/api/depts/tree` - 部门树形结构
-
-- **字典管理**
-  - GET `/api/dict/types` - 字典类型列表
-  - GET `/api/dict/data/:type` - 字典数据
-
-- **系统配置**
-  - GET `/api/config` - 配置列表
-  - PUT `/api/config/:key` - 更新配置
-
-- **文件管理**
-  - POST `/api/files/upload` - 上传文件
-  - GET `/api/files` - 文件列表
-
-- **日志管理**
-  - GET `/api/logs` - 日志列表
-
-- **Dashboard**
-  - GET `/api/dashboard/stats` - 统计数据
-  - GET `/api/dashboard/chart-data` - 图表数据
-
-## 🎯 特色功能
-
-### 1. 多主题支持
-
-6种预设主题色 + 深色/浅色模式 + 跟随系统，共18种主题组合。
-
-### 2. 灵活布局
-
-- 垂直布局（侧边栏在左）
-- 水平布局（菜单在顶部）
-- 响应式适配移动端
-
-### 3. 多标签页系统
-
-- 支持标签页缓存（KeepAlive）
-- 支持固定标签（affix/pinned）
-- 右键菜单（刷新、固定、关闭、关闭其他、关闭左侧、关闭右侧、关闭所有）
-- 标签页持久化存储
-
-### 4. 全局搜索
-
-快捷键 `Ctrl/Cmd + K` 唤起全局菜单搜索。
-
-### 5. 国际化
-
-完整的中英文翻译，支持运行时切换，所有组件均已国际化。
-
-### 6. Pro 组件使用
-
-#### ProTable 示例
-
-```vue
-<template>
-  <ProTable :columns="columns" :request="loadData" :search="searchConfig">
-    <template #toolbar>
-      <a-button type="primary">新建</a-button>
-    </template>
-  </ProTable>
-</template>
-
-<script setup lang="ts">
-import { ProTable } from "@/components/Pro";
-
-const columns = [
-  { title: "姓名", dataIndex: "name", valueType: "text" },
-  { title: "年龄", dataIndex: "age", valueType: "number" },
-  { title: "状态", dataIndex: "status", valueType: "tag" },
-  { title: "创建时间", dataIndex: "createdAt", valueType: "date" },
-];
-
-const loadData = async (params: any) => {
-  // 返回 { data: [], total: 0 }
-};
-</script>
+```bash
+VITE_USE_MOCK=true
+VITE_API_BASE_URL=/api
 ```
 
-#### ProForm 示例
+生产构建默认用于静态 Demo，因此仍启用 Mock，且不设置 API baseURL:
 
-```vue
-<template>
-  <ProForm
-    :schema="formSchema"
-    :initial-values="initialValues"
-    @submit="handleSubmit"
-  />
-</template>
-
-<script setup lang="ts">
-import { ProForm } from "@/components/Pro";
-
-const formSchema = [
-  { label: "用户名", name: "username", type: "input", required: true },
-  { label: "邮箱", name: "email", type: "input", rules: [{ type: "email" }] },
-  { label: "角色", name: "role", type: "select", options: roleOptions },
-  { label: "状态", name: "status", type: "switch" },
-];
-
-const handleSubmit = (values: any) => {
-  console.log("提交表单:", values);
-};
-</script>
+```bash
+VITE_USE_MOCK=true
+VITE_API_BASE_URL=
 ```
 
-### 7. 验证码组件
+接入真实后端时，改为:
 
-```vue
-<template>
-  <!-- 滑块验证码 -->
-  <SliderCaptcha @success="handleSuccess" />
-
-  <!-- 拼图验证码 -->
-  <PuzzleCaptcha @success="handleSuccess" />
-
-  <!-- 点选验证码 -->
-  <PointCaptcha @success="handleSuccess" />
-
-  <!-- 旋转验证码 -->
-  <RotateCaptcha @success="handleSuccess" />
-</template>
+```bash
+VITE_USE_MOCK=false
+VITE_API_BASE_URL=https://your-api-domain.com/api
 ```
 
-### 8. 富文本编辑器
+接口响应建议遵循:
 
-基于 TipTap 的富文本编辑器，支持：
+```ts
+interface ApiResponse<T> {
+  code: number;
+  data: T;
+  message: string;
+}
+```
 
-- 文本格式化（粗体、斜体、下划线）
-- 标题、列表、引用
-- 图片上传和插入
-- 链接插入
-- 代码块
-- 历史记录（撤销/重做）
+`src/utils/request.ts` 的 Axios 响应拦截器会返回 `response.data`，并将 `{ code !== 200 }` 视为错误。业务 API 方法应按调用方实际消费的数据结构声明类型。
 
-## 🤝 贡献
+## Mock 数据
 
-欢迎提交 Issue 和 Pull Request！
+开发环境通过 `vite-plugin-mock-dev-server` 提供 `/api` 前缀的 Mock 接口。静态 Demo 模式下也使用 Mock，避免静态站点请求真实 `/api`。
 
-## 📄 许可
+已覆盖模块:
+
+- 认证: `/api/auth/login`、`/api/auth/logout`、`/api/auth/info`、`/api/auth/refresh`
+- 用户: `/api/users`、`/api/users/:id`、`/api/users/batch`、`/api/users/change-password`
+- 角色: `/api/roles`
+- 权限: `/api/permissions`、`/api/permissions/tree`、`/api/permissions/user`
+- 部门: `/api/dept/tree`、`/api/dept/list`、`/api/dept`
+- 字典: `/api/dict/types`、`/api/dict/type/list`、`/api/dict/data/list`、`/api/dict/data/:typeCode`
+- 配置: `/api/config/list`、`/api/config/key/:key`、`/api/config`
+- 文件: `/api/file/list`、`/api/file/:id`、`/api/file/upload`
+- 日志: `/api/log/operation/list`、`/api/log/login/list`
+- Dashboard: `/api/dashboard/stats`、`/api/dashboard/sales-trend`、`/api/dashboard/user-distribution`、`/api/dashboard/activities`、`/api/dashboard/chart-data`
+
+新增 Mock 接口时通常需要同时新增:
+
+```text
+mock/data/[entity].data.ts
+mock/handlers/[entity].mock.ts
+src/api/[entity].ts
+src/types/[entity].ts
+```
+
+## 测试
+
+单元测试使用 Vitest，配置在 `vitest.config.ts`:
+
+```bash
+npm run test:unit       # watch mode
+npm run test:unit:run   # one-shot
+```
+
+当前单测覆盖路由权限过滤、ProTable 请求、搜索、表头过滤和关键词搜索等逻辑。
+
+`tests/e2e/*.spec.ts` 是 Playwright starter，当前项目未安装 Playwright 依赖；如需启用 E2E，需要先补齐依赖、脚本和运行环境。
+
+## 开发约定
+
+- TypeScript 开启 `strict`、`noUnusedLocals` 和 `noUnusedParameters`，不要用无意义的死参数或类型压制掩盖问题。
+- 路径别名 `@/` 指向 `src/`。
+- 可复用 Vue 组件使用 PascalCase 文件名；路由页面按目录组织，入口通常为 `index.vue`。
+- Vue 组件使用 Composition API 和 `<script setup lang="ts">`。
+- Pinia Store 使用 setup 语法，并按领域拆分。
+- 主题相关样式优先使用 `src/assets/styles/variables.css` 中的 CSS Variables；SCSS 和 Tailwind 可用于局部样式与工具类。
+- Antdv 组件通过 `unplugin-vue-components` 和 `AntdvNextResolver` 自动导入，但 `Select`、`DatePicker`、`DateRangePicker` 被排除，相关封装或使用需注意显式处理。
+- 全局默认组件属性在 `src/components/Global/defaultComponentProps.ts` 注册，修改基础表单控件行为前应先检查这里。
+- 登录态、语言、主题、Tabs 等状态会持久化到 localStorage；调试权限、路由或菜单问题时可清理本地存储后重新登录。
+- 修改 `asyncRoutes`、权限码或角色权限后，建议退出登录或刷新会话再验证，避免旧的动态路由和 Tabs 缓存影响判断。
+
+## 模块划分
+
+- 组织管理: 部门、用户、角色、权限
+- 系统管理: 配置、字典、文件、日志
+- 示例中心: 快速开始、表单输入、内容编辑、基础交互、业务脚手架、安全工程、集成导航、异常页
+
+## 许可证
 
 MIT License
 
-## 🙏 致谢
+## 致谢
 
 - [Vue 3](https://vuejs.org/)
-- [Vite](https://vitejs.dev/)
+- [Vite](https://vite.dev/)
 - [Ant Design Vue](https://antdv.com/)
+- [Antdv Next](https://github.com/antdv-next/antdv-next)
 - [vue-vben-admin](https://github.com/vbenjs/vue-vben-admin)
 - [Ant Design Pro Vue](https://pro.antdv.com/)
-
----
-
-Made with ❤️ by Claude Code
