@@ -67,16 +67,6 @@ html.theme-view-transition::view-transition-new(root) {
   z-index: 9999;
 }
 
-html.theme-view-transition.dark::view-transition-old(root) {
-  animation: theme-clip-conceal 0.74s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  z-index: 9999;
-}
-
-html.theme-view-transition.dark::view-transition-new(root) {
-  animation: none;
-  z-index: 1;
-}
-
 @keyframes theme-clip-reveal {
   from {
     clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y));
@@ -85,17 +75,6 @@ html.theme-view-transition.dark::view-transition-new(root) {
     clip-path: circle(
       var(--theme-transition-radius) at var(--theme-transition-x) var(--theme-transition-y)
     );
-  }
-}
-
-@keyframes theme-clip-conceal {
-  from {
-    clip-path: circle(
-      var(--theme-transition-radius) at var(--theme-transition-x) var(--theme-transition-y)
-    );
-  }
-  to {
-    clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y));
   }
 }
 

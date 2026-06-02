@@ -15,6 +15,7 @@ interface ThemeTransitionOrigin {
 interface ThemeUpdateOptions {
   withTransition?: boolean;
   origin?: ThemeTransitionOrigin;
+  direction?: 'to-dark' | 'to-light';
 }
 
 interface ViewTransitionLike {
@@ -32,13 +33,17 @@ export const useThemeStore = defineStore('theme', () => {
 
   // Getters
   const isDark = computed(() => {
-    if (mode.value === 'system') {
-      return systemPrefersDark.value;
-    }
-    return mode.value === 'dark';
+    return resolveIsDark(mode.value);
   });
 
   // Actions
+  function resolveIsDark(themeMode: ThemeMode) {
+    if (themeMode === 'system') {
+      return systemPrefersDark.value;
+    }
+    return themeMode === 'dark';
+  }
+
   const startThemeTransition = () => {
     const root = document.documentElement;
     root.classList.add(THEME_TRANSITION_CLASS);
@@ -75,6 +80,7 @@ export const useThemeStore = defineStore('theme', () => {
 
   const runCircularRevealTransition = (
     origin: ThemeTransitionOrigin,
+    direction: ThemeUpdateOptions['direction'],
     applyTheme: () => void,
   ): boolean => {
     const startViewTransition = getStartViewTransition();
@@ -83,8 +89,10 @@ export const useThemeStore = defineStore('theme', () => {
     }
 
     const root = document.documentElement;
-    const x = Math.max(0, Math.min(origin.x, window.innerWidth));
-    const y = Math.max(0, Math.min(origin.y, window.innerHeight));
+    const originX = direction === 'to-dark' ? 0 : origin.x;
+    const originY = direction === 'to-dark' ? window.innerHeight : origin.y;
+    const x = Math.max(0, Math.min(originX, window.innerWidth));
+    const y = Math.max(0, Math.min(originY, window.innerHeight));
     const endRadius = Math.hypot(
       Math.max(x, window.innerWidth - x),
       Math.max(y, window.innerHeight - y),
@@ -116,28 +124,35 @@ export const useThemeStore = defineStore('theme', () => {
     return true;
   };
 
-  const applyTheme = () => {
+  const applyTheme = (themeMode = mode.value) => {
     const root = document.documentElement;
-    root.classList.toggle('dark', isDark.value);
-    localStorage.setItem('theme-mode', mode.value);
+    root.classList.toggle('dark', resolveIsDark(themeMode));
+    localStorage.setItem('theme-mode', themeMode);
   };
 
-  const updateTheme = (options: ThemeUpdateOptions = {}) => {
-    const { withTransition = false, origin } = options;
+  const updateTheme = (
+    options: ThemeUpdateOptions = {},
+    applyThemeCallback = applyTheme,
+  ) => {
+    const { withTransition = false, origin, direction } = options;
     if (!withTransition) {
-      applyTheme();
+      applyThemeCallback();
       return;
     }
 
     if (origin && supportsCircularRevealTransition()) {
-      const success = runCircularRevealTransition(origin, applyTheme);
+      const success = runCircularRevealTransition(
+        origin,
+        direction,
+        applyThemeCallback,
+      );
       if (success) {
         return;
       }
     }
 
     startThemeTransition();
-    applyTheme();
+    applyThemeCallback();
   };
 
   const setTheme = (newMode: ThemeMode, options: ThemeUpdateOptions = {}) => {
@@ -145,8 +160,21 @@ export const useThemeStore = defineStore('theme', () => {
       return;
     }
 
-    mode.value = newMode;
-    updateTheme({ withTransition: true, ...options });
+    const wasDark = isDark.value;
+    const willBeDark = resolveIsDark(newMode);
+    const applyNewTheme = () => {
+      mode.value = newMode;
+      applyTheme(newMode);
+    };
+
+    updateTheme(
+      {
+        withTransition: true,
+        ...options,
+        direction: !wasDark && willBeDark ? 'to-dark' : 'to-light',
+      },
+      applyNewTheme,
+    );
   };
 
   const toggleTheme = (options: ThemeUpdateOptions = {}) => {
@@ -168,10 +196,23 @@ export const useThemeStore = defineStore('theme', () => {
     systemPrefersDark.value = mediaQuery.matches;
 
     mediaQuery.addEventListener('change', (e) => {
-      systemPrefersDark.value = e.matches;
       if (mode.value === 'system') {
-        updateTheme({ withTransition: true });
+        const wasDark = systemPrefersDark.value;
+        const willBeDark = e.matches;
+        updateTheme(
+          {
+            withTransition: true,
+            direction: !wasDark && willBeDark ? 'to-dark' : 'to-light',
+          },
+          () => {
+            systemPrefersDark.value = e.matches;
+            applyTheme();
+          },
+        );
+        return;
       }
+
+      systemPrefersDark.value = e.matches;
     });
 
     // Apply initial theme
