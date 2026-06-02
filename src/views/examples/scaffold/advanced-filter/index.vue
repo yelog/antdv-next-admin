@@ -127,12 +127,16 @@
 
       <a-divider />
 
-      <a-table
+      <ProTable
+        layout="content"
         row-key="id"
         size="small"
         :columns="columns"
         :data-source="previewRows"
+        :search="false"
+        :toolbar="false"
         :pagination="false"
+        :show-index-column="false"
       />
     </div>
 
@@ -158,6 +162,9 @@ import { DeleteOutlined, PlusOutlined } from '@antdv-next/icons';
 import { message } from 'antdv-next';
 import { computed, ref } from 'vue';
 
+import type { ProTableColumn } from '@/types/pro';
+
+import ProTable from '@/components/Pro/ProTable/index.vue';
 import { $t } from '@/locales';
 
 type Relation = 'AND' | 'OR';
@@ -252,7 +259,7 @@ const fieldOptions = computed(() => [
   { label: $t('common.createTime'), value: 'createdAt' },
 ]);
 
-const columns = computed(() => [
+const columns = computed<ProTableColumn[]>(() => [
   { title: 'ID', dataIndex: 'id', width: 120 },
   { title: $t('user.username'), dataIndex: 'username', width: 180 },
   { title: $t('common.status'), dataIndex: 'status', width: 120 },

@@ -62,22 +62,30 @@
         :message="$t('examples.scaffold.importExport.importHint')"
       />
 
-      <a-table
+      <ProTable
+        layout="content"
         row-key="code"
         size="small"
         :columns="dataColumns"
         :data-source="rows"
+        :search="false"
+        :toolbar="false"
         :pagination="{ pageSize: 8 }"
+        :show-index-column="false"
       />
 
       <a-divider />
 
-      <a-table
+      <ProTable
+        layout="content"
         row-key="id"
         size="small"
         :columns="errorColumns"
         :data-source="importErrors"
+        :search="false"
+        :toolbar="false"
         :pagination="{ pageSize: 6 }"
+        :show-index-column="false"
       />
     </div>
   </div>
@@ -88,6 +96,9 @@ import { DownloadOutlined, UploadOutlined } from '@antdv-next/icons';
 import { message } from 'antdv-next';
 import { computed, ref } from 'vue';
 
+import type { ProTableColumn } from '@/types/pro';
+
+import ProTable from '@/components/Pro/ProTable/index.vue';
 import { $t } from '@/locales';
 
 interface ProductRow {
@@ -127,7 +138,7 @@ const lastSummary = ref<ImportSummary>({
   failed: 0,
 });
 
-const dataColumns = computed(() => [
+const dataColumns = computed<ProTableColumn[]>(() => [
   { title: $t('examples.scaffold.importExport.colCode'), dataIndex: 'code', width: 140 },
   { title: $t('examples.scaffold.importExport.colName'), dataIndex: 'name', width: 220 },
   { title: $t('examples.scaffold.importExport.colCategory'), dataIndex: 'category', width: 160 },
@@ -135,7 +146,7 @@ const dataColumns = computed(() => [
   { title: $t('examples.scaffold.importExport.colStock'), dataIndex: 'stock', width: 120 },
 ]);
 
-const errorColumns = computed(() => [
+const errorColumns = computed<ProTableColumn[]>(() => [
   { title: $t('examples.scaffold.importExport.errorRowNo'), dataIndex: 'rowNo', width: 100 },
   { title: $t('examples.scaffold.importExport.errorReason'), dataIndex: 'reason', width: 260 },
   { title: $t('examples.scaffold.importExport.errorRaw'), dataIndex: 'raw' },

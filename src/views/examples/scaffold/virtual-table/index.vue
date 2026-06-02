@@ -58,14 +58,18 @@
         <a-tag>{{ $t('examples.scaffold.virtualTable.renderedRowsTip') }}</a-tag>
       </a-space>
 
-      <a-table
+      <ProTable
+        layout="content"
         row-key="id"
         size="small"
         bordered
         virtual
         :columns="columns"
         :data-source="filteredRows"
+        :search="false"
+        :toolbar="false"
         :pagination="false"
+        :show-index-column="false"
         :scroll="{ y: 520, x: 1200 }"
       >
         <template #bodyCell="{ column, record }">
@@ -75,7 +79,7 @@
             </a-tag>
           </template>
         </template>
-      </a-table>
+      </ProTable>
     </div>
   </div>
 </template>
@@ -84,6 +88,9 @@
 import { message } from 'antdv-next';
 import { computed, onMounted, ref } from 'vue';
 
+import type { ProTableColumn } from '@/types/pro';
+
+import ProTable from '@/components/Pro/ProTable/index.vue';
 import { $t } from '@/locales';
 
 type StatusType = 'active' | 'inactive' | 'pending';
@@ -102,7 +109,7 @@ const keyword = ref('');
 const statusFilter = ref<'all' | StatusType>('all');
 const allRows = ref<DemoRow[]>([]);
 
-const columns = computed(() => [
+const columns = computed<ProTableColumn[]>(() => [
   { title: $t('examples.scaffold.virtualTable.colId'), dataIndex: 'id', width: 130 },
   { title: $t('examples.scaffold.virtualTable.colUsername'), dataIndex: 'username', width: 180 },
   { title: $t('examples.scaffold.virtualTable.colEmail'), dataIndex: 'email', width: 260 },

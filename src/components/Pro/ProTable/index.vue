@@ -92,6 +92,7 @@
       ref="tableSectionRef"
       class="pro-table-main"
       :class="{
+        'content-layout': isContentLayout,
         'main-scroll-mode': !effectiveFixedHeader && !isAutoHeight,
         'main-fill-mode': effectiveFixedHeader || isAutoHeight,
         'no-vertical-scrollbar': isFillMode && !shouldUseVerticalScroll,
@@ -100,7 +101,7 @@
       <a-table
         :components="tableComponents"
         :columns="tableColumns"
-        :data-source="dataSource"
+        :data-source="tableDataSource"
         :loading="loading"
         :pagination="paginationConfig"
         :size="tableSize"
@@ -111,14 +112,14 @@
         v-bind="$attrs"
         @change="handleTableChange"
       >
-        <template v-if="toolbar" #title>
+        <template v-if="toolbarConfig" #title>
           <div ref="toolbarRef" class="pro-table-toolbar">
             <div class="toolbar-left">
-              <span v-if="toolbar.title" class="toolbar-title">{{
-                toolbar.title
+              <span v-if="toolbarConfig.title" class="toolbar-title">{{
+                toolbarConfig.title
               }}</span>
-              <span v-if="toolbar.subTitle" class="toolbar-subtitle">{{
-                toolbar.subTitle
+              <span v-if="toolbarConfig.subTitle" class="toolbar-subtitle">{{
+                toolbarConfig.subTitle
               }}</span>
             </div>
             <div class="toolbar-right">
@@ -465,9 +466,11 @@ import ValueTypeRender from "./ValueTypeRender.vue";
 
 interface Props {
   columns: ProTableColumn[];
-  request: ProTableRequest;
-  toolbar?: ProTableToolbar;
+  request?: ProTableRequest;
+  dataSource?: Record<string, unknown>[];
+  toolbar?: ProTableToolbar | false;
   search?: ProTableSearch | false;
+  layout?: "page" | "content";
   headerFilter?: ProTableHeaderFilterConfig;
   pagination?: ProTablePagination | false;
   rowKey?: string | ((record: Record<string, unknown>) => string);
@@ -651,7 +654,7 @@ const searchRef = ref<HTMLElement>();
 const tableSectionRef = ref<HTMLElement>();
 
 // State
-const dataSource = ref<Record<string, unknown>[]>([]);
+const remoteDataSource = ref<Record<string, unknown>[]>([]);
 const loading = ref(false);
 const searchForm = ref<Record<string, unknown>>({});
 const searchCollapsed = ref(
@@ -705,20 +708,38 @@ const normalizeHeaderFilterMode = (mode: ProTableHeaderFilter["mode"]) => {
 };
 
 // Computed
-const toolbarActions = computed(() => props.toolbar?.actions || []);
+const toolbarConfig = computed(() => {
+  return props.toolbar === false ? undefined : props.toolbar;
+});
+
+const tableDataSource = computed(() => {
+  if (props.request) {
+    return remoteDataSource.value;
+  }
+  return props.dataSource || [];
+});
+
+const effectiveTotal = computed(() => {
+  if (props.request) {
+    return total.value;
+  }
+  return props.dataSource?.length || 0;
+});
+
+const toolbarActions = computed(() => toolbarConfig.value?.actions || []);
 
 const showRefreshAction = computed(() => {
-  if (!props.toolbar) return true;
+  if (!toolbarConfig.value) return true;
   return !toolbarActions.value.includes("!refresh");
 });
 
 const showColumnSettingAction = computed(() => {
-  if (!props.toolbar) return true;
+  if (!toolbarConfig.value) return true;
   return !toolbarActions.value.includes("!columnSetting");
 });
 
 const showDensityAction = computed(() => {
-  if (!props.toolbar) return true;
+  if (!toolbarConfig.value) return true;
   return !toolbarActions.value.includes("!density");
 });
 
@@ -778,7 +799,15 @@ const effectiveBordered = computed(() => {
   return props.bordered ?? appDefaultSettings.proTable.bordered;
 });
 
+const isContentLayout = computed(() => {
+  return props.layout === "content";
+});
+
 const effectiveFixedHeader = computed(() => {
+  if (isContentLayout.value && props.fixedHeader == null) {
+    return false;
+  }
+
   return props.fixedHeader ?? appDefaultSettings.proTable.fixedHeader;
 });
 
@@ -787,6 +816,10 @@ const effectiveHeight = computed(() => {
 });
 
 const isAutoHeight = computed(() => {
+  if (isContentLayout.value && props.height == null) {
+    return false;
+  }
+
   return String(effectiveHeight.value) === "auto";
 });
 
@@ -795,6 +828,10 @@ const isFillMode = computed(() => {
 });
 
 const tableRootStyle = computed<Record<string, string> | undefined>(() => {
+  if (isContentLayout.value && props.height == null) {
+    return undefined;
+  }
+
   if (isAutoHeight.value) {
     return { height: "100%" };
   }
@@ -865,7 +902,7 @@ const paginationConfig = computed(() => {
     ...pagination,
     current: currentPage.value,
     pageSize: pageSize.value,
-    total: total.value,
+    total: effectiveTotal.value,
   };
 });
 
@@ -1489,6 +1526,11 @@ const buildSorterRequestParams = () => {
 };
 
 const loadData = async () => {
+  if (!props.request) {
+    scheduleMeasureTable();
+    return;
+  }
+
   loading.value = true;
   try {
     const params: Record<string, unknown> = {
@@ -1505,7 +1547,7 @@ const loadData = async () => {
     const result = await props.request(params);
 
     if (result.success) {
-      dataSource.value = result.data as Record<string, unknown>[];
+      remoteDataSource.value = result.data as Record<string, unknown>[];
       total.value = result.total || result.data.length;
       scheduleMeasureTable();
     }
@@ -1617,7 +1659,7 @@ const getPaginationFallbackHeight = () => {
 };
 
 const getTitleFallbackHeight = () => {
-  if (!props.toolbar) return 0;
+  if (!toolbarConfig.value) return 0;
   return 32;
 };
 
@@ -1710,7 +1752,9 @@ onMounted(() => {
 
   initializeColumnStates();
   measureTableScroll();
-  loadData();
+  if (props.request) {
+    loadData();
+  }
 
   if (typeof ResizeObserver !== "undefined") {
     resizeObserver = new ResizeObserver(() => {
@@ -1795,7 +1839,7 @@ watch(
 );
 
 watch(
-  [searchCollapsed, dataSource, total, currentPage, pageSize, displayColumns],
+  [searchCollapsed, tableDataSource, effectiveTotal, currentPage, pageSize, displayColumns],
   () => {
     if (isResizingColumn.value) {
       return;
@@ -1965,6 +2009,11 @@ defineExpose({
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border-secondary);
     overflow: hidden;
+
+    &.content-layout {
+      flex: none;
+      min-height: auto;
+    }
 
     &.main-scroll-mode {
       overflow: auto;

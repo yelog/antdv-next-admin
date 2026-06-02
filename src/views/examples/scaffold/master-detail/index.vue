@@ -4,11 +4,15 @@
       <h2>{{ $t('examples.scaffold.masterDetail.title') }}</h2>
       <p class="text-secondary mb-lg">{{ $t('examples.scaffold.masterDetail.description') }}</p>
 
-      <a-table
+      <ProTable
+        layout="content"
         :columns="columns"
         :data-source="listData"
+        :search="false"
+        :toolbar="false"
         row-key="id"
         :pagination="{ pageSize: 8 }"
+        :show-index-column="false"
         :on-row="buildRowProps"
       >
         <template #bodyCell="{ column, record }">
@@ -16,7 +20,7 @@
             <a-tag :color="getStatusColor(record.status)">{{ getStatusText(record.status) }}</a-tag>
           </template>
         </template>
-      </a-table>
+      </ProTable>
     </div>
 
     <a-drawer
@@ -61,11 +65,12 @@
 </template>
 
 <script setup lang="ts">
-import type { ProDescriptionItem, ProDetailTab } from '@/types/pro';
+import type { ProDescriptionItem, ProDetailTab, ProTableColumn } from '@/types/pro';
 
 import { computed, ref } from 'vue';
 
 import ProDetail from '@/components/Pro/ProDetail/index.vue';
+import ProTable from '@/components/Pro/ProTable/index.vue';
 import { $t } from '@/locales';
 
 type TicketStatus = 'open' | 'processing' | 'closed';
@@ -128,7 +133,7 @@ const listData = ref<TicketRecord[]>(
   }),
 );
 
-const columns = computed(() => [
+const columns = computed<ProTableColumn[]>(() => [
   { title: $t('examples.scaffold.masterDetail.colTicketNumber'), dataIndex: 'id', width: 120 },
   { title: $t('examples.scaffold.masterDetail.colTitle'), dataIndex: 'title', ellipsis: true },
   { title: $t('examples.scaffold.masterDetail.colOwner'), dataIndex: 'owner', width: 120 },
