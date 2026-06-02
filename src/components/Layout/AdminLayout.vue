@@ -198,6 +198,7 @@ import type { MenuProps } from "antdv-next";
 import { DownOutlined, EllipsisOutlined } from "@antdv-next/icons";
 import {
   computed,
+  defineAsyncComponent,
   h,
   nextTick,
   onBeforeUnmount,
@@ -218,10 +219,11 @@ import { useWatermarkStore } from "@/stores/watermark";
 import { resolveLocaleText } from "@/utils/i18n";
 import { resolveIcon } from "@/utils/icon";
 
-import AICollabPanel from "./AICollabPanel.vue";
 import Header from "./Header.vue";
 import Sidebar from "./Sidebar.vue";
 import TabBar from "./TabBar.vue";
+
+const AICollabPanel = defineAsyncComponent(() => import("./AICollabPanel.vue"));
 
 type HorizontalMenuItems = NonNullable<MenuProps["items"]>;
 

@@ -1,9 +1,12 @@
-import { defineConfig } from "vite";
+import { AntdvNextResolver } from "@antdv-next/auto-import-resolver";
+import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
-import { mockDevServerPlugin } from "vite-plugin-mock-dev-server";
 import { fileURLToPath, URL } from "node:url";
+import Components from "unplugin-vue-components/vite";
+import { defineConfig } from "vite";
+import { mockDevServerPlugin } from "vite-plugin-mock-dev-server";
+
 import pkg from "./package.json";
-import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   base: "/",
@@ -12,6 +15,14 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    Components({
+      dts: false,
+      resolvers: [
+        AntdvNextResolver({
+          exclude: ["Select", "DatePicker", "DateRangePicker"],
+        }),
+      ],
+    }),
     tailwindcss(),
     mockDevServerPlugin({
       prefix: "/api",
@@ -53,12 +64,6 @@ export default defineConfig({
             id.includes("node_modules/pinia/")
           ) {
             return "vue-vendor";
-          }
-          if (
-            id.includes("node_modules/antdv-next/") ||
-            id.includes("node_modules/@antdv-next/")
-          ) {
-            return "antdv-vendor";
           }
           if (
             id.includes("node_modules/echarts/") ||

@@ -87,6 +87,7 @@
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@antdv-next/auto-import-resolver": "^1.1.0",
     "@faker-js/faker": "^10.4.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/lodash-es": "^4.17.12",
@@ -96,6 +97,8 @@
     "sass": "^1.69.7",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
+    "unplugin-auto-import": "^21.0.0",
+    "unplugin-vue-components": "^32.1.0",
     "vite": "^8.0.3",
     "vite-plugin-mock-dev-server": "^2.1.1",
     "vitest": "^4.0.14",

@@ -97,12 +97,15 @@ import {
   RiseOutlined,
   ClockCircleOutlined,
 } from '@antdv-next/icons';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue';
 
-import ProChart from '@/components/Pro/ProChart/index.vue';
 import ProStatCard from '@/components/Pro/ProStatCard/index.vue';
 import i18n, { $t } from '@/locales';
 import { useAuthStore } from '@/stores/auth';
+
+const ProChart = defineAsyncComponent(
+  () => import('@/components/Pro/ProChart/index.vue'),
+);
 
 const authStore = useAuthStore();
 

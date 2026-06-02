@@ -42,7 +42,7 @@
               class="ip-search"
             >
               <template #prefix>
-                <IconView icon="ant-design:search-outlined" color="#999" />
+                <IconView icon="antdv-next:SearchOutlined" color="#999" />
               </template>
             </a-input>
           </div>
@@ -115,14 +115,15 @@
 </template>
 
 <script setup lang="ts">
-import * as AntdvIcons from "@antdv-next/icons";
-import ion from "@iconify-json/ion/icons.json";
-import mdi from "@iconify-json/mdi/icons.json";
-import ri from "@iconify-json/ri/icons.json";
 import { computed, h, nextTick, onBeforeUnmount, ref, watch } from "vue";
 
 import IconView from "@/components/Icon/index.vue";
 import { $t } from "@/locales";
+import {
+  loadLocalIconifySet,
+  type IconsJson,
+  type LocalIconifyPrefix,
+} from "@/utils/iconify";
 
 type Category = "all" | "ri" | "mdi" | "ion" | "antdv-next" | "svg" | "online";
 
@@ -134,11 +135,6 @@ interface Props {
   svgIcons?: string[];
   svgPrefix?: string;
   onlineLimit?: number;
-}
-
-interface IconsJson {
-  icons?: Record<string, unknown>;
-  aliases?: Record<string, unknown>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -187,6 +183,11 @@ const category = ref<Category>("all");
 const keyword = ref("");
 const page = ref(1);
 const searchRef = ref<{ focus?: () => void } | null>(null);
+const riNames = ref<string[]>([]);
+const mdiNames = ref<string[]>([]);
+const ionNames = ref<string[]>([]);
+const antdvIconNames = ref<string[]>([]);
+let antdvIconsLoadPromise: Promise<void> | null = null;
 
 const iconifyNames = (prefix: string, json: IconsJson) => {
   const names = [
@@ -194,6 +195,25 @@ const iconifyNames = (prefix: string, json: IconsJson) => {
     ...Object.keys(json.aliases || {}),
   ];
   return names.map((name) => `${prefix}:${name}`);
+};
+
+const loadIconifySet = (prefix: LocalIconifyPrefix) =>
+  loadLocalIconifySet(prefix).then((iconsJson) => {
+    const names = iconifyNames(prefix, iconsJson);
+    if (prefix === "ri") {
+      riNames.value = names;
+    } else if (prefix === "mdi") {
+      mdiNames.value = names;
+    } else {
+      ionNames.value = names;
+    }
+  });
+
+const loadOfflineIconSets = () => {
+  void loadIconifySet("ri");
+  void loadIconifySet("mdi");
+  void loadIconifySet("ion");
+  void loadAntdvIcons();
 };
 
 const normalizeSvgName = (name: string) => {
@@ -218,14 +238,28 @@ const extractSvgSymbolName = (path: string) => {
 
 const dedupe = (items: string[]) => Array.from(new Set(items));
 
-const riAll = computed(() => iconifyNames("ri", ri as IconsJson));
-const mdiAll = computed(() => iconifyNames("mdi", mdi as IconsJson));
-const ionAll = computed(() => iconifyNames("ion", ion as IconsJson));
+const riAll = computed(() => riNames.value);
+const mdiAll = computed(() => mdiNames.value);
+const ionAll = computed(() => ionNames.value);
+
+const loadAntdvIcons = async () => {
+  if (antdvIconsLoadPromise) {
+    return antdvIconsLoadPromise;
+  }
+
+  antdvIconsLoadPromise = import("@antdv-next/icons").then((icons) => {
+    antdvIconNames.value = Object.keys(icons)
+      .filter((name) => /(Outlined|Filled|TwoTone)$/.test(name))
+      .map((name) => `antdv-next:${name}`);
+  });
+
+  return antdvIconsLoadPromise;
+};
 
 const antdvAll = computed(() =>
-  Object.keys(AntdvIcons)
+  antdvIconNames.value
     .filter((name) => /(Outlined|Filled|TwoTone)$/.test(name))
-    .map((name) => `antdv-next:${name}`),
+    .map((name) => (name.startsWith("antdv-next:") ? name : `antdv-next:${name}`)),
 );
 
 const svgAll = computed(() => {
@@ -516,6 +550,12 @@ const onInputChange = () => {
 
 const onCategoryChange = () => {
   page.value = 1;
+  if (category.value === "ri" || category.value === "mdi" || category.value === "ion") {
+    void loadIconifySet(category.value);
+  }
+  if (category.value === "antdv-next") {
+    void loadAntdvIcons();
+  }
   focusSearch();
 };
 
@@ -524,6 +564,7 @@ const onOpenChange = (next: boolean) => {
     inputSnapshot.value = editableValue.value;
     category.value = detectCategoryByIcon(boundValue.value.trim());
     page.value = 1;
+    loadOfflineIconSets();
     focusSearch();
   } else {
     editableValue.value = inputSnapshot.value;

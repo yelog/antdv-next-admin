@@ -112,9 +112,11 @@
 <script setup lang="ts">
 import { EditOutlined } from "@antdv-next/icons";
 import { message } from "antdv-next";
-import { ref, computed, watch, type PropType } from "vue";
+import { ref, computed, defineAsyncComponent, watch, type PropType } from "vue";
 
-import ProCodeEditor from "@/components/Pro/ProCodeEditor/index.vue";
+const ProCodeEditor = defineAsyncComponent(
+  () => import("@/components/Pro/ProCodeEditor/index.vue"),
+);
 
 import JsonFieldTreeList, {
   type FieldType,

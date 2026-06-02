@@ -1,6 +1,6 @@
 import type { App, Component } from "vue";
 
-import { Select, DatePicker, DateRangePicker } from "antdv-next";
+import { DatePicker, DateRangePicker, Select } from "antdv-next";
 import { defineComponent, h } from "vue";
 
 import { appDefaultSettings } from "@/settings";

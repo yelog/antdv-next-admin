@@ -1,4 +1,3 @@
-import AntdvNext from 'antdv-next';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
@@ -19,7 +18,6 @@ const app = createApp(App);
 
 // Register plugins
 app.use(createPinia());
-app.use(AntdvNext);
 app.use(router);
 app.use(i18n);
 registerDefaultComponentProps(app);

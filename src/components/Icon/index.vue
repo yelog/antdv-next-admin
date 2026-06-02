@@ -15,15 +15,23 @@
     <use :href="`#${svgId}`" />
   </svg>
 
-  <IconifyIcon v-else class="app-icon" :icon="iconifyIcon" :style="[baseStyle, props.style]" />
+  <IconifyIcon
+    v-else-if="canRenderIconify"
+    class="app-icon"
+    :icon="iconifyIcon"
+    :style="[baseStyle, props.style]"
+  />
+
+  <span v-else class="app-icon" :style="[baseStyle, props.style]" />
 </template>
 
 <script setup lang="ts">
-import type { StyleValue } from 'vue';
+import type { Component, StyleValue } from 'vue';
 
-import * as AntdvIcons from '@antdv-next/icons';
 import { Icon as IconifyIcon } from '@iconify/vue';
-import { computed } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
+
+import { isLocalIconifyPrefix, loadLocalIconifySet } from '@/utils/iconify';
 
 type NormalizedIconKind = 'iconify' | 'antdv-next' | 'svg';
 type IconKind = NormalizedIconKind | 'antdvNext' | 'antd';
@@ -76,14 +84,48 @@ const antdvKey = computed(() => {
   return stripPrefix(stripPrefix(iconText.value, 'antdv-next:'), 'antd:');
 });
 
-const antdvComp = computed(() => {
-  const icons = AntdvIcons as Record<string, unknown>;
-  return icons[antdvKey.value] || icons.QuestionOutlined;
+const antdvComp = shallowRef<Component>();
+const localIconifyReady = ref(true);
+
+watch([resolvedKind, antdvKey], async ([kind, key]) => {
+  if (kind !== 'antdv-next') {
+    antdvComp.value = undefined;
+    return;
+  }
+
+  const icons = (await import('@antdv-next/icons')) as Record<string, Component>;
+  antdvComp.value = icons[key] || icons.QuestionOutlined;
+}, {
+  immediate: true,
 });
 
 const svgId = computed(() => stripPrefix(iconText.value, 'svg:'));
 
 const iconifyIcon = computed(() => stripPrefix(iconText.value, 'iconify:'));
+
+const iconifyPrefix = computed(() => {
+  const [prefix] = iconifyIcon.value.split(':');
+  return prefix || '';
+});
+
+const canRenderIconify = computed(() => {
+  return resolvedKind.value === 'iconify' && localIconifyReady.value;
+});
+
+watch([resolvedKind, iconifyPrefix], async ([kind, prefix]) => {
+  if (kind !== 'iconify' || !isLocalIconifyPrefix(prefix)) {
+    localIconifyReady.value = true;
+    return;
+  }
+
+  localIconifyReady.value = false;
+  await loadLocalIconifySet(prefix);
+  if (resolvedKind.value === 'iconify' && iconifyPrefix.value === prefix) {
+    localIconifyReady.value = true;
+  }
+}, {
+  immediate: true,
+});
 
 const sizeCss = computed(() => {
   return typeof props.size === 'number' ? `${props.size}px` : props.size;
