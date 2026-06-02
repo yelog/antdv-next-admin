@@ -112,11 +112,20 @@ const asNumber = (val: unknown): number | undefined => {
   return typeof val === "number" ? val : undefined;
 };
 
-const getEnumConfig = (value: unknown) => {
-  if (typeof value === "string" || typeof value === "number") {
-    return props.enum?.[value];
+const getEnumKey = (value: unknown) => {
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
+    return String(value);
   }
   return undefined;
+};
+
+const getEnumConfig = (value: unknown) => {
+  const key = getEnumKey(value);
+  return key ? props.enum?.[key] : undefined;
 };
 
 const getBadgeStatus = (value: unknown): BadgeStatus | undefined => {

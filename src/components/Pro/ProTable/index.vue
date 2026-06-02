@@ -478,6 +478,7 @@ interface Props {
   ellipsis?: boolean;
   bordered?: boolean;
   fixedHeader?: boolean;
+  showIndexColumn?: boolean;
   // Built-in CRUD modal
   formItems?: ProFormItem[];
   formGrid?: ProFormGrid;
@@ -616,6 +617,7 @@ const props = withDefaults(defineProps<Props>(), {
   ellipsis: appDefaultSettings.proTable.ellipsis,
   bordered: appDefaultSettings.proTable.bordered,
   fixedHeader: appDefaultSettings.proTable.fixedHeader,
+  showIndexColumn: true,
   pagination: () => ({
     showSizeChanger: true,
     showQuickJumper: true,
@@ -678,8 +680,8 @@ interface TableSorterItem {
 
 const tableSorter = ref<TableSorterItem | TableSorterItem[] | null>(null);
 
-const showIndexColumn = ref(true);
-const defaultShowIndexColumn = ref(true);
+const showIndexColumn = ref(props.showIndexColumn);
+const defaultShowIndexColumn = computed(() => props.showIndexColumn);
 const columnStates = ref<ColumnState[]>([]);
 const defaultColumnStates = ref<ColumnState[]>([]);
 const draggingColumnKey = ref("");

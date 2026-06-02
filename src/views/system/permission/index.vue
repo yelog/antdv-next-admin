@@ -10,10 +10,11 @@
         defaultCollapsed: false,
       }"
       :pagination="false"
+      :show-index-column="false"
       row-key="id"
       :expanded-row-keys="expandedRowKeys"
       :children-column-name="'children'"
-      :expandable="{ expandIconColumnIndex: 1 }"
+      :expandable="{ expandIconColumnIndex: 0 }"
       @expanded-rows-change="handleExpandedRowsChange"
     >
       <template #toolbar-actions>
@@ -95,10 +96,8 @@ type PermissionFormValues = {
   component: string;
   icon: string;
   sort: number;
-  status: "active" | "inactive";
+  status: boolean;
   visible: boolean;
-  resource: string;
-  action: string;
 };
 
 type PermissionMode = "create" | "edit";
@@ -135,11 +134,6 @@ const permissionTypeOptions = computed(() => [
   { label: $t("permission.menu"), value: "menu" },
   { label: $t("permission.button"), value: "button" },
   { label: $t("permission.api"), value: "api" },
-]);
-
-const statusOptions = computed(() => [
-  { label: $t("user.active"), value: "active" },
-  { label: $t("user.inactive"), value: "inactive" },
 ]);
 
 const currentType = computed(() => formValues.value.type || "menu");
@@ -226,7 +220,10 @@ const columns = computed((): ProTableColumn[] => [
     dataIndex: "status",
     search: true,
     searchType: "select",
-    searchOptions: statusOptions.value,
+    searchOptions: [
+      { label: $t("user.active"), value: "active" },
+      { label: $t("user.inactive"), value: "inactive" },
+    ],
     width: 120,
     valueType: "badge",
     valueEnum: permissionStatusValueEnum.value,
@@ -301,8 +298,12 @@ const formItems = computed<ProFormItem[]>(() => [
   {
     name: "status",
     label: $t("common.status"),
-    type: "radio",
-    options: statusOptions.value,
+    type: "switch",
+    valuePropName: "checked",
+    props: {
+      checkedChildren: $t("user.active"),
+      unCheckedChildren: $t("user.inactive"),
+    },
   },
   {
     name: "path",
@@ -349,16 +350,6 @@ const formItems = computed<ProFormItem[]>(() => [
     },
   },
   {
-    name: "resource",
-    label: $t("permission.resource"),
-    type: "input",
-  },
-  {
-    name: "action",
-    label: $t("permission.action"),
-    type: "input",
-  },
-  {
     name: "description",
     label: $t("role.description"),
     type: "textarea",
@@ -391,10 +382,8 @@ function createDefaultFormValues(): PermissionFormValues {
     component: "",
     icon: "",
     sort: 0,
-    status: "active",
+    status: true,
     visible: true,
-    resource: "",
-    action: "view",
   };
 }
 
@@ -493,8 +482,6 @@ const handleCreateChild = (record: Permission) => {
     ...createDefaultFormValues(),
     parentId: record.id,
     type: "menu" as const,
-    resource: record.path || "",
-    action: "view",
   };
   formData.value = initialValues;
   formValues.value = initialValues;
@@ -514,10 +501,8 @@ const handleEdit = (record: Permission) => {
     component: record.component || "",
     icon: record.icon || "",
     sort: record.sort ?? 0,
-    status: record.status || "active",
+    status: record.status !== "inactive",
     visible: record.visible !== false,
-    resource: record.resource || "",
-    action: record.action || (record.type === "menu" ? "view" : "*"),
   };
   formData.value = initialValues;
   formValues.value = initialValues;
@@ -566,7 +551,7 @@ const handleSubmit = async () => {
     type: values.type,
     description: values.description?.trim(),
     parentId: values.parentId,
-    status: values.status,
+    status: values.status ? "active" : "inactive",
     visible: values.visible,
     sort: Number(values.sort ?? 0),
     path:
@@ -577,10 +562,10 @@ const handleSubmit = async () => {
         : undefined,
     icon: values.type === "menu" ? values.icon?.trim() || undefined : undefined,
     resource:
-      values.resource?.trim() ||
-      normalizePath(values.path?.trim()) ||
-      values.code?.trim(),
-    action: values.action?.trim() || (values.type === "menu" ? "view" : "*"),
+      values.type === "menu"
+        ? normalizePath(values.path?.trim())
+        : values.code?.trim().replace(/\.[^.]+$/, ""),
+    action: values.type === "menu" ? "view" : values.code?.trim().split(".").pop() || "*",
   };
 
   submitting.value = true;
