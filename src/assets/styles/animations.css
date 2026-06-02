@@ -15,7 +15,9 @@
 /* Slide Left */
 .slide-left-enter-active,
 .slide-left-leave-active {
-  transition: all var(--duration-slow) var(--ease-in-out);
+  transition:
+    transform var(--duration-slow) ease,
+    opacity var(--duration-slow) ease;
 }
 .slide-left-enter-from {
   transform: translateX(30px);
@@ -29,7 +31,9 @@
 /* Slide Right */
 .slide-right-enter-active,
 .slide-right-leave-active {
-  transition: all var(--duration-slow) var(--ease-in-out);
+  transition:
+    transform var(--duration-slow) ease,
+    opacity var(--duration-slow) ease;
 }
 .slide-right-enter-from {
   transform: translateX(-30px);
@@ -43,7 +47,9 @@
 /* Slide Up */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: all var(--duration-slow) var(--ease-in-out);
+  transition:
+    transform var(--duration-slow) ease,
+    opacity var(--duration-slow) ease;
 }
 .slide-up-enter-from {
   transform: translateY(24px);
@@ -57,7 +63,9 @@
 /* Slide Down */
 .slide-down-enter-active,
 .slide-down-leave-active {
-  transition: all var(--duration-slow) var(--ease-in-out);
+  transition:
+    transform var(--duration-slow) ease,
+    opacity var(--duration-slow) ease;
 }
 .slide-down-enter-from {
   transform: translateY(-24px);
@@ -71,7 +79,9 @@
 /* Zoom */
 .zoom-enter-active,
 .zoom-leave-active {
-  transition: all var(--duration-slow) var(--ease-out-back);
+  transition:
+    transform var(--duration-slow) ease,
+    opacity var(--duration-slow) ease;
 }
 .zoom-enter-from,
 .zoom-leave-to {
@@ -82,7 +92,9 @@
 /* Zoom Big */
 .zoom-big-enter-active,
 .zoom-big-leave-active {
-  transition: all var(--duration-slow) var(--ease-out-back);
+  transition:
+    transform var(--duration-slow) ease,
+    opacity var(--duration-slow) ease;
 }
 .zoom-big-enter-from {
   transform: scale(0.8);

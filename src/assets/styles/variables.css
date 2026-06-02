@@ -53,7 +53,7 @@
   /* ========== Animation Duration ========== */
   --duration-fast: 0.1s;
   --duration-base: 0.2s;
-  --duration-slow: 0.3s;
+  --duration-slow: 0.15s;
   --duration-slower: 0.5s;
 
   /* ========== Easing Functions ========== */

@@ -40,10 +40,7 @@
               <div class="page-workspace-main">
                 <div class="page-scroll">
                   <router-view v-slot="{ Component }">
-                    <transition
-                      :name="settingsStore.pageAnimation"
-                      mode="out-in"
-                    >
+                    <transition :name="settingsStore.pageAnimation" mode="out-in">
                       <keep-alive :include="cachedTabs">
                         <component :is="Component" :key="pageViewKey" />
                       </keep-alive>
@@ -80,16 +77,11 @@
 
       <!-- Horizontal Layout -->
       <template v-else>
-        <a-layout-header
-          v-if="!layoutStore.pageFullscreen"
-          class="horizontal-header"
-        >
+        <a-layout-header v-if="!layoutStore.pageFullscreen" class="horizontal-header">
           <div class="header-left">
             <div class="logo">
               <img :src="logoImg" alt="Logo" />
-              <span class="logo-title">{{
-                $t("common.appName") || "Antdv Next Admin"
-              }}</span>
+              <span class="logo-title">{{ $t('common.appName') || 'Antdv Next Admin' }}</span>
             </div>
 
             <div ref="menuAreaRef" class="horizontal-menu-area">
@@ -117,11 +109,7 @@
           <div class="header-right">
             <Header :show-breadcrumb="false" :show-collapse-button="false" />
           </div>
-          <div
-            ref="measureMenuWrapRef"
-            class="horizontal-menu-measure-wrap"
-            aria-hidden="true"
-          >
+          <div ref="measureMenuWrapRef" class="horizontal-menu-measure-wrap" aria-hidden="true">
             <a-menu
               class="horizontal-menu-measure"
               mode="horizontal"
@@ -137,10 +125,7 @@
             <TabBar />
 
             <!-- Page Content -->
-            <div
-              class="page-content"
-              :class="{ 'is-iframe-page': isIframePage }"
-            >
+            <div class="page-content" :class="{ 'is-iframe-page': isIframePage }">
               <div
                 ref="workspaceRef"
                 class="page-workspace"
@@ -149,10 +134,7 @@
                 <div class="page-workspace-main">
                   <div class="page-scroll">
                     <router-view v-slot="{ Component }">
-                      <transition
-                        :name="settingsStore.pageAnimation"
-                        mode="out-in"
-                      >
+                      <transition :name="settingsStore.pageAnimation" mode="out-in">
                         <keep-alive :include="cachedTabs">
                           <component :is="Component" :key="pageViewKey" />
                         </keep-alive>
@@ -192,10 +174,10 @@
 </template>
 
 <script setup lang="ts">
-import type { MenuItem as MenuItemType } from "@/types/router";
-import type { MenuProps } from "antdv-next";
+import type { MenuItem as MenuItemType } from '@/types/router';
+import type { MenuProps } from 'antdv-next';
 
-import { DownOutlined, EllipsisOutlined } from "@antdv-next/icons";
+import { DownOutlined, EllipsisOutlined } from '@antdv-next/icons';
 import {
   computed,
   defineAsyncComponent,
@@ -205,27 +187,27 @@ import {
   onMounted,
   ref,
   watch,
-} from "vue";
-import { useRoute, useRouter } from "vue-router";
+} from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-import logoImg from "@/assets/images/logo.png";
-import { basicRoutes } from "@/router/routes";
-import { routesToMenuTree } from "@/router/utils";
-import { useLayoutStore } from "@/stores/layout";
-import { usePermissionStore } from "@/stores/permission";
-import { useSettingsStore } from "@/stores/settings";
-import { useTabsStore } from "@/stores/tabs";
-import { useWatermarkStore } from "@/stores/watermark";
-import { resolveLocaleText } from "@/utils/i18n";
-import { resolveIcon } from "@/utils/icon";
+import logoImg from '@/assets/images/logo.png';
+import { basicRoutes } from '@/router/routes';
+import { routesToMenuTree } from '@/router/utils';
+import { useLayoutStore } from '@/stores/layout';
+import { usePermissionStore } from '@/stores/permission';
+import { useSettingsStore } from '@/stores/settings';
+import { useTabsStore } from '@/stores/tabs';
+import { useWatermarkStore } from '@/stores/watermark';
+import { resolveLocaleText } from '@/utils/i18n';
+import { resolveIcon } from '@/utils/icon';
 
-import Header from "./Header.vue";
-import Sidebar from "./Sidebar.vue";
-import TabBar from "./TabBar.vue";
+import Header from './Header.vue';
+import Sidebar from './Sidebar.vue';
+import TabBar from './TabBar.vue';
 
-const AICollabPanel = defineAsyncComponent(() => import("./AICollabPanel.vue"));
+const AICollabPanel = defineAsyncComponent(() => import('./AICollabPanel.vue'));
 
-type HorizontalMenuItems = NonNullable<MenuProps["items"]>;
+type HorizontalMenuItems = NonNullable<MenuProps['items']>;
 
 const route = useRoute();
 const router = useRouter();
@@ -255,15 +237,11 @@ const cachedTabs = computed(() => tabsStore.cachedTabs);
 const pageViewKey = computed(() => route.path);
 
 const isIframePage = computed(() => {
-  return route.path.includes("/iframe/");
+  return route.path.includes('/iframe/');
 });
 
 const isAICollabActive = computed(() => {
-  return (
-    layoutStore.aiCollabEnabled &&
-    !layoutStore.isMobile &&
-    !layoutStore.pageFullscreen
-  );
+  return layoutStore.aiCollabEnabled && !layoutStore.isMobile && !layoutStore.pageFullscreen;
 });
 
 const maxAiPanelWidth = computed(() => {
@@ -276,10 +254,7 @@ const maxAiPanelWidth = computed(() => {
 });
 
 const effectiveAiPanelWidth = computed(() => {
-  return Math.max(
-    MIN_AI_PANEL_WIDTH,
-    Math.min(layoutStore.aiPanelWidth, maxAiPanelWidth.value),
-  );
+  return Math.max(MIN_AI_PANEL_WIDTH, Math.min(layoutStore.aiPanelWidth, maxAiPanelWidth.value));
 });
 
 const fallbackMenuItems = computed(() => {
@@ -306,9 +281,9 @@ const convertHorizontalMenus = (
       const hasChildren = childMenus.length > 0;
       const label =
         hasChildren && showCustomSubmenuArrow
-          ? h("span", { class: "horizontal-submenu-label" }, [
-              h("span", { class: "horizontal-submenu-text" }, text),
-              h(DownOutlined, { class: "horizontal-submenu-arrow" }),
+          ? h('span', { class: 'horizontal-submenu-label' }, [
+              h('span', { class: 'horizontal-submenu-text' }, text),
+              h(DownOutlined, { class: 'horizontal-submenu-arrow' }),
             ])
           : text;
 
@@ -342,13 +317,10 @@ const dropdownOverflowMenuItems = computed<HorizontalMenuItems>(() => {
 });
 
 function isExternalLinkPath(path: string): boolean {
-  return path.startsWith("http://") || path.startsWith("https://");
+  return path.startsWith('http://') || path.startsWith('https://');
 }
 
-function findMenuByPath(
-  menus: MenuItemType[],
-  targetPath: string,
-): MenuItemType | null {
+function findMenuByPath(menus: MenuItemType[], targetPath: string): MenuItemType | null {
   for (const item of menus) {
     if ((item.path || item.id) === targetPath) {
       return item;
@@ -369,21 +341,14 @@ const horizontalSelectedKeys = computed(() => {
   const currentMenuItem = findMenuByPath(menuItems.value, route.path);
 
   // Don't set selected state if current menu item is an external link
-  if (
-    currentMenuItem &&
-    currentMenuItem.path &&
-    isExternalLinkPath(currentMenuItem.path)
-  ) {
+  if (currentMenuItem && currentMenuItem.path && isExternalLinkPath(currentMenuItem.path)) {
     return [];
   }
 
   return [route.path];
 });
 const normalizedVisibleMenuCount = computed(() => {
-  return Math.max(
-    0,
-    Math.min(visibleMenuCount.value, horizontalMenuItems.value.length),
-  );
+  return Math.max(0, Math.min(visibleMenuCount.value, horizontalMenuItems.value.length));
 });
 
 const visibleHorizontalMenuItems = computed<HorizontalMenuItems>(() => {
@@ -391,31 +356,29 @@ const visibleHorizontalMenuItems = computed<HorizontalMenuItems>(() => {
 });
 
 const overflowHorizontalMenuItems = computed<HorizontalMenuItems>(() => {
-  return dropdownOverflowMenuItems.value.slice(
-    normalizedVisibleMenuCount.value,
-  );
+  return dropdownOverflowMenuItems.value.slice(normalizedVisibleMenuCount.value);
 });
 
 const handleHorizontalMenuClick = ({ key }: { key: string | number }) => {
-  if (typeof key !== "string") return;
+  if (typeof key !== 'string') return;
 
   // External links: open in a new tab
   // No need to change selectedKeys as horizontalSelectedKeys is a computed property
   // based on route.path, which won't change when opening external links
-  if (key.startsWith("http://") || key.startsWith("https://")) {
-    window.open(key, "_blank", "noopener,noreferrer");
+  if (key.startsWith('http://') || key.startsWith('https://')) {
+    window.open(key, '_blank', 'noopener,noreferrer');
     return;
   }
 
   // Internal routes
-  if (key.startsWith("/")) {
+  if (key.startsWith('/')) {
     router.push(key);
   }
 };
 
 const overflowMenuProps = computed(() => ({
   items: overflowHorizontalMenuItems.value,
-  triggerSubMenuAction: "hover" as const,
+  triggerSubMenuAction: 'hover' as const,
   onClick: handleHorizontalMenuClick,
 }));
 
@@ -442,7 +405,7 @@ const stopAiResize = () => {
     return;
   }
   isAiResizing.value = false;
-  document.body.classList.remove("is-ai-panel-resizing");
+  document.body.classList.remove('is-ai-panel-resizing');
 };
 
 const handleAiResizeMove = (event: MouseEvent) => {
@@ -452,10 +415,7 @@ const handleAiResizeMove = (event: MouseEvent) => {
 
   const rect = workspaceRef.value.getBoundingClientRect();
   const nextWidth = rect.right - event.clientX;
-  const clampedWidth = Math.max(
-    MIN_AI_PANEL_WIDTH,
-    Math.min(nextWidth, maxAiPanelWidth.value),
-  );
+  const clampedWidth = Math.max(MIN_AI_PANEL_WIDTH, Math.min(nextWidth, maxAiPanelWidth.value));
   layoutStore.setAiPanelWidth(clampedWidth);
 };
 
@@ -466,7 +426,7 @@ const startAiResize = (event: MouseEvent) => {
 
   event.preventDefault();
   isAiResizing.value = true;
-  document.body.classList.add("is-ai-panel-resizing");
+  document.body.classList.add('is-ai-panel-resizing');
 };
 
 const measureHorizontalMenuItemWidths = () => {
@@ -477,7 +437,7 @@ const measureHorizontalMenuItemWidths = () => {
   }
 
   const itemElements = wrap.querySelectorAll(
-    ".ant-menu-root > .ant-menu-item, .ant-menu-root > .ant-menu-submenu",
+    '.ant-menu-root > .ant-menu-item, .ant-menu-root > .ant-menu-submenu',
   );
   measuredTopMenuWidths.value = Array.from(itemElements).map((element) => {
     return Math.ceil((element as HTMLElement).getBoundingClientRect().width);
@@ -542,10 +502,10 @@ onMounted(() => {
   scheduleMenuLayout();
   updateWorkspaceWidth();
   syncAiPanelWidth();
-  window.addEventListener("mousemove", handleAiResizeMove);
-  window.addEventListener("mouseup", stopAiResize);
+  window.addEventListener('mousemove', handleAiResizeMove);
+  window.addEventListener('mouseup', stopAiResize);
 
-  if (typeof ResizeObserver !== "undefined") {
+  if (typeof ResizeObserver !== 'undefined') {
     resizeObserver = new ResizeObserver(() => {
       scheduleMenuLayout();
     });
@@ -555,8 +515,7 @@ onMounted(() => {
     });
 
     if (menuAreaRef.value) resizeObserver.observe(menuAreaRef.value);
-    if (measureMenuWrapRef.value)
-      resizeObserver.observe(measureMenuWrapRef.value);
+    if (measureMenuWrapRef.value) resizeObserver.observe(measureMenuWrapRef.value);
     if (workspaceRef.value) workspaceResizeObserver.observe(workspaceRef.value);
   }
 });
@@ -567,8 +526,8 @@ onBeforeUnmount(() => {
     rafId = 0;
   }
   stopAiResize();
-  window.removeEventListener("mousemove", handleAiResizeMove);
-  window.removeEventListener("mouseup", stopAiResize);
+  window.removeEventListener('mousemove', handleAiResizeMove);
+  window.removeEventListener('mouseup', stopAiResize);
   resizeObserver?.disconnect();
   resizeObserver = null;
   workspaceResizeObserver?.disconnect();
@@ -896,7 +855,7 @@ watch(
     flex-shrink: 0;
 
     &::before {
-      content: "";
+      content: '';
       position: absolute;
       left: 50%;
       top: 50%;
@@ -904,11 +863,7 @@ watch(
       width: 2px;
       height: 42px;
       border-radius: 999px;
-      background: color-mix(
-        in srgb,
-        var(--color-primary) 35%,
-        var(--color-border-secondary)
-      );
+      background: color-mix(in srgb, var(--color-primary) 35%, var(--color-border-secondary));
       opacity: 0.4;
       transition: opacity var(--duration-base) var(--ease-out);
     }
@@ -919,6 +874,7 @@ watch(
   }
 
   .page-scroll {
+    position: relative;
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
