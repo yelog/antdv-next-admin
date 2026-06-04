@@ -2,13 +2,15 @@ import type { User } from "@/types/auth";
 
 import { faker } from "@faker-js/faker";
 
+const avatarImg = "/src/assets/images/avatar-256.png";
+
 // Generate mock users
 export const mockUsers: User[] = Array.from({ length: 50 }, () => ({
   id: faker.string.uuid(),
   username: faker.internet.username(),
   email: faker.internet.email(),
   realName: faker.person.fullName(),
-  avatar: faker.image.avatar(),
+  avatar: avatarImg,
   phone: `1${faker.string.numeric(10)}`,
   gender: faker.helpers.arrayElement(["male", "female"] as const),
   birthDate: faker.date
@@ -29,7 +31,7 @@ export const adminUser: User = {
   username: "admin",
   email: "admin@example.com",
   realName: "Administrator",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+  avatar: avatarImg,
   phone: "13800138000",
   gender: "male",
   birthDate: "1990-01-01",
@@ -67,7 +69,7 @@ export const regularUser: User = {
   username: "user",
   email: "user@example.com",
   realName: "Regular User",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=user",
+  avatar: avatarImg,
   phone: "13800138001",
   gender: "female",
   birthDate: "1995-05-15",

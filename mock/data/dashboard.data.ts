@@ -1,5 +1,7 @@
 import { faker } from '@faker-js/faker';
 
+const avatarImg = "/src/assets/images/avatar-256.png";
+
 // Statistics data
 export const mockStats = {
   totalUsers: 12458,
@@ -34,7 +36,7 @@ export const mockUserDistribution = [
 export const mockActivities = Array.from({ length: 10 }, () => ({
   id: faker.string.uuid(),
   user: faker.person.fullName(),
-  avatar: faker.image.avatar(),
+  avatar: avatarImg,
   action: faker.helpers.arrayElement([
     'Created a new user',
     'Updated role permissions',
