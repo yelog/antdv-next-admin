@@ -8,15 +8,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **antdv-next** (Ant Design Vue) - UI component library
 - **Pinia** - State management
 - **Vue Router** - Routing with dynamic route generation
-- **vue-i18n** - Internationalization (Chinese/English)
+- **vue-i18n** - Internationalization (zh-CN, en-US, ja-JP, ko-KR)
+- **Tailwind CSS 4** - Utility-first CSS (bridged to theme CSS variables)
+- **Codemirror 6** - Code editor with 14 language modes and 7 themes
 - **Vite** - Build tool
 - Full RBAC permission system with dynamic routes
-- Mock data system for development
+- Mock data system for development and static demo hosting
 
 ## Environment Requirements
 
-- Node.js >= 16
-- npm >= 8
+- Node.js >= 18
+- npm >= 9
 
 ## Common Commands
 
@@ -27,13 +29,33 @@ npm run dev              # Start dev server on http://localhost:3000
 # Building
 npm run build            # Production build
 npm run build:check      # Type check before build
+npm run build:demo       # Demo build (static hosting w/ browser-side mock)
+npm run build:demo:check # Type check + demo build
 npm run preview          # Preview production build
 
 # Type Checking
-npm run type-check       # TypeScript type checking
+npm run type-check       # TypeScript type checking (vue-tsc --noEmit)
+
+# Testing (Vitest)
+npm run test:unit        # Run unit tests in watch mode
+npm run test:unit:run    # Run unit tests once
+
+# Linting (oxlint)
+npm run lint             # Lint src/ and mock/
+npm run lint:fix         # Auto-fix lint issues
+
+# Formatting (oxfmt)
+npm run format           # Format src/ and mock/
+npm run format:check     # Check formatting without writing
 ```
 
-**Note**: This project currently has no test or lint scripts configured.
+**Vitest config** (`vitest.config.ts`): `environment: 'node'`, `globals: false` (must import `describe`/`it`/`expect` from vitest). Test files: `tests/unit/**/*.spec.ts`. No jsdom/happy-dom — tests run in a Node environment.
+
+**Oxlint config** (`.oxlintrc.json`): Vue/TypeScript/import plugins. `correctness: error`, `suspicious: warn`, `perf: warn`. `no-explicit-any: warn`, `no-unused-vars: warn`, `import/no-duplicates: error`. Console allowed in `mock/` directory only.
+
+**Oxfmt config** (`.oxfmtrc.json`): 100 char print width, 2-space tabs, single quotes, semicolons, trailing commas, sorted imports (type-imports first, then builtin/external, then internal, then parent/sibling/index).
+
+Before committing, run `npm run type-check && npm run lint && npm run build` to verify.
 
 ## Architecture
 
@@ -48,6 +70,9 @@ All stores use the **setup syntax** pattern. Located in `src/stores/`:
 - **tabs** - Multi-tab system with KeepAlive caching, affix tabs, right-click menu
 - **settings** - User preferences (animations, gray mode, menu theme, etc.)
 - **notification** - Notification panel state
+- **dict** - Dictionary data caching
+- **watermark** - Global watermark configuration
+- **demoStateCache** - Demo state persistence for examples
 
 **Key Pattern**: Store initialization happens in router guards. Auth store includes both demo mode (mock) and production mode (real API) login flows.
 
@@ -119,6 +144,28 @@ Three ways to check permissions:
 - Available mock APIs: auth, users, roles, permissions, dashboard
 - Supports pagination, search, CRUD operations
 
+**Browser Mock** (`src/mock/browser/`):
+- For static hosting (GitHub Pages demo), uses `axios-mock-adapter` to intercept API calls client-side
+- Enabled when `VITE_DEMO_MODE=true` (set in `.env.demo`)
+- `src/main.ts` conditionally imports and sets up browser mock on app startup
+- Also handles SPA routing fallback for GitHub Pages (`restoreGitHubPagesRedirect`)
+
+### Build Modes
+
+| Script | Env File | VITE_USE_MOCK | VITE_DEMO_MODE | Mock Type |
+|--------|----------|---------------|----------------|-----------|
+| `dev` | `.env.development` | true | — | Server-side |
+| `build` | `.env.production` | false | false | None (real API) |
+| `build:demo` | `.env.demo` | true | true | Browser-side |
+
+Vite build splits vendor chunks: `vue-vendor` (vue/vue-router/pinia) and `chart-vendor` (echarts/vue-echarts).
+
+### Auto-Import
+
+`unplugin-vue-components` with `AntdvNextResolver` auto-imports antdv-next components. The following are **excluded** from auto-import and require manual import: `Select`, `DatePicker`, `DateRangePicker`.
+
+Vue APIs (`ref`, `computed`, `watch`, etc.) are **explicitly imported** — `unplugin-auto-import` is installed but not configured.
+
 ### Pro Components
 
 **ProTable** (`src/components/Pro/ProTable/`):
@@ -138,6 +185,8 @@ Three ways to check permissions:
 - Grid layout support with `colSpan` and responsive `cols`
 - Dynamic options via `request` function
 - Custom rendering via `render` prop
+
+**Other Pro Components**: ProModal (draggable/resizable), ProChart (ECharts wrapper), ProStatCard, ProStepForm, ProDescriptions, ProDetail, ProSplitLayout, ProUpload, ProStatus.
 
 **Type Definitions**: Always reference `src/types/pro.ts` for column/form configurations.
 
@@ -166,18 +215,26 @@ Themes use **CSS variables** defined in `src/assets/styles/variables.css`:
 - Theme store dynamically updates CSS variables on document root
 - Sidebar supports independent dark/light theme (via `--sidebar-bg-color` variables)
 
+**Tailwind CSS 4**: Configured via `src/assets/styles/tailwind.css`. Theme tokens are bridged to Tailwind utilities via `@theme` directive (e.g., `--color-primary: var(--color-primary)`). Explicit `@layer` ordering ensures Tailwind layers coexist with antdv reset styles.
+
 ### Internationalization
 
 **System**: vue-i18n with locale files in `src/locales/`
 
-- `zh-CN.ts` - Chinese (default)
-- `en-US.ts` - English
+- `zh-CN.ts` - Chinese (default, bundled synchronously)
+- `en-US.ts` - English (lazy-loaded)
+- `ja-JP.ts` - Japanese (lazy-loaded)
+- `ko-KR.ts` - Korean (lazy-loaded)
 - Access via `$t('key')` in templates or `t('key')` from `useI18n()`
 - Helper: `src/utils/i18n.ts` - `resolveLocaleText()` for dynamic text resolution
 
 ### Charts & Visualization
 
 **ECharts Integration**: The project includes `echarts` and `vue-echarts` for data visualization in the dashboard. Use the `<v-chart>` component from `vue-echarts` for rendering charts.
+
+### Code Editor (Codemirror 6)
+
+Integrated via `vue-codemirror` and `@codemirror/*` packages. Supports 14 language modes (JavaScript, TypeScript, JSON, HTML, CSS, Python, Go, Java, Rust, SQL, PHP, XML, YAML, Markdown) and 7 editor themes (GitHub, Monokai, Nord, Tokyo Night, Dracula, Material, Solarized). Used in the examples section for code editing demos.
 
 ### Keyboard Shortcuts
 
@@ -203,7 +260,7 @@ Themes use **CSS variables** defined in `src/assets/styles/variables.css`:
 
 1. Create view in `src/views/[module]/`
 2. Add route to appropriate category in `src/router/routes.ts`
-3. Add i18n keys to `src/locales/zh-CN.ts` and `en-US.ts`
+3. Add i18n keys to all four locale files: `src/locales/zh-CN.ts`, `en-US.ts`, `ja-JP.ts`, `ko-KR.ts`
 4. If requires permissions, set `meta.requiredPermissions` or `meta.requiredRoles`
 5. Router guards will handle dynamic route injection
 
@@ -280,7 +337,8 @@ To add new mock endpoints:
 
 1. Create data source in `mock/data/[entity].data.ts`
 2. Create handler in `mock/handlers/[entity].mock.ts`
-3. Mock server auto-reloads, accessible at `/api/*` prefix
+3. For demo/static hosting support, add browser mock handler in `src/mock/browser/`
+4. Mock server auto-reloads, accessible at `/api/*` prefix
 
 ## Common Patterns
 
@@ -334,6 +392,9 @@ themeStore.setPrimaryColor('#1890ff')     // Any valid color
 - **Dynamic routes** are regenerated on each login - changes to `asyncRoutes` require re-login
 - **Tabs state** persists in localStorage via settings store
 - **Mock mode** is determined by `VITE_USE_MOCK` env variable, checked at runtime
+- **Tailwind utilities** use theme tokens bridged in `tailwind.css` — use CSS variables directly for non-Tailwind styles
+- **Oxlint** runs on `src/` and `mock/` — check `.oxlintrc.json` for rule configuration
+- **Oxfmt** handles import sorting automatically — don't manually order imports beyond the three-group convention
 
 ## Default Accounts
 

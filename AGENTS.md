@@ -1,6 +1,6 @@
 # Antdv Next Admin - Agent Guidelines
 
-A Vue 3 + TypeScript + Ant Design Vue admin scaffold with RBAC, theming, i18n, and mock APIs.
+A Vue 3 + TypeScript + Ant Design Vue admin scaffold with RBAC, theming, i18n (zh-CN/en-US/ja-JP/ko-KR), Tailwind CSS 4, Codemirror 6, and mock APIs.
 
 ## Project Structure
 
@@ -33,21 +33,34 @@ tests/
 ```bash
 npm install              # Install all dependencies
 npm run dev              # Start dev server at http://localhost:3000 (with mock APIs)
-npm run build            # Type check + production build → dist/
+npm run build            # Production build → dist/
+npm run build:check      # vue-tsc type check + production build
+npm run build:demo       # Demo build for static hosting (browser-side mock)
 npm run preview          # Preview production build locally
 npm run type-check       # Run vue-tsc --noEmit (NO auto-fix)
+
+# Testing (Vitest)
+npm run test:unit        # Run unit tests in watch mode
+npm run test:unit:run    # Run unit tests once
+
+# Linting & Formatting
+npm run lint             # Lint with oxlint
+npm run lint:fix         # Auto-fix lint issues
+npm run format           # Format with oxfmt
+npm run format:check     # Check formatting
 ```
 
 ### Pre-commit Requirements
 **BEFORE any commit or PR:**
 1. Run `npm run type-check` - must exit 0 with no errors
-2. Run `npm run build` - must complete successfully
-3. For RBAC/auth changes: manually verify login with `admin/123456` and `user/123456`
+2. Run `npm run lint` - must exit 0 with no errors
+3. Run `npm run build` - must complete successfully
+4. For RBAC/auth changes: manually verify login with `admin/123456` and `user/123456`
 
-### Testing Notes
-- **No test runner configured yet** - Playwright/Vitest dependencies are NOT installed
-- Test files in `tests/` are **templates** for future setup
-- To add tests later: install test framework first, update package.json scripts, then write tests
+### Testing
+- **Vitest** is configured (`vitest.config.ts`): `environment: 'node'`, `globals: false`
+- Test files: `tests/unit/**/*.spec.ts` — must import `describe`/`it`/`expect` from vitest
+- **Playwright** e2e templates exist in `tests/e2e/` but Playwright is not yet installed
 
 ## Code Style Guidelines
 
@@ -218,7 +231,7 @@ if (canAll(['user.edit', 'user.approve'])) {
 
 ## Common Pitfalls to Avoid
 
-1. **No linter configured** - manually match nearby code style
+1. **Oxlint** lints `src/` and `mock/` — run `npm run lint` before committing. Oxfmt handles import sorting automatically.
 2. **Don't suppress TypeScript errors** - fix the root cause instead
 3. **Test files are templates** - don't try to run them without installing test frameworks
 4. **Mock users**: `admin/123456` has full permissions, `user/123456` has limited permissions
