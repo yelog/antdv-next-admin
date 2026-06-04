@@ -99,6 +99,7 @@ import {
 } from '@antdv-next/icons';
 import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue';
 
+import avatarImg from '@/assets/images/avatar-256.png';
 import ProStatCard from '@/components/Pro/ProStatCard/index.vue';
 import { $t, getLocale } from '@/locales';
 import { useAuthStore } from '@/stores/auth';
@@ -211,7 +212,7 @@ const activities = computed(() => [
     time: $t('dashboard.minutesAgo', { value: 2 }),
     tag: $t('dashboard.activityTags.system'),
     tagColor: 'blue',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
+    avatar: avatarImg,
   },
   {
     id: 2,
@@ -219,7 +220,7 @@ const activities = computed(() => [
     time: $t('dashboard.minutesAgo', { value: 18 }),
     tag: $t('dashboard.activityTags.user'),
     tagColor: 'cyan',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sunny',
+    avatar: avatarImg,
   },
   {
     id: 3,
@@ -227,7 +228,7 @@ const activities = computed(() => [
     time: $t('dashboard.hoursAgo', { value: 1 }),
     tag: $t('dashboard.activityTags.task'),
     tagColor: 'green',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=job',
+    avatar: avatarImg,
   },
   {
     id: 4,
@@ -235,7 +236,7 @@ const activities = computed(() => [
     time: $t('dashboard.hoursAgo', { value: 2 }),
     tag: $t('dashboard.activityTags.release'),
     tagColor: 'purple',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=release',
+    avatar: avatarImg,
   },
 ]);
 

@@ -8,6 +8,8 @@ import type { AxiosInstance } from "axios";
 
 import AxiosMockAdapter from "axios-mock-adapter";
 
+import avatarImg from "@/assets/images/avatar-256.png";
+
 import {
   mockActivities,
   mockChartData,
@@ -32,7 +34,7 @@ const adminUser: User = {
   username: "admin",
   email: "admin@example.com",
   realName: "Administrator",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+  avatar: avatarImg,
   phone: "13800138000",
   gender: "male",
   birthDate: "1990-01-01",
@@ -69,7 +71,7 @@ const regularUser: User = {
   username: "user",
   email: "user@example.com",
   realName: "Regular User",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=user",
+  avatar: avatarImg,
   phone: "13800138001",
   gender: "female",
   birthDate: "1995-05-15",
@@ -109,7 +111,7 @@ const demoUsers: User[] = [
     username: "manager",
     email: "manager@example.com",
     realName: "Demo Manager",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=manager",
+    avatar: avatarImg,
     phone: "13800138002",
     gender: "male",
     birthDate: "1992-08-12",
@@ -125,7 +127,7 @@ const demoUsers: User[] = [
     username: "guest",
     email: "guest@example.com",
     realName: "Demo Guest",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=guest",
+    avatar: avatarImg,
     phone: "13800138003",
     gender: "female",
     birthDate: "1998-03-20",
@@ -679,7 +681,7 @@ export function setupBrowserMock(service: AxiosInstance): AxiosMockAdapter {
         username: body.username || `user_${Date.now()}`,
         email: body.email || "user@example.com",
         realName: body.realName || "Demo User",
-        avatar: body.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=user",
+        avatar: body.avatar || avatarImg,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }),
