@@ -38,6 +38,7 @@
         <template v-if="column.dataIndex === 'status'">
           <a-switch
             :checked="record.status === 'active'"
+            :loading="switchLoadingId === record.id"
             :checked-children="
               $t('examples.scaffold.proTableAdvanced.statusActive')
             "
@@ -91,6 +92,7 @@ const createMockRows = (): DemoRow[] => {
 
 const tableRows = ref<DemoRow[]>(createMockRows());
 const selectedRowKeys = ref<string[]>([]);
+const switchLoadingId = ref<string | null>(null);
 
 const toolbarConfig = computed(() => ({
   title: $t("examples.scaffold.proTableAdvanced.title"),
@@ -268,8 +270,14 @@ const handleStatusChange = (id: string, checked: boolean) => {
   );
 };
 
-const handleStatusSwitchChange = (id: string, checked: boolean) => {
-  handleStatusChange(id, checked);
+const handleStatusSwitchChange = async (id: string, checked: boolean) => {
+  switchLoadingId.value = id;
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    handleStatusChange(id, checked);
+  } finally {
+    switchLoadingId.value = null;
+  }
 };
 
 const handleBatchSetStatus = (status: DemoRow["status"]) => {
