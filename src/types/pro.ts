@@ -34,15 +34,6 @@ export type ValueType =
   | 'link'
   | 'progress';
 
-export type SearchType =
-  | 'input'
-  | 'select'
-  | 'dateRange'
-  | 'datePicker'
-  | 'number'
-  | 'checkbox'
-  | 'radio';
-
 export type HeaderFilterMode = 'client' | 'server' | 'hybrid';
 
 export type ProTableHeaderFilterType = 'keyword' | 'select';
@@ -106,7 +97,7 @@ export interface ProTableColumn<
 
   // Search
   search?: boolean;
-  searchType?: SearchType;
+  searchType?: FormItemType;
   searchOptions?: Array<{ label: string; value: string | number | boolean }>;
   searchProps?: Record<string, unknown>;
 
@@ -135,20 +126,6 @@ export interface ProTableColumn<
   render?: (text: unknown, record: TRecord, index: number) => unknown;
 }
 
-export type ProTableSearchColumn<
-  TRecord extends ProTableRecord = ProTableRecord,
-> = Pick<
-  ProTableColumn<TRecord>,
-  | 'title'
-  | 'dataIndex'
-  | 'valueType'
-  | 'valueEnum'
-  | 'options'
-  | 'searchType'
-  | 'searchOptions'
-  | 'searchProps'
->;
-
 export interface ProTableAction {
   label: string;
   type?: 'link' | 'button' | 'dropdown';
@@ -173,7 +150,7 @@ export interface ProTableSearch {
   defaultCollapsed?: boolean;
   collapsedRows?: number;
   collapseRender?: boolean;
-  columns?: ProTableSearchColumn[];
+  formItems?: ProFormItem[];
 }
 
 export interface ProTablePagination {
@@ -259,6 +236,7 @@ export interface ProFormLayout {
 export interface ProFormGrid {
   gutter?: number;
   cols?: number;
+  responsive?: boolean;
 }
 
 // ProDescriptions Types

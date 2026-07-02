@@ -2,89 +2,37 @@
   <div ref="proTableRef" class="pro-table" :style="tableRootStyle">
     <!-- Search Form -->
     <div v-if="showSearchForm" ref="searchRef" class="pro-table-search">
-      <a-form
-        :model="searchForm"
-        :label-col="{ span: searchLabelWidth }"
-        class="search-form"
+      <ProForm
+        ref="searchFormRef"
+        :form-items="visibleSearchFormItems"
+        :layout="{ layout: 'horizontal', labelCol: { span: 6 } }"
+        :grid="{ gutter: 16, responsive: true }"
+        :inline-footer="true"
+        @submit="handleSearch"
       >
-        <a-row :gutter="16">
-          <a-col
-            v-for="col in visibleSearchColumns"
-            :key="col.dataIndex"
-            :xs="24"
-            :sm="12"
-            :lg="8"
-          >
-            <a-form-item :label="col.title" :name="col.dataIndex">
-              <a-input
-                v-if="resolveSearchType(col) === 'input'"
-                v-model:value="searchForm[col.dataIndex]"
-                :placeholder="buildEnterPlaceholder(col.title)"
-                v-bind="col.searchProps"
-              />
-
-              <a-select
-                v-else-if="resolveSearchType(col) === 'select'"
-                v-model:value="searchForm[col.dataIndex]"
-                :placeholder="buildSelectPlaceholder(col.title)"
-                :options="resolveSearchOptions(col)"
-                v-bind="col.searchProps"
-              />
-
-              <a-input-number
-                v-else-if="resolveSearchType(col) === 'number'"
-                v-model:value="searchForm[col.dataIndex]"
-                :placeholder="buildEnterPlaceholder(col.title)"
-                style="width: 100%"
-                v-bind="col.searchProps"
-              />
-
-              <a-date-picker
-                v-else-if="resolveSearchType(col) === 'datePicker'"
-                v-model:value="searchForm[col.dataIndex]"
-                :placeholder="buildSelectPlaceholder(col.title)"
-                style="width: 100%"
-                v-bind="col.searchProps"
-              />
-
-              <a-range-picker
-                v-else-if="resolveSearchType(col) === 'dateRange'"
-                v-model:value="searchForm[col.dataIndex]"
-                style="width: 100%"
-                v-bind="col.searchProps"
-              />
-            </a-form-item>
-          </a-col>
-
-          <a-col :xs="24" :sm="12" :lg="8" class="search-actions">
-            <a-form-item
-              :wrapper-col="{ span: 24 }"
-              class="search-actions-item"
+        <template #footer>
+          <a-space wrap :size="[8, 8]" class="search-actions-space">
+            <a-button type="primary" @click="handleSearch">
+              <SearchOutlined /> {{ $t("common.search") }}
+            </a-button>
+            <a-button @click="handleReset">
+              <ReloadOutlined /> {{ $t("common.reset") }}
+            </a-button>
+            <a-button
+              v-if="showSearchCollapseToggle"
+              type="link"
+              @click="searchCollapsed = !searchCollapsed"
             >
-              <a-space wrap :size="[8, 8]" class="search-actions-space">
-                <a-button type="primary" @click="handleSearch">
-                  <SearchOutlined /> {{ $t("common.search") }}
-                </a-button>
-                <a-button @click="handleReset">
-                  <ReloadOutlined /> {{ $t("common.reset") }}
-                </a-button>
-                <a-button
-                  v-if="showSearchCollapseToggle"
-                  type="link"
-                  @click="searchCollapsed = !searchCollapsed"
-                >
-                  {{
-                    searchCollapsed
-                      ? $t("common.expand")
-                      : $t("common.collapse")
-                  }}
-                  <DownOutlined :class="{ 'rotate-180': !searchCollapsed }" />
-                </a-button>
-              </a-space>
-            </a-form-item>
-          </a-col>
-        </a-row>
-      </a-form>
+              {{
+                searchCollapsed
+                  ? $t("common.expand")
+                  : $t("common.collapse")
+              }}
+              <DownOutlined :class="{ 'rotate-180': !searchCollapsed }" />
+            </a-button>
+          </a-space>
+        </template>
+      </ProForm>
     </div>
 
     <!-- Table -->
@@ -410,6 +358,7 @@ import type {
   ProFormItem,
   ProFormLayout,
   ProFormGrid,
+  FormItemType,
 } from "@/types/pro";
 import type { PropType } from "vue";
 
@@ -455,11 +404,8 @@ import { buildSorterRequestParams as buildSorterRequestParamsValue } from "./com
 import {
   getCollapsedSearchFieldLimit,
   getCollapsedSearchRows,
-  getSearchColumns,
   getSearchColumnsPerRow,
   normalizeFieldLabel,
-  resolveSearchOptions,
-  resolveSearchType,
   resolveValueEnum,
 } from "./composables/useProTableSearch";
 import ValueTypeRender from "./ValueTypeRender.vue";
@@ -651,12 +597,12 @@ const resolveColumnKey = (column: ProTableColumn, index: number) => {
 const proTableRef = ref<HTMLElement>();
 const toolbarRef = ref<HTMLElement>();
 const searchRef = ref<HTMLElement>();
+const searchFormRef = ref();
 const tableSectionRef = ref<HTMLElement>();
 
 // State
 const remoteDataSource = ref<Record<string, unknown>[]>([]);
 const loading = ref(false);
-const searchForm = ref<Record<string, unknown>>({});
 const searchCollapsed = ref(
   props.search !== false ? (props.search?.defaultCollapsed ?? true) : true,
 );
@@ -844,20 +790,41 @@ const tableRootStyle = computed<Record<string, string> | undefined>(() => {
   return { height };
 });
 
-const searchColumns = computed(() => {
-  if (props.search && Array.isArray(props.search.columns)) {
-    return getSearchColumns(props.columns, props.search.columns);
+// 从 ProTableColumn 推导 ProFormItem（用于 search: true 快捷方式）
+function resolveFormItemType(col: ProTableColumn): FormItemType {
+  if (col.searchType) return col.searchType;
+  const vt = col.valueType;
+  if (col.options || col.searchOptions || col.valueEnum) {
+    if (vt === "tag" || vt === "badge") return "select";
   }
-  return getSearchColumns(props.columns);
+  if (vt === "tag" || vt === "badge") return "select";
+  if (vt === "date" || vt === "dateTime" || vt === "time") return "datePicker";
+  if (vt === "dateRange") return "dateRange";
+  if (vt === "money" || vt === "percent" || vt === "progress") return "number";
+  return "input";
+}
+
+function columnToFormItem(col: ProTableColumn): ProFormItem {
+  return {
+    name: col.dataIndex,
+    label: col.title,
+    type: resolveFormItemType(col),
+    options:
+      col.searchOptions ??
+      col.options?.map((o) => ({ label: o.label, value: o.value })),
+    props: col.searchProps,
+  };
+}
+
+const searchFormItems = computed<ProFormItem[]>(() => {
+  if (props.search && Array.isArray(props.search.formItems)) {
+    return props.search.formItems;
+  }
+  return props.columns.filter((col) => col.search).map(columnToFormItem);
 });
 
 const showSearchForm = computed(() => {
-  return props.search !== false && searchColumns.value.length > 0;
-});
-
-const searchLabelWidth = computed(() => {
-  if (props.search === false) return 6;
-  return props.search?.labelWidth || 6;
+  return props.search !== false && searchFormItems.value.length > 0;
 });
 
 const searchColumnsPerRow = computed(() => {
@@ -877,14 +844,14 @@ const collapsedSearchFieldLimit = computed(() => {
 });
 
 const showSearchCollapseToggle = computed(() => {
-  return searchColumns.value.length > collapsedSearchFieldLimit.value;
+  return searchFormItems.value.length > collapsedSearchFieldLimit.value;
 });
 
-const visibleSearchColumns = computed(() => {
+const visibleSearchFormItems = computed(() => {
   if (searchCollapsed.value && showSearchCollapseToggle.value) {
-    return searchColumns.value.slice(0, collapsedSearchFieldLimit.value);
+    return searchFormItems.value.slice(0, collapsedSearchFieldLimit.value);
   }
-  return searchColumns.value;
+  return searchFormItems.value;
 });
 
 const paginationEnabled = computed(() => {
@@ -1422,10 +1389,6 @@ const buildEnterPlaceholder = (label: unknown) => {
   return $t("proForm.enterPlaceholder", { label: normalizeFieldLabel(label) });
 };
 
-const buildSelectPlaceholder = (label: unknown) => {
-  return $t("proForm.selectPlaceholder", { label: normalizeFieldLabel(label) });
-};
-
 const getHeaderFilterEntry = (column: Record<string, unknown>) => {
   if (!column) {
     return undefined;
@@ -1536,8 +1499,9 @@ const loadData = async () => {
 
   loading.value = true;
   try {
+    const searchValues = searchFormRef.value?.getFieldsValue() ?? {};
     const params: Record<string, unknown> = {
-      ...searchForm.value,
+      ...searchValues,
       ...buildHeaderFilterRequestParams(),
       ...buildSorterRequestParams(),
     };
@@ -1567,7 +1531,7 @@ const handleSearch = () => {
 };
 
 const handleReset = () => {
-  searchForm.value = {};
+  searchFormRef.value?.resetFields();
   tableFilters.value = {};
   tableSorter.value = null;
   currentPage.value = 1;

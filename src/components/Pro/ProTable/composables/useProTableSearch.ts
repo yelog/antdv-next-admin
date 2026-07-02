@@ -1,18 +1,4 @@
-import type {
-  ProTableColumn,
-  ProTableSearchColumn,
-  SearchType,
-} from "@/types/pro";
-
-export function getSearchColumns(
-  columns: ProTableColumn[],
-  explicitColumns?: ProTableSearchColumn[],
-) {
-  if (explicitColumns) {
-    return explicitColumns;
-  }
-  return columns.filter((col) => col.search);
-}
+import type { ProTableColumn } from "@/types/pro";
 
 export function getSearchColumnsPerRow(viewportWidth: number) {
   if (viewportWidth >= 992) {
@@ -44,38 +30,7 @@ export function normalizeFieldLabel(label: unknown) {
   return String(label ?? "");
 }
 
-export function resolveSearchType(col: ProTableSearchColumn): SearchType {
-  if (col.searchType) return col.searchType;
-  if (col.options || col.searchOptions || col.valueEnum) {
-    const vt = col.valueType;
-    if (vt === "tag" || vt === "badge") return "select";
-  }
-  const vt = col.valueType;
-  if (vt === "tag" || vt === "badge") return "select";
-  if (vt === "date" || vt === "dateTime" || vt === "time") return "datePicker";
-  if (vt === "dateRange") return "dateRange";
-  if (vt === "money" || vt === "percent" || vt === "progress") return "number";
-  return "input";
-}
-
-export function resolveSearchOptions(col: ProTableSearchColumn) {
-  if (col.searchOptions) return col.searchOptions;
-  if (col.options) {
-    return col.options.map((option) => ({
-      label: option.label,
-      value: option.value,
-    }));
-  }
-  if (col.valueEnum) {
-    return Object.entries(col.valueEnum).map(([value, config]) => ({
-      label: config.text,
-      value,
-    }));
-  }
-  return undefined;
-}
-
-export function resolveValueEnum(col: ProTableSearchColumn) {
+export function resolveValueEnum(col: ProTableColumn) {
   if (col.valueEnum) return col.valueEnum;
   if (col.options) {
     const enumMap: Record<
