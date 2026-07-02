@@ -28,7 +28,7 @@
                   ? $t("common.expand")
                   : $t("common.collapse")
               }}
-              <DownOutlined :class="{ 'rotate-180': !searchCollapsed }" />
+              <DownOutlined :style="{ transform: searchCollapsed ? 'none' : 'rotate(180deg)', transition: 'transform var(--duration-base)' }" />
             </a-button>
           </a-space>
         </template>
@@ -1958,11 +1958,6 @@ defineExpose({
 
     .search-actions-space {
       justify-content: flex-end;
-    }
-
-    .rotate-180 {
-      transform: rotate(180deg);
-      transition: transform var(--duration-base);
     }
   }
 
