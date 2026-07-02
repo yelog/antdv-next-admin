@@ -141,6 +141,7 @@ ProTable 请求函数需要返回 `ProTableRequestResult`:
 ```ts
 import type {
   ProTableColumn,
+  ProTableSearchColumn,
   ProTableRequestParams,
   ProTableRequestResult,
 } from "@/types/pro";
@@ -153,9 +154,14 @@ interface UserRecord {
 }
 
 const columns: ProTableColumn<UserRecord>[] = [
-  { title: "姓名", dataIndex: "name", valueType: "text", search: true },
+  { title: "姓名", dataIndex: "name", valueType: "text" },
   { title: "状态", dataIndex: "status", valueType: "tag" },
   { title: "创建时间", dataIndex: "createdAt", valueType: "date" },
+];
+
+const searchColumns: ProTableSearchColumn<UserRecord>[] = [
+  { title: "关键词", dataIndex: "keyword", searchType: "input" },
+  { title: "状态", dataIndex: "status", searchType: "select" },
 ];
 
 async function loadData(
@@ -165,6 +171,12 @@ async function loadData(
   return { data: [], total: 0, success: true };
 }
 ```
+
+```vue
+<ProTable :columns="columns" :request="loadData" :search="{ columns: searchColumns }" />
+```
+
+搜索表单推荐通过 `search.columns` 独立配置，适合搜索条件和表格列不一致或顺序不同的场景；简单列表仍可继续在 `columns` 中使用 `search: true` 快捷生成搜索项。
 
 ## 权限用法
 

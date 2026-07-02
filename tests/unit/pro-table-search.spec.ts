@@ -21,6 +21,21 @@ describe("ProTable search helpers", () => {
     ).toEqual(["name"]);
   });
 
+  it("uses explicit search columns before table columns", () => {
+    expect(
+      getSearchColumns(
+        [
+          { title: "Name", dataIndex: "name", search: true },
+          { title: "Age", dataIndex: "age" },
+        ],
+        [
+          { title: "Keyword", dataIndex: "keyword", searchType: "input" },
+          { title: "Status", dataIndex: "status", searchType: "select" },
+        ],
+      ).map((column) => column.dataIndex),
+    ).toEqual(["keyword", "status"]);
+  });
+
   it("calculates responsive search columns per row", () => {
     expect(getSearchColumnsPerRow(1200)).toBe(3);
     expect(getSearchColumnsPerRow(700)).toBe(2);

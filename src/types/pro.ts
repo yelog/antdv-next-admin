@@ -135,6 +135,20 @@ export interface ProTableColumn<
   render?: (text: unknown, record: TRecord, index: number) => unknown;
 }
 
+export type ProTableSearchColumn<
+  TRecord extends ProTableRecord = ProTableRecord,
+> = Pick<
+  ProTableColumn<TRecord>,
+  | 'title'
+  | 'dataIndex'
+  | 'valueType'
+  | 'valueEnum'
+  | 'options'
+  | 'searchType'
+  | 'searchOptions'
+  | 'searchProps'
+>;
+
 export interface ProTableAction {
   label: string;
   type?: 'link' | 'button' | 'dropdown';
@@ -159,6 +173,7 @@ export interface ProTableSearch {
   defaultCollapsed?: boolean;
   collapsedRows?: number;
   collapseRender?: boolean;
+  columns?: ProTableSearchColumn[];
 }
 
 export interface ProTablePagination {

@@ -845,6 +845,9 @@ const tableRootStyle = computed<Record<string, string> | undefined>(() => {
 });
 
 const searchColumns = computed(() => {
+  if (props.search && Array.isArray(props.search.columns)) {
+    return getSearchColumns(props.columns, props.search.columns);
+  }
   return getSearchColumns(props.columns);
 });
 

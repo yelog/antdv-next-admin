@@ -1,6 +1,16 @@
-import type { ProTableColumn, SearchType } from "@/types/pro";
+import type {
+  ProTableColumn,
+  ProTableSearchColumn,
+  SearchType,
+} from "@/types/pro";
 
-export function getSearchColumns(columns: ProTableColumn[]) {
+export function getSearchColumns(
+  columns: ProTableColumn[],
+  explicitColumns?: ProTableSearchColumn[],
+) {
+  if (explicitColumns) {
+    return explicitColumns;
+  }
   return columns.filter((col) => col.search);
 }
 
@@ -34,7 +44,7 @@ export function normalizeFieldLabel(label: unknown) {
   return String(label ?? "");
 }
 
-export function resolveSearchType(col: ProTableColumn): SearchType {
+export function resolveSearchType(col: ProTableSearchColumn): SearchType {
   if (col.searchType) return col.searchType;
   if (col.options || col.searchOptions || col.valueEnum) {
     const vt = col.valueType;
@@ -48,7 +58,7 @@ export function resolveSearchType(col: ProTableColumn): SearchType {
   return "input";
 }
 
-export function resolveSearchOptions(col: ProTableColumn) {
+export function resolveSearchOptions(col: ProTableSearchColumn) {
   if (col.searchOptions) return col.searchOptions;
   if (col.options) {
     return col.options.map((option) => ({
@@ -65,7 +75,7 @@ export function resolveSearchOptions(col: ProTableColumn) {
   return undefined;
 }
 
-export function resolveValueEnum(col: ProTableColumn) {
+export function resolveValueEnum(col: ProTableSearchColumn) {
   if (col.valueEnum) return col.valueEnum;
   if (col.options) {
     const enumMap: Record<
