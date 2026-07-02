@@ -28,7 +28,10 @@
           >
             {{ $t("examples.scaffold.proTableAdvanced.batchDelete") }}
           </a-button>
-          <a-button type="primary" @click="exportCsv">{{
+          <a-button type="primary" @click="handleCreate">
+            <PlusOutlined /> {{ $t("examples.scaffold.proTableAdvanced.createUser") }}
+          </a-button>
+          <a-button @click="exportCsv">{{
             $t("examples.scaffold.proTableAdvanced.export")
           }}</a-button>
         </a-space>
@@ -50,16 +53,34 @@
         </template>
       </template>
     </ProTable>
+
+    <a-modal
+      v-model:open="modalVisible"
+      :title="editingId ? $t('examples.scaffold.proTableAdvanced.editUser') : $t('examples.scaffold.proTableAdvanced.createUser')"
+      :confirm-loading="submitting"
+      width="640px"
+      @ok="handleSubmit"
+      @cancel="handleCancel"
+    >
+      <ProForm
+        ref="formRef"
+        :form-items="formItems"
+        :initial-values="formData"
+        :grid="{ cols: 2, gutter: 16 }"
+        :layout="{ layout: 'vertical' }"
+      />
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { ProFormItem, ProTableColumn } from "@/types/pro";
 
-import { EditOutlined, DeleteOutlined } from "@antdv-next/icons";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@antdv-next/icons";
 import { message, Modal } from "antdv-next";
-import { computed, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 
+import ProForm from "@/components/Pro/ProForm/index.vue";
 import ProTable from "@/components/Pro/ProTable/index.vue";
 import { $t } from "@/locales";
 
@@ -93,6 +114,28 @@ const createMockRows = (): DemoRow[] => {
 const tableRows = ref<DemoRow[]>(createMockRows());
 const selectedRowKeys = ref<string[]>([]);
 const switchLoadingId = ref<string | null>(null);
+
+const formRef = ref<{
+  validate: () => Promise<boolean>;
+  getFieldsValue: () => DemoFormValues;
+  setFieldsValue: (values: Record<string, unknown>) => void;
+} | null>(null);
+const modalVisible = ref(false);
+const submitting = ref(false);
+const editingId = ref<string | null>(null);
+const formData = ref<DemoFormValues>(createDefaultFormValues());
+
+type DemoFormValues = Pick<DemoRow, "username" | "realName" | "email" | "gender" | "status">;
+
+function createDefaultFormValues(): DemoFormValues {
+  return {
+    username: "",
+    realName: "",
+    email: "",
+    gender: "male",
+    status: "active",
+  };
+}
 
 const toolbarConfig = computed(() => ({
   title: $t("examples.scaffold.proTableAdvanced.title"),
@@ -129,6 +172,58 @@ const searchFormItems = computed<ProFormItem[]>(() => [
         value: "inactive",
       },
     ],
+  },
+]);
+
+const formItems = computed<ProFormItem[]>(() => [
+  {
+    name: "username",
+    label: $t("examples.scaffold.proTableAdvanced.username"),
+    type: "input",
+    required: true,
+    props: {
+      disabled: Boolean(editingId.value),
+    },
+    rules: [
+      { required: true, message: $t("examples.scaffold.proTableAdvanced.usernameRequired") },
+      { min: 3, max: 20, message: $t("user.usernameLength") },
+    ],
+  },
+  {
+    name: "realName",
+    label: $t("examples.scaffold.proTableAdvanced.realName"),
+    type: "input",
+    required: true,
+  },
+  {
+    name: "email",
+    label: $t("examples.scaffold.proTableAdvanced.email"),
+    type: "input",
+    required: true,
+    rules: [
+      { required: true, message: $t("examples.scaffold.proTableAdvanced.emailRequired") },
+      { type: "email", message: $t("validation.email") },
+    ],
+  },
+  {
+    name: "gender",
+    label: $t("examples.scaffold.proTableAdvanced.gender"),
+    type: "select",
+    options: [
+      { label: $t("user.male"), value: "male" },
+      { label: $t("user.female"), value: "female" },
+    ],
+  },
+  {
+    name: "status",
+    label: $t("examples.scaffold.proTableAdvanced.status"),
+    type: "switch",
+    valuePropName: "checked",
+    required: true,
+    props: {
+      checkedChildren: $t("examples.scaffold.proTableAdvanced.statusActive"),
+      unCheckedChildren: $t("examples.scaffold.proTableAdvanced.statusInactive"),
+    },
   },
 ]);
 
@@ -178,13 +273,7 @@ const columns = computed<ProTableColumn[]>(() => [
       {
         label: $t("common.edit"),
         icon: EditOutlined,
-        onClick: (record) => {
-          message.info(
-            $t("examples.scaffold.proTableAdvanced.editSimulation", {
-              username: record.username,
-            }),
-          );
-        },
+        onClick: (record) => handleEdit(record as unknown as DemoRow),
       },
       {
         label: $t("common.delete"),
@@ -283,6 +372,77 @@ const handleStatusSwitchChange = async (id: string, checked: boolean) => {
     handleStatusChange(id, checked);
   } finally {
     switchLoadingId.value = null;
+  }
+};
+
+const handleCreate = () => {
+  editingId.value = null;
+  const defaults = createDefaultFormValues();
+  formData.value = defaults;
+  modalVisible.value = true;
+  nextTick(() => formRef.value?.setFieldsValue({ ...defaults, status: true }));
+};
+
+const handleEdit = (record: DemoRow) => {
+  editingId.value = record.id;
+  const initialValues: DemoFormValues = {
+    username: record.username,
+    realName: record.realName,
+    email: record.email,
+    gender: record.gender,
+    status: record.status,
+  };
+  formData.value = initialValues;
+  modalVisible.value = true;
+  nextTick(() => formRef.value?.setFieldsValue({ ...initialValues, status: initialValues.status === "active" }));
+};
+
+const handleCancel = () => {
+  modalVisible.value = false;
+  editingId.value = null;
+  formData.value = createDefaultFormValues();
+};
+
+const handleSubmit = async () => {
+  const valid = await formRef.value?.validate();
+  if (!valid) return;
+
+  const values = formRef.value?.getFieldsValue();
+  if (!values) return;
+
+  submitting.value = true;
+  try {
+    const statusValue = typeof values.status === "boolean" ? (values.status ? "active" : "inactive") : values.status;
+
+    if (editingId.value) {
+      const row = tableRows.value.find((item) => item.id === editingId.value);
+      if (row) {
+        row.username = values.username.trim();
+        row.realName = values.realName.trim();
+        row.email = values.email.trim();
+        row.gender = values.gender;
+        row.status = statusValue;
+      }
+      message.success($t("examples.scaffold.proTableAdvanced.updateSuccess"));
+    } else {
+      const newId = `demo-${Date.now()}`;
+      tableRows.value.unshift({
+        id: newId,
+        username: values.username.trim(),
+        realName: values.realName.trim(),
+        email: values.email.trim(),
+        gender: values.gender,
+        status: statusValue,
+        createdAt: new Date().toISOString(),
+      });
+      message.success($t("examples.scaffold.proTableAdvanced.createSuccess"));
+    }
+
+    modalVisible.value = false;
+    editingId.value = null;
+    formData.value = createDefaultFormValues();
+  } finally {
+    submitting.value = false;
   }
 };
 

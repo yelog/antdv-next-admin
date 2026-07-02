@@ -1283,6 +1283,12 @@ export default {
         batchDeleteContent: "确认删除已选的 {count} 条数据吗？",
         batchDeleteSuccess: "批量删除完成",
         exportSuccess: "CSV 导出成功",
+        createUser: "新增用户",
+        editUser: "编辑用户",
+        createSuccess: "新增成功",
+        updateSuccess: "更新成功",
+        usernameRequired: "请输入用户名",
+        emailRequired: "请输入邮箱",
       },
       complexForm: {
         title: "复杂表单示例",

@@ -1327,6 +1327,12 @@ export default {
         batchDeleteContent: "Confirm to delete the selected {count} rows?",
         batchDeleteSuccess: "Batch delete completed",
         exportSuccess: "CSV exported successfully",
+        createUser: "Create User",
+        editUser: "Edit User",
+        createSuccess: "Created successfully",
+        updateSuccess: "Updated successfully",
+        usernameRequired: "Please enter username",
+        emailRequired: "Please enter email",
       },
       complexForm: {
         title: "Complex Form Example",

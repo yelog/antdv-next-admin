@@ -1146,6 +1146,12 @@ export default {
         batchDeleteContent: "選択した {count} 行を削除しますか?",
         batchDeleteSuccess: "一括削除が完了しました",
         exportSuccess: "CSV が正常にエクスポートされました",
+        createUser: "ユーザーを新規作成",
+        editUser: "ユーザーを編集",
+        createSuccess: "新規作成に成功しました",
+        updateSuccess: "更新に成功しました",
+        usernameRequired: "ユーザー名を入力してください",
+        emailRequired: "メールアドレスを入力してください",
       },
       complexForm: {
         title: "複雑なフォームの例",

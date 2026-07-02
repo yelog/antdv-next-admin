@@ -1129,6 +1129,12 @@ export default {
         batchDeleteContent: "선택한 {count} 행을 삭제하시겠습니까?",
         batchDeleteSuccess: "일괄 삭제 완료",
         exportSuccess: "CSV를 성공적으로 내보냈습니다.",
+        createUser: "사용자 생성",
+        editUser: "사용자 편집",
+        createSuccess: "생성 성공",
+        updateSuccess: "업데이트 성공",
+        usernameRequired: "사용자 이름을 입력하세요",
+        emailRequired: "이메일을 입력하세요",
       },
       complexForm: {
         title: "복잡한 형태의 예",
