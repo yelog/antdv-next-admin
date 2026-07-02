@@ -20,7 +20,7 @@
       row-key="id"
     >
       <template #toolbar-actions>
-        <a-button type="primary" class="create-user-btn" @click="handleCreate">
+        <a-button type="primary" @click="handleCreate">
           <PlusOutlined /> {{ $t("exampleTable.createUser") }}
         </a-button>
       </template>
@@ -320,14 +320,3 @@ const handleStatusChange = async (record: User, checked: boolean) => {
 };
 </script>
 
-<style scoped lang="scss">
-.create-user-btn {
-  box-shadow: 0 4px 14px rgba(24, 119, 255, 0.3);
-  border: none;
-
-  &:hover {
-    box-shadow: 0 8px 18px rgba(24, 119, 255, 0.36);
-    transform: translateY(-1px);
-  }
-}
-</style>

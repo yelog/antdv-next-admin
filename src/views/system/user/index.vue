@@ -26,7 +26,6 @@
           </a-button>
           <a-button
             type="primary"
-            class="create-user-btn"
             @click="handleCreate"
           >
             <PlusOutlined /> {{ $t("user.createUser") }}
@@ -527,15 +526,3 @@ const handleImport = async (file: File) => {
   return false;
 };
 </script>
-
-<style scoped lang="scss">
-.create-user-btn {
-  box-shadow: 0 4px 14px rgba(24, 119, 255, 0.3);
-  border: none;
-
-  &:hover {
-    box-shadow: 0 8px 18px rgba(24, 119, 255, 0.36);
-    transform: translateY(-1px);
-  }
-}
-</style>

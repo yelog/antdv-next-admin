@@ -22,7 +22,6 @@
         <a-space :size="8">
           <a-button
             type="primary"
-            class="create-permission-btn"
             @click="handleCreateRoot"
           >
             <PlusOutlined /> {{ $t("permission.createPermission") }}
@@ -624,15 +623,3 @@ const handleSubmit = async () => {
   }
 };
 </script>
-
-<style scoped lang="scss">
-.create-permission-btn {
-  box-shadow: 0 4px 14px rgba(24, 119, 255, 0.3);
-  border: none;
-
-  &:hover {
-    box-shadow: 0 8px 18px rgba(24, 119, 255, 0.36);
-    transform: translateY(-1px);
-  }
-}
-</style>

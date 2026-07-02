@@ -13,7 +13,7 @@
       row-key="id"
     >
       <template #toolbar-actions>
-        <a-button type="primary" class="create-role-btn" @click="handleCreate">
+        <a-button type="primary" @click="handleCreate">
           <PlusOutlined /> {{ $t("role.createRole") }}
         </a-button>
       </template>
@@ -345,14 +345,3 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped lang="scss">
-.create-role-btn {
-  box-shadow: 0 4px 14px rgba(24, 119, 255, 0.3);
-  border: none;
-
-  &:hover {
-    box-shadow: 0 8px 18px rgba(24, 119, 255, 0.36);
-    transform: translateY(-1px);
-  }
-}
-</style>
