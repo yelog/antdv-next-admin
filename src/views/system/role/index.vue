@@ -6,6 +6,7 @@
       :request="fetchTableData"
       :toolbar="toolbarConfig"
       :search="{
+        formItems: searchFormItems,
         labelWidth: 6,
         defaultCollapsed: true,
       }"
@@ -118,19 +119,20 @@ const permissionMap = computed(() => {
   return map;
 });
 
+const searchFormItems = computed<ProFormItem[]>(() => [
+  { name: "name", label: $t("role.name"), type: "input" },
+  { name: "code", label: $t("role.code"), type: "input" },
+]);
+
 const columns = computed<ProTableColumn[]>(() => [
   {
     title: $t("role.name"),
     dataIndex: "name",
-    search: true,
-    searchType: "input",
     width: 200,
   },
   {
     title: $t("role.code"),
     dataIndex: "code",
-    search: true,
-    searchType: "input",
     width: 200,
   },
   {

@@ -9,6 +9,7 @@
         actions: ['refresh', 'columnSetting'],
       }"
       :search="{
+        formItems: searchFormItems,
         labelWidth: 80,
         defaultCollapsed: true,
       }"
@@ -97,6 +98,14 @@ const genderValueEnum = computed<
   female: { text: $t("user.female"), color: "pink" },
 }));
 
+// Search form items configuration
+const searchFormItems = computed<ProFormItem[]>(() => [
+  { name: "email", label: $t("user.email"), type: "input" },
+  { name: "realName", label: $t("user.realName"), type: "input" },
+  { name: "gender", label: $t("user.gender"), type: "select", options: genderOptions.value },
+  { name: "createdAt", label: $t("common.createTime"), type: "dateRange" },
+]);
+
 // Table columns configuration
 const columns = computed<ProTableColumn[]>(() => [
   {
@@ -115,15 +124,11 @@ const columns = computed<ProTableColumn[]>(() => [
   {
     title: $t("user.email"),
     dataIndex: "email",
-    search: true,
-    searchType: "input",
     copyable: true,
   },
   {
     title: $t("user.realName"),
     dataIndex: "realName",
-    search: true,
-    searchType: "input",
   },
   {
     title: $t("user.phone"),
@@ -132,9 +137,6 @@ const columns = computed<ProTableColumn[]>(() => [
   {
     title: $t("user.gender"),
     dataIndex: "gender",
-    search: true,
-    searchType: "select",
-    searchOptions: genderOptions.value,
     headerFilter: {
       type: "select",
       mode: "server",
@@ -164,8 +166,6 @@ const columns = computed<ProTableColumn[]>(() => [
     title: $t("common.createTime"),
     dataIndex: "createdAt",
     valueType: "dateTime",
-    search: true,
-    searchType: "dateRange",
     sorter: true,
   },
   {

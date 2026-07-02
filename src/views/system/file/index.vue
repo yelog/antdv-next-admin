@@ -8,6 +8,7 @@
         title: t('file.title'),
         actions: [],
       }"
+      :search="{ formItems: searchFormItems }"
     >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'originalName'">
@@ -61,7 +62,7 @@
 
 <script setup lang="ts">
 import type { SysFile } from "@/types/file";
-import type { ProTableColumn } from "@/types/pro";
+import type { ProFormItem, ProTableColumn } from "@/types/pro";
 
 import {
   DeleteOutlined,
@@ -124,23 +125,13 @@ const formatSize = (bytes: number) => {
   return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
 };
 
-const columns = computed<ProTableColumn[]>(() => [
+const searchFormItems = computed<ProFormItem[]>(() => [
+  { name: "originalName", label: t("file.fileName"), type: "input" },
   {
-    title: t("file.fileName"),
-    dataIndex: "originalName",
-    key: "originalName",
-    search: true,
-    searchType: "input",
-    ellipsis: true,
-  },
-  {
-    title: t("file.ext"),
-    dataIndex: "ext",
-    key: "ext",
-    width: 90,
-    search: true,
-    searchType: "select",
-    searchOptions: [
+    name: "ext",
+    label: t("file.ext"),
+    type: "select",
+    options: [
       { label: t("file.extType.imageJpg"), value: "jpg" },
       { label: t("file.extType.imagePng"), value: "png" },
       { label: t("file.extType.pdf"), value: "pdf" },
@@ -153,19 +144,37 @@ const columns = computed<ProTableColumn[]>(() => [
       { label: t("file.extType.svg"), value: "svg" },
     ],
   },
+  {
+    name: "storage",
+    label: t("file.storage"),
+    type: "select",
+    options: [
+      { label: t("file.storageType.local"), value: "local" },
+      { label: t("file.storageType.oss"), value: "oss" },
+      { label: t("file.storageType.cos"), value: "cos" },
+    ],
+  },
+]);
+
+const columns = computed<ProTableColumn[]>(() => [
+  {
+    title: t("file.fileName"),
+    dataIndex: "originalName",
+    key: "originalName",
+    ellipsis: true,
+  },
+  {
+    title: t("file.ext"),
+    dataIndex: "ext",
+    key: "ext",
+    width: 90,
+  },
   { title: t("file.size"), dataIndex: "size", key: "size", width: 120 },
   {
     title: t("file.storage"),
     dataIndex: "storage",
     key: "storage",
     width: 100,
-    search: true,
-    searchType: "select",
-    searchOptions: [
-      { label: t("file.storageType.local"), value: "local" },
-      { label: t("file.storageType.oss"), value: "oss" },
-      { label: t("file.storageType.cos"), value: "cos" },
-    ],
   },
   {
     title: t("file.uploader"),

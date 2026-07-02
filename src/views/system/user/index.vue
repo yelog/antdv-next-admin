@@ -6,6 +6,7 @@
       :request="fetchTableData"
       :toolbar="toolbarConfig"
       :search="{
+        formItems: searchFormItems,
         labelWidth: 6,
         defaultCollapsed: true,
       }"
@@ -140,12 +141,16 @@ const statusValueEnum = computed<
   inactive: { text: $t("user.inactive"), status: "default" },
 }));
 
+const searchFormItems = computed<ProFormItem[]>(() => [
+  { name: "username", label: $t("user.username"), type: "input" },
+  { name: "email", label: $t("user.email"), type: "input" },
+  { name: "status", label: $t("user.status"), type: "select", options: statusOptions.value },
+]);
+
 const columns = computed((): ProTableColumn[] => [
   {
     title: $t("user.username"),
     dataIndex: "username",
-    search: true,
-    searchType: "input",
     width: 150,
     fixed: "left",
   },
@@ -157,8 +162,6 @@ const columns = computed((): ProTableColumn[] => [
   {
     title: $t("user.email"),
     dataIndex: "email",
-    search: true,
-    searchType: "input",
     width: 220,
   },
   {
@@ -181,9 +184,6 @@ const columns = computed((): ProTableColumn[] => [
   {
     title: $t("user.status"),
     dataIndex: "status",
-    search: true,
-    searchType: "select",
-    searchOptions: statusOptions.value,
     width: 120,
     valueType: "badge",
     valueEnum: statusValueEnum.value,

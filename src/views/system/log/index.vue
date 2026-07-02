@@ -9,6 +9,7 @@
             :columns="operationColumns"
             :request="loadOperationLogs"
             :toolbar="{ title: t('log.operationLog') }"
+            :search="{ formItems: operationSearchFormItems }"
           >
             <template #toolbar-actions>
               <a-button danger @click="handleClearOperationLog">
@@ -49,6 +50,7 @@
             :columns="loginColumns"
             :request="loadLoginLogs"
             :toolbar="{ title: t('log.loginLog') }"
+            :search="{ formItems: loginSearchFormItems }"
           >
             <template #toolbar-actions>
               <a-button danger @click="handleClearLoginLog">
@@ -68,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ProTableColumn, ProStatusMap } from "@/types/pro";
+import type { ProFormItem, ProTableColumn, ProStatusMap } from "@/types/pro";
 
 import { DeleteOutlined } from "@antdv-next/icons";
 import { message, Modal } from "antdv-next";
@@ -106,24 +108,14 @@ const actionColorMap: Record<string, string> = {
   other: "default",
 };
 
-// operation log columns
-const operationColumns = computed<ProTableColumn[]>(() => [
+// operation log search form items
+const operationSearchFormItems = computed<ProFormItem[]>(() => [
+  { name: "username", label: t("log.operationUser"), type: "input" },
   {
-    title: t("log.operationUser"),
-    dataIndex: "username",
-    key: "username",
-    width: 100,
-    search: true,
-    searchType: "input",
-  },
-  {
-    title: t("log.operationModule"),
-    dataIndex: "module",
-    key: "module",
-    width: 110,
-    search: true,
-    searchType: "select",
-    searchOptions: [
+    name: "module",
+    label: t("log.operationModule"),
+    type: "select",
+    options: [
       { label: t("log.modules.userManagement"), value: "userManagement" },
       { label: t("log.modules.roleManagement"), value: "roleManagement" },
       { label: t("log.modules.menuManagement"), value: "menuManagement" },
@@ -134,13 +126,10 @@ const operationColumns = computed<ProTableColumn[]>(() => [
     ],
   },
   {
-    title: t("log.operationType"),
-    dataIndex: "action",
-    key: "action",
-    width: 90,
-    search: true,
-    searchType: "select",
-    searchOptions: [
+    name: "action",
+    label: t("log.operationType"),
+    type: "select",
+    options: [
       { label: t("log.actionTypes.login"), value: "login" },
       { label: t("log.actionTypes.logout"), value: "logout" },
       { label: t("log.actionTypes.create"), value: "create" },
@@ -148,6 +137,37 @@ const operationColumns = computed<ProTableColumn[]>(() => [
       { label: t("log.actionTypes.delete"), value: "delete" },
       { label: t("log.actionTypes.export"), value: "export" },
     ],
+  },
+  {
+    name: "status",
+    label: t("common.status"),
+    type: "select",
+    options: [
+      { label: t("log.success"), value: "success" },
+      { label: t("log.fail"), value: "fail" },
+    ],
+  },
+]);
+
+// operation log columns
+const operationColumns = computed<ProTableColumn[]>(() => [
+  {
+    title: t("log.operationUser"),
+    dataIndex: "username",
+    key: "username",
+    width: 100,
+  },
+  {
+    title: t("log.operationModule"),
+    dataIndex: "module",
+    key: "module",
+    width: 110,
+  },
+  {
+    title: t("log.operationType"),
+    dataIndex: "action",
+    key: "action",
+    width: 90,
   },
   {
     title: t("log.operationDescription"),
@@ -172,12 +192,6 @@ const operationColumns = computed<ProTableColumn[]>(() => [
     dataIndex: "status",
     key: "status",
     width: 80,
-    search: true,
-    searchType: "select",
-    searchOptions: [
-      { label: t("log.success"), value: "success" },
-      { label: t("log.fail"), value: "fail" },
-    ],
   },
   {
     title: t("log.duration"),
@@ -193,6 +207,21 @@ const operationColumns = computed<ProTableColumn[]>(() => [
   },
 ]);
 
+// login log search form items
+const loginSearchFormItems = computed<ProFormItem[]>(() => [
+  { name: "username", label: t("log.username"), type: "input" },
+  { name: "ip", label: t("log.ipAddress"), type: "input" },
+  {
+    name: "status",
+    label: t("common.status"),
+    type: "select",
+    options: [
+      { label: t("log.success"), value: "success" },
+      { label: t("log.fail"), value: "fail" },
+    ],
+  },
+]);
+
 // login log columns
 const loginColumns = computed<ProTableColumn[]>(() => [
   {
@@ -200,16 +229,12 @@ const loginColumns = computed<ProTableColumn[]>(() => [
     dataIndex: "username",
     key: "username",
     width: 120,
-    search: true,
-    searchType: "input",
   },
   {
     title: t("log.ipAddress"),
     dataIndex: "ip",
     key: "ip",
     width: 140,
-    search: true,
-    searchType: "input",
   },
   {
     title: t("log.browser"),
@@ -228,12 +253,6 @@ const loginColumns = computed<ProTableColumn[]>(() => [
     dataIndex: "status",
     key: "status",
     width: 80,
-    search: true,
-    searchType: "select",
-    searchOptions: [
-      { label: t("log.success"), value: "success" },
-      { label: t("log.fail"), value: "fail" },
-    ],
   },
   {
     title: t("log.message"),

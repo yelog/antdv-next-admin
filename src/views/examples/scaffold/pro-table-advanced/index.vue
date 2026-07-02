@@ -4,7 +4,7 @@
       :columns="columns"
       :request="requestTableData"
       :toolbar="toolbarConfig"
-      :search="{ labelWidth: 80, defaultCollapsed: true, collapsedRows: 1 }"
+      :search="{ formItems: searchFormItems, labelWidth: 80, defaultCollapsed: true, collapsedRows: 1 }"
       :row-selection="rowSelection"
       row-key="id"
     >
@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ProTableColumn } from "@/types/pro";
+import type { ProFormItem, ProTableColumn } from "@/types/pro";
 
 import { EditOutlined, DeleteOutlined } from "@antdv-next/icons";
 import { message, Modal } from "antdv-next";
@@ -102,37 +102,55 @@ const toolbarConfig = computed(() => ({
   >,
 }));
 
+const searchFormItems = computed<ProFormItem[]>(() => [
+  { name: "username", label: $t("examples.scaffold.proTableAdvanced.username"), type: "input" },
+  { name: "realName", label: $t("examples.scaffold.proTableAdvanced.realName"), type: "input" },
+  { name: "email", label: $t("examples.scaffold.proTableAdvanced.email"), type: "input" },
+  {
+    name: "gender",
+    label: $t("examples.scaffold.proTableAdvanced.gender"),
+    type: "select",
+    options: [
+      { label: $t("user.male"), value: "male" },
+      { label: $t("user.female"), value: "female" },
+    ],
+  },
+  {
+    name: "status",
+    label: $t("examples.scaffold.proTableAdvanced.status"),
+    type: "select",
+    options: [
+      {
+        label: $t("examples.scaffold.proTableAdvanced.statusActive"),
+        value: "active",
+      },
+      {
+        label: $t("examples.scaffold.proTableAdvanced.statusInactive"),
+        value: "inactive",
+      },
+    ],
+  },
+]);
+
 const columns = computed<ProTableColumn[]>(() => [
   {
     title: $t("examples.scaffold.proTableAdvanced.username"),
     dataIndex: "username",
-    search: true,
-    searchType: "input",
     width: 150,
   },
   {
     title: $t("examples.scaffold.proTableAdvanced.realName"),
     dataIndex: "realName",
-    search: true,
-    searchType: "input",
     width: 140,
   },
   {
     title: $t("examples.scaffold.proTableAdvanced.email"),
     dataIndex: "email",
-    search: true,
-    searchType: "input",
     width: 220,
   },
   {
     title: $t("examples.scaffold.proTableAdvanced.gender"),
     dataIndex: "gender",
-    search: true,
-    searchType: "select",
-    searchOptions: [
-      { label: $t("user.male"), value: "male" },
-      { label: $t("user.female"), value: "female" },
-    ],
     valueType: "tag",
     valueEnum: {
       male: { text: $t("user.male"), color: "blue" },
@@ -144,18 +162,6 @@ const columns = computed<ProTableColumn[]>(() => [
     title: $t("examples.scaffold.proTableAdvanced.status"),
     dataIndex: "status",
     width: 140,
-    search: true,
-    searchType: "select",
-    searchOptions: [
-      {
-        label: $t("examples.scaffold.proTableAdvanced.statusActive"),
-        value: "active",
-      },
-      {
-        label: $t("examples.scaffold.proTableAdvanced.statusInactive"),
-        value: "inactive",
-      },
-    ],
   },
   {
     title: $t("examples.scaffold.proTableAdvanced.createdAt"),

@@ -6,6 +6,7 @@
       :request="fetchTableData"
       :toolbar="toolbarConfig"
       :search="{
+        formItems: searchFormItems,
         labelWidth: 6,
         defaultCollapsed: false,
       }"
@@ -199,12 +200,24 @@ function createLocalizedName(value = ""): LocalizedText {
   };
 }
 
+const searchFormItems = computed<ProFormItem[]>(() => [
+  { name: "keyword", label: $t("common.search"), type: "input" },
+  { name: "type", label: $t("permission.type"), type: "select", options: permissionTypeOptions.value },
+  {
+    name: "status",
+    label: $t("common.status"),
+    type: "select",
+    options: [
+      { label: $t("user.active"), value: "active" },
+      { label: $t("user.inactive"), value: "inactive" },
+    ],
+  },
+]);
+
 const columns = computed((): ProTableColumn[] => [
   {
     title: $t("common.search"),
     dataIndex: "keyword",
-    search: true,
-    searchType: "input",
     hideInTable: true,
   },
   {
@@ -222,9 +235,6 @@ const columns = computed((): ProTableColumn[] => [
   {
     title: $t("permission.type"),
     dataIndex: "type",
-    search: true,
-    searchType: "select",
-    searchOptions: permissionTypeOptions.value,
     width: 120,
     valueType: "tag",
     valueEnum: permissionTypeValueEnum.value,
@@ -242,12 +252,6 @@ const columns = computed((): ProTableColumn[] => [
   {
     title: $t("common.status"),
     dataIndex: "status",
-    search: true,
-    searchType: "select",
-    searchOptions: [
-      { label: $t("user.active"), value: "active" },
-      { label: $t("user.inactive"), value: "inactive" },
-    ],
     width: 120,
     valueType: "badge",
     valueEnum: permissionStatusValueEnum.value,
