@@ -12,7 +12,11 @@
   >
     <div class="pro-form-grid-viewport">
       <a-row :gutter="grid?.gutter || 16">
-        <a-col v-for="item in visibleFormItems" :key="item.name" v-bind="getColBindings(item)">
+        <a-col
+          v-for="item in visibleFormItems"
+          :key="`${item.name}-${resetVersion}`"
+          v-bind="getColBindings(item)"
+        >
           <a-form-item
             :name="item.name"
             :label="item.label"
@@ -62,7 +66,7 @@ import type { ProFormItem, ProFormLayout, ProFormGrid } from '@/types/pro';
 import type { FormInstance } from 'antdv-next';
 
 import { cloneDeep } from 'lodash-es';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, nextTick, watch } from 'vue';
 
 import { $t } from '@/locales';
 
@@ -142,6 +146,7 @@ const emit = defineEmits(['submit', 'valuesChange', 'finish']);
 
 const formRef = ref<FormInstance>();
 const formData = ref<Record<string, unknown>>({});
+const resetVersion = ref(0);
 
 // Computed
 const isInlineLayout = computed(() => props.layout?.layout === 'inline');
@@ -228,8 +233,11 @@ const validate = async () => {
   return formRef.value.validate();
 };
 
-const resetFields = () => {
+const resetFields = async () => {
   formRef.value?.resetFields();
+  formData.value = props.initialValues ? cloneDeep(props.initialValues) : {};
+  resetVersion.value += 1;
+  await nextTick();
   formData.value = props.initialValues ? cloneDeep(props.initialValues) : {};
 };
 

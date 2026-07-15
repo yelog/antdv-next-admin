@@ -4,6 +4,7 @@ import {
   createRemoteOptionsController,
   localFilterOption,
   localFilterTreeNode,
+  toTreeSelectData,
 } from '@/components/Pro/ProForm/selectSearch';
 
 function deferred<T>() {
@@ -25,6 +26,24 @@ describe('ProForm select search helpers', () => {
     expect(localFilterTreeNode('研发', { title: '研发部', value: 'rd' })).toBe(true);
     expect(localFilterTreeNode('rd', { title: '研发部', value: 'rd' })).toBe(true);
     expect(localFilterTreeNode('sales', { title: '研发部', value: 'rd' })).toBe(false);
+  });
+
+  it('maps ProForm option labels to TreeSelect node titles recursively', () => {
+    expect(
+      toTreeSelectData([
+        {
+          label: 'Product & Technology',
+          value: 'product-tech',
+          children: [{ label: 'Platform Engineering', value: 'platform-engineering' }],
+        },
+      ]),
+    ).toEqual([
+      {
+        title: 'Product & Technology',
+        value: 'product-tech',
+        children: [{ title: 'Platform Engineering', value: 'platform-engineering' }],
+      },
+    ]);
   });
 
   it('marks stale remote search results so older requests cannot overwrite newer options', async () => {

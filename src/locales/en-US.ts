@@ -618,6 +618,21 @@ export default {
     progress: 'Progress',
     bioPlaceholder: 'Please enter bio',
     submitSuccess: 'Submitted successfully!',
+    remote: {
+      title: 'Remote Data Selection',
+      description:
+        'Explore remote Select search, lazy TreeSelect expansion, and remote TreeSelect search.',
+      selectTitle: 'Remote Select Search',
+      selectHint: 'Search by name or department with debounce and stale-response protection.',
+      selectPlaceholder: 'Search users, e.g. Lin or Design',
+      lazyTreeTitle: 'Lazy TreeSelect Expansion',
+      lazyTreeHint: 'Expand a region to load the next level of organization data on demand.',
+      lazyTreePlaceholder: 'Expand and select an organization',
+      searchTreeTitle: 'Remote TreeSelect Search',
+      searchTreeHint: 'Search organizations remotely and keep the parent path for matched nodes.',
+      searchTreePlaceholder: 'Search organizations, e.g. Platform',
+      empty: 'No matching results',
+    },
     roles: {
       admin: 'Administrator',
       user: 'Regular User',

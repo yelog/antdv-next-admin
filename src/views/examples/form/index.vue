@@ -26,7 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import type { ProFormItem } from '@/types/pro';
+import type { ProFormItem, ProFormOption } from '@/types/pro';
+import type { TreeSelectProps } from 'antdv-next';
 
 import { message } from 'antdv-next';
 import { computed, ref } from 'vue';
@@ -35,7 +36,43 @@ import ProForm from '@/components/Pro/ProForm/index.vue';
 import { $t } from '@/locales';
 import { commonRules } from '@/utils/formRules';
 
+import {
+  createLazyChildren,
+  searchRemoteTree,
+  searchRemoteUsers,
+  type RemoteTreeNode,
+} from './remoteData';
+
 const formRef = ref();
+
+const lazyTreeLoading = ref(false);
+const lazyTreeData = ref<RemoteTreeNode[]>([
+  { title: 'North Region', value: 'north-region' },
+  { title: 'South Region', value: 'south-region' },
+  { title: 'Headquarters', value: 'headquarters', isLeaf: true },
+]);
+function toProFormOptions(nodes: RemoteTreeNode[]): ProFormOption[] {
+  return nodes.map((node) => ({
+    label: node.title,
+    value: node.value,
+    children: node.children ? toProFormOptions(node.children) : undefined,
+  }));
+}
+
+async function waitForRemoteData(): Promise<void> {
+  await new Promise<void>((resolve) => setTimeout(resolve, 500));
+}
+
+async function searchRemoteUserOptions(keyword: string): Promise<ProFormOption[]> {
+  await waitForRemoteData();
+  return searchRemoteUsers(keyword);
+}
+
+async function searchRemoteTreeOptions(keyword: string): Promise<ProFormOption[]> {
+  await waitForRemoteData();
+  const results = searchRemoteTree(keyword);
+  return toProFormOptions(results);
+}
 
 const formItems = computed<ProFormItem[]>(() => [
   {
@@ -153,6 +190,37 @@ const formItems = computed<ProFormItem[]>(() => [
     },
   },
   {
+    name: 'remoteUser',
+    label: $t('exampleForm.remote.selectTitle'),
+    type: 'select',
+    searchMode: 'remote',
+    remoteSearch: searchRemoteUserOptions,
+    placeholder: $t('exampleForm.remote.selectPlaceholder'),
+    tooltip: $t('exampleForm.remote.selectHint'),
+  },
+  {
+    name: 'lazyOrganization',
+    label: $t('exampleForm.remote.lazyTreeTitle'),
+    type: 'treeSelect',
+    options: toProFormOptions(lazyTreeData.value),
+    placeholder: $t('exampleForm.remote.lazyTreePlaceholder'),
+    tooltip: $t('exampleForm.remote.lazyTreeHint'),
+    searchable: false,
+    props: {
+      loadData: loadLazyTreeData,
+      loading: lazyTreeLoading.value,
+    },
+  },
+  {
+    name: 'remoteOrganization',
+    label: $t('exampleForm.remote.searchTreeTitle'),
+    type: 'treeSelect',
+    searchMode: 'remote',
+    remoteSearch: searchRemoteTreeOptions,
+    placeholder: $t('exampleForm.remote.searchTreePlaceholder'),
+    tooltip: $t('exampleForm.remote.searchTreeHint'),
+  },
+  {
     name: 'bio',
     label: $t('user.bio'),
     type: 'textarea',
@@ -173,6 +241,26 @@ const handleSubmit = (values: Record<string, unknown>) => {
 
 const handleReset = () => {
   formRef.value?.resetFields();
+};
+
+function appendLazyChildren(nodes: RemoteTreeNode[], parentValue: string): RemoteTreeNode[] {
+  return nodes.map((node) => {
+    if (node.value === parentValue) {
+      return node.children ? node : { ...node, children: createLazyChildren(parentValue) };
+    }
+    if (!node.children) return node;
+    return { ...node, children: appendLazyChildren(node.children, parentValue) };
+  });
+}
+
+const loadLazyTreeData: TreeSelectProps['loadData'] = async (node) => {
+  const parentValue = typeof node.value === 'string' ? node.value : '';
+  if (!parentValue || node.children) return;
+
+  lazyTreeLoading.value = true;
+  await new Promise<void>((resolve) => setTimeout(resolve, 500));
+  lazyTreeData.value = appendLazyChildren(lazyTreeData.value, parentValue);
+  lazyTreeLoading.value = false;
 };
 </script>
 

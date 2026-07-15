@@ -171,6 +171,7 @@
       :tree-data="treeSelectData"
       :show-search="treeSelectShowSearch"
       :filter-tree-node="treeSelectFilterTreeNode"
+      :tree-expanded-keys="isRemoteSearch ? remoteTreeExpandedKeys : undefined"
       :loading="remoteLoading"
       style="width: 100%"
       v-bind="item.props"
@@ -212,6 +213,7 @@ import {
   createRemoteOptionsController,
   localFilterOption,
   localFilterTreeNode,
+  toTreeSelectData,
 } from './selectSearch';
 
 interface Props {
@@ -237,6 +239,7 @@ const resolvedOptions = computed(() => {
 const remoteSearchController = createRemoteOptionsController();
 const remoteOptions = ref<ProFormOption[] | null>(null);
 const remoteLoading = ref(false);
+const remoteTreeExpandedKeys = ref<Array<string | number>>([]);
 
 const displayedOptions = computed(() => {
   return remoteOptions.value ?? resolvedOptions.value;
@@ -270,7 +273,7 @@ const resolveFilterTreeNode = () => {
 };
 
 const treeSelectData = computed(() => {
-  return displayedOptions.value as unknown as TreeSelectProps['treeData'];
+  return toTreeSelectData(displayedOptions.value) as unknown as TreeSelectProps['treeData'];
 });
 
 const treeSelectShowSearch = computed(() => {
@@ -287,8 +290,12 @@ const handleSearch = async (keyword: string) => {
   const result = await remoteSearchController.search(keyword, props.item.remoteSearch);
   if (result.status === 'success') {
     remoteOptions.value = result.options;
+    remoteTreeExpandedKeys.value = result.options.map((option) =>
+      typeof option.value === 'boolean' ? String(option.value) : option.value,
+    );
   } else if (result.status !== 'stale') {
     remoteOptions.value = null;
+    remoteTreeExpandedKeys.value = [];
   }
   if (result.status !== 'stale') {
     remoteLoading.value = false;
@@ -313,6 +320,7 @@ watch(
     remoteSearchController.reset();
     remoteOptions.value = null;
     remoteLoading.value = false;
+    remoteTreeExpandedKeys.value = [];
   },
 );
 

@@ -1,5 +1,12 @@
 import type { ProFormOption } from '@/types/pro';
 
+export interface ProFormTreeSelectNode {
+  title: string;
+  value: ProFormOption['value'];
+  disabled?: boolean;
+  children?: ProFormTreeSelectNode[];
+}
+
 export type RemoteOptionsResult =
   | { status: 'success'; options: ProFormOption[] }
   | { status: 'cleared' | 'error' | 'stale'; options: null };
@@ -27,6 +34,15 @@ export function localFilterTreeNode(
   return [node.label, node.title, node.value]
     .filter((item) => item != null)
     .some((item) => String(item).toLowerCase().includes(keyword));
+}
+
+export function toTreeSelectData(options: ProFormOption[]): ProFormTreeSelectNode[] {
+  return options.map((option) => ({
+    title: option.label,
+    value: option.value,
+    disabled: option.disabled,
+    children: option.children ? toTreeSelectData(option.children) : undefined,
+  }));
 }
 
 export function createRemoteOptionsController() {
