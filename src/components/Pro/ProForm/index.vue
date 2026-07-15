@@ -65,6 +65,7 @@ import { ref, computed, watch } from "vue";
 import { $t } from "@/locales";
 
 import FormItemRender from "./FormItemRender.vue";
+import { buildProFormRules } from "./formRules";
 
 interface Props {
   formItems: ProFormItem[];
@@ -110,32 +111,11 @@ const visibleFormItems = computed(() => {
 });
 
 const formRules = computed(() => {
-  const rules: Record<string, unknown[]> = {};
-  props.formItems.forEach((item) => {
-    const itemRules = [];
-
-    // 如果字段标记为 required，自动添加 required 规则
-    if (item.required) {
-      itemRules.push({
-        required: true,
-        message: $t("proForm.enterPlaceholder", {
-          label: String(item.label ?? ""),
-        }),
-      });
-    }
-
-    // 添加自定义规则
-    if (item.rules) {
-      itemRules.push(
-        ...(Array.isArray(item.rules) ? item.rules : [item.rules]),
-      );
-    }
-
-    if (itemRules.length > 0) {
-      rules[item.name] = itemRules;
-    }
-  });
-  return rules;
+  return buildProFormRules(props.formItems, (item) =>
+    $t("proForm.enterPlaceholder", {
+      label: String(item.label ?? ""),
+    }),
+  );
 });
 
 // Methods
