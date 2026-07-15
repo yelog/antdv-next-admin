@@ -6,7 +6,7 @@
 
 ## 目标
 
-在现有《表单示例》页面增加一个独立的“远程数据选择”区域，稳定展示以下三种交互：
+在现有《表单示例》的 ProForm 中增加三个真实字段，稳定展示以下三种交互：
 
 1. Select 输入关键词后远程搜索。
 2. TreeSelect 展开父节点时异步加载子节点。
@@ -14,11 +14,11 @@
 
 ## 方案
 
-示例直接使用 Antdv Next 原生 Select 与 TreeSelect，不扩展 ProForm schema。这样可以完整展示组件原生 API、加载与空状态，同时避免把演示需求扩大为通用表单字段协议改造。
+示例复用 ProForm 已有的 `searchMode: 'remote'`、`remoteSearch` 和透传 `props` 契约，不新增另一套搜索实现。远程 Select 和远程搜索 TreeSelect 通过 `remoteSearch` 提供选项，异步展开 TreeSelect 通过响应式 `options` 与 `props.loadData` 加载子节点。
 
 远程请求使用页面内的本地模拟数据和延迟 Promise，不依赖公网服务。Select 与远程搜索 TreeSelect 使用防抖，并通过递增请求编号忽略过期响应。异步展开 TreeSelect 使用 `loadData` 追加子节点，并防止重复加载。
 
-三个示例放在现有 ProForm 卡片下方的独立卡片中，使用响应式栅格排列。所有可见文案加入中、英、日、韩四种语言资源。
+三个示例直接加入现有 `formItems`，与其他字段共享 ProForm 的布局、提交和重置流程。所有可见文案加入中、英、日、韩四种语言资源。
 
 ## 状态与异常处理
 
