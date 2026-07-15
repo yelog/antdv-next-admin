@@ -6,6 +6,7 @@ import { registerDefaultComponentProps } from './components/Global/defaultCompon
 import { setupDirectives } from './directives';
 import i18n from './locales';
 import router from './router';
+import { useMenuPreferencesStore } from './stores/menuPreferences';
 import { service } from './utils/request';
 // Import global styles
 // Tailwind CSS with @layer configuration (must come after reset.css)
@@ -39,9 +40,12 @@ async function bootstrap() {
   restoreGitHubPagesRedirect();
 
   const app = createApp(App);
+  const pinia = createPinia();
 
   // Register plugins
-  app.use(createPinia());
+  app.use(pinia);
+  // Capture and migrate legacy tab favorites before router guards can rewrite tab state.
+  useMenuPreferencesStore(pinia);
   app.use(router);
   app.use(i18n);
   registerDefaultComponentProps(app);

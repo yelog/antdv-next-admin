@@ -1,3 +1,4 @@
+import type { MenuHistoryItem } from '@/types/navigation';
 import type { AppRouteRecordRaw } from '@/types/router';
 import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 
@@ -6,19 +7,13 @@ import { useDictStore } from '@/stores/dict';
 import { usePermissionStore } from '@/stores/permission';
 import { useTabsStore } from '@/stores/tabs';
 import { resolveLocaleText } from '@/utils/i18n';
+import { normalizeMenuHistoryItems } from '@/utils/menuPreferences';
 
 import { basicRoutes, notFoundRoute, staticRoutes } from './routes';
 import { getRouteNamesToRemove } from './utils';
 
 const MENU_HISTORY_KEY = 'app-menu-history';
 const MAX_HISTORY_ITEMS = 10;
-
-interface MenuHistoryItem {
-  path: string;
-  title: string;
-  icon?: string;
-  timestamp: number;
-}
 
 function setDocumentTitle(route: RouteLocationNormalized) {
   if (!route.meta.title) return;
@@ -172,23 +167,32 @@ function shouldAddTab(route: RouteLocationNormalized) {
 }
 
 function recordMenuHistory(route: RouteLocationNormalized) {
+  let history: MenuHistoryItem[] = [];
   try {
-    const history: MenuHistoryItem[] = JSON.parse(localStorage.getItem(MENU_HISTORY_KEY) || '[]');
-    const title = resolveLocaleText(route.meta?.title as string, String(route.name || route.path));
+    const persistedHistory: unknown = JSON.parse(localStorage.getItem(MENU_HISTORY_KEY) || '[]');
+    history = normalizeMenuHistoryItems(persistedHistory);
+  } catch {
+    // Replace malformed persisted history with the current valid navigation below.
+  }
 
-    const filtered = history.filter((item) => item.path !== route.path);
+  const title = resolveLocaleText(route.meta?.title as string, String(route.name || route.path));
 
-    filtered.unshift({
-      path: route.path,
-      title,
-      icon: route.meta?.icon as string,
-      timestamp: Date.now(),
-    });
+  const filtered = history.filter((item) => item.path !== route.path);
 
-    const trimmed = filtered.slice(0, MAX_HISTORY_ITEMS);
+  filtered.unshift({
+    path: route.path,
+    title,
+    icon: route.meta?.icon as string,
+    timestamp: Date.now(),
+  });
 
+  const trimmed = filtered.slice(0, MAX_HISTORY_ITEMS);
+
+  try {
     localStorage.setItem(MENU_HISTORY_KEY, JSON.stringify(trimmed));
-  } catch {}
+  } catch {
+    // History persistence is optional when storage is unavailable.
+  }
 }
 
 export function resetRouter(router: Router) {

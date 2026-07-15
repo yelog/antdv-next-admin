@@ -22,19 +22,24 @@
       <a-button
         type="text"
         class="header-action search-btn"
-        aria-label="Search"
+        :aria-label="$t('layout.menuSearchDialog')"
         @click="openGlobalSearch"
       >
         <SearchOutlined />
       </a-button>
-      <div class="search-trigger desktop-only" @click="openGlobalSearch">
+      <button
+        type="button"
+        class="search-trigger desktop-only"
+        :aria-label="$t('layout.menuSearchDialog')"
+        @click="openGlobalSearch"
+      >
         <SearchOutlined class="search-icon" />
         <span class="search-text">{{ $t('common.search') }}</span>
-        <div class="search-key">
+        <span class="search-key" aria-hidden="true">
           <span class="search-key-text">{{ isMac ? '⌘' : 'Ctrl' }}</span>
           <span class="search-key-k">K</span>
-        </div>
-      </div>
+        </span>
+      </button>
 
       <!-- Desktop: Show all actions -->
       <template v-if="!layoutStore.isMobile">
@@ -363,6 +368,8 @@ onBeforeUnmount(() => {
       cursor: pointer;
       transition: all 0.2s;
       color: var(--color-text-secondary);
+      font: inherit;
+      line-height: 1;
 
       &:hover {
         background: var(--color-bg-container);

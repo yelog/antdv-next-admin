@@ -58,6 +58,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useLayoutStore } from '@/stores/layout';
+import { useMenuPreferencesStore } from '@/stores/menuPreferences';
 import { useTabsStore } from '@/stores/tabs';
 import { resolveLocaleText } from '@/utils/i18n';
 import { resolveIcon } from '@/utils/icon';
@@ -66,6 +67,7 @@ const route = useRoute();
 const router = useRouter();
 const { t, locale } = useI18n();
 const tabsStore = useTabsStore();
+const menuPreferencesStore = useMenuPreferencesStore();
 const layoutStore = useLayoutStore();
 
 const isFullscreen = computed(() => layoutStore.pageFullscreen);
@@ -118,7 +120,9 @@ const tabItems = computed(() => {
             return h('span', { class: 'tab-label' }, [
               icon ? h(icon, { class: 'tab-menu-icon' }) : null,
               h('span', { class: 'tab-text' }, getTabLabel(tab)),
-              tab.favorite ? h(StarFilled, { class: 'tab-favorite-icon' }) : null,
+              menuPreferencesStore.isFavorite(tab.path)
+                ? h(StarFilled, { class: 'tab-favorite-icon' })
+                : null,
               isTabFixed(tab) ? h(PushpinFilled, { class: 'tab-pin-icon' }) : null,
             ]);
           },
@@ -165,6 +169,7 @@ const hasClosableTabs = computed(() => {
 const getTabMenuItems = (tab: Tab) => {
   // Get the latest tab state from store to ensure reactivity
   const latestTab = tabsStore.tabs.find((item) => item.path === tab.path) || tab;
+  const isFavorite = menuPreferencesStore.isFavorite(latestTab.path);
   // Call t() function to get reactive translations
   return [
     {
@@ -181,8 +186,8 @@ const getTabMenuItems = (tab: Tab) => {
     },
     {
       key: 'favorite',
-      icon: h(latestTab.favorite ? StarFilled : StarOutlined),
-      label: latestTab.favorite ? t('layout.tabs.unfavorite') : t('layout.tabs.favorite'),
+      icon: h(isFavorite ? StarFilled : StarOutlined),
+      label: isFavorite ? t('layout.tabs.unfavorite') : t('layout.tabs.favorite'),
     },
     {
       key: 'refresh',
@@ -245,7 +250,7 @@ const handleContextMenu = (e: { key: string }, tab: Tab) => {
       tabsStore.togglePinTab(tab.path);
       break;
     case 'favorite':
-      tabsStore.toggleFavoriteTab(tab.path);
+      menuPreferencesStore.toggleFavorite(tab.path);
       break;
     case 'refresh':
       tabsStore.refreshTab(tab.path);

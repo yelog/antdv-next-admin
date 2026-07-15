@@ -11,6 +11,7 @@ export { useThemeStore } from './theme';
 export { useTabsStore } from './tabs';
 export { usePermissionStore } from './permission';
 export { useNotificationStore } from './notification';
+export { useMenuPreferencesStore } from './menuPreferences';
 export { useSettingsStore } from './settings';
 export { useWatermarkStore } from './watermark';
 export { useDemoStateCacheStore } from './demoStateCache';

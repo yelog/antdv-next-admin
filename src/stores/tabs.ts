@@ -165,13 +165,6 @@ export const useTabsStore = defineStore('tabs', () => {
     updateTabClosable(tab);
   };
 
-  const toggleFavoriteTab = (path: string) => {
-    const tab = tabs.value.find((item) => item.path === path);
-    if (!tab) return;
-
-    tab.favorite = !tab.favorite;
-  };
-
   const setActiveTab = (path: string) => {
     activeTabPath.value = path;
   };
@@ -275,7 +268,13 @@ export const useTabsStore = defineStore('tabs', () => {
         collectPaths(routes);
 
         // Restore tabs that still exist
-        const restoredTabs = state.tabs.filter((tab: Tab) => validPaths.has(tab.path));
+        const restoredTabs = state.tabs
+          .filter((tab: Tab) => validPaths.has(tab.path))
+          .map((tab: Tab) => {
+            const restoredTab = { ...tab };
+            delete restoredTab.favorite;
+            return restoredTab;
+          });
         if (restoredTabs.length > 0) {
           tabs.value = restoredTabs;
           // Restore active tab if it exists
@@ -328,7 +327,6 @@ export const useTabsStore = defineStore('tabs', () => {
     closeLeftTabs,
     closeRightTabs,
     togglePinTab,
-    toggleFavoriteTab,
     setActiveTab,
     refreshTab,
     initAffixTabs,

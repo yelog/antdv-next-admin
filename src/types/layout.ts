@@ -16,7 +16,7 @@ export interface Tab {
   // User pinned tab (cannot be closed by batch close actions)
   pinned?: boolean;
   affix?: boolean;
-  // User favorite tab
+  /** @deprecated Retained only for migrating legacy persisted tab favorites. */
   favorite?: boolean;
 }
 
