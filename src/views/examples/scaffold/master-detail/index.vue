@@ -27,7 +27,7 @@
       v-model:open="drawerOpen"
       width="560"
       :title="$t('examples.scaffold.masterDetail.drawerTitle')"
-      :destroy-on-close="false"
+      :destroy-on-hidden="false"
     >
       <template v-if="activeRecord">
         <ProDetail

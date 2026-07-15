@@ -6,9 +6,7 @@
         v-if="showCollapseButton"
         type="text"
         class="collapse-btn"
-        :aria-label="
-          layoutStore.collapsed ? 'Expand sidebar' : 'Collapse sidebar'
-        "
+        :aria-label="layoutStore.collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
         @click="layoutStore.toggleSidebar"
       >
         <MenuFoldOutlined v-if="!layoutStore.collapsed" />
@@ -31,9 +29,9 @@
       </a-button>
       <div class="search-trigger desktop-only" @click="openGlobalSearch">
         <SearchOutlined class="search-icon" />
-        <span class="search-text">{{ $t("common.search") }}</span>
+        <span class="search-text">{{ $t('common.search') }}</span>
         <div class="search-key">
-          <span class="search-key-text">{{ isMac ? "⌘" : "Ctrl" }}</span>
+          <span class="search-key-text">{{ isMac ? '⌘' : 'Ctrl' }}</span>
           <span class="search-key-k">K</span>
         </div>
       </div>
@@ -43,9 +41,7 @@
         <a-tooltip
           v-if="layoutStore.aiEntryVisible"
           :title="
-            layoutStore.aiCollabEnabled
-              ? $t('layout.aiCollabDisable')
-              : $t('layout.aiCollabEnable')
+            layoutStore.aiCollabEnabled ? $t('layout.aiCollabDisable') : $t('layout.aiCollabEnable')
           "
         >
           <a-button
@@ -82,12 +78,7 @@
       </template>
 
       <!-- Mobile: More menu (three dots) -->
-      <a-dropdown
-        v-else
-        :trigger="['click']"
-        placement="bottomRight"
-        :menu="moreMenuProps"
-      >
+      <a-dropdown v-else :trigger="['click']" placement="bottomRight" :menu="moreMenuProps">
         <a-button type="text" class="header-action">
           <MoreOutlined />
         </a-button>
@@ -98,10 +89,10 @@
     </div>
 
     <!-- Global Search Modal -->
-    <GlobalSearch v-if="globalSearchLoaded" ref="globalSearchRef" />
+    <GlobalSearch v-if="globalSearchLoaded" v-model:open="globalSearchOpen" />
 
     <!-- Settings Drawer -->
-    <SettingsDrawer v-if="settingsDrawerLoaded" ref="settingsDrawerRef" />
+    <SettingsDrawer v-if="settingsDrawerLoaded" v-model:open="settingsDrawerOpen" />
   </a-layout-header>
 </template>
 
@@ -116,35 +107,30 @@ import {
   FullscreenOutlined,
   BulbOutlined,
   GlobalOutlined,
-} from "@antdv-next/icons";
+} from '@antdv-next/icons';
 import {
   computed,
   defineAsyncComponent,
   h,
-  nextTick,
   onBeforeUnmount,
   onMounted,
   ref,
   type VNode,
-} from "vue";
+} from 'vue';
 
-import { $t, setLocale, LOCALE_NATIVE_LABELS } from "@/locales";
-import { useLayoutStore } from "@/stores/layout";
-import { useThemeStore } from "@/stores/theme";
+import { $t, setLocale, LOCALE_NATIVE_LABELS } from '@/locales';
+import { useLayoutStore } from '@/stores/layout';
+import { useThemeStore } from '@/stores/theme';
 
-import AvatarDropdown from "./AvatarDropdown.vue";
-import Breadcrumb from "./Breadcrumb.vue";
-import FullscreenToggle from "./FullscreenToggle.vue";
-import LanguageSwitch from "./LanguageSwitch.vue";
-import ThemeToggle from "./ThemeToggle.vue";
+import AvatarDropdown from './AvatarDropdown.vue';
+import Breadcrumb from './Breadcrumb.vue';
+import FullscreenToggle from './FullscreenToggle.vue';
+import LanguageSwitch from './LanguageSwitch.vue';
+import ThemeToggle from './ThemeToggle.vue';
 
-const loadGlobalSearch = () => import("./GlobalSearch.vue");
-const loadSettingsDrawer = () => import("./SettingsDrawer.vue");
-const GlobalSearch = defineAsyncComponent(loadGlobalSearch);
-const NotificationPanel = defineAsyncComponent(
-  () => import("./NotificationPanel.vue"),
-);
-const SettingsDrawer = defineAsyncComponent(loadSettingsDrawer);
+const GlobalSearch = defineAsyncComponent(() => import('./GlobalSearch.vue'));
+const NotificationPanel = defineAsyncComponent(() => import('./NotificationPanel.vue'));
+const SettingsDrawer = defineAsyncComponent(() => import('./SettingsDrawer.vue'));
 
 interface Props {
   showBreadcrumb?: boolean;
@@ -155,7 +141,7 @@ interface MenuItem {
   key?: string;
   label?: string;
   icon?: VNode;
-  type?: "divider";
+  type?: 'divider';
   children?: MenuItem[];
 }
 
@@ -166,24 +152,20 @@ withDefaults(defineProps<Props>(), {
 
 const layoutStore = useLayoutStore();
 const themeStore = useThemeStore();
-const globalSearchRef = ref();
-const settingsDrawerRef = ref();
 const globalSearchLoaded = ref(false);
 const settingsDrawerLoaded = ref(false);
+const globalSearchOpen = ref(false);
+const settingsDrawerOpen = ref(false);
 const isMac = ref(false);
 
-const openGlobalSearch = async () => {
-  await loadGlobalSearch();
+const openGlobalSearch = () => {
   globalSearchLoaded.value = true;
-  await nextTick();
-  globalSearchRef.value?.open();
+  globalSearchOpen.value = true;
 };
 
-const openSettings = async () => {
-  await loadSettingsDrawer();
+const openSettings = () => {
   settingsDrawerLoaded.value = true;
-  await nextTick();
-  settingsDrawerRef.value?.open();
+  settingsDrawerOpen.value = true;
 };
 
 const toggleFullscreen = () => {
@@ -198,34 +180,34 @@ const toggleFullscreen = () => {
 
 const handleMoreMenuClick = async ({ key }: { key: string }) => {
   switch (key) {
-    case "fullscreen":
+    case 'fullscreen':
       toggleFullscreen();
       break;
-    case "ai-collab":
+    case 'ai-collab':
       layoutStore.toggleAiCollab();
       break;
-    case "theme-light":
-      themeStore.setTheme("light");
+    case 'theme-light':
+      themeStore.setTheme('light');
       break;
-    case "theme-dark":
-      themeStore.setTheme("dark");
+    case 'theme-dark':
+      themeStore.setTheme('dark');
       break;
-    case "theme-auto":
-      themeStore.setTheme("system");
+    case 'theme-auto':
+      themeStore.setTheme('system');
       break;
-    case "lang-zh":
-      await setLocale("zh-CN");
+    case 'lang-zh':
+      await setLocale('zh-CN');
       break;
-    case "lang-en":
-      await setLocale("en-US");
+    case 'lang-en':
+      await setLocale('en-US');
       break;
-    case "lang-ja":
-      await setLocale("ja-JP");
+    case 'lang-ja':
+      await setLocale('ja-JP');
       break;
-    case "lang-ko":
-      await setLocale("ko-KR");
+    case 'lang-ko':
+      await setLocale('ko-KR');
       break;
-    case "settings":
+    case 'settings':
       await openSettings();
       break;
   }
@@ -234,74 +216,74 @@ const handleMoreMenuClick = async ({ key }: { key: string }) => {
 const moreMenuProps = computed(() => {
   const items: MenuItem[] = [
     {
-      key: "fullscreen",
-      label: $t("layout.fullscreen"),
+      key: 'fullscreen',
+      label: $t('layout.fullscreen'),
       icon: h(FullscreenOutlined),
     },
   ];
 
   if (layoutStore.aiEntryVisible) {
     items.push({
-      key: "ai-collab",
+      key: 'ai-collab',
       label: layoutStore.aiCollabEnabled
-        ? $t("layout.aiCollabDisable")
-        : $t("layout.aiCollabEnable"),
+        ? $t('layout.aiCollabDisable')
+        : $t('layout.aiCollabEnable'),
       icon: h(MessageOutlined),
     });
   }
 
   items.push(
     {
-      type: "divider",
+      type: 'divider',
     },
     {
-      key: "theme",
-      label: $t("layout.theme"),
+      key: 'theme',
+      label: $t('layout.theme'),
       icon: h(BulbOutlined),
       children: [
         {
-          key: "theme-light",
-          label: $t("layout.themeLight"),
+          key: 'theme-light',
+          label: $t('layout.themeLight'),
         },
         {
-          key: "theme-dark",
-          label: $t("layout.themeDark"),
+          key: 'theme-dark',
+          label: $t('layout.themeDark'),
         },
         {
-          key: "theme-auto",
-          label: $t("layout.themeAuto"),
+          key: 'theme-auto',
+          label: $t('layout.themeAuto'),
         },
       ],
     },
     {
-      key: "language",
-      label: $t("layout.language"),
+      key: 'language',
+      label: $t('layout.language'),
       icon: h(GlobalOutlined),
       children: [
         {
-          key: "lang-zh",
-          label: LOCALE_NATIVE_LABELS["zh-CN"],
+          key: 'lang-zh',
+          label: LOCALE_NATIVE_LABELS['zh-CN'],
         },
         {
-          key: "lang-en",
-          label: LOCALE_NATIVE_LABELS["en-US"],
+          key: 'lang-en',
+          label: LOCALE_NATIVE_LABELS['en-US'],
         },
         {
-          key: "lang-ja",
-          label: LOCALE_NATIVE_LABELS["ja-JP"],
+          key: 'lang-ja',
+          label: LOCALE_NATIVE_LABELS['ja-JP'],
         },
         {
-          key: "lang-ko",
-          label: LOCALE_NATIVE_LABELS["ko-KR"],
+          key: 'lang-ko',
+          label: LOCALE_NATIVE_LABELS['ko-KR'],
         },
       ],
     },
     {
-      type: "divider",
+      type: 'divider',
     },
     {
-      key: "settings",
-      label: $t("settings.title"),
+      key: 'settings',
+      label: $t('settings.title'),
       icon: h(SettingOutlined),
     },
   );
@@ -310,7 +292,7 @@ const moreMenuProps = computed(() => {
 });
 
 const handleKeydown = (e: KeyboardEvent) => {
-  if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
     e.preventDefault();
     openGlobalSearch();
   }
@@ -319,11 +301,11 @@ const handleKeydown = (e: KeyboardEvent) => {
 onMounted(() => {
   // Simple check for Mac
   isMac.value = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
-  window.addEventListener("keydown", handleKeydown);
+  window.addEventListener('keydown', handleKeydown);
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener("keydown", handleKeydown);
+  window.removeEventListener('keydown', handleKeydown);
 });
 </script>
 

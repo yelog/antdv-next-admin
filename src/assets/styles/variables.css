@@ -128,6 +128,8 @@
   --color-primary-9: #003a8c;
   --color-primary-10: #002766;
   --color-primary: var(--color-primary-6);
+  --color-primary-bg: var(--color-primary-1);
+  --color-primary-bg-hover: color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 /* ========== Primary Color Themes ========== */

@@ -10,9 +10,7 @@ export interface ProTableRequestParams {
   [key: string]: unknown;
 }
 
-export interface ProTableRequestResult<
-  TRecord extends ProTableRecord = ProTableRecord,
-> {
+export interface ProTableRequestResult<TRecord extends ProTableRecord = ProTableRecord> {
   data: TRecord[];
   total?: number;
   success: boolean;
@@ -43,9 +41,7 @@ export interface ProTableHeaderFilterOption {
   value: string | number | boolean;
 }
 
-export interface ProTableHeaderFilter<
-  TRecord extends ProTableRecord = ProTableRecord,
-> {
+export interface ProTableHeaderFilter<TRecord extends ProTableRecord = ProTableRecord> {
   type: ProTableHeaderFilterType;
   mode?: HeaderFilterMode;
   icon?: 'search' | 'filter';
@@ -55,7 +51,11 @@ export interface ProTableHeaderFilter<
   options?: ProTableHeaderFilterOption[];
   caseSensitive?: boolean;
   matchAllKeywords?: boolean;
-  clientFilter?: (filterValue: unknown, record: TRecord, column: ProTableColumn<TRecord>) => boolean;
+  clientFilter?: (
+    filterValue: unknown,
+    record: TRecord,
+    column: ProTableColumn<TRecord>,
+  ) => boolean;
   transformRequestValue?: (value: unknown, selectedValues: unknown[]) => unknown;
 }
 
@@ -66,9 +66,7 @@ export interface ProTableHeaderFilterConfig {
   resetPageOnFilterChange?: boolean;
 }
 
-export interface ProTableColumn<
-  TRecord extends ProTableRecord = ProTableRecord,
-> {
+export interface ProTableColumn<TRecord extends ProTableRecord = ProTableRecord> {
   title: string;
   dataIndex: string;
   key?: string;
@@ -142,13 +140,16 @@ export interface ProTableAction {
 export interface ProTableToolbar {
   title?: string;
   subTitle?: string;
-  actions?: Array<'!refresh' | '!density' | '!columnSetting' | 'refresh' | 'density' | 'columnSetting'>;
+  actions?: Array<
+    '!refresh' | '!density' | '!columnSetting' | 'refresh' | 'density' | 'columnSetting'
+  >;
 }
 
 export interface ProTableSearch {
   labelWidth?: number;
   defaultCollapsed?: boolean;
   collapsedRows?: number;
+  columnsPerRow?: number | Partial<Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', number>>;
   collapseRender?: boolean;
   formItems?: ProFormItem[];
 }
@@ -194,6 +195,13 @@ export type FormItemType =
   | 'treeSelect'
   | 'custom';
 
+export interface ProFormOption {
+  label: string;
+  value: string | number | boolean;
+  disabled?: boolean;
+  children?: ProFormOption[];
+}
+
 export interface ProFormItem {
   name: string;
   label: string;
@@ -210,12 +218,15 @@ export interface ProFormItem {
   hidden?: boolean | ((values: Record<string, unknown>) => boolean);
 
   // Options (for select, radio, checkbox, etc.) — supports function form for dynamic options
-  options?:
-    | Array<{ label: string; value: string | number | boolean; disabled?: boolean }>
-    | ((values: Record<string, unknown>) => Array<{ label: string; value: string | number | boolean; disabled?: boolean }>);
+  options?: ProFormOption[] | ((values: Record<string, unknown>) => ProFormOption[]);
 
   // Props to pass to the component
   props?: Record<string, unknown>;
+
+  // Search behavior for select-like fields. Local search is enabled by default.
+  searchable?: boolean;
+  searchMode?: 'local' | 'remote';
+  remoteSearch?: (keyword: string) => Promise<ProFormOption[]>;
 
   // Value prop name (for components like Switch that use 'checked')
   valuePropName?: string;
@@ -224,7 +235,7 @@ export interface ProFormItem {
   render?: Component;
 
   // Request for dynamic options
-  request?: () => Promise<Array<{ label: string; value: string | number | boolean }>>;
+  request?: () => Promise<ProFormOption[]>;
 }
 
 export interface ProFormLayout {
@@ -237,6 +248,15 @@ export interface ProFormGrid {
   gutter?: number;
   cols?: number;
   responsive?: boolean;
+  responsiveColumns?: number | Partial<Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', number>>;
+}
+
+export interface ProFormInstance<TValues extends object = Record<string, unknown>> {
+  validate: () => Promise<TValues>;
+  resetFields: () => void;
+  clearValidate: () => void;
+  setFieldsValue: (values: Partial<TValues>) => void;
+  getFieldsValue: () => TValues;
 }
 
 // ProDescriptions Types

@@ -16,7 +16,7 @@
       <div class="notification-panel">
         <div class="panel-header">
           <div class="header-left">
-            <span class="title">{{ $t("layout.notifications") }}</span>
+            <span class="title">{{ $t('layout.notifications') }}</span>
             <span v-if="notificationStore.unreadCount > 0" class="unread-pill">
               {{ notificationStore.unreadCount }}
             </span>
@@ -28,7 +28,7 @@
               :disabled="notificationStore.unreadCount === 0"
               @click="handleMarkAllRead"
             >
-              {{ $t("layout.markAllRead") }}
+              {{ $t('layout.markAllRead') }}
             </a-button>
             <a-button
               type="link"
@@ -36,7 +36,7 @@
               :disabled="notificationStore.notifications.length === 0"
               @click="handleClearAll"
             >
-              {{ $t("layout.clearAll") }}
+              {{ $t('layout.clearAll') }}
             </a-button>
           </a-space>
         </div>
@@ -73,7 +73,7 @@
                   {{ notification.message }}
                 </div>
                 <div class="notification-detail-hint">
-                  {{ $t("layout.viewDetails") }}
+                  {{ $t('layout.viewDetails') }}
                 </div>
               </div>
 
@@ -93,16 +93,16 @@
               <BellOutlined class="empty-icon" />
               <span class="empty-dot" />
             </div>
-            <div class="empty-title">{{ $t("layout.noNotifications") }}</div>
+            <div class="empty-title">{{ $t('layout.noNotifications') }}</div>
             <div class="empty-subtitle">
-              {{ $t("layout.notificationsEmptyHint") }}
+              {{ $t('layout.notificationsEmptyHint') }}
             </div>
           </div>
         </div>
 
         <div class="panel-footer">
           <a-button type="link" class="view-all-btn" @click="handleViewAll">
-            {{ $t("layout.viewAllNotifications") }}
+            {{ $t('layout.viewAllNotifications') }}
             <RightOutlined />
           </a-button>
         </div>
@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Notification } from "@/types/layout";
+import type { Notification } from '@/types/layout';
 
 import {
   BellOutlined,
@@ -123,13 +123,13 @@ import {
   ExclamationCircleOutlined,
   CloseOutlined,
   RightOutlined,
-} from "@antdv-next/icons";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import { computed, ref } from "vue";
+} from '@antdv-next/icons';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { computed, ref } from 'vue';
 
-import router from "@/router";
-import { useNotificationStore } from "@/stores/notification";
+import router from '@/router';
+import { useNotificationStore } from '@/stores/notification';
 
 dayjs.extend(relativeTime);
 
@@ -152,25 +152,25 @@ const getNotificationTone = (notification: Notification) => {
 
   // Fallback to type-based classification
   switch (notification.type) {
-    case "success":
-      return "task";
-    case "warning":
-      return "security";
-    case "error":
-      return "error";
+    case 'success':
+      return 'task';
+    case 'warning':
+      return 'security';
+    case 'error':
+      return 'error';
     default:
-      return "system";
+      return 'system';
   }
 };
 
 const getNotificationIcon = (notification: Notification) => {
   const tone = getNotificationTone(notification);
 
-  if (tone === "system") return RocketOutlined;
-  if (tone === "message") return MailOutlined;
-  if (tone === "security") return SafetyCertificateOutlined;
-  if (tone === "task") return CheckCircleOutlined;
-  if (tone === "error") return ExclamationCircleOutlined;
+  if (tone === 'system') return RocketOutlined;
+  if (tone === 'message') return MailOutlined;
+  if (tone === 'security') return SafetyCertificateOutlined;
+  if (tone === 'task') return CheckCircleOutlined;
+  if (tone === 'error') return ExclamationCircleOutlined;
   return BellOutlined;
 };
 
@@ -178,7 +178,7 @@ const handleNotificationClick = (notification: Notification) => {
   notificationStore.markAsRead(notification.id);
   popoverOpen.value = false;
   router.push({
-    path: "/notifications",
+    path: '/notifications',
     query: {
       id: notification.id,
     },
@@ -199,7 +199,7 @@ const handleClearAll = () => {
 
 const handleViewAll = () => {
   popoverOpen.value = false;
-  router.push("/notifications");
+  router.push('/notifications');
 };
 </script>
 
@@ -243,8 +243,7 @@ const handleViewAll = () => {
       font-weight: 600;
       color: var(--color-primary);
       background: color-mix(in srgb, var(--color-primary) 12%, transparent);
-      border: 1px solid
-        color-mix(in srgb, var(--color-primary) 20%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
     }
   }
 
@@ -406,8 +405,8 @@ const handleViewAll = () => {
     }
 
     .tone-system .notification-icon {
-      color: #1677ff;
-      background: rgba(22, 119, 255, 0.12);
+      color: var(--color-primary);
+      background: color-mix(in srgb, var(--color-primary) 12%, transparent);
     }
 
     .tone-message .notification-icon {
@@ -444,8 +443,8 @@ const handleViewAll = () => {
         border-radius: 20px;
         background: linear-gradient(
           145deg,
-          rgba(22, 119, 255, 0.16),
-          rgba(22, 119, 255, 0.04)
+          color-mix(in srgb, var(--color-primary) 16%, transparent),
+          color-mix(in srgb, var(--color-primary) 4%, transparent)
         );
         display: flex;
         align-items: center;

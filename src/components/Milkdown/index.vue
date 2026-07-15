@@ -48,25 +48,24 @@ onMounted(async () => {
 
   checkDarkTheme();
 
-  const editor = await Editor.make()
-    .config((ctx) => {
-      ctx.set(rootCtx, editorRef.value);
-      ctx.set(defaultValueCtx, props.modelValue);
+  const editor = await Editor.make().config((ctx) => {
+    ctx.set(rootCtx, editorRef.value);
+    ctx.set(defaultValueCtx, props.modelValue);
 
-      // 配置编辑器视图
-      ctx.update(editorViewOptionsCtx, (prev) => ({
-        ...prev,
-        editable: () => !props.readonly,
-      }));
+    // 配置编辑器视图
+    ctx.update(editorViewOptionsCtx, (prev) => ({
+      ...prev,
+      editable: () => !props.readonly,
+    }));
 
-      // 监听内容变化
-      ctx.get(listenerCtx).markdownUpdated((_editorCtx, markdown, prevMarkdown) => {
-        if (markdown !== prevMarkdown) {
-          emit('update:modelValue', markdown);
-          emit('change', markdown);
-        }
-      });
+    // 监听内容变化
+    ctx.get(listenerCtx).markdownUpdated((_editorCtx, markdown, prevMarkdown) => {
+      if (markdown !== prevMarkdown) {
+        emit('update:modelValue', markdown);
+        emit('change', markdown);
+      }
     });
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorWithPlugins = (editor as any)
@@ -298,7 +297,7 @@ watch(
 
     // 选中样式
     ::selection {
-      background: var(--color-primary-deprecated-l-35);
+      background: color-mix(in srgb, var(--color-primary) 24%, transparent);
     }
   }
 }

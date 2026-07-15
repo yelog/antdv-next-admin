@@ -5,30 +5,45 @@
     :select="selectConfig"
     :date-picker="datePickerConfig"
     :range-picker="datePickerConfig"
+    :button="buttonConfig"
+    :locale="antdLocale"
   >
-    <router-view />
+    <a-app>
+      <router-view />
+    </a-app>
   </a-config-provider>
 </template>
 
 <script setup lang="ts">
-import { theme as antdTheme, type ThemeConfig } from "antdv-next";
-import { computed, onMounted } from "vue";
+import { theme as antdTheme, type ThemeConfig } from 'antdv-next';
+import enUS from 'antdv-next/dist/locale/en_US';
+import jaJP from 'antdv-next/dist/locale/ja_JP';
+import koKR from 'antdv-next/dist/locale/ko_KR';
+import zhCN from 'antdv-next/dist/locale/zh_CN';
+import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { appDefaultSettings } from "./settings";
-import { useNotificationStore } from "./stores/notification";
-import { useSettingsStore } from "./stores/settings";
-import { useThemeStore } from "./stores/theme";
-import { useWatermarkStore } from "./stores/watermark";
+import { appDefaultSettings } from './settings';
+import { useNotificationStore } from './stores/notification';
+import { useSettingsStore } from './stores/settings';
+import { useThemeStore } from './stores/theme';
+import { useWatermarkStore } from './stores/watermark';
 
 const themeStore = useThemeStore();
 const settingsStore = useSettingsStore();
 const watermarkStore = useWatermarkStore();
 const notificationStore = useNotificationStore();
+const { locale } = useI18n();
+
+const antdLocaleMap = {
+  'zh-CN': zhCN,
+  'en-US': enUS,
+  'ja-JP': jaJP,
+  'ko-KR': koKR,
+};
 
 const antdThemeConfig = computed<ThemeConfig>(() => ({
-  algorithm: themeStore.isDark
-    ? antdTheme.darkAlgorithm
-    : antdTheme.defaultAlgorithm,
+  algorithm: themeStore.isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
   token: {
     colorPrimary: settingsStore.primaryColorHex,
     colorLink: settingsStore.primaryColorHex,
@@ -42,13 +57,18 @@ const selectConfig = computed(
 const datePickerConfig = computed(
   () => appDefaultSettings.datePicker as unknown as Record<string, unknown>,
 );
+const buttonConfig = computed(() => appDefaultSettings.button);
+const antdLocale = computed(() => {
+  return antdLocaleMap[locale.value as keyof typeof antdLocaleMap] ?? zhCN;
+});
+
+notificationStore.initNotifications();
 
 onMounted(() => {
   // Initialize theme and settings from localStorage
   themeStore.initTheme();
   settingsStore.initSettings();
   watermarkStore.initWatermark();
-  notificationStore.initNotifications();
 });
 </script>
 

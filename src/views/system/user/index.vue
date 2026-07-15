@@ -14,48 +14,39 @@
     >
       <template #toolbar-actions>
         <a-space>
-          <a-upload
-            :show-upload-list="false"
-            accept=".csv"
-            :before-upload="handleImport"
-          >
-            <a-button> <UploadOutlined /> {{ $t("common.import") }} </a-button>
+          <a-upload :show-upload-list="false" accept=".csv" :before-upload="handleImport">
+            <a-button> <UploadOutlined /> {{ $t('common.import') }} </a-button>
           </a-upload>
           <a-button @click="handleExport">
-            <DownloadOutlined /> {{ $t("common.export") }}
+            <DownloadOutlined /> {{ $t('common.export') }}
           </a-button>
-          <a-button
-            type="primary"
-            @click="handleCreate"
-          >
-            <PlusOutlined /> {{ $t("user.createUser") }}
+          <a-button type="primary" @click="handleCreate">
+            <PlusOutlined /> {{ $t('user.createUser') }}
           </a-button>
         </a-space>
       </template>
     </ProTable>
 
-    <a-modal
+    <ProFormModal
       v-model:open="modalVisible"
       :title="editingUserId ? $t('user.editUser') : $t('user.createUser')"
       :confirm-loading="submitting"
+      :session-key="formSessionKey"
+      :form-items="formItems"
+      :initial-values="formData"
+      :grid="{ cols: 2, gutter: 16 }"
+      :layout="{ layout: 'vertical' }"
       width="760px"
-      @ok="handleSubmit"
+      @submit="handleSubmit"
       @cancel="handleCancel"
-    >
-      <ProForm
-        ref="formRef"
-        :form-items="formItems"
-        :initial-values="formData"
-        :grid="{ cols: 2, gutter: 16 }"
-        :layout="{ layout: 'vertical' }"
-      />
-    </a-modal>
+      @closed="finishFormClose"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Role, User } from "@/types/auth";
-import type { ProFormItem, ProTableColumn } from "@/types/pro";
+import type { Role, User } from '@/types/auth';
+import type { ProFormItem, ProTableColumn } from '@/types/pro';
 
 import {
   PlusOutlined,
@@ -63,24 +54,25 @@ import {
   DeleteOutlined,
   UploadOutlined,
   DownloadOutlined,
-} from "@antdv-next/icons";
-import { message, Modal } from "antdv-next";
-import { computed, nextTick, onMounted, ref } from "vue";
+} from '@antdv-next/icons';
+import { message, Modal } from 'antdv-next';
+import { computed, onMounted, ref } from 'vue';
 
-import { getRoleList } from "@/api/role";
-import { createUser, deleteUser, getUserList, updateUser } from "@/api/user";
-import ProForm from "@/components/Pro/ProForm/index.vue";
-import ProTable from "@/components/Pro/ProTable/index.vue";
-import { $t } from "@/locales";
-import { exportToCSV, parseCSV } from "@/utils/export";
+import { getRoleList } from '@/api/role';
+import { createUser, deleteUser, getUserList, updateUser } from '@/api/user';
+import ProFormModal from '@/components/Pro/ProFormModal/index.vue';
+import ProTable from '@/components/Pro/ProTable/index.vue';
+import { useCrudFormSession } from '@/composables/useCrudFormSession';
+import { $t } from '@/locales';
+import { exportToCSV, parseCSV } from '@/utils/export';
 
 type UserFormValues = {
   username: string;
   realName: string;
   email: string;
   phone: string;
-  gender: "male" | "female";
-  status: "active" | "inactive";
+  gender: 'male' | 'female';
+  status: boolean;
   roleIds: string[];
   bio: string;
 };
@@ -89,34 +81,36 @@ const tableRef = ref<{
   refresh: () => void;
   reload: () => void;
 } | null>(null);
-const formRef = ref<{
-  validate: () => Promise<boolean>;
-  getFieldsValue: () => UserFormValues;
-  setFieldsValue: (values: Record<string, unknown>) => void;
-} | null>(null);
-
-const modalVisible = ref(false);
+const {
+  open: modalVisible,
+  record: editingUser,
+  initialValues: formData,
+  sessionKey: formSessionKey,
+  openCreate: openCreateForm,
+  openEdit: openEditForm,
+  close: closeFormModal,
+  finishClose: finishFormClose,
+} = useCrudFormSession<User, UserFormValues>(createDefaultFormValues);
 const submitting = ref(false);
-const editingUserId = ref<string | null>(null);
+const editingUserId = computed(() => editingUser.value?.id ?? null);
 const roleOptions = ref<Role[]>([]);
-const formData = ref<UserFormValues>(createDefaultFormValues());
 
 const toolbarConfig = computed(() => ({
-  title: $t("user.title"),
-  subTitle: "ProTable + ProForm",
-  actions: ["refresh", "density", "columnSetting"] as Array<
-    "refresh" | "density" | "columnSetting"
+  title: $t('user.title'),
+  subTitle: 'ProTable + ProForm',
+  actions: ['refresh', 'density', 'columnSetting'] as Array<
+    'refresh' | 'density' | 'columnSetting'
   >,
 }));
 
 const statusOptions = computed(() => [
-  { label: $t("user.active"), value: "active" },
-  { label: $t("user.inactive"), value: "inactive" },
+  { label: $t('user.active'), value: 'active' },
+  { label: $t('user.inactive'), value: 'inactive' },
 ]);
 
 const genderOptions = computed(() => [
-  { label: $t("user.male"), value: "male" },
-  { label: $t("user.female"), value: "female" },
+  { label: $t('user.male'), value: 'male' },
+  { label: $t('user.female'), value: 'female' },
 ]);
 
 const roleSelectOptions = computed(() => {
@@ -126,89 +120,89 @@ const roleSelectOptions = computed(() => {
   }));
 });
 
-const genderValueEnum = computed<
-  Record<string, { text: string; status?: string; color?: string }>
->(() => ({
-  male: { text: $t("user.male"), color: "blue" },
-  female: { text: $t("user.female"), color: "magenta" },
-}));
+const genderValueEnum = computed<Record<string, { text: string; status?: string; color?: string }>>(
+  () => ({
+    male: { text: $t('user.male'), color: 'blue' },
+    female: { text: $t('user.female'), color: 'magenta' },
+  }),
+);
 
-const statusValueEnum = computed<
-  Record<string, { text: string; status?: string; color?: string }>
->(() => ({
-  active: { text: $t("user.active"), status: "success" },
-  inactive: { text: $t("user.inactive"), status: "default" },
-}));
+const statusValueEnum = computed<Record<string, { text: string; status?: string; color?: string }>>(
+  () => ({
+    active: { text: $t('user.active'), status: 'success' },
+    inactive: { text: $t('user.inactive'), status: 'default' },
+  }),
+);
 
 const searchFormItems = computed<ProFormItem[]>(() => [
-  { name: "username", label: $t("user.username"), type: "input" },
-  { name: "email", label: $t("user.email"), type: "input" },
-  { name: "status", label: $t("user.status"), type: "select", options: statusOptions.value },
+  { name: 'username', label: $t('user.username'), type: 'input' },
+  { name: 'email', label: $t('user.email'), type: 'input' },
+  { name: 'status', label: $t('user.status'), type: 'select', options: statusOptions.value },
 ]);
 
 const columns = computed((): ProTableColumn[] => [
   {
-    title: $t("user.username"),
-    dataIndex: "username",
+    title: $t('user.username'),
+    dataIndex: 'username',
     width: 150,
-    fixed: "left",
+    fixed: 'left',
   },
   {
-    title: $t("user.realName"),
-    dataIndex: "realName",
+    title: $t('user.realName'),
+    dataIndex: 'realName',
     width: 140,
   },
   {
-    title: $t("user.email"),
-    dataIndex: "email",
+    title: $t('user.email'),
+    dataIndex: 'email',
     width: 220,
   },
   {
-    title: $t("user.phone"),
-    dataIndex: "phone",
+    title: $t('user.phone'),
+    dataIndex: 'phone',
     width: 150,
   },
   {
-    title: $t("user.role"),
-    dataIndex: "roleNames",
+    title: $t('user.role'),
+    dataIndex: 'roleNames',
     width: 220,
   },
   {
-    title: $t("user.gender"),
-    dataIndex: "gender",
+    title: $t('user.gender'),
+    dataIndex: 'gender',
     width: 100,
-    valueType: "tag",
+    valueType: 'tag',
     valueEnum: genderValueEnum.value,
   },
   {
-    title: $t("user.status"),
-    dataIndex: "status",
+    title: $t('user.status'),
+    dataIndex: 'status',
     width: 120,
-    valueType: "badge",
+    valueType: 'badge',
     valueEnum: statusValueEnum.value,
   },
   {
-    title: $t("common.createTime"),
-    dataIndex: "createdAt",
+    title: $t('common.createTime'),
+    dataIndex: 'createdAt',
     width: 200,
-    valueType: "dateTime",
+    valueType: 'dateTime',
   },
   {
-    title: $t("common.actions"),
-    dataIndex: "action",
+    title: $t('common.actions'),
+    dataIndex: 'action',
     width: 160,
-    fixed: "right",
+    fixed: 'right',
     actions: [
       {
-        label: $t("common.edit"),
+        label: $t('common.edit'),
         icon: EditOutlined,
         onClick: (record) => handleEdit(record as unknown as User),
       },
       {
-        label: $t("common.delete"),
+        label: $t('common.delete'),
         icon: DeleteOutlined,
         danger: true,
-        confirm: $t("user.confirmDelete"),
+        confirm: $t('user.confirmDelete'),
         onClick: (record) => handleDelete(record as unknown as User),
       },
     ],
@@ -217,72 +211,72 @@ const columns = computed((): ProTableColumn[] => [
 
 const formItems = computed<ProFormItem[]>(() => [
   {
-    name: "username",
-    label: $t("user.username"),
-    type: "input",
+    name: 'username',
+    label: $t('user.username'),
+    type: 'input',
     required: true,
     props: {
       disabled: Boolean(editingUserId.value),
     },
     rules: [
-      { required: true, message: $t("user.usernameRequired") },
-      { min: 3, max: 20, message: $t("user.usernameLength") },
+      { required: true, message: $t('user.usernameRequired') },
+      { min: 3, max: 20, message: $t('user.usernameLength') },
     ],
   },
   {
-    name: "realName",
-    label: $t("user.realName"),
-    type: "input",
+    name: 'realName',
+    label: $t('user.realName'),
+    type: 'input',
     required: true,
   },
   {
-    name: "email",
-    label: $t("user.email"),
-    type: "input",
+    name: 'email',
+    label: $t('user.email'),
+    type: 'input',
     required: true,
     rules: [
-      { required: true, message: $t("user.emailRequired") },
-      { type: "email", message: $t("validation.email") },
+      { required: true, message: $t('user.emailRequired') },
+      { type: 'email', message: $t('validation.email') },
     ],
   },
   {
-    name: "phone",
-    label: $t("user.phone"),
-    type: "input",
-    rules: [{ pattern: /^1[3-9]\d{9}$/, message: $t("validation.phone") }],
+    name: 'phone',
+    label: $t('user.phone'),
+    type: 'input',
+    rules: [{ pattern: /^1[3-9]\d{9}$/, message: $t('validation.phone') }],
   },
   {
-    name: "gender",
-    label: $t("user.gender"),
-    type: "select",
+    name: 'gender',
+    label: $t('user.gender'),
+    type: 'select',
     options: genderOptions.value,
   },
   {
-    name: "status",
-    label: $t("user.status"),
-    type: "switch",
-    valuePropName: "checked",
+    name: 'status',
+    label: $t('user.status'),
+    type: 'switch',
+    valuePropName: 'checked',
     required: true,
     props: {
-      checkedChildren: $t("user.active"),
-      unCheckedChildren: $t("user.inactive"),
+      checkedChildren: $t('user.active'),
+      unCheckedChildren: $t('user.inactive'),
     },
   },
   {
-    name: "roleIds",
-    label: $t("user.role"),
-    type: "select",
+    name: 'roleIds',
+    label: $t('user.role'),
+    type: 'select',
     options: roleSelectOptions.value,
     props: {
-      mode: "multiple",
+      mode: 'multiple',
       allowClear: true,
     },
-    rules: [{ type: "array", required: true, message: $t("user.selectRole") }],
+    rules: [{ type: 'array', required: true, message: $t('user.selectRole') }],
   },
   {
-    name: "bio",
-    label: $t("user.bio"),
-    type: "textarea",
+    name: 'bio',
+    label: $t('user.bio'),
+    type: 'textarea',
     colSpan: 2,
     props: {
       rows: 3,
@@ -294,22 +288,22 @@ const formItems = computed<ProFormItem[]>(() => [
 
 function createDefaultFormValues(): UserFormValues {
   return {
-    username: "",
-    realName: "",
-    email: "",
-    phone: "",
-    gender: "male",
-    status: "active",
+    username: '',
+    realName: '',
+    email: '',
+    phone: '',
+    gender: 'male',
+    status: true,
     roleIds: [],
-    bio: "",
+    bio: '',
   };
 }
 
 const formatRoleNames = (roles: Role[]) => {
   if (!roles || roles.length === 0) {
-    return "-";
+    return '-';
   }
-  return roles.map((role) => role.name).join(", ");
+  return roles.map((role) => role.name).join(', ');
 };
 
 const fetchTableData = async (params: Record<string, unknown>) => {
@@ -347,61 +341,44 @@ const reloadTable = () => {
 };
 
 const handleCreate = () => {
-  editingUserId.value = null;
-  const defaults = createDefaultFormValues();
-  formData.value = defaults;
-  modalVisible.value = true;
-  nextTick(() => formRef.value?.setFieldsValue({ ...defaults, status: true }));
+  openCreateForm();
 };
 
 const handleEdit = (record: User) => {
-  editingUserId.value = record.id;
-  const statusStr = record.status || "active";
-  const initialValues = {
+  const statusStr = record.status || 'active';
+  const initialValues: UserFormValues = {
     username: record.username,
     realName: record.realName,
     email: record.email,
     phone: record.phone,
-    gender: record.gender || "male",
-    status: statusStr,
+    gender: record.gender || 'male',
+    status: statusStr === 'active',
     roleIds: (record.roles || []).map((role) => role.id),
-    bio: record.bio || "",
+    bio: record.bio || '',
   };
-  formData.value = initialValues as UserFormValues;
-  modalVisible.value = true;
-  nextTick(() => formRef.value?.setFieldsValue({ ...initialValues, status: statusStr === "active" }));
+  openEditForm(record, initialValues);
 };
 
 const handleCancel = () => {
-  modalVisible.value = false;
-  editingUserId.value = null;
-  formData.value = createDefaultFormValues();
+  closeFormModal();
 };
 
 const handleDelete = async (record: User) => {
   Modal.confirm({
-    title: $t("user.deleteUser"),
-    content: $t("user.confirmDelete"),
+    title: $t('user.deleteUser'),
+    content: $t('user.confirmDelete'),
     onOk: async () => {
       await deleteUser(record.id);
-      message.success($t("common.success"));
+      message.success($t('common.success'));
       refreshTable();
     },
   });
 };
 
-const handleSubmit = async () => {
-  const valid = await formRef.value?.validate();
-  if (!valid) {
-    return;
-  }
+const handleSubmit = async (rawValues: Record<string, unknown>) => {
+  const values = rawValues as UserFormValues;
 
-  const values = formRef.value?.getFieldsValue();
-  if (!values) return;
-
-  const selectedRoles = roleOptions.value.filter((role) =>
-    values.roleIds?.includes(role.id),
-  );
+  const selectedRoles = roleOptions.value.filter((role) => values.roleIds?.includes(role.id));
 
   const payload: Partial<User> = {
     username: values.username?.trim(),
@@ -409,7 +386,7 @@ const handleSubmit = async () => {
     email: values.email?.trim(),
     phone: values.phone?.trim(),
     gender: values.gender,
-    status: typeof values.status === "boolean" ? (values.status ? "active" : "inactive") : values.status,
+    status: values.status ? 'active' : 'inactive',
     bio: values.bio?.trim(),
     roles: selectedRoles,
   };
@@ -418,16 +395,14 @@ const handleSubmit = async () => {
   try {
     if (editingUserId.value) {
       await updateUser(editingUserId.value, payload);
-      message.success($t("user.updateSuccess"));
+      message.success($t('user.updateSuccess'));
       refreshTable();
     } else {
       await createUser(payload);
-      message.success($t("user.createSuccess"));
+      message.success($t('user.createSuccess'));
       reloadTable();
     }
-    modalVisible.value = false;
-    editingUserId.value = null;
-    formData.value = createDefaultFormValues();
+    closeFormModal();
   } finally {
     submitting.value = false;
   }
@@ -444,38 +419,36 @@ const handleExport = async () => {
     const list = response.data.list;
     exportToCSV(
       [
-        { title: $t("user.username"), dataIndex: "username" },
-        { title: $t("user.realName"), dataIndex: "realName" },
-        { title: $t("user.email"), dataIndex: "email" },
-        { title: $t("user.phone"), dataIndex: "phone" },
+        { title: $t('user.username'), dataIndex: 'username' },
+        { title: $t('user.realName'), dataIndex: 'realName' },
+        { title: $t('user.email'), dataIndex: 'email' },
+        { title: $t('user.phone'), dataIndex: 'phone' },
         {
-          title: $t("user.gender"),
-          dataIndex: "gender",
-          render: (v: unknown) =>
-            v === "male" ? $t("user.male") : $t("user.female"),
+          title: $t('user.gender'),
+          dataIndex: 'gender',
+          render: (v: unknown) => (v === 'male' ? $t('user.male') : $t('user.female')),
         },
         {
-          title: $t("user.status"),
-          dataIndex: "status",
-          render: (v: unknown) =>
-            v === "active" ? $t("user.active") : $t("user.inactive"),
+          title: $t('user.status'),
+          dataIndex: 'status',
+          render: (v: unknown) => (v === 'active' ? $t('user.active') : $t('user.inactive')),
         },
         {
-          title: $t("user.role"),
-          dataIndex: "roles",
+          title: $t('user.role'),
+          dataIndex: 'roles',
           render: (_: unknown, r: unknown) =>
             (((r as Record<string, unknown>).roles as Array<{ name: string }>) || [])
               .map((role) => role.name)
-              .join(", "),
+              .join(', '),
         },
-        { title: $t("common.createTime"), dataIndex: "createdAt" },
+        { title: $t('common.createTime'), dataIndex: 'createdAt' },
       ],
       list,
-      `${$t("user.title")}_${new Date().toISOString().slice(0, 10)}`,
+      `${$t('user.title')}_${new Date().toISOString().slice(0, 10)}`,
     );
-    message.success($t("user.exportSuccess"));
+    message.success($t('user.exportSuccess'));
   } catch {
-    message.error($t("user.exportFailed"));
+    message.error($t('user.exportFailed'));
   }
 };
 
@@ -484,22 +457,16 @@ const handleImport = async (file: File) => {
   try {
     const rows = await parseCSV(file);
     if (rows.length < 2) {
-      message.warning($t("user.importEmpty"));
+      message.warning($t('user.importEmpty'));
       return false;
     }
     const header = rows[0];
-    const usernameIdx = header.findIndex(
-      (h) => h.includes("Username") || h.includes("username"),
-    );
-    const realNameIdx = header.findIndex(
-      (h) => h.includes("Name") || h.includes("name"),
-    );
-    const emailIdx = header.findIndex(
-      (h) => h.includes("Email") || h.includes("email"),
-    );
+    const usernameIdx = header.findIndex((h) => h.includes('Username') || h.includes('username'));
+    const realNameIdx = header.findIndex((h) => h.includes('Name') || h.includes('name'));
+    const emailIdx = header.findIndex((h) => h.includes('Email') || h.includes('email'));
 
     if (usernameIdx === -1 || realNameIdx === -1 || emailIdx === -1) {
-      message.error($t("user.importFormatError"));
+      message.error($t('user.importFormatError'));
       return false;
     }
 
@@ -509,19 +476,17 @@ const handleImport = async (file: File) => {
       .map((row) =>
         createUser({
           username: row[usernameIdx],
-          realName: row[realNameIdx] || "",
-          email: row[emailIdx] || "",
-          status: "active",
+          realName: row[realNameIdx] || '',
+          email: row[emailIdx] || '',
+          status: 'active',
         }),
       );
     const results = await Promise.allSettled(importTasks);
-    const successCount = results.filter(
-      (result) => result.status === "fulfilled",
-    ).length;
-    message.success($t("user.importSuccess", { count: successCount }));
+    const successCount = results.filter((result) => result.status === 'fulfilled').length;
+    message.success($t('user.importSuccess', { count: successCount }));
     refreshTable();
   } catch {
-    message.error($t("user.importFailed"));
+    message.error($t('user.importFailed'));
   }
   return false;
 };

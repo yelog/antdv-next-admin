@@ -1,14 +1,9 @@
 <template>
-  <a-drawer
-    v-model:open="visible"
-    :title="$t('settings.title')"
-    placement="right"
-    :size="320"
-  >
+  <a-drawer v-model:open="visible" :title="$t('settings.title')" placement="right" :size="320">
     <div class="settings-drawer">
       <!-- Theme Color -->
       <div class="settings-section">
-        <h4>{{ $t("settings.themeColor") }}</h4>
+        <h4>{{ $t('settings.themeColor') }}</h4>
         <div class="color-picker">
           <div
             v-for="color in PRESET_COLORS"
@@ -17,18 +12,14 @@
               'color-item',
               {
                 active:
-                  settingsStore.primaryColor === color.value &&
-                  !settingsStore.customPrimaryColor,
+                  settingsStore.primaryColor === color.value && !settingsStore.customPrimaryColor,
               },
             ]"
             :style="{ backgroundColor: color.hex }"
             @click="settingsStore.setPrimaryColor(color.value)"
           >
             <CheckOutlined
-              v-if="
-                settingsStore.primaryColor === color.value &&
-                !settingsStore.customPrimaryColor
-              "
+              v-if="settingsStore.primaryColor === color.value && !settingsStore.customPrimaryColor"
             />
           </div>
           <a-color-picker
@@ -52,25 +43,25 @@
 
       <!-- Sidebar Theme -->
       <div class="settings-section">
-        <h4>{{ $t("settings.sidebarTheme") }}</h4>
+        <h4>{{ $t('settings.sidebarTheme') }}</h4>
         <a-radio-group v-model:value="settingsStore.sidebarTheme">
-          <a-radio value="light">{{ $t("settings.light") }}</a-radio>
-          <a-radio value="dark">{{ $t("settings.dark") }}</a-radio>
+          <a-radio value="light">{{ $t('settings.light') }}</a-radio>
+          <a-radio value="dark">{{ $t('settings.dark') }}</a-radio>
         </a-radio-group>
       </div>
 
       <!-- Layout Mode -->
       <div class="settings-section">
-        <h4>{{ $t("settings.layoutMode") }}</h4>
+        <h4>{{ $t('settings.layoutMode') }}</h4>
         <a-radio-group v-model:value="settingsStore.layoutMode">
-          <a-radio value="vertical">{{ $t("settings.vertical") }}</a-radio>
-          <a-radio value="horizontal">{{ $t("settings.horizontal") }}</a-radio>
+          <a-radio value="vertical">{{ $t('settings.vertical') }}</a-radio>
+          <a-radio value="horizontal">{{ $t('settings.horizontal') }}</a-radio>
         </a-radio-group>
       </div>
 
       <!-- Page Animation -->
       <div class="settings-section">
-        <h4>{{ $t("settings.pageAnimation") }}</h4>
+        <h4>{{ $t('settings.pageAnimation') }}</h4>
         <a-select
           v-model:value="settingsStore.pageAnimation"
           :options="pageAnimationOptions"
@@ -80,21 +71,21 @@
 
       <!-- Gray Mode -->
       <div class="settings-section">
-        <h4>{{ $t("settings.grayMode") }}</h4>
+        <h4>{{ $t('settings.grayMode') }}</h4>
         <a-switch v-model:checked="settingsStore.grayMode" />
-        <div class="hint">{{ $t("settings.grayModeHint") }}</div>
+        <div class="hint">{{ $t('settings.grayModeHint') }}</div>
       </div>
 
       <!-- Remember Tab State -->
       <div class="settings-section">
-        <h4>{{ $t("settings.rememberTabState") }}</h4>
+        <h4>{{ $t('settings.rememberTabState') }}</h4>
         <a-switch v-model:checked="settingsStore.rememberTabState" />
-        <div class="hint">{{ $t("settings.rememberTabStateHint") }}</div>
+        <div class="hint">{{ $t('settings.rememberTabStateHint') }}</div>
       </div>
 
       <!-- AI Chat Split Panel -->
       <div class="settings-section">
-        <h4>{{ $t("settings.aiCollab") }}</h4>
+        <h4>{{ $t('settings.aiCollab') }}</h4>
         <a-switch
           :checked="layoutStore.aiEntryVisible"
           :disabled="layoutStore.isMobile"
@@ -102,9 +93,7 @@
         />
         <div class="hint">
           {{
-            layoutStore.isMobile
-              ? $t("settings.aiCollabHintMobile")
-              : $t("settings.aiCollabHint")
+            layoutStore.isMobile ? $t('settings.aiCollabHintMobile') : $t('settings.aiCollabHint')
           }}
         </div>
       </div>
@@ -112,7 +101,7 @@
       <!-- Actions -->
       <div class="settings-actions">
         <a-button block @click="handleReset">
-          {{ $t("settings.reset") }}
+          {{ $t('settings.reset') }}
         </a-button>
       </div>
     </div>
@@ -120,52 +109,51 @@
 </template>
 
 <script setup lang="ts">
-import type { PrimaryColor } from "@/types/layout";
+import type { PrimaryColor } from '@/types/layout';
 
-import { CheckOutlined } from "@antdv-next/icons";
-import { Modal } from "antdv-next";
-import { computed, ref, watch } from "vue";
+import { CheckOutlined } from '@antdv-next/icons';
+import { App } from 'antdv-next';
+import { computed, ref, watch } from 'vue';
 
-import { $t } from "@/locales";
-import { useLayoutStore } from "@/stores/layout";
-import { useSettingsStore } from "@/stores/settings";
+import { $t } from '@/locales';
+import { useLayoutStore } from '@/stores/layout';
+import { useSettingsStore } from '@/stores/settings';
 
-const visible = ref(false);
+const visible = defineModel<boolean>('open', { default: false });
 const settingsStore = useSettingsStore();
 const layoutStore = useLayoutStore();
-const customColor = ref(settingsStore.customPrimaryColor || "#1890ff");
+const { modal } = App.useApp();
+const customColor = ref(settingsStore.customPrimaryColor || '#1890ff');
 
 const PRESET_COLORS: Array<{ value: PrimaryColor; hex: string }> = [
-  { value: "blue", hex: "#1890ff" },
-  { value: "green", hex: "#52c41a" },
-  { value: "purple", hex: "#722ed1" },
-  { value: "red", hex: "#f5222d" },
-  { value: "orange", hex: "#fa8c16" },
-  { value: "cyan", hex: "#13c2c2" },
+  { value: 'blue', hex: '#1890ff' },
+  { value: 'green', hex: '#52c41a' },
+  { value: 'purple', hex: '#722ed1' },
+  { value: 'red', hex: '#f5222d' },
+  { value: 'orange', hex: '#fa8c16' },
+  { value: 'cyan', hex: '#13c2c2' },
 ];
 
 const colorPresets = [
   {
-    label: "Preset Colors",
+    label: 'Preset Colors',
     colors: PRESET_COLORS.map((c) => c.hex),
   },
 ];
 
 const pageAnimationOptions = computed(() => [
-  { label: $t("settings.fade"), value: "fade" },
-  { label: $t("settings.slideLeft"), value: "slide-left" },
-  { label: $t("settings.slideRight"), value: "slide-right" },
-  { label: $t("settings.slideUp"), value: "slide-up" },
-  { label: $t("settings.slideDown"), value: "slide-down" },
-  { label: $t("settings.zoom"), value: "zoom" },
-  { label: $t("settings.zoomBig"), value: "zoom-big" },
-  { label: $t("settings.none"), value: "none" },
+  { label: $t('settings.fade'), value: 'fade' },
+  { label: $t('settings.slideLeft'), value: 'slide-left' },
+  { label: $t('settings.slideRight'), value: 'slide-right' },
+  { label: $t('settings.slideUp'), value: 'slide-up' },
+  { label: $t('settings.slideDown'), value: 'slide-down' },
+  { label: $t('settings.zoom'), value: 'zoom' },
+  { label: $t('settings.zoomBig'), value: 'zoom-big' },
+  { label: $t('settings.none'), value: 'none' },
 ]);
 
-const handleCustomColorChange = (
-  value: string | { toHexString: () => string },
-) => {
-  const hex = typeof value === "string" ? value : value.toHexString();
+const handleCustomColorChange = (value: string | { toHexString: () => string }) => {
+  const hex = typeof value === 'string' ? value : value.toHexString();
   settingsStore.setCustomPrimaryColor(hex);
 };
 
@@ -206,13 +194,13 @@ watch(
 );
 
 const handleReset = () => {
-  Modal.confirm({
-    title: $t("settings.confirmReset"),
+  modal.confirm({
+    title: $t('settings.confirmReset'),
     onOk: () => {
       settingsStore.resetSettings();
       layoutStore.setAiEntryVisible(true);
       layoutStore.setAiCollabEnabled(false);
-      customColor.value = "#1890ff";
+      customColor.value = '#1890ff';
     },
   });
 };
@@ -220,16 +208,6 @@ const handleReset = () => {
 const handleAiEntryChange = (checked: boolean) => {
   layoutStore.setAiEntryVisible(checked);
 };
-
-const open = () => {
-  visible.value = true;
-};
-
-const close = () => {
-  visible.value = false;
-};
-
-defineExpose({ open, close });
 </script>
 
 <style scoped lang="scss">

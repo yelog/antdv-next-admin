@@ -460,7 +460,7 @@ onBeforeUnmount(() => {
 
     /* 选中样式 */
     ::selection {
-      background: var(--ant-primary-color-deprecated-l-35);
+      background: color-mix(in srgb, var(--color-primary) 24%, transparent);
     }
   }
 }

@@ -3,48 +3,48 @@
     ref="formRef"
     :model="formData"
     :rules="formRules"
+    :preserve="preserve"
+    :clear-on-destroy="clearOnDestroy"
     v-bind="resolvedLayout"
     @finish="handleFinish"
     class="pro-form"
     :class="{ 'pro-form--inline': isInlineLayout }"
   >
-    <a-row :gutter="grid?.gutter || 16">
-      <a-col
-        v-for="item in visibleFormItems"
-        :key="item.name"
-        v-bind="getColBindings(item)"
-      >
-        <a-form-item
-          :name="item.name"
-          :label="item.label"
-          :tooltip="item.tooltip"
-          :dependencies="item.dependencies"
-          :value-prop-name="item.valuePropName || 'value'"
-          :class="{ 'form-item-required': item.required }"
-        >
-          <FormItemRender
-            v-model:value="formData[item.name]"
-            :item="item"
-            :form-data="formData"
-          />
-        </a-form-item>
-      </a-col>
+    <div class="pro-form-grid-viewport">
+      <a-row :gutter="grid?.gutter || 16">
+        <a-col v-for="item in visibleFormItems" :key="item.name" v-bind="getColBindings(item)">
+          <a-form-item
+            :name="item.name"
+            :label="item.label"
+            :tooltip="item.tooltip"
+            :dependencies="item.dependencies"
+            :value-prop-name="item.valuePropName || 'value'"
+            :class="{ 'form-item-required': item.required }"
+          >
+            <FormItemRender
+              v-model:value="formData[item.name]"
+              :item="item"
+              :form-data="formData"
+            />
+          </a-form-item>
+        </a-col>
 
-      <!-- 内联 footer（搜索按钮等） -->
-      <a-col
-        v-if="inlineFooter && $slots.footer"
-        v-bind="footerColBindings"
-        class="form-footer-col"
-      >
-        <a-form-item
-          :label-col="{ span: 0 }"
-          :wrapper-col="{ span: 24 }"
-          class="form-footer-inline"
+        <!-- 内联 footer（搜索按钮等） -->
+        <a-col
+          v-if="inlineFooter && $slots.footer"
+          v-bind="footerColBindings"
+          class="form-footer-col"
         >
-          <slot name="footer"></slot>
-        </a-form-item>
-      </a-col>
-    </a-row>
+          <a-form-item
+            :label-col="{ span: 0 }"
+            :wrapper-col="{ span: 24 }"
+            class="form-footer-inline"
+          >
+            <slot name="footer"></slot>
+          </a-form-item>
+        </a-col>
+      </a-row>
+    </div>
 
     <!-- 非内联 footer -->
     <a-form-item
@@ -58,14 +58,60 @@
 </template>
 
 <script setup lang="ts">
-import type { ProFormItem, ProFormLayout, ProFormGrid } from "@/types/pro";
+import type { ProFormItem, ProFormLayout, ProFormGrid } from '@/types/pro';
+import type { FormInstance } from 'antdv-next';
 
-import { ref, computed, watch } from "vue";
+import { cloneDeep } from 'lodash-es';
+import { ref, computed, watch } from 'vue';
 
-import { $t } from "@/locales";
+import { $t } from '@/locales';
 
-import FormItemRender from "./FormItemRender.vue";
-import { buildProFormRules } from "./formRules";
+import FormItemRender from './FormItemRender.vue';
+import { buildProFormRules } from './formRules';
+
+type ResponsiveBreakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+const DEFAULT_RESPONSIVE_COLUMNS: Record<ResponsiveBreakpoint, number> = {
+  xs: 1,
+  sm: 2,
+  md: 2,
+  lg: 3,
+  xl: 3,
+};
+
+function normalizeColumnCount(value: unknown, fallback: number) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return fallback;
+  }
+  return Math.max(1, Math.floor(value));
+}
+
+function resolveResponsiveColumns(
+  config: ProFormGrid['responsiveColumns'],
+): Record<ResponsiveBreakpoint, number> {
+  if (typeof config === 'number') {
+    const columns = normalizeColumnCount(config, DEFAULT_RESPONSIVE_COLUMNS.lg);
+    return { xs: 1, sm: columns, md: columns, lg: columns, xl: columns };
+  }
+
+  if (!config || typeof config !== 'object') {
+    return { ...DEFAULT_RESPONSIVE_COLUMNS };
+  }
+
+  const next = { ...DEFAULT_RESPONSIVE_COLUMNS };
+  (Object.keys(next) as ResponsiveBreakpoint[]).forEach((key) => {
+    next[key] = normalizeColumnCount(config[key], next[key]);
+  });
+
+  if (!config.md && config.sm) next.md = next.sm;
+  if (!config.lg && config.md) next.lg = next.md;
+  if (!config.xl && config.lg) next.xl = next.lg;
+  return next;
+}
+
+function spanFromColumns(columns: number) {
+  return Math.max(1, Math.floor(24 / columns));
+}
 
 interface Props {
   formItems: ProFormItem[];
@@ -73,47 +119,51 @@ interface Props {
   layout?: ProFormLayout;
   grid?: ProFormGrid;
   inlineFooter?: boolean;
+  preserve?: boolean;
+  clearOnDestroy?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   layout: () => ({
     labelCol: { span: 6 },
     wrapperCol: { span: 18 },
-    layout: "horizontal",
+    layout: 'horizontal',
   }),
   grid: () => ({
     gutter: 16,
     cols: 1,
   }),
   inlineFooter: false,
+  preserve: true,
+  clearOnDestroy: false,
 });
 
-const emit = defineEmits(["submit", "valuesChange", "finish"]);
+const emit = defineEmits(['submit', 'valuesChange', 'finish']);
 
-const formRef = ref();
+const formRef = ref<FormInstance>();
 const formData = ref<Record<string, unknown>>({});
 
 // Computed
-const isInlineLayout = computed(() => props.layout?.layout === "inline");
+const isInlineLayout = computed(() => props.layout?.layout === 'inline');
 
 const resolvedLayout = computed(() => {
   if (isInlineLayout.value) {
-    return { layout: "inline" };
+    return { layout: 'inline' };
   }
   return props.layout;
 });
 
 const visibleFormItems = computed(() => {
   return props.formItems.filter((item) => {
-    if (typeof item.hidden === "function") return !item.hidden(formData.value);
+    if (typeof item.hidden === 'function') return !item.hidden(formData.value);
     return !item.hidden;
   });
 });
 
 const formRules = computed(() => {
   return buildProFormRules(props.formItems, (item) =>
-    $t("proForm.enterPlaceholder", {
-      label: String(item.label ?? ""),
+    $t('proForm.enterPlaceholder', {
+      label: String(item.label ?? ''),
     }),
   );
 });
@@ -128,21 +178,35 @@ const getColSpan = (item: ProFormItem) => {
 
 const getColBindings = (item: ProFormItem) => {
   if (props.grid?.responsive) {
-    return { xs: 24, sm: 12, lg: 8 };
+    const columns = resolveResponsiveColumns(props.grid.responsiveColumns);
+    return {
+      xs: spanFromColumns(columns.xs),
+      sm: spanFromColumns(columns.sm),
+      md: spanFromColumns(columns.md),
+      lg: spanFromColumns(columns.lg),
+      xl: spanFromColumns(columns.xl),
+    };
   }
   return { span: getColSpan(item) };
 };
 
 const footerColBindings = computed(() => {
   if (props.grid?.responsive) {
-    return { xs: 24, sm: 12, lg: 8 };
+    const columns = resolveResponsiveColumns(props.grid.responsiveColumns);
+    return {
+      xs: spanFromColumns(columns.xs),
+      sm: spanFromColumns(columns.sm),
+      md: spanFromColumns(columns.md),
+      lg: spanFromColumns(columns.lg),
+      xl: spanFromColumns(columns.xl),
+    };
   }
   return { span: 24 / (props.grid?.cols || 1) };
 });
 
 const handleFinish = (values: Record<string, unknown>) => {
-  emit("finish", values);
-  emit("submit", values);
+  emit('finish', values);
+  emit('submit', values);
 };
 
 // Watch initial values
@@ -150,7 +214,7 @@ watch(
   () => props.initialValues,
   (values) => {
     if (values) {
-      formData.value = { ...values };
+      formData.value = cloneDeep(values);
     }
   },
   { immediate: true, deep: true },
@@ -158,25 +222,33 @@ watch(
 
 // Expose methods
 const validate = async () => {
-  return formRef.value?.validate();
+  if (!formRef.value) {
+    return cloneDeep(formData.value);
+  }
+  return formRef.value.validate();
 };
 
 const resetFields = () => {
   formRef.value?.resetFields();
-  formData.value = props.initialValues ? { ...props.initialValues } : {};
+  formData.value = props.initialValues ? cloneDeep(props.initialValues) : {};
+};
+
+const clearValidate = () => {
+  formRef.value?.clearValidate();
 };
 
 const setFieldsValue = (values: Record<string, unknown>) => {
-  formData.value = { ...formData.value, ...values };
+  formData.value = { ...formData.value, ...cloneDeep(values) };
 };
 
 const getFieldsValue = () => {
-  return formData.value;
+  return cloneDeep(formData.value);
 };
 
 defineExpose({
   validate,
   resetFields,
+  clearValidate,
   setFieldsValue,
   getFieldsValue,
 });
@@ -185,7 +257,7 @@ defineExpose({
 watch(
   formData,
   (values) => {
-    emit("valuesChange", values);
+    emit('valuesChange', values);
   },
   { deep: true },
 );
@@ -193,6 +265,14 @@ watch(
 
 <style scoped lang="scss">
 .pro-form {
+  .pro-form-grid-viewport {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+
   .form-item-required {
     :deep(.ant-form-item-label > label::before) {
       display: inline-block;
@@ -201,7 +281,7 @@ watch(
       font-size: 14px;
       font-family: SimSun, sans-serif;
       line-height: 1;
-      content: "*";
+      content: '*';
     }
   }
 

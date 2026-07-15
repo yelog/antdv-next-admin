@@ -1,5 +1,28 @@
 <template>
   <div class="pro-step-form">
+    <div class="pro-step-form-progress" aria-live="polite">
+      <div class="pro-step-form-progress-copy">
+        <span class="pro-step-form-progress-step">
+          {{
+            $t('proStepForm.progress', {
+              current: progress.current,
+              total: progress.total,
+            })
+          }}
+        </span>
+        <span class="pro-step-form-progress-percent">{{ progress.percent }}%</span>
+      </div>
+      <p v-if="activeStep?.description" class="pro-step-form-progress-description">
+        {{ activeStep.description }}
+      </p>
+      <a-progress
+        class="pro-step-form-progress-bar"
+        :percent="progress.percent"
+        :show-info="false"
+        size="small"
+      />
+    </div>
+
     <a-steps :current="currentStep" size="small" class="pro-step-form-steps">
       <a-step
         v-for="(step, index) in steps"
@@ -46,8 +69,10 @@
 <script setup lang="ts">
 import type { ProStepFormStep } from '@/types/pro';
 
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+
+import { getStepProgress } from './progress';
 
 const { t: $t } = useI18n();
 
@@ -74,6 +99,8 @@ const emit = defineEmits<{
 }>();
 
 const currentStep = ref(props.modelValue);
+const progress = computed(() => getStepProgress(currentStep.value, props.steps.length));
+const activeStep = computed(() => props.steps[progress.value.current - 1]);
 
 watch(
   () => props.modelValue,
@@ -113,6 +140,42 @@ defineExpose({
 
 <style scoped lang="scss">
 .pro-step-form {
+  .pro-step-form-progress {
+    margin-bottom: var(--spacing-md, 16px);
+  }
+
+  .pro-step-form-progress-copy {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--spacing-md, 16px);
+  }
+
+  .pro-step-form-progress-step {
+    color: var(--color-text);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .pro-step-form-progress-percent {
+    color: var(--color-primary);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .pro-step-form-progress-description {
+    margin: 4px 0 8px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .pro-step-form-progress-bar {
+    display: block;
+    line-height: 1;
+  }
+
   .pro-step-form-steps {
     margin-bottom: var(--spacing-lg, 24px);
   }
@@ -125,6 +188,18 @@ defineExpose({
     margin-top: 18px;
     padding-top: 14px;
     border-top: 1px solid var(--color-border-secondary);
+  }
+}
+
+@media (max-width: 600px) {
+  .pro-step-form {
+    .pro-step-form-steps {
+      display: none;
+    }
+
+    .pro-step-form-content {
+      min-height: auto;
+    }
   }
 }
 </style>

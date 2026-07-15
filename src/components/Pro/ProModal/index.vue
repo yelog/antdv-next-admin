@@ -27,17 +27,9 @@
         >
           <a-tooltip
             v-if="fullscreenable"
-            :title="
-              isFullscreen
-                ? $t('layout.exitFullscreen')
-                : $t('layout.fullscreen')
-            "
+            :title="isFullscreen ? $t('layout.exitFullscreen') : $t('layout.fullscreen')"
           >
-            <button
-              type="button"
-              class="pro-modal-action-btn"
-              @click.stop="toggleFullscreen"
-            >
+            <button type="button" class="pro-modal-action-btn" @click.stop="toggleFullscreen">
               <component
                 :is="isFullscreen ? FullscreenExitOutlined : FullscreenOutlined"
                 :style="{ fontSize: '14px' }"
@@ -84,14 +76,10 @@
 </template>
 
 <script setup lang="ts">
-import type { ModalProps } from "antdv-next";
-import type { CSSProperties, VNodeChild } from "vue";
+import type { ModalProps } from 'antdv-next';
+import type { CSSProperties, VNodeChild } from 'vue';
 
-import {
-  CloseOutlined,
-  FullscreenOutlined,
-  FullscreenExitOutlined,
-} from "@antdv-next/icons";
+import { CloseOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@antdv-next/icons';
 import {
   computed,
   defineComponent,
@@ -105,9 +93,9 @@ import {
   useAttrs,
   useSlots,
   watch,
-} from "vue";
+} from 'vue';
 
-import { $t } from "@/locales";
+import { $t } from '@/locales';
 
 interface ProModalProps extends ModalProps {
   draggable?: boolean;
@@ -124,7 +112,7 @@ type ModalRect = {
   height: number;
 };
 
-type ResizeDirection = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
+type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
 type DragState = {
   startX: number;
@@ -153,9 +141,9 @@ const props = withDefaults(defineProps<ProModalProps>(), {
 });
 
 const emit = defineEmits<{
-  (e: "ok", event: MouseEvent): void;
-  (e: "cancel", event: MouseEvent): void;
-  (e: "update:open", open: boolean): void;
+  (e: 'ok', event: MouseEvent): void;
+  (e: 'cancel', event: MouseEvent): void;
+  (e: 'update:open', open: boolean): void;
 }>();
 
 const attrs = useAttrs();
@@ -164,8 +152,8 @@ const slots = useSlots();
 const instanceWrapClassName = `pro-modal-wrap-${Math.random().toString(36).slice(2, 10)}`;
 
 const viewport = reactive({
-  width: typeof window !== "undefined" ? window.innerWidth : 0,
-  height: typeof window !== "undefined" ? window.innerHeight : 0,
+  width: typeof window !== 'undefined' ? window.innerWidth : 0,
+  height: typeof window !== 'undefined' ? window.innerHeight : 0,
 });
 
 const rect = reactive<ModalRect>({
@@ -186,13 +174,13 @@ const resizeState = ref<ResizeState | null>(null);
 
 let boundModalElement: HTMLElement | null = null;
 let isDocumentListening = false;
-let bodyUserSelectCache = "";
+let bodyUserSelectCache = '';
 let fullscreenAnimationTimer: number | undefined;
 
 const isOpen = computed(() => Boolean(props.open));
 const showCloseButton = computed(() => props.closable !== false);
 const isCloseButtonDisabled = computed(() => {
-  return typeof props.closable === "object" && Boolean(props.closable.disabled);
+  return typeof props.closable === 'object' && Boolean(props.closable.disabled);
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -202,7 +190,7 @@ const resolvedGetContainer = computed<any>(() => {
   }
 
   return () => {
-    if (typeof document === "undefined") {
+    if (typeof document === 'undefined') {
       return false;
     }
     return document.body;
@@ -210,7 +198,7 @@ const resolvedGetContainer = computed<any>(() => {
 });
 
 const titleRenderComponent = defineComponent({
-  name: "ProModalTitleRender",
+  name: 'ProModalTitleRender',
   setup() {
     return () => {
       const slotNodes = slots.title?.();
@@ -223,7 +211,7 @@ const titleRenderComponent = defineComponent({
         return title;
       }
 
-      if (typeof title === "function") {
+      if (typeof title === 'function') {
         return (title as () => VNodeChild)();
       }
 
@@ -231,13 +219,17 @@ const titleRenderComponent = defineComponent({
         return null;
       }
 
-      return h("span", String(title));
+      return h('span', String(title));
     };
   },
 });
 
 const modalPassThroughProps = computed<ModalProps>(() => {
   const next = { ...props } as Record<string, unknown>;
+  if (props.destroyOnClose && !props.destroyOnHidden) {
+    next.destroyOnHidden = true;
+  }
+  delete next.destroyOnClose;
   delete next.draggable;
   delete next.resizable;
   delete next.fullscreenable;
@@ -256,20 +248,20 @@ const modalPassThroughProps = computed<ModalProps>(() => {
 const mergedWrapClassName = computed(() => {
   return [
     props.wrapClassName,
-    "pro-modal-wrap",
+    'pro-modal-wrap',
     instanceWrapClassName,
-    isFullscreen.value ? "pro-modal-fullscreen" : "",
-    isAnimating.value ? "pro-modal-animating" : "",
+    isFullscreen.value ? 'pro-modal-fullscreen' : '',
+    isAnimating.value ? 'pro-modal-animating' : '',
   ]
     .filter(Boolean)
-    .join(" ");
+    .join(' ');
 });
 
 const forwardedAttrs = computed(() => {
   const next = { ...attrs } as Record<string, unknown>;
   delete next.style;
   delete next.wrapClassName;
-  delete next["wrap-class-name"];
+  delete next['wrap-class-name'];
   return next;
 });
 
@@ -279,10 +271,10 @@ const managedModalStyle = computed<CSSProperties>(() => {
   }
 
   return {
-    position: "fixed",
-    margin: "0",
+    position: 'fixed',
+    margin: '0',
     maxWidth: `${viewport.width}px`,
-    paddingBottom: "0",
+    paddingBottom: '0',
     top: `${rect.top}px`,
     left: `${rect.left}px`,
     height: `${rect.height}px`,
@@ -294,10 +286,11 @@ const mergedModalStyle = computed(() => {
 });
 
 const mergedModalBindings = computed(() => {
-  const controlledWidth =
-    isMoved.value && rectReady.value ? rect.width : props.width;
+  const controlledWidth = isMoved.value && rectReady.value ? rect.width : props.width;
 
   return {
+    okText: $t('common.confirm'),
+    cancelText: $t('common.cancel'),
     ...modalPassThroughProps.value,
     ...forwardedAttrs.value,
     width: controlledWidth,
@@ -308,23 +301,22 @@ const mergedModalBindings = computed(() => {
 
 const mergedSemanticStyles = computed(() => {
   const inputStyles = (props.styles || {}) as Record<string, unknown>;
-  const containerStyle =
-    (inputStyles.container as Record<string, unknown>) || {};
+  const containerStyle = (inputStyles.container as Record<string, unknown>) || {};
   const bodyStyle = (inputStyles.body as Record<string, unknown>) || {};
   return {
     ...inputStyles,
     container: {
       ...containerStyle,
-      display: "flex",
-      flexDirection: "column",
-      height: "100%",
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
       minHeight: 0,
     },
     body: {
       ...bodyStyle,
       flex: 1,
       minHeight: 0,
-      overflow: "auto",
+      overflow: 'auto',
     },
   };
 });
@@ -335,9 +327,7 @@ const updateViewport = () => {
 };
 
 const getModalElement = () => {
-  return document.querySelector(
-    `.${instanceWrapClassName} .ant-modal`,
-  ) as HTMLElement | null;
+  return document.querySelector(`.${instanceWrapClassName} .ant-modal`) as HTMLElement | null;
 };
 
 const clearFullscreenAnimationTimer = () => {
@@ -350,14 +340,11 @@ const clearFullscreenAnimationTimer = () => {
 };
 
 const getFullscreenTransitionDuration = () => {
-  if (
-    typeof window === "undefined" ||
-    typeof window.matchMedia !== "function"
-  ) {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
     return FULLSCREEN_TRANSITION_DURATION;
   }
 
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ? 0
     : FULLSCREEN_TRANSITION_DURATION;
 };
@@ -414,15 +401,15 @@ const clampRect = (target: ModalRect): ModalRect => {
   };
 };
 
-const parsePreferredWidth = (width: ModalProps["width"], fallback: number) => {
-  if (typeof width === "number" && Number.isFinite(width)) {
+const parsePreferredWidth = (width: ModalProps['width'], fallback: number) => {
+  if (typeof width === 'number' && Number.isFinite(width)) {
     return width;
   }
 
-  if (typeof width === "string") {
+  if (typeof width === 'string') {
     const trimmed = width.trim();
 
-    if (trimmed.endsWith("%")) {
+    if (trimmed.endsWith('%')) {
       const ratio = Number.parseFloat(trimmed.slice(0, -1));
       if (Number.isFinite(ratio)) {
         return (viewport.width * ratio) / 100;
@@ -505,32 +492,30 @@ const getResizeDirection = (event: MouseEvent): ResizeDirection | null => {
   const relativeY = event.clientY - modalRect.top;
 
   const nearLeft = relativeX >= 0 && relativeX <= EDGE_SIZE;
-  const nearRight =
-    relativeX <= modalRect.width && relativeX >= modalRect.width - EDGE_SIZE;
+  const nearRight = relativeX <= modalRect.width && relativeX >= modalRect.width - EDGE_SIZE;
   const nearTop = relativeY >= 0 && relativeY <= EDGE_SIZE;
-  const nearBottom =
-    relativeY <= modalRect.height && relativeY >= modalRect.height - EDGE_SIZE;
+  const nearBottom = relativeY <= modalRect.height && relativeY >= modalRect.height - EDGE_SIZE;
 
   if (!nearLeft && !nearRight && !nearTop && !nearBottom) {
     return null;
   }
 
-  const vertical = nearTop ? "n" : nearBottom ? "s" : "";
-  const horizontal = nearLeft ? "w" : nearRight ? "e" : "";
+  const vertical = nearTop ? 'n' : nearBottom ? 's' : '';
+  const horizontal = nearLeft ? 'w' : nearRight ? 'e' : '';
 
   const direction = `${vertical}${horizontal}` as ResizeDirection;
   return direction || null;
 };
 
 const directionCursorMap: Record<ResizeDirection, string> = {
-  n: "ns-resize",
-  s: "ns-resize",
-  e: "ew-resize",
-  w: "ew-resize",
-  ne: "nesw-resize",
-  sw: "nesw-resize",
-  nw: "nwse-resize",
-  se: "nwse-resize",
+  n: 'ns-resize',
+  s: 'ns-resize',
+  e: 'ew-resize',
+  w: 'ew-resize',
+  ne: 'nesw-resize',
+  sw: 'nesw-resize',
+  nw: 'nwse-resize',
+  se: 'nwse-resize',
 };
 
 const updateModalCursor = (direction: ResizeDirection | null) => {
@@ -539,7 +524,7 @@ const updateModalCursor = (direction: ResizeDirection | null) => {
   }
 
   if (!direction || isFullscreen.value || !props.resizable) {
-    boundModalElement.style.cursor = "";
+    boundModalElement.style.cursor = '';
     return;
   }
 
@@ -553,9 +538,9 @@ const startDocumentListen = () => {
 
   isDocumentListening = true;
   bodyUserSelectCache = document.body.style.userSelect;
-  document.body.style.userSelect = "none";
-  document.addEventListener("mousemove", handleDocumentMouseMove);
-  document.addEventListener("mouseup", handleDocumentMouseUp);
+  document.body.style.userSelect = 'none';
+  document.addEventListener('mousemove', handleDocumentMouseMove);
+  document.addEventListener('mouseup', handleDocumentMouseUp);
 };
 
 const stopDocumentListen = () => {
@@ -565,8 +550,8 @@ const stopDocumentListen = () => {
 
   isDocumentListening = false;
   document.body.style.userSelect = bodyUserSelectCache;
-  document.removeEventListener("mousemove", handleDocumentMouseMove);
-  document.removeEventListener("mouseup", handleDocumentMouseUp);
+  document.removeEventListener('mousemove', handleDocumentMouseMove);
+  document.removeEventListener('mouseup', handleDocumentMouseUp);
 };
 
 const applyResize = (state: ResizeState, deltaX: number, deltaY: number) => {
@@ -575,15 +560,11 @@ const applyResize = (state: ResizeState, deltaX: number, deltaY: number) => {
 
   let { left, top, width, height } = state.startRect;
 
-  if (state.direction.includes("e")) {
-    width = clamp(
-      state.startRect.width + deltaX,
-      minWidth,
-      viewport.width - state.startRect.left,
-    );
+  if (state.direction.includes('e')) {
+    width = clamp(state.startRect.width + deltaX, minWidth, viewport.width - state.startRect.left);
   }
 
-  if (state.direction.includes("s")) {
+  if (state.direction.includes('s')) {
     height = clamp(
       state.startRect.height + deltaY,
       minHeight,
@@ -591,13 +572,13 @@ const applyResize = (state: ResizeState, deltaX: number, deltaY: number) => {
     );
   }
 
-  if (state.direction.includes("w")) {
+  if (state.direction.includes('w')) {
     const maxLeft = state.startRect.left + state.startRect.width - minWidth;
     left = clamp(state.startRect.left + deltaX, 0, maxLeft);
     width = state.startRect.width + (state.startRect.left - left);
   }
 
-  if (state.direction.includes("n")) {
+  if (state.direction.includes('n')) {
     const maxTop = state.startRect.top + state.startRect.height - minHeight;
     top = clamp(state.startRect.top + deltaY, 0, maxTop);
     height = state.startRect.height + (state.startRect.top - top);
@@ -639,12 +620,7 @@ const handleDocumentMouseUp = () => {
 };
 
 const handleModalMouseMove = (event: MouseEvent) => {
-  if (
-    !props.resizable ||
-    isFullscreen.value ||
-    dragState.value ||
-    resizeState.value
-  ) {
+  if (!props.resizable || isFullscreen.value || dragState.value || resizeState.value) {
     updateModalCursor(null);
     return;
   }
@@ -688,9 +664,9 @@ const handleModalMouseDown = (event: MouseEvent) => {
 
 const bindModalResizeEvents = (element: HTMLElement) => {
   boundModalElement = element;
-  element.addEventListener("mousemove", handleModalMouseMove);
-  element.addEventListener("mouseleave", handleModalMouseLeave);
-  element.addEventListener("mousedown", handleModalMouseDown);
+  element.addEventListener('mousemove', handleModalMouseMove);
+  element.addEventListener('mouseleave', handleModalMouseLeave);
+  element.addEventListener('mousedown', handleModalMouseDown);
 };
 
 const unbindModalResizeEvents = () => {
@@ -698,25 +674,20 @@ const unbindModalResizeEvents = () => {
     return;
   }
 
-  boundModalElement.removeEventListener("mousemove", handleModalMouseMove);
-  boundModalElement.removeEventListener("mouseleave", handleModalMouseLeave);
-  boundModalElement.removeEventListener("mousedown", handleModalMouseDown);
-  boundModalElement.style.cursor = "";
+  boundModalElement.removeEventListener('mousemove', handleModalMouseMove);
+  boundModalElement.removeEventListener('mouseleave', handleModalMouseLeave);
+  boundModalElement.removeEventListener('mousedown', handleModalMouseDown);
+  boundModalElement.style.cursor = '';
   boundModalElement = null;
 };
 
 const handleTitleMouseDown = (event: MouseEvent) => {
-  if (
-    !props.draggable ||
-    isFullscreen.value ||
-    isAnimating.value ||
-    event.button !== 0
-  ) {
+  if (!props.draggable || isFullscreen.value || isAnimating.value || event.button !== 0) {
     return;
   }
 
   const target = event.target as HTMLElement | null;
-  if (target?.closest(".pro-modal-title-actions")) {
+  if (target?.closest('.pro-modal-title-actions')) {
     return;
   }
 
@@ -801,11 +772,11 @@ const handleWindowResize = () => {
 };
 
 const handleOk = (event: MouseEvent) => {
-  emit("ok", event);
+  emit('ok', event);
 };
 
 const handleCancel = (event: MouseEvent) => {
-  emit("cancel", event);
+  emit('cancel', event);
 };
 
 const handleCloseClick = (event: MouseEvent) => {
@@ -813,16 +784,16 @@ const handleCloseClick = (event: MouseEvent) => {
     return;
   }
 
-  if (typeof props.closable === "object") {
+  if (typeof props.closable === 'object') {
     props.closable.onClose?.();
   }
 
-  emit("cancel", event);
-  emit("update:open", false);
+  emit('cancel', event);
+  emit('update:open', false);
 };
 
 const handleUpdateOpen = (open: boolean) => {
-  emit("update:open", open);
+  emit('update:open', open);
 };
 
 watch(
@@ -863,14 +834,14 @@ watch(
 
 onMounted(() => {
   updateViewport();
-  window.addEventListener("resize", handleWindowResize);
+  window.addEventListener('resize', handleWindowResize);
 });
 
 onBeforeUnmount(() => {
   clearFullscreenAnimationTimer();
   stopDocumentListen();
   unbindModalResizeEvents();
-  window.removeEventListener("resize", handleWindowResize);
+  window.removeEventListener('resize', handleWindowResize);
 });
 </script>
 

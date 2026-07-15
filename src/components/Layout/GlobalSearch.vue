@@ -16,7 +16,7 @@
             <span class="search-tag">ESC</span>
           </div>
 
-          <div class="search-body">
+          <div ref="searchBodyRef" class="search-body">
             <!-- Search Results -->
             <div v-if="searchQuery" class="search-results">
               <div v-if="searchResults.length > 0">
@@ -29,10 +29,7 @@
                   @mouseenter="activeIndex = index"
                 >
                   <div class="item-icon">
-                    <component
-                      :is="getIconComponent(result.icon)"
-                      v-if="result.icon"
-                    />
+                    <component :is="getIconComponent(result.icon)" v-if="result.icon" />
                     <FileOutlined v-else />
                   </div>
                   <div class="item-info">
@@ -42,9 +39,7 @@
                     ></span>
                     <span
                       class="item-path"
-                      v-html="
-                        highlightText(formatPath(result.path), searchQuery)
-                      "
+                      v-html="highlightText(formatPath(result.path), searchQuery)"
                     ></span>
                   </div>
                   <div class="item-actions" @click.stop>
@@ -54,10 +49,7 @@
                       class="favorite-btn"
                       @click="toggleFavorite(result.path)"
                     >
-                      <StarFilled
-                        v-if="isFavorite(result.path)"
-                        class="favorite-icon active"
-                      />
+                      <StarFilled v-if="isFavorite(result.path)" class="favorite-icon active" />
                       <StarOutlined v-else class="favorite-icon" />
                     </a-button>
                   </div>
@@ -68,7 +60,7 @@
                 <div class="empty-icon">
                   <SearchOutlined />
                 </div>
-                <p>{{ $t("layout.noSearchResults") }}</p>
+                <p>{{ $t('layout.noSearchResults') }}</p>
               </div>
             </div>
 
@@ -76,16 +68,9 @@
             <div v-else-if="menuHistory.length > 0" class="search-results">
               <div class="search-group-header">
                 <ClockCircleOutlined class="header-icon" />
-                <span class="header-title">{{
-                  $t("layout.recentMenus") || "最近访问"
-                }}</span>
-                <a-button
-                  type="link"
-                  size="small"
-                  class="clear-btn"
-                  @click="clearHistory"
-                >
-                  {{ $t("common.clear") || "清空" }}
+                <span class="header-title">{{ $t('layout.recentMenus') || '最近访问' }}</span>
+                <a-button type="link" size="small" class="clear-btn" @click="clearHistory">
+                  {{ $t('common.clear') || '清空' }}
                 </a-button>
               </div>
               <div
@@ -97,10 +82,7 @@
                 @mouseenter="activeIndex = index"
               >
                 <div class="item-icon">
-                  <component
-                    :is="getIconComponent(item.icon)"
-                    v-if="item.icon"
-                  />
+                  <component :is="getIconComponent(item.icon)" v-if="item.icon" />
                   <FileOutlined v-else />
                 </div>
                 <div class="item-info">
@@ -114,10 +96,7 @@
                     class="favorite-btn"
                     @click="toggleFavorite(item.path)"
                   >
-                    <StarFilled
-                      v-if="isFavorite(item.path)"
-                      class="favorite-icon active"
-                    />
+                    <StarFilled v-if="isFavorite(item.path)" class="favorite-icon active" />
                     <StarOutlined v-else class="favorite-icon" />
                   </a-button>
                 </div>
@@ -130,7 +109,7 @@
               <div class="empty-icon">
                 <SearchOutlined />
               </div>
-              <p>{{ $t("layout.searchPlaceholder") }}</p>
+              <p>{{ $t('layout.searchPlaceholder') }}</p>
             </div>
           </div>
 
@@ -142,23 +121,17 @@
               <span class="key-badge">
                 <ArrowDownOutlined />
               </span>
-              <span class="footer-text">{{
-                $t("common.navigate") || "Navigate"
-              }}</span>
+              <span class="footer-text">{{ $t('common.navigate') || 'Navigate' }}</span>
             </div>
             <div class="footer-item">
               <span class="key-badge">
                 <EnterOutlined />
               </span>
-              <span class="footer-text">{{
-                $t("common.select") || "Select"
-              }}</span>
+              <span class="footer-text">{{ $t('common.select') || 'Select' }}</span>
             </div>
             <div class="footer-item">
               <span class="key-badge">ESC</span>
-              <span class="footer-text">{{
-                $t("common.close") || "Close"
-              }}</span>
+              <span class="footer-text">{{ $t('common.close') || 'Close' }}</span>
             </div>
           </div>
         </div>
@@ -168,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import type { MenuItem } from "@/types/router";
+import type { MenuItem } from '@/types/router';
 
 import {
   SearchOutlined,
@@ -179,25 +152,26 @@ import {
   ClockCircleOutlined,
   StarOutlined,
   StarFilled,
-} from "@antdv-next/icons";
-import { match as pinyinMatch } from "pinyin-pro";
-import { computed, ref, watch, nextTick, onBeforeUnmount } from "vue";
-import { useRouter } from "vue-router";
+} from '@antdv-next/icons';
+import { match as pinyinMatch } from 'pinyin-pro';
+import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
 
-import { basicRoutes } from "@/router/routes";
-import { routesToMenuTree } from "@/router/utils";
-import { usePermissionStore } from "@/stores/permission";
-import { useTabsStore } from "@/stores/tabs";
-import { resolveLocaleText } from "@/utils/i18n";
-import { resolveIcon } from "@/utils/icon";
+import { basicRoutes } from '@/router/routes';
+import { routesToMenuTree } from '@/router/utils';
+import { usePermissionStore } from '@/stores/permission';
+import { useTabsStore } from '@/stores/tabs';
+import { resolveLocaleText } from '@/utils/i18n';
+import { resolveIcon } from '@/utils/icon';
+import { searchMenuItems } from '@/utils/menuSearch';
 
-const MENU_HISTORY_KEY = "app-menu-history";
+const MENU_HISTORY_KEY = 'app-menu-history';
 
 interface SearchItem {
   path: string;
   title: string;
   icon?: string;
-  rawTitle: string;
+  leafTitle: string;
 }
 
 interface MenuHistoryItem {
@@ -210,11 +184,12 @@ interface MenuHistoryItem {
 const router = useRouter();
 const permissionStore = usePermissionStore();
 const tabsStore = useTabsStore();
-const visible = ref(false);
-const searchQuery = ref("");
+const visible = defineModel<boolean>('open', { default: false });
+const searchQuery = ref('');
 const searchResults = ref<SearchItem[]>([]);
 const activeIndex = ref(0);
 const searchInputRef = ref<HTMLInputElement | null>(null);
+const searchBodyRef = ref<HTMLElement | null>(null);
 const menuHistory = ref<MenuHistoryItem[]>([]);
 
 const fallbackMenus = computed<MenuItem[]>(() => {
@@ -244,9 +219,9 @@ const searchSource = computed<SearchItem[]>(() => {
         // Leaf node: show full parent path
         items.push({
           path: menu.path,
-          title: currentLabels.join(" > "),
+          title: currentLabels.join(' > '),
           icon: menu.icon,
-          rawTitle: menu.label,
+          leafTitle: currentLabel,
         });
       }
     });
@@ -267,11 +242,11 @@ const searchSource = computed<SearchItem[]>(() => {
 const getIconComponent = (icon?: string) => resolveIcon(icon);
 
 const formatPath = (path: string) => {
-  return path.split("/").filter(Boolean).join(" > ");
+  return path.split('/').filter(Boolean).join(' > ');
 };
 
 const escapeHtml = (text: string): string => {
-  const div = document.createElement("div");
+  const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 };
@@ -279,8 +254,8 @@ const escapeHtml = (text: string): string => {
 const highlightText = (text: string, query: string): string => {
   if (!query) return escapeHtml(text);
 
-  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const regex = new RegExp(`(${escapedQuery})`, "gi");
+  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escapedQuery})`, 'gi');
   if (regex.test(text)) {
     return text.replace(regex, '<span class="highlight">$1</span>');
   }
@@ -290,11 +265,9 @@ const highlightText = (text: string, query: string): string => {
     const indexSet = new Set(matched);
     return Array.from(text)
       .map((char, i) =>
-        indexSet.has(i)
-          ? `<span class="highlight">${char}</span>`
-          : escapeHtml(char),
+        indexSet.has(i) ? `<span class="highlight">${char}</span>` : escapeHtml(char),
       )
-      .join("");
+      .join('');
   }
 
   return escapeHtml(text);
@@ -302,22 +275,25 @@ const highlightText = (text: string, query: string): string => {
 
 let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
+const resetSearchScroll = () => {
+  nextTick(() => {
+    if (searchBodyRef.value) {
+      searchBodyRef.value.scrollTop = 0;
+    }
+  });
+};
+
 const handleSearch = () => {
   if (!searchQuery.value) {
     searchResults.value = [];
+    activeIndex.value = 0;
+    resetSearchScroll();
     return;
   }
 
-  const query = searchQuery.value.toLowerCase();
-  searchResults.value = searchSource.value
-    .filter(
-      (item) =>
-        item.title.toLowerCase().includes(query) ||
-        item.path.toLowerCase().includes(query) ||
-        pinyinMatch(item.title, query) !== null,
-    )
-    .slice(0, 20);
+  searchResults.value = searchMenuItems(searchSource.value, searchQuery.value);
   activeIndex.value = 0;
+  resetSearchScroll();
 };
 
 const handleResultClick = (result: SearchItem) => {
@@ -335,7 +311,7 @@ const toggleFavorite = (path: string) => {
 };
 
 const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === "Escape") {
+  if (e.key === 'Escape') {
     e.preventDefault();
     close();
     return;
@@ -345,19 +321,17 @@ const handleKeydown = (e: KeyboardEvent) => {
   if (items.length === 0) return;
 
   switch (e.key) {
-    case "ArrowUp":
+    case 'ArrowUp':
       e.preventDefault();
-      activeIndex.value =
-        activeIndex.value > 0 ? activeIndex.value - 1 : items.length - 1;
+      activeIndex.value = activeIndex.value > 0 ? activeIndex.value - 1 : items.length - 1;
       scrollActiveIntoView();
       break;
-    case "ArrowDown":
+    case 'ArrowDown':
       e.preventDefault();
-      activeIndex.value =
-        activeIndex.value < items.length - 1 ? activeIndex.value + 1 : 0;
+      activeIndex.value = activeIndex.value < items.length - 1 ? activeIndex.value + 1 : 0;
       scrollActiveIntoView();
       break;
-    case "Enter":
+    case 'Enter':
       e.preventDefault();
       if (searchQuery.value) {
         handleResultClick(searchResults.value[activeIndex.value]);
@@ -370,9 +344,9 @@ const handleKeydown = (e: KeyboardEvent) => {
 
 const scrollActiveIntoView = () => {
   nextTick(() => {
-    const activeEl = document.querySelector(".search-item.active");
+    const activeEl = document.querySelector('.search-item.active');
     if (activeEl) {
-      activeEl.scrollIntoView({ block: "nearest" });
+      activeEl.scrollIntoView({ block: 'nearest' });
     }
   });
 };
@@ -400,25 +374,12 @@ const clearHistory = () => {
   localStorage.removeItem(MENU_HISTORY_KEY);
 };
 
-const open = () => {
-  visible.value = true;
-  searchQuery.value = "";
-  searchResults.value = [];
-  activeIndex.value = 0;
-  loadMenuHistory();
-  nextTick(() => {
-    searchInputRef.value?.focus();
-  });
-  window.addEventListener("keydown", handleGlobalKeydown);
-};
-
 const close = () => {
   visible.value = false;
-  window.removeEventListener("keydown", handleGlobalKeydown);
 };
 
 const handleGlobalKeydown = (e: KeyboardEvent) => {
-  if (e.key === "Escape") {
+  if (e.key === 'Escape') {
     close();
   }
 };
@@ -433,14 +394,33 @@ watch(searchQuery, () => {
   }, 150);
 });
 
+watch(
+  visible,
+  (isVisible) => {
+    window.removeEventListener('keydown', handleGlobalKeydown);
+
+    if (!isVisible) {
+      return;
+    }
+
+    searchQuery.value = '';
+    searchResults.value = [];
+    activeIndex.value = 0;
+    loadMenuHistory();
+    window.addEventListener('keydown', handleGlobalKeydown);
+    nextTick(() => {
+      searchInputRef.value?.focus();
+    });
+  },
+  { immediate: true },
+);
+
 onBeforeUnmount(() => {
-  window.removeEventListener("keydown", handleGlobalKeydown);
+  window.removeEventListener('keydown', handleGlobalKeydown);
   if (searchDebounceTimer) {
     clearTimeout(searchDebounceTimer);
   }
 });
-
-defineExpose({ open, close });
 </script>
 
 <style scoped lang="scss">

@@ -1,16 +1,16 @@
-import type { User, Role, Permission } from "@/types/auth";
+import type { User, Role, Permission } from '@/types/auth';
 
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 
-import avatarImg from "@/assets/images/avatar-256.png";
-import { ALL_PERMISSION } from "@/constants/permissions";
+import avatarImg from '@/assets/images/avatar-256.png';
+import { ALL_PERMISSION } from '@/constants/permissions';
 
-const TOKEN_KEY = "access_token";
-const REFRESH_TOKEN_KEY = "refresh_token";
-const USER_KEY = "user_info";
-const TOKEN_EXPIRES_KEY = "token_expires_at";
-const USER_DATA_VERSION_KEY = "user_data_version";
+const TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
+const USER_KEY = 'user_info';
+const TOKEN_EXPIRES_KEY = 'token_expires_at';
+const USER_DATA_VERSION_KEY = 'user_data_version';
 
 /**
  * Increment this version when the user data schema changes
@@ -44,14 +44,14 @@ const DEFAULT_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
-    const base64Url = token.split(".")[1];
+    const base64Url = token.split('.')[1];
     if (!base64Url) return null;
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(
       atob(base64)
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join(""),
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(''),
     );
     return JSON.parse(jsonPayload);
   } catch {
@@ -77,11 +77,9 @@ function normalizeUserInfo(userInfo: User): User {
   };
 }
 
-export const useAuthStore = defineStore("auth", () => {
+export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem(TOKEN_KEY));
-  const refreshTokenValue = ref<string | null>(
-    localStorage.getItem(REFRESH_TOKEN_KEY),
-  );
+  const refreshTokenValue = ref<string | null>(localStorage.getItem(REFRESH_TOKEN_KEY));
   const tokenExpiresAt = ref<number | null>(null);
   const user = ref<User | null>(null);
   const roles = ref<Role[]>([]);
@@ -98,13 +96,9 @@ export const useAuthStore = defineStore("auth", () => {
     return Date.now() >= tokenExpiresAt.value;
   });
 
-  const isLoggedIn = computed(
-    () => !!token.value && !!user.value && !isTokenExpired.value,
-  );
+  const isLoggedIn = computed(() => !!token.value && !!user.value && !isTokenExpired.value);
   const userRoles = computed(() => roles.value.map((role) => role.code));
-  const userPermissions = computed(() =>
-    permissions.value.map((perm) => perm.code),
-  );
+  const userPermissions = computed(() => permissions.value.map((perm) => perm.code));
 
   const setToken = (
     newToken: string | null,
@@ -120,7 +114,7 @@ export const useAuthStore = defineStore("auth", () => {
         expiresAt = Date.now() + expiresIn * 1000;
       } else {
         const payload = decodeJwtPayload(newToken);
-        if (payload?.exp && typeof payload.exp === "number") {
+        if (payload?.exp && typeof payload.exp === 'number') {
           expiresAt = payload.exp * 1000;
         } else {
           expiresAt = Date.now() + DEFAULT_TOKEN_EXPIRY_MS;
@@ -151,10 +145,7 @@ export const useAuthStore = defineStore("auth", () => {
       roles.value = normalizedUserInfo.roles || [];
       permissions.value = normalizedUserInfo.permissions || [];
       localStorage.setItem(USER_KEY, JSON.stringify(normalizedUserInfo));
-      localStorage.setItem(
-        USER_DATA_VERSION_KEY,
-        String(CURRENT_USER_DATA_VERSION),
-      );
+      localStorage.setItem(USER_DATA_VERSION_KEY, String(CURRENT_USER_DATA_VERSION));
     } else {
       roles.value = [];
       permissions.value = [];
@@ -164,14 +155,14 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   const login = async (username: string, password: string): Promise<void> => {
-    const { login: loginApi, getUserInfo } = await import("@/api/auth");
+    const { login: loginApi, getUserInfo } = await import('@/api/auth');
+
+    if (token.value || user.value) {
+      logout();
+    }
 
     const loginResult = await loginApi({ username, password });
-    setToken(
-      loginResult.data.token,
-      loginResult.data.refreshToken,
-      loginResult.data.expiresIn,
-    );
+    setToken(loginResult.data.token, loginResult.data.refreshToken, loginResult.data.expiresIn);
 
     const userInfo = await getUserInfo();
     setUserInfo(userInfo.data);
@@ -183,18 +174,14 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   const refreshToken = async (): Promise<string> => {
-    const { refreshToken: refreshTokenApi } = await import("@/api/auth");
+    const { refreshToken: refreshTokenApi } = await import('@/api/auth');
 
     if (!refreshTokenValue.value) {
-      throw new Error("No refresh token available");
+      throw new Error('No refresh token available');
     }
 
     const result = await refreshTokenApi(refreshTokenValue.value);
-    setToken(
-      result.data.token,
-      result.data.refreshToken,
-      result.data.expiresIn,
-    );
+    setToken(result.data.token, result.data.refreshToken, result.data.expiresIn);
     return result.data.token;
   };
 
@@ -212,8 +199,7 @@ export const useAuthStore = defineStore("auth", () => {
 
   const hasPermission = (permission: string): boolean => {
     return (
-      userPermissions.value.includes(ALL_PERMISSION) ||
-      userPermissions.value.includes(permission)
+      userPermissions.value.includes(ALL_PERMISSION) || userPermissions.value.includes(permission)
     );
   };
 
@@ -233,10 +219,7 @@ export const useAuthStore = defineStore("auth", () => {
 
     // Discard cached user data written by an older version of the app
     const cachedVersion = localStorage.getItem(USER_DATA_VERSION_KEY);
-    if (
-      cachedVersion !== null &&
-      parseInt(cachedVersion, 10) !== CURRENT_USER_DATA_VERSION
-    ) {
+    if (cachedVersion !== null && parseInt(cachedVersion, 10) !== CURRENT_USER_DATA_VERSION) {
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(USER_DATA_VERSION_KEY);
     }
@@ -249,7 +232,7 @@ export const useAuthStore = defineStore("auth", () => {
         // that were stored before the current patterns were added.
         setUserInfo(userInfo);
       } catch (error) {
-        console.error("Failed to parse saved user info:", error);
+        console.error('Failed to parse saved user info:', error);
         localStorage.removeItem(USER_KEY);
         localStorage.removeItem(USER_DATA_VERSION_KEY);
       }

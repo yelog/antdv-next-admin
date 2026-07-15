@@ -1,6 +1,8 @@
 <template>
   <a-watermark v-bind="watermarkStore.watermarkProps" class="global-watermark">
-    <a-skip-to-content target="#main-content" />
+    <a class="skip-to-content" href="#main-content">
+      {{ $t('layout.skipToContent') }}
+    </a>
     <a-layout
       class="admin-layout"
       :class="[settingsStore.layoutMode, { mobile: layoutStore.isMobile }]"
@@ -125,7 +127,7 @@
             <TabBar />
 
             <!-- Page Content -->
-            <div class="page-content" :class="{ 'is-iframe-page': isIframePage }">
+            <div id="main-content" class="page-content" :class="{ 'is-iframe-page': isIframePage }">
               <div
                 ref="workspaceRef"
                 class="page-workspace"
@@ -893,6 +895,25 @@ watch(
     .layout-main {
       margin-left: 0 !important;
     }
+  }
+}
+
+.skip-to-content {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 10000;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: #ffffff;
+  transform: translateY(-150%);
+  transition: transform var(--duration-base) var(--ease-out);
+
+  &:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid var(--color-primary-3);
+    outline-offset: 2px;
   }
 }
 

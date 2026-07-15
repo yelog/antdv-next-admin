@@ -43,8 +43,12 @@
       v-else-if="item.type === 'select'"
       v-model:value="modelValue"
       :placeholder="resolveSelectPlaceholder()"
-      :options="resolvedOptions"
+      :options="displayedOptions"
+      :show-search="resolveShowSearch()"
+      :filter-option="resolveFilterOption()"
+      :loading="remoteLoading"
       v-bind="item.props"
+      @search="handleSearch"
       @update:value="handleChange"
     />
 
@@ -160,13 +164,17 @@
     />
 
     <!-- Tree Select -->
-    <a-tree-select
+    <TreeSelect
       v-else-if="item.type === 'treeSelect'"
       v-model:value="modelValue"
       :placeholder="resolveSelectPlaceholder()"
-      :tree-data="resolvedOptions"
+      :tree-data="treeSelectData"
+      :show-search="treeSelectShowSearch"
+      :filter-tree-node="treeSelectFilterTreeNode"
+      :loading="remoteLoading"
       style="width: 100%"
       v-bind="item.props"
+      @search="handleSearch"
       @update:value="handleChange"
     />
 
@@ -191,13 +199,20 @@
 </template>
 
 <script setup lang="ts">
-import type { ProFormItem } from "@/types/pro";
+import type { ProFormItem, ProFormOption } from '@/types/pro';
+import type { TreeSelectProps } from 'antdv-next';
 
-import { ref, watch, computed } from "vue";
+import { TreeSelect } from 'antdv-next';
+import { ref, watch, computed } from 'vue';
 
-import { $t } from "@/locales";
+import { $t } from '@/locales';
 
-import ProUpload from "../ProUpload/index.vue";
+import ProUpload from '../ProUpload/index.vue';
+import {
+  createRemoteOptionsController,
+  localFilterOption,
+  localFilterTreeNode,
+} from './selectSearch';
 
 interface Props {
   value?: unknown;
@@ -208,16 +223,77 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   formData: () => ({}),
 });
-const emit = defineEmits(["update:value", "change"]);
+const emit = defineEmits(['update:value', 'change']);
 
 const modelValue = ref(props.value ?? props.item.initialValue);
 
 const resolvedOptions = computed(() => {
-  if (typeof props.item.options === "function") {
+  if (typeof props.item.options === 'function') {
     return props.item.options(props.formData);
   }
-  return props.item.options;
+  return props.item.options ?? [];
 });
+
+const remoteSearchController = createRemoteOptionsController();
+const remoteOptions = ref<ProFormOption[] | null>(null);
+const remoteLoading = ref(false);
+
+const displayedOptions = computed(() => {
+  return remoteOptions.value ?? resolvedOptions.value;
+});
+
+const isRemoteSearch = computed(() => {
+  return props.item.searchMode === 'remote' && typeof props.item.remoteSearch === 'function';
+});
+
+const resolveShowSearch = () => {
+  if (props.item.props && 'showSearch' in props.item.props) {
+    return props.item.props.showSearch;
+  }
+  return props.item.searchable !== false;
+};
+
+const resolveFilterOption = () => {
+  if (isRemoteSearch.value) return false;
+  if (props.item.props && 'filterOption' in props.item.props) {
+    return props.item.props.filterOption;
+  }
+  return localFilterOption;
+};
+
+const resolveFilterTreeNode = () => {
+  if (isRemoteSearch.value) return false;
+  if (props.item.props && 'filterTreeNode' in props.item.props) {
+    return props.item.props.filterTreeNode;
+  }
+  return localFilterTreeNode;
+};
+
+const treeSelectData = computed(() => {
+  return displayedOptions.value as unknown as TreeSelectProps['treeData'];
+});
+
+const treeSelectShowSearch = computed(() => {
+  return resolveShowSearch() as TreeSelectProps['showSearch'];
+});
+
+const treeSelectFilterTreeNode = computed(() => {
+  return resolveFilterTreeNode() as TreeSelectProps['filterTreeNode'];
+});
+
+const handleSearch = async (keyword: string) => {
+  if (!isRemoteSearch.value || !props.item.remoteSearch) return;
+  remoteLoading.value = Boolean(keyword.trim());
+  const result = await remoteSearchController.search(keyword, props.item.remoteSearch);
+  if (result.status === 'success') {
+    remoteOptions.value = result.options;
+  } else if (result.status !== 'stale') {
+    remoteOptions.value = null;
+  }
+  if (result.status !== 'stale') {
+    remoteLoading.value = false;
+  }
+};
 
 watch(
   () => props.value,
@@ -227,30 +303,33 @@ watch(
 );
 
 watch(modelValue, (val) => {
-  emit("update:value", val);
-  emit("change", val);
+  emit('update:value', val);
+  emit('change', val);
 });
 
+watch(
+  () => [props.item.name, props.item.searchMode, props.item.remoteSearch],
+  () => {
+    remoteSearchController.reset();
+    remoteOptions.value = null;
+    remoteLoading.value = false;
+  },
+);
+
 const handleChange = (value: unknown) => {
-  emit("update:value", value);
-  emit("change", value);
+  emit('update:value', value);
+  emit('change', value);
 };
 
 const resolveLabel = () => {
-  return String(props.item.label ?? "");
+  return String(props.item.label ?? '');
 };
 
 const resolveInputPlaceholder = () => {
-  return (
-    props.item.placeholder ||
-    $t("proForm.enterPlaceholder", { label: resolveLabel() })
-  );
+  return props.item.placeholder || $t('proForm.enterPlaceholder', { label: resolveLabel() });
 };
 
 const resolveSelectPlaceholder = () => {
-  return (
-    props.item.placeholder ||
-    $t("proForm.selectPlaceholder", { label: resolveLabel() })
-  );
+  return props.item.placeholder || $t('proForm.selectPlaceholder', { label: resolveLabel() });
 };
 </script>

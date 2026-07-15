@@ -14,43 +14,42 @@
     >
       <template #toolbar-actions>
         <a-button type="primary" @click="handleCreate">
-          <PlusOutlined /> {{ $t("role.createRole") }}
+          <PlusOutlined /> {{ $t('role.createRole') }}
         </a-button>
       </template>
     </ProTable>
 
-    <a-modal
+    <ProFormModal
       v-model:open="modalVisible"
       :title="editingRoleId ? $t('role.editRole') : $t('role.createRole')"
       :confirm-loading="submitting"
+      :session-key="formSessionKey"
+      :form-items="formItems"
+      :initial-values="formData"
+      :grid="{ cols: 2, gutter: 16 }"
+      :layout="{ layout: 'vertical' }"
       width="820px"
-      @ok="handleSubmit"
+      @submit="handleSubmit"
       @cancel="handleCancel"
-    >
-      <ProForm
-        ref="formRef"
-        :form-items="formItems"
-        :initial-values="formData"
-        :grid="{ cols: 2, gutter: 16 }"
-        :layout="{ layout: 'vertical' }"
-      />
-    </a-modal>
+      @closed="finishFormClose"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Permission, Role } from "@/types/auth";
-import type { ProFormItem, ProTableColumn } from "@/types/pro";
+import type { Permission, Role } from '@/types/auth';
+import type { ProFormItem, ProTableColumn } from '@/types/pro';
 
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@antdv-next/icons";
-import { message, Modal } from "antdv-next";
-import { computed, onMounted, ref } from "vue";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons';
+import { message, Modal } from 'antdv-next';
+import { computed, onMounted, ref } from 'vue';
 
-import { getPermissionTree } from "@/api/permission";
-import { createRole, deleteRole, getRoleList, updateRole } from "@/api/role";
-import ProForm from "@/components/Pro/ProForm/index.vue";
-import ProTable from "@/components/Pro/ProTable/index.vue";
-import { $t } from "@/locales";
+import { getPermissionTree } from '@/api/permission';
+import { createRole, deleteRole, getRoleList, updateRole } from '@/api/role';
+import ProFormModal from '@/components/Pro/ProFormModal/index.vue';
+import ProTable from '@/components/Pro/ProTable/index.vue';
+import { useCrudFormSession } from '@/composables/useCrudFormSession';
+import { $t } from '@/locales';
 
 type RoleFormValues = {
   name: string;
@@ -69,22 +68,25 @@ const tableRef = ref<{
   refresh: () => void;
   reload: () => void;
 } | null>(null);
-const formRef = ref<{
-  validate: () => Promise<boolean>;
-  getFieldsValue: () => RoleFormValues;
-} | null>(null);
-
-const modalVisible = ref(false);
+const {
+  open: modalVisible,
+  record: editingRole,
+  initialValues: formData,
+  sessionKey: formSessionKey,
+  openCreate: openCreateForm,
+  openEdit: openEditForm,
+  close: closeFormModal,
+  finishClose: finishFormClose,
+} = useCrudFormSession<Role, RoleFormValues>(createDefaultFormValues);
 const submitting = ref(false);
-const editingRoleId = ref<string | null>(null);
+const editingRoleId = computed(() => editingRole.value?.id ?? null);
 const permissionTree = ref<Permission[]>([]);
-const formData = ref<RoleFormValues>(createDefaultFormValues());
 
 const toolbarConfig = computed(() => ({
-  title: $t("role.title"),
-  subTitle: "ProTable + ProForm",
-  actions: ["refresh", "density", "columnSetting"] as Array<
-    "refresh" | "density" | "columnSetting"
+  title: $t('role.title'),
+  subTitle: 'ProTable + ProForm',
+  actions: ['refresh', 'density', 'columnSetting'] as Array<
+    'refresh' | 'density' | 'columnSetting'
   >,
 }));
 
@@ -93,10 +95,7 @@ const permissionOptions = computed<PermissionOption[]>(() => {
     return nodes.map((node) => ({
       label: `${node.name} (${node.code})`,
       value: node.id,
-      children:
-        node.children && node.children.length > 0
-          ? buildOptions(node.children)
-          : undefined,
+      children: node.children && node.children.length > 0 ? buildOptions(node.children) : undefined,
     }));
   };
   return buildOptions(permissionTree.value);
@@ -120,52 +119,52 @@ const permissionMap = computed(() => {
 });
 
 const searchFormItems = computed<ProFormItem[]>(() => [
-  { name: "name", label: $t("role.name"), type: "input" },
-  { name: "code", label: $t("role.code"), type: "input" },
+  { name: 'name', label: $t('role.name'), type: 'input' },
+  { name: 'code', label: $t('role.code'), type: 'input' },
 ]);
 
 const columns = computed<ProTableColumn[]>(() => [
   {
-    title: $t("role.name"),
-    dataIndex: "name",
+    title: $t('role.name'),
+    dataIndex: 'name',
     width: 200,
   },
   {
-    title: $t("role.code"),
-    dataIndex: "code",
+    title: $t('role.code'),
+    dataIndex: 'code',
     width: 200,
   },
   {
-    title: $t("role.description"),
-    dataIndex: "description",
+    title: $t('role.description'),
+    dataIndex: 'description',
   },
   {
-    title: $t("role.permissions"),
-    dataIndex: "permissionCount",
+    title: $t('role.permissions'),
+    dataIndex: 'permissionCount',
     width: 120,
   },
   {
-    title: $t("common.updateTime"),
-    dataIndex: "updatedAt",
+    title: $t('common.updateTime'),
+    dataIndex: 'updatedAt',
     width: 200,
-    valueType: "dateTime",
+    valueType: 'dateTime',
   },
   {
-    title: $t("common.actions"),
-    dataIndex: "action",
+    title: $t('common.actions'),
+    dataIndex: 'action',
     width: 160,
-    fixed: "right",
+    fixed: 'right',
     actions: [
       {
-        label: $t("common.edit"),
+        label: $t('common.edit'),
         icon: EditOutlined,
         onClick: (record) => handleEdit(record as unknown as Role),
       },
       {
-        label: $t("common.delete"),
+        label: $t('common.delete'),
         icon: DeleteOutlined,
         danger: true,
-        confirm: $t("role.confirmDelete"),
+        confirm: $t('role.confirmDelete'),
         onClick: (record) => handleDelete(record as unknown as Role),
       },
     ],
@@ -174,57 +173,55 @@ const columns = computed<ProTableColumn[]>(() => [
 
 const formItems = computed<ProFormItem[]>(() => [
   {
-    name: "name",
-    label: $t("role.name"),
-    type: "input",
+    name: 'name',
+    label: $t('role.name'),
+    type: 'input',
     required: true,
   },
   {
-    name: "code",
-    label: $t("role.code"),
-    type: "input",
+    name: 'code',
+    label: $t('role.code'),
+    type: 'input',
     required: true,
     props: {
       disabled: Boolean(editingRoleId.value),
     },
     rules: [
-      { required: true, message: $t("role.codeRequired") },
-      { pattern: /^[a-zA-Z0-9_.-]+$/, message: $t("role.codePattern") },
+      { required: true, message: $t('role.codeRequired') },
+      { pattern: /^[a-zA-Z0-9_.-]+$/, message: $t('role.codePattern') },
     ],
   },
   {
-    name: "description",
-    label: $t("role.description"),
-    type: "textarea",
+    name: 'description',
+    label: $t('role.description'),
+    type: 'textarea',
     colSpan: 2,
     props: {
       rows: 3,
     },
   },
   {
-    name: "permissionIds",
-    label: $t("role.permissions"),
-    type: "treeSelect",
+    name: 'permissionIds',
+    label: $t('role.permissions'),
+    type: 'treeSelect',
     colSpan: 2,
     options: permissionOptions.value,
     props: {
       treeCheckable: true,
       allowClear: true,
       treeDefaultExpandAll: true,
-      showCheckedStrategy: "SHOW_PARENT",
+      showCheckedStrategy: 'SHOW_PARENT',
       maxTagCount: 2,
     },
-    rules: [
-      { type: "array", required: true, message: $t("role.selectPermissions") },
-    ],
+    rules: [{ type: 'array', required: true, message: $t('role.selectPermissions') }],
   },
 ]);
 
 function createDefaultFormValues(): RoleFormValues {
   return {
-    name: "",
-    code: "",
-    description: "",
+    name: '',
+    code: '',
+    description: '',
     permissionIds: [],
   };
 }
@@ -263,50 +260,37 @@ const reloadTable = () => {
 };
 
 const handleCreate = () => {
-  editingRoleId.value = null;
-  formData.value = createDefaultFormValues();
-  modalVisible.value = true;
+  openCreateForm();
 };
 
 const handleEdit = (record: Role) => {
-  editingRoleId.value = record.id;
-  formData.value = {
+  const initialValues: RoleFormValues = {
     name: record.name,
     code: record.code,
-    description: record.description || "",
-    permissionIds: (record.permissions || []).map(
-      (permission) => permission.id,
-    ),
+    description: record.description || '',
+    permissionIds: (record.permissions || []).map((permission) => permission.id),
   };
-  modalVisible.value = true;
+  openEditForm(record, initialValues);
 };
 
 const handleCancel = () => {
-  modalVisible.value = false;
-  editingRoleId.value = null;
-  formData.value = createDefaultFormValues();
+  closeFormModal();
 };
 
 const handleDelete = async (record: Role) => {
   Modal.confirm({
-    title: $t("role.deleteRole"),
-    content: $t("role.confirmDelete"),
+    title: $t('role.deleteRole'),
+    content: $t('role.confirmDelete'),
     onOk: async () => {
       await deleteRole(record.id);
-      message.success($t("common.success"));
+      message.success($t('common.success'));
       refreshTable();
     },
   });
 };
 
-const handleSubmit = async () => {
-  const valid = await formRef.value?.validate();
-  if (!valid) {
-    return;
-  }
-
-  const values = formRef.value?.getFieldsValue();
-  if (!values) return;
+const handleSubmit = async (rawValues: Record<string, unknown>) => {
+  const values = rawValues as RoleFormValues;
 
   const permissionIds: string[] = values.permissionIds || [];
 
@@ -325,16 +309,14 @@ const handleSubmit = async () => {
   try {
     if (editingRoleId.value) {
       await updateRole(editingRoleId.value, payload);
-      message.success($t("role.updateSuccess"));
+      message.success($t('role.updateSuccess'));
       refreshTable();
     } else {
       await createRole(payload);
-      message.success($t("role.createSuccess"));
+      message.success($t('role.createSuccess'));
       reloadTable();
     }
-    modalVisible.value = false;
-    editingRoleId.value = null;
-    formData.value = createDefaultFormValues();
+    closeFormModal();
   } finally {
     submitting.value = false;
   }
@@ -344,4 +326,3 @@ onMounted(async () => {
   await fetchPermissionTreeData();
 });
 </script>
-

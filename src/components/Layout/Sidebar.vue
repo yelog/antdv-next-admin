@@ -217,9 +217,7 @@ watch(
   () => layoutStore.collapsed,
   (collapsed) => {
     if (collapsed) {
-      cachedOpenKeys.value = openKeys.value.length
-        ? [...openKeys.value]
-        : cachedOpenKeys.value;
+      cachedOpenKeys.value = openKeys.value.length ? [...openKeys.value] : cachedOpenKeys.value;
       openKeys.value = [];
       return;
     }
@@ -348,7 +346,7 @@ watch(
 
       :deep(.ant-menu-item-selected) {
         color: #fff !important;
-        background: rgba(22, 119, 255, 0.35) !important;
+        background: color-mix(in srgb, var(--color-primary) 35%, transparent) !important;
       }
     }
   }
@@ -375,12 +373,12 @@ watch(
       }
 
       :deep(.ant-menu-item-selected) {
-        color: #1677ff !important;
-        background: #e6f4ff !important;
+        color: var(--color-primary) !important;
+        background: var(--color-primary-bg) !important;
       }
 
       :deep(.ant-menu-submenu-selected > .ant-menu-submenu-title) {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
   }

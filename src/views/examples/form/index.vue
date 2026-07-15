@@ -1,8 +1,8 @@
 <template>
   <div class="page-container">
     <div class="card">
-      <h2>{{ $t("form.title") }}</h2>
-      <p class="mb-lg">{{ $t("exampleForm.description") }}</p>
+      <h2>{{ $t('form.title') }}</h2>
+      <p class="mb-lg">{{ $t('exampleForm.description') }}</p>
 
       <ProForm
         ref="formRef"
@@ -13,10 +13,10 @@
         <template #footer>
           <a-space>
             <a-button type="primary" html-type="submit">
-              {{ $t("common.submit") }}
+              {{ $t('common.submit') }}
             </a-button>
             <a-button @click="handleReset">
-              {{ $t("common.reset") }}
+              {{ $t('common.reset') }}
             </a-button>
           </a-space>
         </template>
@@ -26,126 +26,126 @@
 </template>
 
 <script setup lang="ts">
-import type { ProFormItem } from "@/types/pro";
+import type { ProFormItem } from '@/types/pro';
 
-import { message } from "antdv-next";
-import { ref } from "vue";
+import { message } from 'antdv-next';
+import { computed, ref } from 'vue';
 
-import ProForm from "@/components/Pro/ProForm/index.vue";
-import { $t } from "@/locales";
-import { commonRules } from "@/utils/formRules";
+import ProForm from '@/components/Pro/ProForm/index.vue';
+import { $t } from '@/locales';
+import { commonRules } from '@/utils/formRules';
 
 const formRef = ref();
 
-const formItems: ProFormItem[] = [
+const formItems = computed<ProFormItem[]>(() => [
   {
-    name: "username",
-    label: $t("user.username"),
-    type: "input",
+    name: 'username',
+    label: $t('user.username'),
+    type: 'input',
     required: true,
     rules: [commonRules.length(3, 20), commonRules.username()],
     props: {
-      placeholder: $t("login.usernamePlaceholder"),
+      placeholder: $t('login.usernamePlaceholder'),
     },
   },
   {
-    name: "email",
-    label: $t("user.email"),
-    type: "input",
+    name: 'email',
+    label: $t('user.email'),
+    type: 'input',
     required: true,
     rules: [commonRules.email()],
   },
   {
-    name: "password",
-    label: $t("login.password"),
-    type: "password",
+    name: 'password',
+    label: $t('login.password'),
+    type: 'password',
     required: true,
     rules: [commonRules.password()],
   },
   {
-    name: "confirmPassword",
-    label: $t("profile.confirmPassword"),
-    type: "password",
+    name: 'confirmPassword',
+    label: $t('profile.confirmPassword'),
+    type: 'password',
     required: true,
-    dependencies: ["password"],
+    dependencies: ['password'],
     rules: [
       ({ getFieldValue }: { getFieldValue: (field: string) => unknown }) =>
         commonRules.confirmPassword(getFieldValue),
     ],
   },
   {
-    name: "phone",
-    label: $t("user.phone"),
-    type: "input",
+    name: 'phone',
+    label: $t('user.phone'),
+    type: 'input',
     rules: [commonRules.phone()],
   },
   {
-    name: "age",
-    label: $t("exampleForm.age"),
-    type: "number",
-    rules: [commonRules.range(1, 150, $t("exampleForm.ageRange"))],
+    name: 'age',
+    label: $t('exampleForm.age'),
+    type: 'number',
+    rules: [commonRules.range(1, 150, $t('exampleForm.ageRange'))],
     props: {
       min: 1,
       max: 150,
     },
   },
   {
-    name: "gender",
-    label: $t("user.gender"),
-    type: "select",
+    name: 'gender',
+    label: $t('user.gender'),
+    type: 'select',
     required: true,
     options: [
-      { label: $t("user.male"), value: "male" },
-      { label: $t("user.female"), value: "female" },
+      { label: $t('user.male'), value: 'male' },
+      { label: $t('user.female'), value: 'female' },
     ],
   },
   {
-    name: "role",
-    label: $t("user.role"),
-    type: "select",
+    name: 'role',
+    label: $t('user.role'),
+    type: 'select',
     required: true,
     options: [
-      { label: $t("exampleForm.roles.admin"), value: "admin" },
-      { label: $t("exampleForm.roles.user"), value: "user" },
-      { label: $t("exampleForm.roles.guest"), value: "guest" },
+      { label: $t('exampleForm.roles.admin'), value: 'admin' },
+      { label: $t('exampleForm.roles.user'), value: 'user' },
+      { label: $t('exampleForm.roles.guest'), value: 'guest' },
     ],
   },
   {
-    name: "interests",
-    label: $t("exampleForm.interests"),
-    type: "checkbox",
+    name: 'interests',
+    label: $t('exampleForm.interests'),
+    type: 'checkbox',
     options: [
-      { label: $t("exampleForm.interestOptions.reading"), value: "reading" },
-      { label: $t("exampleForm.interestOptions.sports"), value: "sports" },
-      { label: $t("exampleForm.interestOptions.music"), value: "music" },
-      { label: $t("exampleForm.interestOptions.travel"), value: "travel" },
+      { label: $t('exampleForm.interestOptions.reading'), value: 'reading' },
+      { label: $t('exampleForm.interestOptions.sports'), value: 'sports' },
+      { label: $t('exampleForm.interestOptions.music'), value: 'music' },
+      { label: $t('exampleForm.interestOptions.travel'), value: 'travel' },
     ],
   },
   {
-    name: "birthDate",
-    label: $t("exampleForm.birthDate"),
-    type: "datePicker",
+    name: 'birthDate',
+    label: $t('exampleForm.birthDate'),
+    type: 'datePicker',
     props: {
-      format: "YYYY-MM-DD",
+      format: 'YYYY-MM-DD',
     },
   },
   {
-    name: "status",
-    label: $t("common.status"),
-    type: "switch",
-    valuePropName: "checked",
+    name: 'status',
+    label: $t('common.status'),
+    type: 'switch',
+    valuePropName: 'checked',
     initialValue: true,
   },
   {
-    name: "score",
-    label: $t("exampleForm.score"),
-    type: "rate",
+    name: 'score',
+    label: $t('exampleForm.score'),
+    type: 'rate',
     initialValue: 3,
   },
   {
-    name: "progress",
-    label: $t("exampleForm.progress"),
-    type: "slider",
+    name: 'progress',
+    label: $t('exampleForm.progress'),
+    type: 'slider',
     initialValue: 50,
     props: {
       min: 0,
@@ -153,22 +153,22 @@ const formItems: ProFormItem[] = [
     },
   },
   {
-    name: "bio",
-    label: $t("user.bio"),
-    type: "textarea",
+    name: 'bio',
+    label: $t('user.bio'),
+    type: 'textarea',
     colSpan: 2,
     props: {
       rows: 4,
       maxLength: 500,
       showCount: true,
-      placeholder: $t("exampleForm.bioPlaceholder"),
+      placeholder: $t('exampleForm.bioPlaceholder'),
     },
   },
-];
+]);
 
 const handleSubmit = (values: Record<string, unknown>) => {
-  console.log("Form values:", values);
-  message.success($t("exampleForm.submitSuccess"));
+  console.log('Form values:', values);
+  message.success($t('exampleForm.submitSuccess'));
 };
 
 const handleReset = () => {

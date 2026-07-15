@@ -23,11 +23,16 @@ export interface DatePickerDefaultSettings {
   allowClear: boolean;
 }
 
+export interface ButtonDefaultSettings {
+  size: 'large' | 'middle' | 'small';
+}
+
 export interface AppDefaultSettings {
   proTable: ProTableDefaultSettings;
   input: InputDefaultSettings;
   select: SelectDefaultSettings;
   datePicker: DatePickerDefaultSettings;
+  button: ButtonDefaultSettings;
 }
 
 export const appDefaultSettings: AppDefaultSettings = {
@@ -48,5 +53,8 @@ export const appDefaultSettings: AppDefaultSettings = {
   },
   datePicker: {
     allowClear: true,
+  },
+  button: {
+    size: 'middle',
   },
 };

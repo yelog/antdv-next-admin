@@ -19,11 +19,7 @@
         @change="onInputChange"
       >
         <template #suffix>
-          <button
-            type="button"
-            class="ip-icon-trigger"
-            @mousedown.prevent.stop="togglePopover"
-          >
+          <button type="button" class="ip-icon-trigger" @mousedown.prevent.stop="togglePopover">
             <IconView :icon="inputValue || 'ion:apps-outline'" :size="18" />
           </button>
         </template>
@@ -73,10 +69,7 @@
                 <template #title>
                   <div class="ip-tooltip-content">
                     <span class="ip-tooltip-name">{{ name }}</span>
-                    <a-tag
-                      class="ip-tooltip-tag"
-                      :color="getIconMeta(name).color"
-                    >
+                    <a-tag class="ip-tooltip-tag" :color="getIconMeta(name).color">
                       {{ getIconMeta(name).label }}
                     </a-tag>
                   </div>
@@ -115,17 +108,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { computed, h, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
-import IconView from "@/components/Icon/index.vue";
-import { $t } from "@/locales";
-import {
-  loadLocalIconifySet,
-  type IconsJson,
-  type LocalIconifyPrefix,
-} from "@/utils/iconify";
+import IconView from '@/components/Icon/index.vue';
+import { $t } from '@/locales';
+import { loadLocalIconifySet, type IconsJson, type LocalIconifyPrefix } from '@/utils/iconify';
 
-type Category = "all" | "ri" | "mdi" | "ion" | "antdv-next" | "svg" | "online";
+type Category = 'all' | 'ri' | 'mdi' | 'ion' | 'antdv-next' | 'svg' | 'online';
 
 interface Props {
   modelValue?: string;
@@ -138,19 +127,19 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: "",
+  placeholder: '',
   pageSize: 36,
-  svgPrefix: "icon-",
+  svgPrefix: 'icon-',
   onlineLimit: 120,
 });
 
 const emit = defineEmits<{
-  (e: "update:modelValue", v: string): void;
-  (e: "update:value", v: string): void;
-  (e: "change", v: string): void;
+  (e: 'update:modelValue', v: string): void;
+  (e: 'update:value', v: string): void;
+  (e: 'change', v: string): void;
 }>();
 
-const boundValue = computed(() => props.value ?? props.modelValue ?? "");
+const boundValue = computed(() => props.value ?? props.modelValue ?? '');
 
 const open = ref(false);
 const editableValue = ref(boundValue.value);
@@ -160,7 +149,7 @@ watch(
   boundValue,
   (value) => {
     if (!open.value) {
-      editableValue.value = value ?? "";
+      editableValue.value = value ?? '';
     }
   },
   { immediate: true },
@@ -174,13 +163,11 @@ const inputValue = computed<string>({
 });
 
 const inputName = `iconpicker_${Math.random().toString(36).slice(2)}`;
-const placeholder = computed(
-  () => props.placeholder || $t("iconPicker.selectIcon"),
-);
-const searchPlaceholder = computed(() => $t("iconPicker.searchPlaceholder"));
+const placeholder = computed(() => props.placeholder || $t('iconPicker.selectIcon'));
+const searchPlaceholder = computed(() => $t('iconPicker.searchPlaceholder'));
 
-const category = ref<Category>("all");
-const keyword = ref("");
+const category = ref<Category>('all');
+const keyword = ref('');
 const page = ref(1);
 const searchRef = ref<{ focus?: () => void } | null>(null);
 const riNames = ref<string[]>([]);
@@ -190,19 +177,16 @@ const antdvIconNames = ref<string[]>([]);
 let antdvIconsLoadPromise: Promise<void> | null = null;
 
 const iconifyNames = (prefix: string, json: IconsJson) => {
-  const names = [
-    ...Object.keys(json.icons || {}),
-    ...Object.keys(json.aliases || {}),
-  ];
+  const names = [...Object.keys(json.icons || {}), ...Object.keys(json.aliases || {})];
   return names.map((name) => `${prefix}:${name}`);
 };
 
 const loadIconifySet = (prefix: LocalIconifyPrefix) =>
   loadLocalIconifySet(prefix).then((iconsJson) => {
     const names = iconifyNames(prefix, iconsJson);
-    if (prefix === "ri") {
+    if (prefix === 'ri') {
       riNames.value = names;
-    } else if (prefix === "mdi") {
+    } else if (prefix === 'mdi') {
       mdiNames.value = names;
     } else {
       ionNames.value = names;
@@ -210,29 +194,29 @@ const loadIconifySet = (prefix: LocalIconifyPrefix) =>
   });
 
 const loadOfflineIconSets = () => {
-  void loadIconifySet("ri");
-  void loadIconifySet("mdi");
-  void loadIconifySet("ion");
+  void loadIconifySet('ri');
+  void loadIconifySet('mdi');
+  void loadIconifySet('ion');
   void loadAntdvIcons();
 };
 
 const normalizeSvgName = (name: string) => {
   const value = name.trim();
   if (!value) {
-    return "";
+    return '';
   }
-  return value.startsWith("svg:") ? value : `svg:${value}`;
+  return value.startsWith('svg:') ? value : `svg:${value}`;
 };
 
-const localSvgModules = import.meta.glob("../../assets/icons/**/*.svg");
+const localSvgModules = import.meta.glob('../../assets/icons/**/*.svg');
 
 const extractSvgSymbolName = (path: string) => {
   const matched = path.match(/\/icons\/(.*)\.svg$/);
   if (!matched || !matched[1]) {
-    return "";
+    return '';
   }
-  const normalized = matched[1].replace(/\//g, "-");
-  const prefix = props.svgPrefix || "";
+  const normalized = matched[1].replace(/\//g, '-');
+  const prefix = props.svgPrefix || '';
   return normalized.startsWith(prefix) ? normalized : `${prefix}${normalized}`;
 };
 
@@ -247,7 +231,7 @@ const loadAntdvIcons = async () => {
     return antdvIconsLoadPromise;
   }
 
-  antdvIconsLoadPromise = import("@antdv-next/icons").then((icons) => {
+  antdvIconsLoadPromise = import('@antdv-next/icons').then((icons) => {
     antdvIconNames.value = Object.keys(icons)
       .filter((name) => /(Outlined|Filled|TwoTone)$/.test(name))
       .map((name) => `antdv-next:${name}`);
@@ -259,7 +243,7 @@ const loadAntdvIcons = async () => {
 const antdvAll = computed(() =>
   antdvIconNames.value
     .filter((name) => /(Outlined|Filled|TwoTone)$/.test(name))
-    .map((name) => (name.startsWith("antdv-next:") ? name : `antdv-next:${name}`)),
+    .map((name) => (name.startsWith('antdv-next:') ? name : `antdv-next:${name}`)),
 );
 
 const svgAll = computed(() => {
@@ -268,9 +252,7 @@ const svgAll = computed(() => {
     .filter(Boolean)
     .map(normalizeSvgName);
 
-  const fromProps = (props.svgIcons || [])
-    .map(normalizeSvgName)
-    .filter(Boolean);
+  const fromProps = (props.svgIcons || []).map(normalizeSvgName).filter(Boolean);
 
   return dedupe([...fromProps, ...fromLocal]);
 });
@@ -286,30 +268,30 @@ const allOfflineIcons = computed(() => {
 });
 
 const iconMetaConfig: Record<string, { label: string; color: string }> = {
-  ri: { label: "Remix", color: "#3b82f6" },
-  mdi: { label: "MDI", color: "#10b981" },
-  ion: { label: "Ion", color: "#8b5cf6" },
-  "antdv-next": { label: "Antdv", color: "#ef4444" },
-  svg: { label: "SVG", color: "#f59e0b" },
-  online: { label: "Online", color: "#64748b" },
-  unknown: { label: "Unknown", color: "#9ca3af" },
+  ri: { label: 'Remix', color: '#3b82f6' },
+  mdi: { label: 'MDI', color: '#10b981' },
+  ion: { label: 'Ion', color: '#8b5cf6' },
+  'antdv-next': { label: 'Antdv', color: '#ef4444' },
+  svg: { label: 'SVG', color: '#f59e0b' },
+  online: { label: 'Online', color: '#64748b' },
+  unknown: { label: 'Unknown', color: '#9ca3af' },
 };
 
 const getIconMeta = (iconName: string) => {
   const value = iconName.trim();
-  if (value.startsWith("ri:")) return iconMetaConfig.ri;
-  if (value.startsWith("mdi:")) return iconMetaConfig.mdi;
-  if (value.startsWith("ion:")) return iconMetaConfig.ion;
-  if (value.startsWith("svg:")) return iconMetaConfig.svg;
-  if (value.startsWith("antdv-next:") || value.startsWith("antd:"))
-    return iconMetaConfig["antdv-next"];
-  if (value.includes(":")) return iconMetaConfig.online;
+  if (value.startsWith('ri:')) return iconMetaConfig.ri;
+  if (value.startsWith('mdi:')) return iconMetaConfig.mdi;
+  if (value.startsWith('ion:')) return iconMetaConfig.ion;
+  if (value.startsWith('svg:')) return iconMetaConfig.svg;
+  if (value.startsWith('antdv-next:') || value.startsWith('antd:'))
+    return iconMetaConfig['antdv-next'];
+  if (value.includes(':')) return iconMetaConfig.online;
   return iconMetaConfig.unknown;
 };
 
 const onlineIcons = ref<string[]>([]);
 const onlineLoading = ref(false);
-const onlineError = ref("");
+const onlineError = ref('');
 const onlineCache = new Map<string, string[]>();
 const onlineAbortController = ref<AbortController | null>(null);
 let onlineTimer: ReturnType<typeof setTimeout> | null = null;
@@ -319,7 +301,7 @@ const shouldSearchOnline = computed(() => {
   if (query.length < 2) {
     return false;
   }
-  return category.value === "all";
+  return category.value === 'all';
 });
 
 const resetOnlineState = () => {
@@ -328,7 +310,7 @@ const resetOnlineState = () => {
     onlineAbortController.value = null;
   }
   onlineLoading.value = false;
-  onlineError.value = "";
+  onlineError.value = '';
   onlineIcons.value = [];
 };
 
@@ -341,7 +323,7 @@ const fetchOnlineIcons = async (query: string) => {
 
   if (onlineCache.has(normalized)) {
     onlineIcons.value = onlineCache.get(normalized) || [];
-    onlineError.value = "";
+    onlineError.value = '';
     onlineLoading.value = false;
     return;
   }
@@ -353,7 +335,7 @@ const fetchOnlineIcons = async (query: string) => {
   const controller = new AbortController();
   onlineAbortController.value = controller;
   onlineLoading.value = true;
-  onlineError.value = "";
+  onlineError.value = '';
 
   try {
     const url = `https://api.iconify.design/search?query=${encodeURIComponent(normalized)}&limit=${props.onlineLimit}`;
@@ -364,9 +346,7 @@ const fetchOnlineIcons = async (query: string) => {
 
     const data = (await response.json()) as { icons?: string[] };
     const icons = Array.isArray(data.icons)
-      ? data.icons.filter(
-          (item): item is string => typeof item === "string" && Boolean(item),
-        )
+      ? data.icons.filter((item): item is string => typeof item === 'string' && Boolean(item))
       : [];
 
     onlineCache.set(normalized, icons);
@@ -380,8 +360,8 @@ const fetchOnlineIcons = async (query: string) => {
     }
     const errorMessage = error instanceof Error ? error.message : undefined;
     onlineError.value = errorMessage
-      ? $t("iconPicker.onlineSearchFailedDetail", { message: errorMessage })
-      : $t("iconPicker.onlineSearchFailed");
+      ? $t('iconPicker.onlineSearchFailedDetail', { message: errorMessage })
+      : $t('iconPicker.onlineSearchFailed');
     onlineIcons.value = [];
   } finally {
     if (onlineAbortController.value === controller) {
@@ -427,15 +407,15 @@ onBeforeUnmount(() => {
 
 const listByCategory = computed<string[]>(() => {
   switch (category.value) {
-    case "ri":
+    case 'ri':
       return riAll.value;
-    case "mdi":
+    case 'mdi':
       return mdiAll.value;
-    case "ion":
+    case 'ion':
       return ionAll.value;
-    case "antdv-next":
+    case 'antdv-next':
       return antdvAll.value;
-    case "svg":
+    case 'svg':
       return svgAll.value;
     default:
       return keyword.value.trim().length >= 2
@@ -449,12 +429,10 @@ const filtered = computed(() => {
   if (!query) {
     return listByCategory.value;
   }
-  if (category.value === "online") {
+  if (category.value === 'online') {
     return listByCategory.value;
   }
-  return listByCategory.value.filter((item) =>
-    item.toLowerCase().includes(query),
-  );
+  return listByCategory.value.filter((item) => item.toLowerCase().includes(query));
 });
 
 const filteredTotal = computed(() => filtered.value.length);
@@ -466,48 +444,47 @@ const pageItems = computed(() => {
 
 const allCount = computed(() => allOfflineIcons.value.length);
 
-const categoryBadgeConfig: Record<string, { name: string; dotColor: string }> =
-  {
-    all: { name: "ALL", dotColor: "#64748b" },
-    ri: { name: "RI", dotColor: "#3b82f6" },
-    mdi: { name: "MDI", dotColor: "#10b981" },
-    ion: { name: "ION", dotColor: "#8b5cf6" },
-    "antdv-next": { name: "Ant", dotColor: "#ef4444" },
-    svg: { name: "SVG", dotColor: "#f59e0b" },
-  };
+const categoryBadgeConfig: Record<string, { name: string; dotColor: string }> = {
+  all: { name: 'ALL', dotColor: '#64748b' },
+  ri: { name: 'RI', dotColor: '#3b82f6' },
+  mdi: { name: 'MDI', dotColor: '#10b981' },
+  ion: { name: 'ION', dotColor: '#8b5cf6' },
+  'antdv-next': { name: 'Ant', dotColor: '#ef4444' },
+  svg: { name: 'SVG', dotColor: '#f59e0b' },
+};
 
 const renderCategoryLabel = (key: string, count: number) => {
   const config = categoryBadgeConfig[key];
-  return h("div", { class: "ip-seg-item" }, [
-    h("div", { class: "ip-seg-line1" }, [
-      h("span", {
-        class: "ip-seg-dot",
+  return h('div', { class: 'ip-seg-item' }, [
+    h('div', { class: 'ip-seg-line1' }, [
+      h('span', {
+        class: 'ip-seg-dot',
         style: { backgroundColor: config.dotColor },
       }),
-      h("span", { class: "ip-seg-name" }, config.name),
+      h('span', { class: 'ip-seg-name' }, config.name),
     ]),
-    h("div", { class: "ip-seg-line2" }, String(count)),
+    h('div', { class: 'ip-seg-line2' }, String(count)),
   ]);
 };
 
 const categoryOptions = computed(() => [
-  { value: "all", label: renderCategoryLabel("all", allCount.value) },
-  { value: "ri", label: renderCategoryLabel("ri", riAll.value.length) },
-  { value: "mdi", label: renderCategoryLabel("mdi", mdiAll.value.length) },
-  { value: "ion", label: renderCategoryLabel("ion", ionAll.value.length) },
+  { value: 'all', label: renderCategoryLabel('all', allCount.value) },
+  { value: 'ri', label: renderCategoryLabel('ri', riAll.value.length) },
+  { value: 'mdi', label: renderCategoryLabel('mdi', mdiAll.value.length) },
+  { value: 'ion', label: renderCategoryLabel('ion', ionAll.value.length) },
   {
-    value: "antdv-next",
-    label: renderCategoryLabel("antdv-next", antdvAll.value.length),
+    value: 'antdv-next',
+    label: renderCategoryLabel('antdv-next', antdvAll.value.length),
   },
-  { value: "svg", label: renderCategoryLabel("svg", svgAll.value.length) },
+  { value: 'svg', label: renderCategoryLabel('svg', svgAll.value.length) },
 ]);
 
 const effectiveValue = computed(() => boundValue.value);
 
 const emitUpdate = (value: string) => {
-  emit("update:value", value);
-  emit("update:modelValue", value);
-  emit("change", value);
+  emit('update:value', value);
+  emit('update:modelValue', value);
+  emit('change', value);
 };
 
 const focusSearch = () => {
@@ -518,15 +495,14 @@ const focusSearch = () => {
 
 const detectCategoryByIcon = (iconName: string): Category => {
   if (!iconName) {
-    return "all";
+    return 'all';
   }
-  if (iconName.startsWith("ri:")) return "ri";
-  if (iconName.startsWith("mdi:")) return "mdi";
-  if (iconName.startsWith("ion:")) return "ion";
-  if (iconName.startsWith("svg:")) return "svg";
-  if (iconName.startsWith("antdv-next:") || iconName.startsWith("antd:"))
-    return "antdv-next";
-  return "all";
+  if (iconName.startsWith('ri:')) return 'ri';
+  if (iconName.startsWith('mdi:')) return 'mdi';
+  if (iconName.startsWith('ion:')) return 'ion';
+  if (iconName.startsWith('svg:')) return 'svg';
+  if (iconName.startsWith('antdv-next:') || iconName.startsWith('antd:')) return 'antdv-next';
+  return 'all';
 };
 
 const togglePopover = () => {
@@ -550,10 +526,10 @@ const onInputChange = () => {
 
 const onCategoryChange = () => {
   page.value = 1;
-  if (category.value === "ri" || category.value === "mdi" || category.value === "ion") {
+  if (category.value === 'ri' || category.value === 'mdi' || category.value === 'ion') {
     void loadIconifySet(category.value);
   }
-  if (category.value === "antdv-next") {
+  if (category.value === 'antdv-next') {
     void loadAntdvIcons();
   }
   focusSearch();
@@ -593,7 +569,7 @@ watch([category, keyword], () => {
   cursor: pointer;
 
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 }
 
@@ -753,7 +729,7 @@ watch([category, keyword], () => {
   &:hover {
     z-index: 10;
     transform: translateY(-2px);
-    border-color: var(--hover-color, #1677ff);
+    border-color: var(--hover-color, var(--color-primary));
     box-shadow: 0 4px 10px rgb(0 0 0 / 8%);
 
     /* hover 时色条变粗 */
@@ -766,10 +742,10 @@ watch([category, keyword], () => {
   /* 选中状态 */
   &.selected {
     z-index: 5;
-    border-color: #1677ff;
-    background: #e6f7ff;
-    box-shadow: inset 0 0 0 1px #1677ff;
-    color: #1677ff;
+    border-color: var(--color-primary);
+    background: var(--color-primary-bg);
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+    color: var(--color-primary);
   }
 }
 

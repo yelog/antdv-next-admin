@@ -1,13 +1,13 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory } from 'vue-router';
 
-import { setupRouterGuards } from "./guards";
-import { staticRoutes, basicRoutes } from "./routes";
+import { rebuildDynamicRoutes, resetRouter, setupRouterGuards } from './guards';
+import { staticRoutes, basicRoutes, notFoundRoute } from './routes';
 
-const routes = [...staticRoutes, ...basicRoutes];
+const routes = [...staticRoutes, ...basicRoutes, notFoundRoute];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: routes as unknown as readonly import("vue-router").RouteRecordRaw[],
+  routes: routes as unknown as readonly import('vue-router').RouteRecordRaw[],
   scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
@@ -18,5 +18,7 @@ const router = createRouter({
 });
 
 setupRouterGuards(router);
+
+export { rebuildDynamicRoutes, resetRouter };
 
 export default router;

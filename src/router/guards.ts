@@ -1,16 +1,16 @@
-import type { Router, RouteLocationNormalized, RouteRecordRaw } from "vue-router";
+import type { AppRouteRecordRaw } from '@/types/router';
+import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 
-import type { AppRouteRecordRaw } from "@/types/router";
+import { useAuthStore } from '@/stores/auth';
+import { useDictStore } from '@/stores/dict';
+import { usePermissionStore } from '@/stores/permission';
+import { useTabsStore } from '@/stores/tabs';
+import { resolveLocaleText } from '@/utils/i18n';
 
-import { useAuthStore } from "@/stores/auth";
-import { useDictStore } from "@/stores/dict";
-import { usePermissionStore } from "@/stores/permission";
-import { useTabsStore } from "@/stores/tabs";
-import { resolveLocaleText } from "@/utils/i18n";
+import { basicRoutes, notFoundRoute, staticRoutes } from './routes';
+import { getRouteNamesToRemove } from './utils';
 
-import { basicRoutes, notFoundRoute } from "./routes";
-
-const MENU_HISTORY_KEY = "app-menu-history";
+const MENU_HISTORY_KEY = 'app-menu-history';
 const MAX_HISTORY_ITEMS = 10;
 
 interface MenuHistoryItem {
@@ -25,9 +25,9 @@ function setDocumentTitle(route: RouteLocationNormalized) {
 
   const title = resolveLocaleText(
     route.meta.title as string,
-    String(route.name || route.path || "Dashboard"),
+    String(route.name || route.path || 'Dashboard'),
   );
-  document.title = `${title} - ${import.meta.env.VITE_APP_TITLE || "Antdv Next Admin"}`;
+  document.title = `${title} - ${import.meta.env.VITE_APP_TITLE || 'Antdv Next Admin'}`;
 }
 
 async function ensureDynamicRoutes(
@@ -35,8 +35,9 @@ async function ensureDynamicRoutes(
   authStore: ReturnType<typeof useAuthStore>,
   permissionStore: ReturnType<typeof usePermissionStore>,
   dictStore: ReturnType<typeof useDictStore>,
+  options: { replaceExisting?: boolean } = {},
 ) {
-  if (permissionStore.isRoutesGenerated) return;
+  if (permissionStore.isRoutesGenerated && !options.replaceExisting) return;
 
   if (!authStore.user) {
     authStore.initAuth();
@@ -47,19 +48,50 @@ async function ensureDynamicRoutes(
     authStore.userPermissions,
   );
 
+  if (options.replaceExisting) {
+    const routesToKeep = [
+      ...staticRoutes,
+      ...basicRoutes,
+      notFoundRoute,
+      ...(accessRoutes as unknown as AppRouteRecordRaw[]),
+    ];
+    getRouteNamesToRemove(
+      router.getRoutes().map((route) => route.name),
+      routesToKeep,
+    ).forEach((name) => {
+      router.removeRoute(name);
+    });
+  }
+
   accessRoutes.forEach((route) => {
-    const routeName = route.name ? String(route.name) : "";
-    if (routeName && router.hasRoute(routeName)) {
+    const routeName = route.name ? String(route.name) : '';
+    if (!options.replaceExisting && routeName && router.hasRoute(routeName)) {
       return;
     }
     router.addRoute(route);
   });
 
-  if (!router.hasRoute("NotFound")) {
+  if (!router.hasRoute('NotFoundCatchAll')) {
     router.addRoute(notFoundRoute as unknown as RouteRecordRaw);
   }
 
   dictStore.loadDictData();
+}
+
+export async function rebuildDynamicRoutes(router: Router) {
+  const authStore = useAuthStore();
+  const permissionStore = usePermissionStore();
+  const tabsStore = useTabsStore();
+  const dictStore = useDictStore();
+
+  permissionStore.resetPermission();
+  tabsStore.resetTabs();
+  tabsStore.clearTabsState();
+
+  await ensureDynamicRoutes(router, authStore, permissionStore, dictStore, {
+    replaceExisting: true,
+  });
+  initTabsIfNeeded(tabsStore, permissionStore);
 }
 
 function initTabsIfNeeded(
@@ -91,9 +123,9 @@ function shouldRecoverFromNotFound(
 ) {
   const redirectedFromPath = getRedirectedFromPath(route);
   return (
-    route.path === "/404" &&
+    route.path === '/404' &&
     !!redirectedFromPath &&
-    redirectedFromPath !== "/404" &&
+    redirectedFromPath !== '/404' &&
     !!authStore.token &&
     !permissionStore.isRoutesGenerated
   );
@@ -105,9 +137,9 @@ function shouldRedirectNotFoundToLogin(
 ) {
   const redirectedFromPath = getRedirectedFromPath(route);
   return (
-    route.path === "/404" &&
+    route.path === '/404' &&
     !!redirectedFromPath &&
-    redirectedFromPath !== "/404" &&
+    redirectedFromPath !== '/404' &&
     !authStore.token
   );
 }
@@ -116,13 +148,11 @@ function getRouteAccessRedirect(
   route: RouteLocationNormalized,
   authStore: ReturnType<typeof useAuthStore>,
 ) {
-  const requiredPermissions = route.meta.requiredPermissions as
-    | string[]
-    | undefined;
+  const requiredPermissions = route.meta.requiredPermissions as string[] | undefined;
   if (Array.isArray(requiredPermissions) && requiredPermissions.length > 0) {
     const hasPermission = authStore.hasAnyPermission(requiredPermissions);
     if (!hasPermission) {
-      return "/403";
+      return '/403';
     }
   }
 
@@ -130,7 +160,7 @@ function getRouteAccessRedirect(
   if (Array.isArray(requiredRoles) && requiredRoles.length > 0) {
     const hasRole = authStore.hasAnyRole(requiredRoles);
     if (!hasRole) {
-      return "/403";
+      return '/403';
     }
   }
 
@@ -143,13 +173,8 @@ function shouldAddTab(route: RouteLocationNormalized) {
 
 function recordMenuHistory(route: RouteLocationNormalized) {
   try {
-    const history: MenuHistoryItem[] = JSON.parse(
-      localStorage.getItem(MENU_HISTORY_KEY) || "[]",
-    );
-    const title = resolveLocaleText(
-      route.meta?.title as string,
-      String(route.name || route.path),
-    );
+    const history: MenuHistoryItem[] = JSON.parse(localStorage.getItem(MENU_HISTORY_KEY) || '[]');
+    const title = resolveLocaleText(route.meta?.title as string, String(route.name || route.path));
 
     const filtered = history.filter((item) => item.path !== route.path);
 
@@ -166,12 +191,21 @@ function recordMenuHistory(route: RouteLocationNormalized) {
   } catch {}
 }
 
+export function resetRouter(router: Router) {
+  const routeNames = router.getRoutes().map((route) => route.name);
+  getRouteNamesToRemove(routeNames, [...staticRoutes, ...basicRoutes, notFoundRoute]).forEach(
+    (name) => {
+      router.removeRoute(name);
+    },
+  );
+}
+
 /**
  * Setup router guards
  */
 export function setupRouterGuards(router: Router) {
   // Before each route navigation
-  router.beforeEach(async (to, _from, next) => {
+  router.beforeEach(async (to) => {
     const authStore = useAuthStore();
     const permissionStore = usePermissionStore();
     const tabsStore = useTabsStore();
@@ -188,23 +222,17 @@ export function setupRouterGuards(router: Router) {
       try {
         await ensureDynamicRoutes(router, authStore, permissionStore, dictStore);
         initTabsIfNeeded(tabsStore, permissionStore);
-        next({ path: redirectedFromPath, replace: true });
-        return;
+        return { path: redirectedFromPath, replace: true };
       } catch (error) {
-        console.error(
-          "Failed to recover routes from not found redirect:",
-          error,
-        );
-        next("/403");
-        return;
+        console.error('Failed to recover routes from not found redirect:', error);
+        return '/403';
       }
     }
 
     // If catch-all redirected to 404 but user is not logged in,
     // redirect to login instead of showing 404
     if (shouldRedirectNotFoundToLogin(to, authStore)) {
-      next({ path: "/login", query: { redirect: redirectedFromPath } });
-      return;
+      return { path: '/login', query: { redirect: redirectedFromPath } };
     }
 
     // Check if route requires authentication
@@ -214,11 +242,10 @@ export function setupRouterGuards(router: Router) {
       // Check if user is logged in
       if (!authStore.token) {
         // Redirect to login page
-        next({
-          path: "/login",
+        return {
+          path: '/login',
           query: { redirect: to.fullPath },
-        });
-        return;
+        };
       }
 
       // Generate dynamic routes if not already generated
@@ -228,19 +255,16 @@ export function setupRouterGuards(router: Router) {
           initTabsIfNeeded(tabsStore, permissionStore);
 
           // Continue to the target route
-          next({ ...to, replace: true });
-          return;
+          return { ...to, replace: true };
         } catch (error) {
-          console.error("Failed to generate routes:", error);
-          next("/403");
-          return;
+          console.error('Failed to generate routes:', error);
+          return '/403';
         }
       }
 
       const accessRedirect = getRouteAccessRedirect(to, authStore);
       if (accessRedirect) {
-        next(accessRedirect);
-        return;
+        return accessRedirect;
       }
 
       initTabsIfNeeded(tabsStore, permissionStore);
@@ -250,8 +274,6 @@ export function setupRouterGuards(router: Router) {
     if (shouldAddTab(to)) {
       tabsStore.addTab(to);
     }
-
-    next();
   });
 
   // After each route navigation
@@ -273,6 +295,6 @@ export function setupRouterGuards(router: Router) {
 
   // On error
   router.onError((error) => {
-    console.error("Router error:", error);
+    console.error('Router error:', error);
   });
 }

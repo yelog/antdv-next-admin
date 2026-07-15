@@ -177,11 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  CheckCircleOutlined,
-  LockOutlined,
-  UserOutlined,
-} from '@antdv-next/icons';
+import { CheckCircleOutlined, LockOutlined, UserOutlined } from '@antdv-next/icons';
 import { message } from 'antdv-next';
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -192,6 +188,7 @@ import LanguageSwitch from '@/components/Layout/LanguageSwitch.vue';
 import ThemeToggle from '@/components/Layout/ThemeToggle.vue';
 import { $t } from '@/locales';
 import { useAuthStore } from '@/stores/auth';
+import { clearSessionState } from '@/utils/session';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -211,11 +208,7 @@ const capabilityStats = [
   { value: '4', unit: ' locales', labelKey: 'login.statI18n' },
 ];
 
-const trustItems = [
-  'login.trustPermission',
-  'login.trustAudit',
-  'login.trustTheme',
-];
+const trustItems = ['login.trustPermission', 'login.trustAudit', 'login.trustTheme'];
 
 const demoAccounts = [
   { username: 'admin', roleKey: 'login.demoAdminRole' },
@@ -246,6 +239,9 @@ const selectDemoAccount = (username: string) => {
 const handleSubmit = async () => {
   loading.value = true;
   try {
+    if (authStore.token || authStore.user) {
+      clearSessionState(router);
+    }
     await authStore.login(formState.username, formState.password);
     message.success($t('login.loginSuccess'));
     router.push('/');
@@ -352,16 +348,39 @@ const handleSubmit = async () => {
 }
 
 @keyframes gridDot1 {
-  0%, 100% { transform: translate(0, 0); opacity: 0.9; }
-  25%      { transform: translate(96px, 48px); opacity: 0.5; }
-  50%      { transform: translate(48px, 144px); opacity: 0.9; }
-  75%      { transform: translate(-48px, 96px); opacity: 0.4; }
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.9;
+  }
+  25% {
+    transform: translate(96px, 48px);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(48px, 144px);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translate(-48px, 96px);
+    opacity: 0.4;
+  }
 }
 
 @keyframes gridDot2 {
-  0%, 100% { transform: translate(0, 0); opacity: 0.8; }
-  33%      { transform: translate(-72px, 48px); opacity: 0.3; }
-  66%      { transform: translate(96px, -48px); opacity: 0.9; }
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.8;
+  }
+  33% {
+    transform: translate(-72px, 48px);
+    opacity: 0.3;
+  }
+  66% {
+    transform: translate(96px, -48px);
+    opacity: 0.9;
+  }
 }
 
 /* Crosshair callouts */
@@ -457,8 +476,13 @@ const handleSubmit = async () => {
 }
 
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 4px color-mix(in oklab, var(--login-accent) 18%, transparent); }
-  50%      { box-shadow: 0 0 0 8px color-mix(in oklab, var(--login-accent) 5%, transparent); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--login-accent) 18%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 8px color-mix(in oklab, var(--login-accent) 5%, transparent);
+  }
 }
 
 .pane-left-title {
@@ -615,7 +639,11 @@ const handleSubmit = async () => {
   border: 1px solid color-mix(in srgb, var(--login-line) 78%, transparent);
   border-radius: calc(var(--radius-lg) + 4px);
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--login-bg-elev) 92%, transparent), var(--login-bg-elev)),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--login-bg-elev) 92%, transparent),
+      var(--login-bg-elev)
+    ),
     var(--login-bg-elev);
   box-shadow: 0 24px 70px color-mix(in srgb, #000 7%, transparent);
 }

@@ -6,6 +6,7 @@ import { ref, computed } from 'vue';
 export const useNotificationStore = defineStore('notification', () => {
   // State
   const notifications = ref<Notification[]>([]);
+  const isInitialized = ref(false);
 
   // Getters
   const unreadCount = computed(() => {
@@ -61,6 +62,10 @@ export const useNotificationStore = defineStore('notification', () => {
   };
 
   const initNotifications = () => {
+    if (isInitialized.value) {
+      return;
+    }
+
     // 模拟通知数据
     const mockNotifications: Notification[] = [
       {
@@ -116,11 +121,13 @@ export const useNotificationStore = defineStore('notification', () => {
     ];
 
     notifications.value = mockNotifications;
+    isInitialized.value = true;
   };
 
   return {
     // State
     notifications,
+    isInitialized,
     // Getters
     unreadCount,
     unreadNotifications,

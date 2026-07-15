@@ -412,7 +412,11 @@ const handleOpenRelated = (notification: Notification) => {
     height: 220px;
     right: -84px;
     top: -100px;
-    background: radial-gradient(circle, rgba(22, 119, 255, 0.24) 0%, rgba(22, 119, 255, 0.02) 70%);
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--color-primary) 24%, transparent) 0%,
+      color-mix(in srgb, var(--color-primary) 2%, transparent) 70%
+    );
   }
 
   .hero-glow-b {
@@ -560,15 +564,15 @@ const handleOpenRelated = (notification: Notification) => {
 
   &:hover {
     transform: translateY(-1px);
-    background: rgba(22, 119, 255, 0.02);
-    border-color: rgba(22, 119, 255, 0.26);
+    background: color-mix(in srgb, var(--color-primary) 2%, transparent);
+    border-color: color-mix(in srgb, var(--color-primary) 26%, transparent);
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
   }
 
   &.active {
     border-color: var(--color-primary);
-    background: rgba(22, 119, 255, 0.06);
-    box-shadow: 0 2px 8px rgba(22, 119, 255, 0.12);
+    background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary) 12%, transparent);
   }
 
   &.unread .notice-title {
@@ -721,7 +725,11 @@ const handleOpenRelated = (notification: Notification) => {
   margin: 0;
   padding: 14px 14px 12px;
   border-radius: 12px;
-  background: linear-gradient(145deg, var(--color-bg-layout), rgba(22, 119, 255, 0.04));
+  background: linear-gradient(
+    145deg,
+    var(--color-bg-layout),
+    color-mix(in srgb, var(--color-primary) 4%, transparent)
+  );
   border: 1px solid var(--color-border-secondary);
   color: var(--color-text-secondary);
   line-height: 1.8;
@@ -797,8 +805,8 @@ const handleOpenRelated = (notification: Notification) => {
 
 .notice-icon.tone-system,
 .detail-icon.tone-system {
-  color: #1677ff;
-  background: rgba(22, 119, 255, 0.13);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 13%, transparent);
 }
 
 .notice-icon.tone-message,
@@ -849,7 +857,7 @@ const handleOpenRelated = (notification: Notification) => {
 
     &.active {
       background: color-mix(in srgb, var(--color-primary) 10%, var(--color-bg-container));
-      box-shadow: 0 2px 8px rgba(22, 119, 255, 0.2);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary) 20%, transparent);
     }
   }
 }

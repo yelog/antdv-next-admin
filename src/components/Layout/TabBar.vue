@@ -6,7 +6,7 @@
         type="editable-card"
         :hide-add="true"
         :items="tabItems"
-        popupClassName="tab-bar-overflow-dropdown"
+        :classes="{ popup: 'tab-bar-overflow-dropdown' }"
         @edit="handleEdit"
         @change="handleChange"
       />
@@ -485,7 +485,7 @@ const getTabIcon = (tab: Tab) => {
 }
 
 html.dark .tab-bar .ant-tabs-tab.ant-tabs-tab-active {
-  background: rgba(22, 119, 255, 0.25) !important;
+  background: color-mix(in srgb, var(--color-primary) 25%, transparent) !important;
   border-color: transparent !important;
 
   .ant-tabs-tab-btn {

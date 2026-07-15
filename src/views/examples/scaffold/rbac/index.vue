@@ -1,9 +1,9 @@
 <template>
   <div class="page-container">
     <div class="card mb-lg">
-      <h2>{{ $t("examples.scaffold.rbac.title") }}</h2>
+      <h2>{{ $t('examples.scaffold.rbac.title') }}</h2>
       <p class="text-secondary">
-        {{ $t("examples.scaffold.rbac.description") }}
+        {{ $t('examples.scaffold.rbac.description') }}
       </p>
     </div>
 
@@ -11,12 +11,12 @@
       <div class="top-row">
         <div>
           <div class="title">
-            {{ $t("examples.scaffold.rbac.currentSession") }}
+            {{ $t('examples.scaffold.rbac.currentSession') }}
           </div>
           <div class="meta">
             {{
-              $t("examples.scaffold.rbac.accountInfo", {
-                username: authStore.user?.username || "-",
+              $t('examples.scaffold.rbac.accountInfo', {
+                username: authStore.user?.username || '-',
                 role: roleText,
               })
             }}
@@ -24,10 +24,10 @@
         </div>
         <a-space>
           <a-button type="primary" @click="switchAccount('admin')">{{
-            $t("examples.scaffold.rbac.switchToAdmin")
+            $t('examples.scaffold.rbac.switchToAdmin')
           }}</a-button>
           <a-button @click="switchAccount('user')">{{
-            $t("examples.scaffold.rbac.switchToUser")
+            $t('examples.scaffold.rbac.switchToUser')
           }}</a-button>
         </a-space>
       </div>
@@ -40,20 +40,16 @@
     <div class="grid-two">
       <div class="card">
         <div class="title mb-sm">
-          {{ $t("examples.scaffold.rbac.section1Title") }}
+          {{ $t('examples.scaffold.rbac.section1Title') }}
         </div>
         <div class="check-list">
-          <div
-            v-for="check in pageChecks"
-            :key="check.title"
-            class="check-item"
-          >
+          <div v-for="check in pageChecks" :key="check.title" class="check-item">
             <div class="check-title">{{ check.title }}</div>
             <a-tag :color="check.pass ? 'success' : 'error'">
               {{
                 check.pass
-                  ? $t("examples.scaffold.rbac.passed")
-                  : $t("examples.scaffold.rbac.denied")
+                  ? $t('examples.scaffold.rbac.passed')
+                  : $t('examples.scaffold.rbac.denied')
               }}
             </a-tag>
           </div>
@@ -62,25 +58,19 @@
 
       <div class="card">
         <div class="title mb-sm">
-          {{ $t("examples.scaffold.rbac.section2Title") }}
+          {{ $t('examples.scaffold.rbac.section2Title') }}
         </div>
         <a-space wrap>
           <PermissionButton permission="system.user.create">
-            <a-button type="primary">{{
-              $t("examples.scaffold.rbac.createUserButton")
-            }}</a-button>
+            <a-button type="primary">{{ $t('examples.scaffold.rbac.createUserButton') }}</a-button>
           </PermissionButton>
 
           <PermissionButton permission="system.user.edit">
-            <a-button>{{
-              $t("examples.scaffold.rbac.editUserButton")
-            }}</a-button>
+            <a-button>{{ $t('examples.scaffold.rbac.editUserButton') }}</a-button>
           </PermissionButton>
 
           <PermissionButton permission="system.user.delete">
-            <a-button danger>{{
-              $t("examples.scaffold.rbac.deleteUserButton")
-            }}</a-button>
+            <a-button danger>{{ $t('examples.scaffold.rbac.deleteUserButton') }}</a-button>
           </PermissionButton>
         </a-space>
 
@@ -94,35 +84,32 @@
 
       <div class="card">
         <div class="title mb-sm">
-          {{ $t("examples.scaffold.rbac.section3Title") }}
+          {{ $t('examples.scaffold.rbac.section3Title') }}
         </div>
         <div class="field-row">
-          <span>{{ $t("examples.scaffold.rbac.phoneLabel") }}</span>
+          <span>{{ $t('examples.scaffold.rbac.phoneLabel') }}</span>
           <strong>{{ phoneText }}</strong>
         </div>
         <div class="field-row">
-          <span>{{ $t("examples.scaffold.rbac.emailLabel") }}</span>
+          <span>{{ $t('examples.scaffold.rbac.emailLabel') }}</span>
           <strong>{{ emailText }}</strong>
         </div>
         <div class="field-row">
-          <span>{{ $t("examples.scaffold.rbac.realNameLabel") }}</span>
-          <strong>{{ authStore.user?.realName || "-" }}</strong>
+          <span>{{ $t('examples.scaffold.rbac.realNameLabel') }}</span>
+          <strong>{{ authStore.user?.realName || '-' }}</strong>
         </div>
       </div>
 
       <div class="card">
         <div class="title mb-sm">
-          {{ $t("examples.scaffold.rbac.section4Title") }}
+          {{ $t('examples.scaffold.rbac.section4Title') }}
         </div>
         <a-space wrap>
           <a-button
             @click="
-              callApiWithPermission(
-                'system.user.view',
-                $t('examples.scaffold.rbac.viewUserAction'),
-              )
+              callApiWithPermission('system.user.view', $t('examples.scaffold.rbac.viewUserAction'))
             "
-            >{{ $t("examples.scaffold.rbac.callViewApi") }}</a-button
+            >{{ $t('examples.scaffold.rbac.callViewApi') }}</a-button
           >
           <a-button
             @click="
@@ -131,7 +118,7 @@
                 $t('examples.scaffold.rbac.exportUserAction'),
               )
             "
-            >{{ $t("examples.scaffold.rbac.callExportApi") }}</a-button
+            >{{ $t('examples.scaffold.rbac.callExportApi') }}</a-button
           >
           <a-button
             @click="
@@ -140,7 +127,7 @@
                 $t('examples.scaffold.rbac.deleteUserAction'),
               )
             "
-            >{{ $t("examples.scaffold.rbac.callDeleteApi") }}</a-button
+            >{{ $t('examples.scaffold.rbac.callDeleteApi') }}</a-button
           >
         </a-space>
 
@@ -157,20 +144,20 @@
 </template>
 
 <script setup lang="ts">
-import { message } from "antdv-next";
-import { computed, onMounted, ref } from "vue";
+import { message } from 'antdv-next';
+import { computed, onMounted, ref } from 'vue';
 
-import PermissionButton from "@/components/Permission/PermissionButton.vue";
-import { usePermission } from "@/composables/usePermission";
-import { $t } from "@/locales";
-import { useAuthStore } from "@/stores/auth";
+import PermissionButton from '@/components/Permission/PermissionButton.vue';
+import { usePermission } from '@/composables/usePermission';
+import { $t } from '@/locales';
+import router, { rebuildDynamicRoutes } from '@/router';
+import { useAuthStore } from '@/stores/auth';
+import { clearSessionState } from '@/utils/session';
 
 const authStore = useAuthStore();
 const { can, hasAnyRole } = usePermission();
 
-const apiResult = ref<{ type: "success" | "error"; message: string } | null>(
-  null,
-);
+const apiResult = ref<{ type: 'success' | 'error'; message: string } | null>(null);
 
 onMounted(() => {
   authStore.initAuth();
@@ -178,7 +165,7 @@ onMounted(() => {
 
 const roleText = computed(() => {
   const roleCodes = authStore.userRoles;
-  return roleCodes.length > 0 ? roleCodes.join(", ") : "-";
+  return roleCodes.length > 0 ? roleCodes.join(', ') : '-';
 });
 
 const displayPermissions = computed(() => {
@@ -188,30 +175,30 @@ const displayPermissions = computed(() => {
   }
   return [
     ...permissions.slice(0, 8),
-    $t("examples.scaffold.rbac.permissionTotal", { count: permissions.length }),
+    $t('examples.scaffold.rbac.permissionTotal', { count: permissions.length }),
   ];
 });
 
 const pageChecks = computed(() => {
   return [
     {
-      title: $t("examples.scaffold.rbac.checkUserManage"),
-      pass: can("system.user.view"),
+      title: $t('examples.scaffold.rbac.checkUserManage'),
+      pass: can('system.user.view'),
     },
     {
-      title: $t("examples.scaffold.rbac.checkMenuManage"),
-      pass: can("system.permission.view"),
+      title: $t('examples.scaffold.rbac.checkMenuManage'),
+      pass: can('system.permission.view'),
     },
     {
-      title: $t("examples.scaffold.rbac.checkAdminRole"),
-      pass: hasAnyRole(["admin"]),
+      title: $t('examples.scaffold.rbac.checkAdminRole'),
+      pass: hasAnyRole(['admin']),
     },
   ];
 });
 
 const maskText = (value: string, reserve = 2) => {
   if (!value) {
-    return "-";
+    return '-';
   }
   if (value.length <= reserve * 2) {
     return `${value.slice(0, reserve)}***`;
@@ -220,57 +207,51 @@ const maskText = (value: string, reserve = 2) => {
 };
 
 const phoneText = computed(() => {
-  const raw = authStore.user?.phone || "";
-  if (can("system.user.view.phone") || can("*")) {
-    return raw || "-";
+  const raw = authStore.user?.phone || '';
+  if (can('system.user.view.phone') || can('*')) {
+    return raw || '-';
   }
   return maskText(raw, 3);
 });
 
 const emailText = computed(() => {
-  const raw = authStore.user?.email || "";
-  if (can("system.user.view.email") || can("*")) {
-    return raw || "-";
+  const raw = authStore.user?.email || '';
+  if (can('system.user.view.email') || can('*')) {
+    return raw || '-';
   }
   return maskText(raw, 2);
 });
 
-const switchAccount = async (username: "admin" | "user") => {
+const switchAccount = async (username: 'admin' | 'user') => {
   try {
-    await authStore.login(username, "123456");
+    clearSessionState();
+    await authStore.login(username, '123456');
+    await rebuildDynamicRoutes(router);
     apiResult.value = null;
-    message.success($t("examples.scaffold.rbac.switchSuccess", { username }));
+    message.success($t('examples.scaffold.rbac.switchSuccess', { username }));
   } catch (error: unknown) {
-    message.error(
-      (error as Error)?.message || $t("examples.scaffold.rbac.switchFailed"),
-    );
+    message.error((error as Error)?.message || $t('examples.scaffold.rbac.switchFailed'));
   }
 };
 
-const callApiWithPermission = async (
-  permission: string,
-  actionName: string,
-) => {
+const callApiWithPermission = async (permission: string, actionName: string) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 260));
 
     if (!can(permission)) {
-      throw new Error(
-        $t("examples.scaffold.rbac.missingPermission", { permission }),
-      );
+      throw new Error($t('examples.scaffold.rbac.missingPermission', { permission }));
     }
 
     apiResult.value = {
-      type: "success",
-      message: $t("examples.scaffold.rbac.apiSuccess", { action: actionName }),
+      type: 'success',
+      message: $t('examples.scaffold.rbac.apiSuccess', { action: actionName }),
     };
   } catch (error: unknown) {
     apiResult.value = {
-      type: "error",
-      message: $t("examples.scaffold.rbac.apiFailed", {
+      type: 'error',
+      message: $t('examples.scaffold.rbac.apiFailed', {
         action: actionName,
-        error:
-          (error as Error).message || $t("examples.scaffold.rbac.noPermission"),
+        error: (error as Error).message || $t('examples.scaffold.rbac.noPermission'),
       }),
     };
   }
