@@ -97,6 +97,8 @@ import {
 
 import { $t } from '@/locales';
 
+import { PRO_MODAL_DEFAULTS } from './modalContract';
+
 interface ProModalProps extends ModalProps {
   draggable?: boolean;
   resizable?: boolean;
@@ -133,7 +135,11 @@ const DEFAULT_HEIGHT = 320;
 const FULLSCREEN_TRANSITION_DURATION = 300;
 
 const props = withDefaults(defineProps<ProModalProps>(), {
+  centered: PRO_MODAL_DEFAULTS.centered,
+  closable: PRO_MODAL_DEFAULTS.closable,
   draggable: true,
+  keyboard: PRO_MODAL_DEFAULTS.keyboard,
+  mask: PRO_MODAL_DEFAULTS.mask,
   resizable: true,
   fullscreenable: true,
   minWidth: 360,
@@ -142,7 +148,7 @@ const props = withDefaults(defineProps<ProModalProps>(), {
 
 const emit = defineEmits<{
   (e: 'ok', event: MouseEvent): void;
-  (e: 'cancel', event: MouseEvent): void;
+  (e: 'cancel', event: MouseEvent | KeyboardEvent): void;
   (e: 'update:open', open: boolean): void;
 }>();
 
@@ -250,6 +256,7 @@ const mergedWrapClassName = computed(() => {
     props.wrapClassName,
     'pro-modal-wrap',
     instanceWrapClassName,
+    props.centered ? 'pro-modal-centered' : '',
     isFullscreen.value ? 'pro-modal-fullscreen' : '',
     isAnimating.value ? 'pro-modal-animating' : '',
   ]
@@ -775,8 +782,9 @@ const handleOk = (event: MouseEvent) => {
   emit('ok', event);
 };
 
-const handleCancel = (event: MouseEvent) => {
+const handleCancel = (event: MouseEvent | KeyboardEvent) => {
   emit('cancel', event);
+  emit('update:open', false);
 };
 
 const handleCloseClick = (event: MouseEvent) => {
@@ -902,12 +910,12 @@ onBeforeUnmount(() => {
   --pro-modal-fullscreen-ease: var(--ease-in-out);
 
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   overflow: hidden;
 
   .ant-modal {
-    top: 0;
+    top: min(100px, 10vh);
     padding-bottom: 0;
     margin: 0;
     max-width: calc(100vw - 32px);
@@ -923,6 +931,14 @@ onBeforeUnmount(() => {
     min-height: 0;
     max-height: 100%;
     overflow: hidden;
+  }
+}
+
+.pro-modal-centered {
+  align-items: center;
+
+  .ant-modal {
+    top: 0;
   }
 }
 
