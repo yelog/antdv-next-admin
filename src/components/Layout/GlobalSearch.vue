@@ -80,7 +80,7 @@
                     @focus="activeIndex = index"
                   >
                     <span class="item-icon">
-                      <component :is="getIconComponent(result.icon)" v-if="result.icon" />
+                      <IconView v-if="result.icon" :icon="result.icon" />
                       <FileOutlined v-else />
                     </span>
                     <span class="item-info">
@@ -135,7 +135,7 @@
                   @focus="activeIndex = index"
                 >
                   <span class="item-icon">
-                    <component :is="getIconComponent(item.icon)" v-if="item.icon" />
+                    <IconView v-if="item.icon" :icon="item.icon" />
                     <FileOutlined v-else />
                   </span>
                   <span class="item-info">
@@ -241,12 +241,12 @@ import { computed, h, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
+import IconView from '@/components/Icon/index.vue';
 import { basicRoutes } from '@/router/routes';
 import { routesToMenuTree } from '@/router/utils';
 import { useMenuPreferencesStore } from '@/stores/menuPreferences';
 import { usePermissionStore } from '@/stores/permission';
 import { resolveLocaleText } from '@/utils/i18n';
-import { resolveIcon } from '@/utils/icon';
 import {
   normalizeMenuHistoryItems,
   resolveMenuSearchViewShortcut,
@@ -370,8 +370,6 @@ const collectionOptions = computed(() => [
     icon: h(StarOutlined),
   },
 ]);
-
-const getIconComponent = (icon?: string) => resolveIcon(icon);
 
 const isExternalPath = (path: string): boolean => /^https?:\/\//i.test(path);
 

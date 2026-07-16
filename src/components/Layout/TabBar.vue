@@ -61,7 +61,7 @@ import { useLayoutStore } from '@/stores/layout';
 import { useMenuPreferencesStore } from '@/stores/menuPreferences';
 import { useTabsStore } from '@/stores/tabs';
 import { resolveLocaleText } from '@/utils/i18n';
-import { resolveIcon } from '@/utils/icon';
+import { renderIcon } from '@/utils/icon';
 
 const route = useRoute();
 const router = useRouter();
@@ -116,9 +116,8 @@ const tabItems = computed(() => {
         },
         {
           default: () => {
-            const icon = getTabIcon(tab);
             return h('span', { class: 'tab-label' }, [
-              icon ? h(icon, { class: 'tab-menu-icon' }) : null,
+              renderIcon(tab.icon, { class: 'tab-menu-icon' }),
               h('span', { class: 'tab-text' }, getTabLabel(tab)),
               menuPreferencesStore.isFavorite(tab.path)
                 ? h(StarFilled, { class: 'tab-favorite-icon' })
@@ -298,10 +297,6 @@ const refreshCurrentTab = () => {
 
 const getTabLabel = (tab: Tab) => {
   return resolveLocaleText(tab.title, tab.name);
-};
-
-const getTabIcon = (tab: Tab) => {
-  return resolveIcon(tab.icon);
 };
 </script>
 

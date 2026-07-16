@@ -201,7 +201,7 @@ import { useSettingsStore } from '@/stores/settings';
 import { useTabsStore } from '@/stores/tabs';
 import { useWatermarkStore } from '@/stores/watermark';
 import { resolveLocaleText } from '@/utils/i18n';
-import { resolveIcon } from '@/utils/icon';
+import { renderIcon } from '@/utils/icon';
 
 import Header from './Header.vue';
 import Sidebar from './Sidebar.vue';
@@ -277,7 +277,6 @@ const convertHorizontalMenus = (
 ): HorizontalMenuItems => {
   const convert = (list: MenuItemType[]): HorizontalMenuItems => {
     return list.map((menu) => {
-      const iconComponent = resolveIcon(menu.icon);
       const text = resolveLocaleText(menu.label, menu.id);
       const childMenus = menu.children || [];
       const hasChildren = childMenus.length > 0;
@@ -292,7 +291,7 @@ const convertHorizontalMenus = (
       const item = {
         key: menu.path || menu.id,
         label,
-        icon: iconComponent ? h(iconComponent) : undefined,
+        icon: renderIcon(menu.icon),
       };
 
       if (hasChildren) {

@@ -36,7 +36,7 @@ import type { SidebarTheme } from '@/types/layout';
 import type { MenuItem as MenuItemType } from '@/types/router';
 import type { MenuProps } from 'antdv-next';
 
-import { ref, computed, watch, h, nextTick } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import logoImg from '@/assets/images/logo.png';
@@ -46,7 +46,7 @@ import { useLayoutStore } from '@/stores/layout';
 import { usePermissionStore } from '@/stores/permission';
 import { useSettingsStore } from '@/stores/settings';
 import { resolveLocaleText } from '@/utils/i18n';
-import { resolveIcon } from '@/utils/icon';
+import { renderIcon } from '@/utils/icon';
 
 const route = useRoute();
 const router = useRouter();
@@ -87,11 +87,10 @@ const showMobileMask = computed(() => {
 const antMenuItems = computed<MenuProps['items']>(() => {
   const convert = (menus: MenuItemType[]): NonNullable<MenuProps['items']> => {
     return menus.map((menu) => {
-      const iconComponent = resolveIcon(menu.icon);
       const item = {
         key: menu.path || menu.id,
         label: resolveLocaleText(menu.label, menu.id),
-        icon: iconComponent ? h(iconComponent) : undefined,
+        icon: renderIcon(menu.icon),
       };
 
       if (menu.children && menu.children.length > 0) {
