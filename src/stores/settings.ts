@@ -26,6 +26,14 @@ const PRIMARY_COLOR_HEX_MAP: Record<PrimaryColor, string> = {
 
 const isPrimaryColor = (color: string): color is PrimaryColor => color in PRIMARY_COLOR_HEX_MAP;
 
+const clearCustomPrimaryColorStyles = () => {
+  const rootStyle = document.documentElement.style;
+  rootStyle.removeProperty('--color-primary');
+  for (let index = 1; index <= 10; index += 1) {
+    rootStyle.removeProperty(`--color-primary-${index}`);
+  }
+};
+
 export const useSettingsStore = defineStore('settings', () => {
   // State
   const primaryColor = ref<PrimaryColor>('blue');
@@ -44,6 +52,7 @@ export const useSettingsStore = defineStore('settings', () => {
     primaryColor.value = color;
     customPrimaryColor.value = '';
     const hex = PRIMARY_COLOR_HEX_MAP[color];
+    clearCustomPrimaryColorStyles();
     document.documentElement.setAttribute('data-primary-color', color);
     document.documentElement.style.setProperty('--ant-primary-color', hex);
     localStorage.setItem('app-primary-color', color);

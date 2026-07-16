@@ -186,8 +186,8 @@ defineExpose({ reset });
   left: 0;
   top: 0;
   height: 100%;
-  background-color: var(--color-info-bg);
-  border-right: 1px solid var(--color-info);
+  background-color: var(--color-primary-bg);
+  border-right: 1px solid var(--color-primary);
 }
 .slider-handle {
   position: absolute;
@@ -207,7 +207,7 @@ defineExpose({ reset });
 }
 .slider-handle:active {
   cursor: grabbing;
-  background-color: var(--color-info);
+  background-color: var(--color-primary);
   color: #fff;
 }
 .slider-handle.success {
