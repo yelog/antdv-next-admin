@@ -239,9 +239,7 @@ const selectDemoAccount = (username: string) => {
 const handleSubmit = async () => {
   loading.value = true;
   try {
-    if (authStore.token || authStore.user) {
-      clearSessionState(router);
-    }
+    clearSessionState(router);
     await authStore.login(formState.username, formState.password);
     message.success($t('login.loginSuccess'));
     router.push('/');

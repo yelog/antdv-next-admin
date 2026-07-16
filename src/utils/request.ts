@@ -10,6 +10,7 @@ import { message } from "antdv-next";
 
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
+import { clearSessionState } from "@/utils/session";
 
 export interface RequestConfig extends AxiosRequestConfig {
   skipAuth?: boolean;
@@ -102,8 +103,7 @@ service.interceptors.response.use(
 
         return service(originalRequest);
       } catch (refreshError) {
-        const authStore = useAuthStore();
-        authStore.logout();
+        clearSessionState(router);
         if (!originalRequest.skipErrorMessage) {
           message.error("登录已过期，请重新登录");
         }
