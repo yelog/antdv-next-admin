@@ -39,10 +39,11 @@
 <script setup lang="ts">
 import type { Permission, Role } from '@/types/auth';
 import type { ProFormItem, ProTableColumn } from '@/types/pro';
+import type { TreeSelectProps } from 'antdv-next';
 
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@antdv-next/icons';
-import { message, Modal } from 'antdv-next';
-import { computed, onMounted, ref } from 'vue';
+import { message, Modal, Tag } from 'antdv-next';
+import { computed, h, onMounted, ref } from 'vue';
 
 import { getPermissionTree } from '@/api/permission';
 import { createRole, deleteRole, getRoleList, updateRole } from '@/api/role';
@@ -51,6 +52,8 @@ import ProTable from '@/components/Pro/ProTable/index.vue';
 import { useCrudFormSession } from '@/composables/useCrudFormSession';
 import { $t, getLocale } from '@/locales';
 import { resolveLocalizedText } from '@/utils/localizedText';
+
+import { getPermissionTypePresentation } from './permissionTypePresentation';
 
 type RoleFormValues = {
   name: string;
@@ -118,6 +121,39 @@ const permissionMap = computed(() => {
   traverse(permissionTree.value);
   return map;
 });
+
+const renderPermissionTreeTitle: NonNullable<TreeSelectProps['treeTitleRender']> = (nodeData) => {
+  const title = String(nodeData.title ?? '');
+  const permission = permissionMap.value.get(String(nodeData.value));
+  const presentation = getPermissionTypePresentation(permission?.type);
+
+  if (!presentation) {
+    return title;
+  }
+
+  return h(
+    'span',
+    {
+      style: {
+        alignItems: 'center',
+        display: 'inline-flex',
+        gap: '8px',
+      },
+    },
+    [
+      h('span', title),
+      h(
+        Tag,
+        {
+          class: 'permission-type-tag',
+          color: presentation.color,
+          style: { marginInlineEnd: 0 },
+        },
+        () => $t(presentation.labelKey),
+      ),
+    ],
+  );
+};
 
 const searchFormItems = computed<ProFormItem[]>(() => [
   { name: 'name', label: $t('role.name'), type: 'input' },
@@ -208,11 +244,13 @@ const formItems = computed<ProFormItem[]>(() => [
     colSpan: 2,
     options: permissionOptions.value,
     props: {
+      class: 'permission-role-tree-select',
       treeCheckable: true,
       allowClear: true,
       treeDefaultExpandAll: true,
       showCheckedStrategy: 'SHOW_PARENT',
       maxTagCount: 2,
+      treeTitleRender: renderPermissionTreeTitle,
     },
     rules: [{ type: 'array', required: true, message: $t('role.selectPermissions') }],
   },
@@ -327,3 +365,9 @@ onMounted(async () => {
   await fetchPermissionTreeData();
 });
 </script>
+
+<style>
+.permission-role-tree-select .ant-select-selection-item .permission-type-tag {
+  display: none;
+}
+</style>
