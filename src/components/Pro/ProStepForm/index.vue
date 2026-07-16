@@ -20,6 +20,7 @@
         :percent="progress.percent"
         :show-info="false"
         size="small"
+        stroke-color="var(--color-primary)"
       />
     </div>
 
