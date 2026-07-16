@@ -73,6 +73,7 @@ import ProFormModal from '@/components/Pro/ProFormModal/index.vue';
 import ProTable from '@/components/Pro/ProTable/index.vue';
 import { useCrudFormSession } from '@/composables/useCrudFormSession';
 import { $t, getLocale } from '@/locales';
+import { resolveLocalizedText } from '@/utils/localizedText';
 
 type PermissionFormValues = {
   name: LocalizedText;
@@ -165,19 +166,6 @@ const permissionVisibleValueEnum = computed<
   false: { text: $t('permission.hide'), color: 'default' },
 }));
 
-const resolveLocalizedText = (value: string | LocalizedText | undefined) => {
-  if (!value) {
-    return '';
-  }
-
-  if (typeof value === 'string') {
-    return value;
-  }
-
-  const locale = getLocale();
-  return value[locale] || value['zh-CN'] || value['en-US'] || Object.values(value)[0] || '';
-};
-
 function createLocalizedName(value = ''): LocalizedText {
   return {
     'zh-CN': value,
@@ -217,7 +205,7 @@ const columns = computed((): ProTableColumn[] => [
     dataIndex: 'name',
     width: 220,
     fixed: 'left',
-    render: (value) => resolveLocalizedText(value as Permission['name']),
+    render: (value) => resolveLocalizedText(value as Permission['name'], getLocale()),
   },
   {
     title: $t('permission.code'),
@@ -431,7 +419,7 @@ function collectPermissionIds(list: Permission[]): string[] {
 function findPermissionName(list: Permission[], id: string): string {
   for (const item of list) {
     if (item.id === id) {
-      return resolveLocalizedText(item.name);
+      return resolveLocalizedText(item.name, getLocale());
     }
     if (item.children && item.children.length > 0) {
       const childName = findPermissionName(item.children, id);

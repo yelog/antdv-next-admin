@@ -49,7 +49,8 @@ import { createRole, deleteRole, getRoleList, updateRole } from '@/api/role';
 import ProFormModal from '@/components/Pro/ProFormModal/index.vue';
 import ProTable from '@/components/Pro/ProTable/index.vue';
 import { useCrudFormSession } from '@/composables/useCrudFormSession';
-import { $t } from '@/locales';
+import { $t, getLocale } from '@/locales';
+import { resolveLocalizedText } from '@/utils/localizedText';
 
 type RoleFormValues = {
   name: string;
@@ -93,7 +94,7 @@ const toolbarConfig = computed(() => ({
 const permissionOptions = computed<PermissionOption[]>(() => {
   const buildOptions = (nodes: Permission[]): PermissionOption[] => {
     return nodes.map((node) => ({
-      label: `${node.name} (${node.code})`,
+      label: `${resolveLocalizedText(node.name, getLocale())} (${node.code})`,
       value: node.id,
       children: node.children && node.children.length > 0 ? buildOptions(node.children) : undefined,
     }));
