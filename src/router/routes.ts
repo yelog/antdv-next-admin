@@ -814,9 +814,9 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
 export const notFoundRoute: AppRouteRecordRaw = {
   path: "/:pathMatch(.*)*",
   name: "NotFoundCatchAll",
-  redirect: "/404",
+  component: () => import("@/views/error/404.vue"),
   meta: {
-    title: "Not Found",
+    title: "error.404",
     requiresAuth: false,
     hidden: true,
   },

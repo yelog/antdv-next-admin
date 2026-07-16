@@ -4,6 +4,11 @@ import { basicRoutes, notFoundRoute, staticRoutes } from '@/router/routes';
 import { getRouteNamesToRemove } from '@/router/utils';
 
 describe('router reset helpers', () => {
+  it('renders the not found component without redirecting away from the original URL', () => {
+    expect(notFoundRoute.redirect).toBeUndefined();
+    expect(notFoundRoute.component).toBeTypeOf('function');
+  });
+
   it('keeps static routes and nested basic routes when removing generated routes', () => {
     const routeNames = [
       'Login',

@@ -9,6 +9,7 @@ import { useTabsStore } from '@/stores/tabs';
 import { resolveLocaleText } from '@/utils/i18n';
 import { normalizeMenuHistoryItems } from '@/utils/menuPreferences';
 
+import { shouldRecoverDynamicRoute } from './routeRecovery';
 import { basicRoutes, notFoundRoute, staticRoutes } from './routes';
 import { getRouteNamesToRemove } from './utils';
 
@@ -107,38 +108,6 @@ function initTabsIfNeeded(
   }
 }
 
-function getRedirectedFromPath(route: RouteLocationNormalized) {
-  return route.redirectedFrom?.fullPath;
-}
-
-function shouldRecoverFromNotFound(
-  route: RouteLocationNormalized,
-  authStore: ReturnType<typeof useAuthStore>,
-  permissionStore: ReturnType<typeof usePermissionStore>,
-) {
-  const redirectedFromPath = getRedirectedFromPath(route);
-  return (
-    route.path === '/404' &&
-    !!redirectedFromPath &&
-    redirectedFromPath !== '/404' &&
-    !!authStore.token &&
-    !permissionStore.isRoutesGenerated
-  );
-}
-
-function shouldRedirectNotFoundToLogin(
-  route: RouteLocationNormalized,
-  authStore: ReturnType<typeof useAuthStore>,
-) {
-  const redirectedFromPath = getRedirectedFromPath(route);
-  return (
-    route.path === '/404' &&
-    !!redirectedFromPath &&
-    redirectedFromPath !== '/404' &&
-    !authStore.token
-  );
-}
-
 function getRouteAccessRedirect(
   route: RouteLocationNormalized,
   authStore: ReturnType<typeof useAuthStore>,
@@ -218,25 +187,23 @@ export function setupRouterGuards(router: Router) {
     // Set page title
     setDocumentTitle(to);
 
-    // If first refresh hits catch-all and is redirected to 404,
-    // restore dynamic routes first, then retry the original target.
-    const redirectedFromPath = to.redirectedFrom?.fullPath;
-
-    if (shouldRecoverFromNotFound(to, authStore, permissionStore)) {
+    // A dynamic route may initially match the catch-all on a fresh page load.
+    // Restore permission routes first, then resolve the unchanged target again.
+    if (
+      shouldRecoverDynamicRoute(
+        to.name,
+        Boolean(authStore.token),
+        permissionStore.isRoutesGenerated,
+      )
+    ) {
       try {
         await ensureDynamicRoutes(router, authStore, permissionStore, dictStore);
         initTabsIfNeeded(tabsStore, permissionStore);
-        return { path: redirectedFromPath, replace: true };
+        return { path: to.fullPath, replace: true };
       } catch (error) {
-        console.error('Failed to recover routes from not found redirect:', error);
+        console.error('Failed to recover dynamic route:', error);
         return '/403';
       }
-    }
-
-    // If catch-all redirected to 404 but user is not logged in,
-    // redirect to login instead of showing 404
-    if (shouldRedirectNotFoundToLogin(to, authStore)) {
-      return { path: '/login', query: { redirect: redirectedFromPath } };
     }
 
     // Check if route requires authentication
