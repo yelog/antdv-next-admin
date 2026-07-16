@@ -15,12 +15,12 @@
 </template>
 
 <script setup lang="ts">
-import { theme as antdTheme, type ThemeConfig } from 'antdv-next';
+import { App as AntApp, ConfigProvider, theme as antdTheme, type ThemeConfig } from 'antdv-next';
 import enUS from 'antdv-next/dist/locale/en_US';
 import jaJP from 'antdv-next/dist/locale/ja_JP';
 import koKR from 'antdv-next/dist/locale/ko_KR';
 import zhCN from 'antdv-next/dist/locale/zh_CN';
-import { computed, onMounted } from 'vue';
+import { computed, h, onMounted, watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { appDefaultSettings } from './settings';
@@ -60,6 +60,23 @@ const datePickerConfig = computed(
 const buttonConfig = computed(() => appDefaultSettings.button);
 const antdLocale = computed(() => {
   return antdLocaleMap[locale.value as keyof typeof antdLocaleMap] ?? zhCN;
+});
+
+watchEffect(() => {
+  const currentTheme = antdThemeConfig.value;
+  const currentLocale = antdLocale.value;
+
+  ConfigProvider.config({
+    holderRender: (children) =>
+      h(
+        ConfigProvider,
+        {
+          locale: currentLocale,
+          theme: currentTheme,
+        },
+        () => h(AntApp, null, () => children),
+      ),
+  });
 });
 
 notificationStore.initNotifications();
