@@ -8,6 +8,7 @@
         :layout="{ layout: 'horizontal', labelCol: { span: 6 } }"
         :grid="{ gutter: 16, responsive: true, responsiveColumns: searchResponsiveColumns }"
         :inline-footer="true"
+        compact
         @submit="handleSearch"
       >
         <template #footer>

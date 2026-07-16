@@ -8,7 +8,10 @@
     v-bind="resolvedLayout"
     @finish="handleFinish"
     class="pro-form"
-    :class="{ 'pro-form--inline': isInlineLayout }"
+    :class="{
+      'pro-form--inline': isInlineLayout,
+      'pro-form--compact': compact,
+    }"
   >
     <div class="pro-form-grid-viewport">
       <a-row
@@ -123,6 +126,7 @@ interface Props {
   layout?: ProFormLayout;
   grid?: ProFormGrid;
   inlineFooter?: boolean;
+  compact?: boolean;
   preserve?: boolean;
   clearOnDestroy?: boolean;
 }
@@ -138,6 +142,7 @@ const props = withDefaults(defineProps<Props>(), {
     cols: 1,
   }),
   inlineFooter: false,
+  compact: false,
   preserve: true,
   clearOnDestroy: false,
 });
@@ -281,6 +286,16 @@ watch(
 
 <style scoped lang="scss">
 .pro-form {
+  &.pro-form--compact {
+    :deep(.ant-form-item) {
+      margin-bottom: 0;
+    }
+
+    .pro-form-responsive-grid {
+      row-gap: var(--spacing-sm);
+    }
+  }
+
   .pro-form-grid-viewport {
     width: 100%;
     min-width: 0;
