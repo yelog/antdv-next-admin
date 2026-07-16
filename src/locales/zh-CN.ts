@@ -1299,6 +1299,8 @@ export default {
         updateSuccess: '更新成功',
         usernameRequired: '请输入用户名',
         emailRequired: '请输入邮箱',
+        searchColumnsPerRow: '每行搜索项',
+        searchColumnsPerRowHint: '仅影响当前示例；窄屏会自动回落为一列。',
       },
       complexForm: {
         title: '复杂表单示例',

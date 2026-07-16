@@ -776,17 +776,19 @@ const showSearchForm = computed(() => {
   return props.search !== false && searchFormItems.value.length > 0;
 });
 
+const effectiveSearchColumnsPerRow = computed(() => {
+  if (props.search !== false && props.search?.columnsPerRow !== undefined) {
+    return props.search.columnsPerRow;
+  }
+  return appDefaultSettings.proTable.search.columnsPerRow;
+});
+
 const searchColumnsPerRow = computed(() => {
-  return getSearchColumnsPerRow(
-    viewportWidth.value,
-    props.search === false ? undefined : props.search?.columnsPerRow,
-  );
+  return getSearchColumnsPerRow(viewportWidth.value, effectiveSearchColumnsPerRow.value);
 });
 
 const searchResponsiveColumns = computed(() => {
-  return getSearchResponsiveColumns(
-    props.search === false ? undefined : props.search?.columnsPerRow,
-  );
+  return getSearchResponsiveColumns(effectiveSearchColumnsPerRow.value);
 });
 
 const collapsedSearchRows = computed(() => {

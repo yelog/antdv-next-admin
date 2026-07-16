@@ -1327,6 +1327,9 @@ export default {
         updateSuccess: 'Updated successfully',
         usernameRequired: 'Please enter username',
         emailRequired: 'Please enter email',
+        searchColumnsPerRow: 'Search fields per row',
+        searchColumnsPerRowHint:
+          'Only affects this example; narrow screens fall back to one column.',
       },
       complexForm: {
         title: 'Complex Form Example',

@@ -1152,6 +1152,8 @@ export default {
         updateSuccess: '更新に成功しました',
         usernameRequired: 'ユーザー名を入力してください',
         emailRequired: 'メールアドレスを入力してください',
+        searchColumnsPerRow: '1 行あたりの検索項目数',
+        searchColumnsPerRowHint: 'この例にのみ適用され、狭い画面では自動的に 1 列になります。',
       },
       complexForm: {
         title: '複雑なフォームの例',

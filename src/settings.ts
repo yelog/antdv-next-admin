@@ -1,5 +1,11 @@
+import type { ProTableSearch } from '@/types/pro';
+
 export type ProTableDensity = 'large' | 'middle' | 'small' | 'smal';
 export type ProTableHeight = '100%' | 'auto' | string | number;
+
+export interface ProTableSearchDefaultSettings {
+  columnsPerRow: NonNullable<ProTableSearch['columnsPerRow']>;
+}
 
 export interface ProTableDefaultSettings {
   size: ProTableDensity;
@@ -9,6 +15,7 @@ export interface ProTableDefaultSettings {
   ellipsis: boolean;
   bordered: boolean;
   fixedHeader: boolean;
+  search: ProTableSearchDefaultSettings;
 }
 
 export interface InputDefaultSettings {
@@ -44,6 +51,15 @@ export const appDefaultSettings: AppDefaultSettings = {
     ellipsis: true,
     bordered: true,
     fixedHeader: true,
+    search: {
+      columnsPerRow: {
+        xs: 1,
+        sm: 2,
+        md: 2,
+        lg: 3,
+        xl: 3,
+      },
+    },
   },
   input: {
     allowClear: true,

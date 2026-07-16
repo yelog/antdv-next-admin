@@ -1,5 +1,18 @@
 <template>
   <div class="page-container">
+    <div class="search-layout-demo">
+      <a-space wrap :size="12">
+        <span class="search-layout-demo-label">
+          {{ $t('examples.scaffold.proTableAdvanced.searchColumnsPerRow') }}
+        </span>
+        <a-segmented v-model:value="searchColumnsPerRow" :options="[2, 3, 4, 5]" />
+        <code>search.columnsPerRow = {{ searchColumnsPerRow }}</code>
+      </a-space>
+      <span class="search-layout-demo-hint">
+        {{ $t('examples.scaffold.proTableAdvanced.searchColumnsPerRowHint') }}
+      </span>
+    </div>
+
     <ProTable
       :columns="columns"
       :request="requestTableData"
@@ -9,6 +22,7 @@
         labelWidth: 80,
         defaultCollapsed: true,
         collapsedRows: 1,
+        columnsPerRow: searchColumnsPerRow,
       }"
       :row-selection="rowSelection"
       row-key="id"
@@ -140,6 +154,7 @@ const {
   finishClose: finishFormClose,
 } = useCrudFormSession<DemoRow, DemoFormValues>(createDefaultFormValues);
 const submitting = ref(false);
+const searchColumnsPerRow = ref(3);
 const editingId = computed(() => editingRecord.value?.id ?? null);
 
 const toolbarConfig = computed(() => ({
@@ -493,3 +508,35 @@ const exportCsv = () => {
   message.success($t('examples.scaffold.proTableAdvanced.exportSuccess'));
 };
 </script>
+
+<style scoped>
+.search-layout-demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-container);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-base);
+}
+
+.search-layout-demo-label {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.search-layout-demo code {
+  padding: 2px 8px;
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+  border-radius: var(--radius-sm);
+}
+
+.search-layout-demo-hint {
+  font-size: 12px;
+}
+</style>

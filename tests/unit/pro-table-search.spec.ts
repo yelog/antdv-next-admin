@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   getCollapsedSearchFieldLimit,
   getCollapsedSearchRows,
-  getSearchColBindings,
   getSearchColumnsPerRow,
   getSearchResponsiveColumns,
   normalizeFieldLabel,
@@ -23,7 +22,7 @@ describe('ProTable search helpers', () => {
     expect(getSearchColumnsPerRow(1440, { xs: 1, sm: 2, xl: 5 })).toBe(5);
   });
 
-  it('converts search column config into real grid bindings', () => {
+  it('normalizes responsive search columns', () => {
     expect(getSearchResponsiveColumns(4)).toEqual({
       xs: 1,
       sm: 4,
@@ -31,12 +30,12 @@ describe('ProTable search helpers', () => {
       lg: 4,
       xl: 4,
     });
-    expect(getSearchColBindings({ xs: 1, sm: 2, lg: 4 })).toEqual({
-      xs: 24,
-      sm: 12,
-      md: 12,
-      lg: 6,
-      xl: 6,
+    expect(getSearchResponsiveColumns(5)).toEqual({
+      xs: 1,
+      sm: 5,
+      md: 5,
+      lg: 5,
+      xl: 5,
     });
   });
 
@@ -44,6 +43,7 @@ describe('ProTable search helpers', () => {
     expect(getCollapsedSearchRows('bad')).toBe(1);
     expect(getCollapsedSearchFieldLimit(1, 3)).toBe(2);
     expect(getCollapsedSearchFieldLimit(2, 3)).toBe(6);
+    expect(getCollapsedSearchFieldLimit(1, 5)).toBe(4);
   });
 
   it('resolves value enum from options', () => {

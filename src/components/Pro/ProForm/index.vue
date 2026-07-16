@@ -11,7 +11,11 @@
     :class="{ 'pro-form--inline': isInlineLayout }"
   >
     <div class="pro-form-grid-viewport">
-      <a-row :gutter="grid?.gutter || 16">
+      <a-row
+        :gutter="grid?.responsive ? 0 : grid?.gutter || 16"
+        :class="{ 'pro-form-responsive-grid': grid?.responsive }"
+        :style="responsiveGridStyle"
+      >
         <a-col
           v-for="item in visibleFormItems"
           :key="`${item.name}-${resetVersion}`"
@@ -113,10 +117,6 @@ function resolveResponsiveColumns(
   return next;
 }
 
-function spanFromColumns(columns: number) {
-  return Math.max(1, Math.floor(24 / columns));
-}
-
 interface Props {
   formItems: ProFormItem[];
   initialValues?: Record<string, unknown>;
@@ -173,6 +173,20 @@ const formRules = computed(() => {
   );
 });
 
+const responsiveGridStyle = computed(() => {
+  if (!props.grid?.responsive) return undefined;
+
+  const columns = resolveResponsiveColumns(props.grid.responsiveColumns);
+  return {
+    '--pro-form-columns-xs': columns.xs,
+    '--pro-form-columns-sm': columns.sm,
+    '--pro-form-columns-md': columns.md,
+    '--pro-form-columns-lg': columns.lg,
+    '--pro-form-columns-xl': columns.xl,
+    '--pro-form-grid-gap': `${props.grid.gutter ?? 16}px`,
+  };
+});
+
 // Methods
 const getColSpan = (item: ProFormItem) => {
   if (item.colSpan) {
@@ -183,13 +197,10 @@ const getColSpan = (item: ProFormItem) => {
 
 const getColBindings = (item: ProFormItem) => {
   if (props.grid?.responsive) {
-    const columns = resolveResponsiveColumns(props.grid.responsiveColumns);
     return {
-      xs: spanFromColumns(columns.xs),
-      sm: spanFromColumns(columns.sm),
-      md: spanFromColumns(columns.md),
-      lg: spanFromColumns(columns.lg),
-      xl: spanFromColumns(columns.xl),
+      style: {
+        gridColumn: `span ${Math.max(1, Math.floor(item.colSpan ?? 1))}`,
+      },
     };
   }
   return { span: getColSpan(item) };
@@ -197,13 +208,10 @@ const getColBindings = (item: ProFormItem) => {
 
 const footerColBindings = computed(() => {
   if (props.grid?.responsive) {
-    const columns = resolveResponsiveColumns(props.grid.responsiveColumns);
     return {
-      xs: spanFromColumns(columns.xs),
-      sm: spanFromColumns(columns.sm),
-      md: spanFromColumns(columns.md),
-      lg: spanFromColumns(columns.lg),
-      xl: spanFromColumns(columns.xl),
+      style: {
+        gridColumn: '-2 / -1',
+      },
     };
   }
   return { span: 24 / (props.grid?.cols || 1) };
@@ -279,6 +287,42 @@ watch(
     max-width: 100%;
     overflow-x: hidden;
     overflow-x: clip;
+  }
+
+  .pro-form-responsive-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--pro-form-columns-xs), minmax(0, 1fr));
+    column-gap: var(--pro-form-grid-gap);
+    row-gap: 0;
+
+    > :deep(.ant-col) {
+      min-width: 0;
+      max-width: none;
+    }
+  }
+
+  @media (min-width: 576px) {
+    .pro-form-responsive-grid {
+      grid-template-columns: repeat(var(--pro-form-columns-sm), minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 768px) {
+    .pro-form-responsive-grid {
+      grid-template-columns: repeat(var(--pro-form-columns-md), minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 992px) {
+    .pro-form-responsive-grid {
+      grid-template-columns: repeat(var(--pro-form-columns-lg), minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .pro-form-responsive-grid {
+      grid-template-columns: repeat(var(--pro-form-columns-xl), minmax(0, 1fr));
+    }
   }
 
   .form-item-required {

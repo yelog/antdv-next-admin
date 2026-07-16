@@ -1144,6 +1144,8 @@ export default {
         updateSuccess: '업데이트 성공',
         usernameRequired: '사용자 이름을 입력하세요',
         emailRequired: '이메일을 입력하세요',
+        searchColumnsPerRow: '행당 검색 필드',
+        searchColumnsPerRowHint: '현재 예시에만 적용되며 좁은 화면에서는 자동으로 1열이 됩니다.',
       },
       complexForm: {
         title: '복잡한 형태의 예',

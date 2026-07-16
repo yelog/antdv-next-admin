@@ -76,17 +76,6 @@ export function getSearchResponsiveColumns(config?: ProTableSearch['columnsPerRo
   return next;
 }
 
-export function getSearchColBindings(columns: Partial<Record<SearchBreakpoint, number>>) {
-  const normalizedColumns = getSearchResponsiveColumns(columns);
-  return {
-    xs: Math.floor(24 / normalizedColumns.xs),
-    sm: Math.floor(24 / normalizedColumns.sm),
-    md: Math.floor(24 / normalizedColumns.md),
-    lg: Math.floor(24 / normalizedColumns.lg),
-    xl: Math.floor(24 / normalizedColumns.xl),
-  };
-}
-
 export function getCollapsedSearchRows(rows: unknown) {
   const value = Number(rows ?? 1);
   if (!Number.isFinite(value)) return 1;
