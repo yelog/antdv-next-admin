@@ -134,7 +134,7 @@
     >
       <a-form :model="form" :label-col="{ span: 6 }" style="margin-top: 16px">
         <a-form-item :label="t('dept.parentDept')">
-          <a-tree-select
+          <TreeSelect
             v-model:value="form.parentId"
             :tree-data="parentTreeData"
             :field-names="{ label: 'name', value: 'id', children: 'children' }"
@@ -201,7 +201,7 @@ import type {
 } from "@/types/pro";
 
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@antdv-next/icons";
-import { message, Modal } from "antdv-next";
+import { message, Modal, TreeSelect } from "antdv-next";
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
