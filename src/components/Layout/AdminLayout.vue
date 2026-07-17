@@ -41,7 +41,8 @@
             >
               <div class="page-workspace-main">
                 <div class="page-scroll">
-                  <router-view v-slot="{ Component }">
+                  <slot v-if="$slots.default" />
+                  <router-view v-else v-slot="{ Component }">
                     <transition :name="settingsStore.pageAnimation" mode="out-in">
                       <keep-alive :include="cachedTabs">
                         <component :is="Component" :key="pageViewKey" />
@@ -135,7 +136,8 @@
               >
                 <div class="page-workspace-main">
                   <div class="page-scroll">
-                    <router-view v-slot="{ Component }">
+                    <slot v-if="$slots.default" />
+                    <router-view v-else v-slot="{ Component }">
                       <transition :name="settingsStore.pageAnimation" mode="out-in">
                         <keep-alive :include="cachedTabs">
                           <component :is="Component" :key="pageViewKey" />

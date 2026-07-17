@@ -7,3 +7,7 @@ export function shouldRecoverDynamicRoute(
 ) {
   return routeName === 'NotFoundCatchAll' && hasToken && !routesGenerated;
 }
+
+export function shouldUseAdminNotFoundLayout(hasToken: boolean) {
+  return hasToken;
+}

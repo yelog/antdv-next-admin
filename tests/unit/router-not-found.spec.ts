@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { shouldRecoverDynamicRoute } from '@/router/routeRecovery';
+import { shouldRecoverDynamicRoute, shouldUseAdminNotFoundLayout } from '@/router/routeRecovery';
 
 describe('not found route recovery', () => {
   it('retries a catch-all match after login before dynamic routes are generated', () => {
@@ -17,5 +17,13 @@ describe('not found route recovery', () => {
 
   it('does not retry an ordinary matched route', () => {
     expect(shouldRecoverDynamicRoute('Dashboard', true, false)).toBe(false);
+  });
+
+  it('uses the admin layout for authenticated users', () => {
+    expect(shouldUseAdminNotFoundLayout(true)).toBe(true);
+  });
+
+  it('uses the fullscreen layout for unauthenticated users', () => {
+    expect(shouldUseAdminNotFoundLayout(false)).toBe(false);
   });
 });

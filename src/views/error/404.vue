@@ -1,26 +1,24 @@
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-[var(--color-bg-layout)]">
-    <div class="text-center">
-      <div class="text-[120px] font-bold leading-none text-primary mb-6">404</div>
-      <h1 class="text-3xl font-semibold mb-4 text-[var(--color-text-primary)]">
-        {{ $t('error.404') }}
-      </h1>
-      <p class="text-lg text-[var(--color-text-secondary)] mb-8">
-        {{ $t('error.pageNotFound') }}
-      </p>
-      <a-button type="primary" size="large" @click="goHome">
-        {{ $t('error.backHome') }}
-      </a-button>
+  <AdminLayout v-if="useAdminLayout">
+    <div class="page-container">
+      <div class="card flex min-h-[500px] flex-1 items-center justify-center">
+        <NotFoundContent />
+      </div>
     </div>
-  </div>
+  </AdminLayout>
+  <main v-else class="flex min-h-screen items-center justify-center bg-[var(--color-bg-layout)]">
+    <NotFoundContent />
+  </main>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
 
-const router = useRouter();
+import NotFoundContent from '@/components/Exception/NotFoundContent.vue';
+import AdminLayout from '@/components/Layout/AdminLayout.vue';
+import { shouldUseAdminNotFoundLayout } from '@/router/routeRecovery';
+import { useAuthStore } from '@/stores/auth';
 
-const goHome = () => {
-  router.push('/');
-};
+const authStore = useAuthStore();
+const useAdminLayout = computed(() => shouldUseAdminNotFoundLayout(Boolean(authStore.token)));
 </script>
