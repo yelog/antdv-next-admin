@@ -1,7 +1,7 @@
 import type { User, Role, Permission } from '@/types/auth';
 
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, shallowRef } from 'vue';
 
 import avatarImg from '@/assets/images/avatar-256.png';
 import { ALL_PERMISSION } from '@/constants/permissions';
@@ -84,6 +84,8 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null);
   const roles = ref<Role[]>([]);
   const permissions = ref<Permission[]>([]);
+  const session = shallowRef({ id: 0, tokenRevision: 0 });
+  let refreshPromise: Promise<string> | undefined;
 
   const savedExpires = localStorage.getItem(TOKEN_EXPIRES_KEY);
   if (savedExpires) {
@@ -100,7 +102,7 @@ export const useAuthStore = defineStore('auth', () => {
   const userRoles = computed(() => roles.value.map((role) => role.code));
   const userPermissions = computed(() => permissions.value.map((perm) => perm.code));
 
-  const setToken = (
+  const writeToken = (
     newToken: string | null,
     newRefreshToken?: string | null,
     expiresIn?: number,
@@ -138,6 +140,16 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
+  const setToken = (
+    newToken: string | null,
+    newRefreshToken?: string | null,
+    expiresIn?: number,
+  ): void => {
+    refreshPromise = undefined;
+    session.value = { id: session.value.id + 1, tokenRevision: 0 };
+    writeToken(newToken, newRefreshToken, expiresIn);
+  };
+
   const setUserInfo = (userInfo: User | null) => {
     const normalizedUserInfo = userInfo ? normalizeUserInfo(userInfo) : null;
     user.value = normalizedUserInfo;
@@ -173,16 +185,45 @@ export const useAuthStore = defineStore('auth', () => {
     setUserInfo(null);
   };
 
-  const refreshToken = async (): Promise<string> => {
-    const { refreshToken: refreshTokenApi } = await import('@/api/auth');
-
-    if (!refreshTokenValue.value) {
-      throw new Error('No refresh token available');
+  const refreshToken = (observedRevision = session.value.tokenRevision): Promise<string> => {
+    if (refreshPromise) {
+      return refreshPromise;
     }
 
-    const result = await refreshTokenApi(refreshTokenValue.value);
-    setToken(result.data.token, result.data.refreshToken, result.data.expiresIn);
-    return result.data.token;
+    const currentSession = session.value;
+    if (observedRevision !== currentSession.tokenRevision && token.value) {
+      return Promise.resolve(token.value);
+    }
+
+    const currentRefreshToken = refreshTokenValue.value;
+    if (!currentRefreshToken) {
+      return Promise.reject(new Error('No refresh token available'));
+    }
+
+    const pending = (async () => {
+      const { refreshToken: refreshTokenApi } = await import('@/api/auth');
+      if (currentSession.id !== session.value.id) {
+        throw new Error('Session changed before token refresh');
+      }
+
+      const result = await refreshTokenApi(currentRefreshToken);
+      if (currentSession.id !== session.value.id) {
+        throw new Error('Session changed during token refresh');
+      }
+
+      writeToken(result.data.token, result.data.refreshToken, result.data.expiresIn);
+      session.value = { id: currentSession.id, tokenRevision: currentSession.tokenRevision + 1 };
+      return result.data.token;
+    })();
+
+    refreshPromise = pending;
+    const clearRefresh = () => {
+      if (refreshPromise === pending) {
+        refreshPromise = undefined;
+      }
+    };
+    void pending.then(clearRefresh, clearRefresh);
+    return pending;
   };
 
   const hasRole = (role: string): boolean => {
@@ -246,6 +287,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     roles,
     permissions,
+    session,
     isTokenExpired,
     isLoggedIn,
     userRoles,

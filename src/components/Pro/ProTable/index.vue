@@ -358,7 +358,10 @@ import {
   type HeaderFilterEntry,
   type TableFilterValue,
 } from './composables/useProTableHeaderFilters';
-import { buildSorterRequestParams as buildSorterRequestParamsValue } from './composables/useProTableRequest';
+import {
+  buildSorterRequestParams as buildSorterRequestParamsValue,
+  useProTableRemoteData,
+} from './composables/useProTableRequest';
 import {
   getCollapsedSearchFieldLimit,
   getCollapsedSearchRows,
@@ -566,14 +569,18 @@ const searchFormRef = ref();
 const tableSectionRef = ref<HTMLElement>();
 
 // State
-const remoteDataSource = ref<Record<string, unknown>[]>([]);
-const loading = ref(false);
+const {
+  remoteDataSource,
+  loading,
+  total,
+  load: loadRemoteData,
+  invalidate: invalidateRemoteData,
+} = useProTableRemoteData();
 const searchCollapsed = ref(
   props.search !== false ? (props.search?.defaultCollapsed ?? true) : true,
 );
 const currentPage = ref(props.pagination !== false ? props.pagination?.current || 1 : 1);
 const pageSize = ref(props.pagination !== false ? props.pagination?.pageSize || 10 : 10);
-const total = ref(0);
 const tableSize = ref<TableSize>(normalizeDensity(props.size));
 const tableScrollY = ref<number>();
 const shouldUseVerticalScroll = ref(false);
@@ -1432,37 +1439,32 @@ const buildSorterRequestParams = () => {
 };
 
 const loadData = async () => {
-  if (!props.request) {
+  const request = props.request;
+  if (!request) {
     scheduleMeasureTable();
     return;
   }
 
-  loading.value = true;
-  try {
-    const searchValues = searchFormRef.value?.getFieldsValue() ?? {};
-    const params: Record<string, unknown> = {
-      ...searchValues,
-      ...buildHeaderFilterRequestParams(),
-      ...buildSorterRequestParams(),
-    };
+  await loadRemoteData(
+    () => {
+      const searchValues = searchFormRef.value?.getFieldsValue() ?? {};
+      const params: Record<string, unknown> = {
+        ...searchValues,
+        ...buildHeaderFilterRequestParams(),
+        ...buildSorterRequestParams(),
+      };
 
-    if (paginationEnabled.value) {
-      params.current = currentPage.value;
-      params.pageSize = pageSize.value;
-    }
+      if (paginationEnabled.value) {
+        params.current = currentPage.value;
+        params.pageSize = pageSize.value;
+      }
 
-    const result = await props.request(params);
-
-    if (result.success) {
-      remoteDataSource.value = result.data as Record<string, unknown>[];
-      total.value = result.total || result.data.length;
-      scheduleMeasureTable();
-    }
-  } catch (error: unknown) {
-    message.error((error as Error).message || $t('proTable.loadDataFailed'));
-  } finally {
-    loading.value = false;
-  }
+      return request(params);
+    },
+    scheduleMeasureTable,
+    (error) =>
+      message.error((error instanceof Error && error.message) || $t('proTable.loadDataFailed')),
+  );
 };
 
 const handleSearch = () => {
@@ -1656,6 +1658,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  invalidateRemoteData();
   window.removeEventListener('resize', handleWindowResize);
 
   if (rafId) {
@@ -1665,6 +1668,8 @@ onBeforeUnmount(() => {
   resizeObserver?.disconnect();
   resizeObserver = null;
 });
+
+watch(() => props.request, invalidateRemoteData, { flush: 'sync' });
 
 watch(
   () => props.columns,

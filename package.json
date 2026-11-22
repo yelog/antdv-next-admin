@@ -13,6 +13,8 @@
     "type-check": "vue-tsc --noEmit",
     "test:unit": "vitest",
     "test:unit:run": "vitest run",
+    "test:build": "node --test tests/build/*.test.mjs",
+    "test:e2e": "playwright test",
     "lint": "oxlint src mock",
     "lint:fix": "oxlint --fix src mock",
     "format": "oxfmt --write src mock",
@@ -91,6 +93,7 @@
   "devDependencies": {
     "@antdv-next/auto-import-resolver": "^1.2.0",
     "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@types/lodash-es": "^4.17.12",
     "@vitejs/plugin-vue": "^6.0.11",

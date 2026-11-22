@@ -97,7 +97,15 @@ import {
   RiseOutlined,
   ClockCircleOutlined,
 } from '@antdv-next/icons';
-import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref } from 'vue';
+import {
+  computed,
+  defineAsyncComponent,
+  onActivated,
+  onBeforeUnmount,
+  onDeactivated,
+  onMounted,
+  ref,
+} from 'vue';
 
 import avatarImg from '@/assets/images/avatar-256.png';
 import ProStatCard from '@/components/Pro/ProStatCard/index.vue';
@@ -240,18 +248,26 @@ const activities = computed(() => [
   },
 ]);
 
-onMounted(() => {
+function startClock() {
+  if (timer !== null) return;
+
+  now.value = new Date();
   timer = window.setInterval(() => {
     now.value = new Date();
   }, 60000);
-});
+}
 
-onBeforeUnmount(() => {
+function stopClock() {
   if (timer !== null) {
     window.clearInterval(timer);
     timer = null;
   }
-});
+}
+
+onMounted(startClock);
+onActivated(startClock);
+onDeactivated(stopClock);
+onBeforeUnmount(stopClock);
 </script>
 
 <style scoped lang="scss">

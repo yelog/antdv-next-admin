@@ -1,4 +1,5 @@
 import {
+  CanceledError,
   create,
   type AxiosError,
   type AxiosInstance,
@@ -20,11 +21,11 @@ export interface RequestConfig extends AxiosRequestConfig {
   skipRedirect?: boolean;
 }
 
-type RetriableRequestConfig = InternalAxiosRequestConfig & RequestConfig & {
-  _retry?: boolean;
-};
-
-let refreshPromise: Promise<string> | null = null;
+type RetriableRequestConfig = InternalAxiosRequestConfig &
+  RequestConfig & {
+    authSession?: { id: number; tokenRevision: number };
+    retriedAfterRefresh?: boolean;
+  };
 
 export const service: AxiosInstance = create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -34,19 +35,73 @@ export const service: AxiosInstance = create({
   },
 });
 
+async function handleUnauthorized(
+  error: Error,
+  config?: RetriableRequestConfig,
+): Promise<AxiosResponse> {
+  const session = config?.authSession;
+  if (!config || !session || config.skipAuth || config.skipAuthRefresh) {
+    throw error;
+  }
+
+  const authStore = useAuthStore();
+  if (session.id !== authStore.session.id) {
+    throw error;
+  }
+
+  let failure: unknown = error;
+  if (!config.retriedAfterRefresh) {
+    try {
+      await authStore.refreshToken(session.tokenRevision);
+      if (session.id === authStore.session.id) {
+        config.retriedAfterRefresh = true;
+        return service(config);
+      }
+    } catch (refreshError) {
+      failure = refreshError;
+    }
+  }
+
+  const currentSession = authStore.session;
+  if (
+    session.id === currentSession.id &&
+    (!config.retriedAfterRefresh || session.tokenRevision === currentSession.tokenRevision)
+  ) {
+    clearSessionState(router);
+    if (!config.skipErrorMessage) {
+      message.error("登录已过期，请重新登录");
+    }
+    if (!config.skipRedirect) {
+      void router.push("/login");
+    }
+  }
+  throw failure;
+}
+
 service.interceptors.request.use(
   (config) => {
-    const requestConfig = config as RequestConfig;
-    const authStore = useAuthStore();
+    const requestConfig = config as RetriableRequestConfig;
+    if (requestConfig.skipAuth) {
+      return config;
+    }
 
-    if (!requestConfig.skipAuth && authStore.token) {
-      config.headers.Authorization = `Bearer ${authStore.token}`;
+    const authStore = useAuthStore();
+    if (
+      requestConfig.retriedAfterRefresh &&
+      requestConfig.authSession?.id !== authStore.session.id
+    ) {
+      throw new CanceledError("Session changed before retry", config);
+    }
+
+    if (authStore.token) {
+      config.headers.set("Authorization", `Bearer ${authStore.token}`, true);
+      requestConfig.authSession = authStore.session;
     }
 
     return config;
   },
   (error: AxiosError) => {
-    console.error("Request error:", error);
+    console.error("Request error:", error.message);
     if (!(error.config as RequestConfig | undefined)?.skipErrorMessage) {
       message.error("请求发送失败");
     }
@@ -57,11 +112,11 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data;
-    const requestConfig = response.config as RequestConfig;
+    const requestConfig = response.config as RetriableRequestConfig;
 
     if (res.code !== undefined && res.code !== 200) {
       if (res.code === 401) {
-        return Promise.reject(new Error(res.message || "Unauthorized"));
+        return handleUnauthorized(new Error(res.message || "Unauthorized"), requestConfig);
       } else if (res.code === 403) {
         console.error("No permission:", res.message);
         if (!requestConfig.skipErrorMessage) {
@@ -76,50 +131,20 @@ service.interceptors.response.use(
 
     return res;
   },
-  async (error: AxiosError) => {
+  (error: AxiosError) => {
     const originalRequest = error.config as RetriableRequestConfig | undefined;
 
-    if (
-      error.response?.status === 401 &&
-      originalRequest &&
-      !originalRequest._retry &&
-      !originalRequest.skipAuthRefresh
-    ) {
-      originalRequest._retry = true;
-
-      try {
-        if (!refreshPromise) {
-          const authStore = useAuthStore();
-
-          refreshPromise = authStore.refreshToken().finally(() => {
-            refreshPromise = null;
-          });
-        }
-
-        const newToken = await refreshPromise;
-
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        }
-
-        return service(originalRequest);
-      } catch (refreshError) {
-        clearSessionState(router);
-        if (!originalRequest.skipErrorMessage) {
-          message.error("登录已过期，请重新登录");
-        }
-        if (!originalRequest.skipRedirect) {
-          router.push("/login");
-        }
-        return Promise.reject(refreshError);
-      }
+    if (error.response?.status === 401) {
+      return handleUnauthorized(error, originalRequest);
     }
 
-    console.error("Response error:", error);
+    if (error instanceof CanceledError && originalRequest?.retriedAfterRefresh) {
+      return Promise.reject(error);
+    }
 
     if (error.response) {
       const { status } = error.response;
-      const requestConfig = originalRequest as RequestConfig | undefined;
+      const requestConfig = originalRequest;
 
       switch (status) {
         case 403:
@@ -153,7 +178,7 @@ service.interceptors.response.use(
           }
       }
     } else if (error.request) {
-      console.error("No response received:", error.request);
+      console.error("No response received");
       if (!originalRequest?.skipErrorMessage) {
         message.error("网络连接失败，请检查网络");
       }

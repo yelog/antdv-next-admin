@@ -57,6 +57,9 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Check login bundle
+        run: pnpm run test:build
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 

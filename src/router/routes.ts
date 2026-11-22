@@ -2,6 +2,8 @@ import type { AppRouteRecordRaw } from "@/types/router";
 
 import { PERMISSIONS } from "@/constants/permissions";
 
+import { nameTabPages } from "./tabPages";
+
 /**
  * Static routes that don't require authentication
  */
@@ -51,7 +53,7 @@ export const staticRoutes: AppRouteRecordRaw[] = [
 /**
  * Basic routes that require authentication
  */
-export const basicRoutes: AppRouteRecordRaw[] = [
+export const basicRoutes = nameTabPages([
   {
     path: "/",
     name: "Root",
@@ -118,12 +120,12 @@ export const basicRoutes: AppRouteRecordRaw[] = [
       },
     ],
   },
-];
+]);
 
 /**
  * Async routes that require permission checking
  */
-export const asyncRoutes: AppRouteRecordRaw[] = [
+export const asyncRoutes = nameTabPages([
   {
     path: "/organization",
     name: "Organization",
@@ -256,7 +258,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         path: "quick-start",
         name: "ExamplesQuickStartGroup",
         redirect: "/examples/pro-table-advanced",
-        component: () => import("@/components/RouteView.vue"),
         meta: {
           title: "menu.examplesQuickStart",
           icon: "ThunderboltOutlined",
@@ -318,7 +319,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         path: "form-input",
         name: "ExamplesFormInputGroup",
         redirect: "/examples/form",
-        component: () => import("@/components/RouteView.vue"),
         meta: {
           title: "menu.examplesFormInput",
           icon: "FormOutlined",
@@ -377,7 +377,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         path: "content-editors",
         name: "ExamplesContentGroup",
         redirect: "/examples/editor",
-        component: () => import("@/components/RouteView.vue"),
         meta: {
           title: "menu.examplesContent",
           icon: "EditOutlined",
@@ -424,7 +423,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         path: "basic-interaction",
         name: "ExamplesInteractionGroup",
         redirect: "/examples/table",
-        component: () => import("@/components/RouteView.vue"),
         meta: {
           title: "menu.examplesInteraction",
           icon: "AppstoreAddOutlined",
@@ -559,7 +557,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         path: "business-scaffold",
         name: "ExamplesBusinessScaffoldGroup",
         redirect: "/examples/upload-system",
-        component: () => import("@/components/RouteView.vue"),
         meta: {
           title: "menu.examplesBusinessScaffold",
           icon: "ProfileOutlined",
@@ -609,7 +606,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         path: "security-engineering",
         name: "ExamplesSecurityEngineeringGroup",
         redirect: "/examples/request-auth",
-        component: () => import("@/components/RouteView.vue"),
         meta: {
           title: "menu.examplesSecurityEngineering",
           icon: "SafetyOutlined",
@@ -670,7 +666,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         path: "integration-navigation",
         name: "ExamplesIntegrationGroup",
         redirect: "/examples/external/iframe/typescript",
-        component: () => import("@/components/RouteView.vue"),
         meta: {
           title: "menu.examplesIntegration",
           icon: "LinkOutlined",
@@ -682,7 +677,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
             path: "iframe",
             name: "ExamplesExternalIframe",
             redirect: "/examples/external/iframe/typescript",
-            component: () => import("@/components/RouteView.vue"),
             meta: {
               title: "menu.externalIframe",
               icon: "AppstoreAddOutlined",
@@ -719,7 +713,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
           {
             path: "link",
             name: "ExamplesExternalLink",
-            component: () => import("@/components/RouteView.vue"),
             meta: {
               title: "menu.externalLink",
               icon: "LinkOutlined",
@@ -761,7 +754,6 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
         path: "exception-pages",
         name: "ExamplesExceptionGroup",
         redirect: "/examples/exception/403",
-        component: () => import("@/components/RouteView.vue"),
         meta: {
           title: "menu.examplesExceptionPages",
           icon: "WarningOutlined",
@@ -806,7 +798,7 @@ export const asyncRoutes: AppRouteRecordRaw[] = [
       },
     ],
   },
-];
+]);
 
 /**
  * Catch-all route

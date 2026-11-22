@@ -1,10 +1,11 @@
+import type { PageResult } from "@/types/api";
 import type { Permission, Role, User } from "@/types/auth";
 import type { SysConfig } from "@/types/config";
 import type { Department } from "@/types/dept";
-import type { DictData } from "@/types/dict";
+import type { DictData, DictType } from "@/types/dict";
 import type { SysFile } from "@/types/file";
 import type { LoginLog, OperationLog } from "@/types/log";
-import type { AxiosInstance } from "axios";
+import type { AxiosInstance, AxiosRequestConfig } from "axios";
 
 import AxiosMockAdapter from "axios-mock-adapter";
 
@@ -189,263 +190,285 @@ function cloneData<T>(data: T): T {
   return JSON.parse(JSON.stringify(data)) as T;
 }
 
-function getQueryParam(configUrl: string | undefined, key: string): string {
-  const url = new URL(configUrl || "", "https://mock.local");
-  return url.searchParams.get(key) || "";
+type DemoReply = [status: number, data: unknown];
+
+function replyWithData<T>(data: T): DemoReply {
+  return [200, successResponse(cloneData(data))];
 }
 
-function getConfigList(url: string | undefined) {
-  const name = getQueryParam(url, "name");
-  const key = getQueryParam(url, "key");
-  const group = getQueryParam(url, "group");
-  const page = Number(getQueryParam(url, "page") || 1);
-  const pageSize = Number(getQueryParam(url, "pageSize") || 20);
+function replyWithError(code: number, message: string): DemoReply {
+  return [200, { code, message, success: false, data: null }];
+}
 
-  let filtered = cloneData<SysConfig[]>(sysConfigs);
+function replyWithItem<T>(item: T | undefined, entity: string): DemoReply {
+  return item ? replyWithData(item) : replyWithError(404, `${entity} not found`);
+}
 
-  if (name) {
-    filtered = filtered.filter((item) => item.name.includes(name));
+function route(path: string, detail = false): RegExp {
+  return new RegExp(`^[^?#]*${path}${detail ? "/[^/?#]+" : ""}(?:[?#].*)?$`);
+}
+
+function pathValue(config: AxiosRequestConfig): string {
+  const { pathname } = new URL(config.url || "", "https://mock.local");
+  const segment = pathname.slice(pathname.lastIndexOf("/") + 1);
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
   }
-  if (key) {
-    filtered = filtered.filter((item) => item.key.includes(key));
+}
+
+function readBody<Item>(config: AxiosRequestConfig): Partial<Item> {
+  return parseJsonBody<Partial<Item> | null>(config.data, null) ?? {};
+}
+
+function removeItem<Item extends { id: string }>(
+  items: Item[],
+  id: string,
+  entity: string,
+  deleteError?: (item: Item) => string | undefined,
+): DemoReply {
+  const index = items.findIndex((item) => item.id === id);
+  if (index === -1) return replyWithError(404, `${entity} not found`);
+  const error = deleteError?.(items[index]);
+  if (error) return replyWithError(400, error);
+
+  items.splice(index, 1);
+  return replyWithData(null);
+}
+
+function registerCrud<Item extends { id: string }>(
+  mock: AxiosMockAdapter,
+  path: string,
+  items: Item[],
+  entity: string,
+  create: (body: Partial<Item>) => Item,
+  updatedFields: () => Partial<Item>,
+  deleteError?: (item: Item) => string | undefined,
+): void {
+  const detailRoute = route(path, true);
+  mock.onPost(route(path)).reply((config) => {
+    const item = create(readBody<Item>(config));
+    items.push(item);
+    return replyWithData(item);
+  });
+  mock.onPut(detailRoute).reply((config) => {
+    const id = pathValue(config);
+    const index = items.findIndex((item) => item.id === id);
+    if (index === -1) return replyWithError(404, `${entity} not found`);
+
+    const item = { ...items[index], ...readBody<Item>(config), ...updatedFields(), id };
+    items[index] = item;
+    return replyWithData(item);
+  });
+  mock
+    .onDelete(detailRoute)
+    .reply((config) => removeItem(items, pathValue(config), entity, deleteError));
+}
+
+function dateTime(): string {
+  return new Date().toISOString().replace("T", " ").slice(0, 19);
+}
+
+function pageNumber(value: string | null, fallback: number): number {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function paginate<Item>(
+  items: Item[],
+  query: URLSearchParams,
+  pageKey: "current" | "page" = "current",
+  defaultPageSize = 10,
+): PageResult<Item> {
+  const otherPageKey = pageKey === "current" ? "page" : "current";
+  const current = pageNumber(query.get(pageKey) || query.get(otherPageKey), 1);
+  const pageSize = pageNumber(query.get("pageSize"), defaultPageSize);
+  const start = (current - 1) * pageSize;
+  return { list: items.slice(start, start + pageSize), total: items.length, current, pageSize };
+}
+
+function getConfigList(items: SysConfig[], query: URLSearchParams) {
+  const name = query.get("name");
+  const key = query.get("key");
+  const group = query.get("group");
+  const filtered = items.filter(
+    (item) =>
+      (!name || item.name.includes(name)) &&
+      (!key || item.key.includes(key)) &&
+      (!group || item.group === group),
+  );
+  filtered.sort((first, second) => first.sort - second.sort);
+  return paginate(filtered, query, "page", 20);
+}
+
+function getDictTypeList(items: DictType[], query: URLSearchParams) {
+  const name = query.get("name");
+  const code = query.get("code");
+  const status = query.get("status");
+  const filtered = items.filter(
+    (item) =>
+      (!name || item.name.includes(name)) &&
+      (!code || item.code.includes(code)) &&
+      (!status || item.status === status),
+  );
+  return paginate(filtered, query, "page");
+}
+
+function getDictDataList(items: DictData[], query: URLSearchParams) {
+  const typeCode = query.get("typeCode");
+  const label = query.get("label");
+  const value = query.get("value");
+  const status = query.get("status");
+  const filtered = items.filter(
+    (item) =>
+      (!typeCode || item.typeCode === typeCode) &&
+      (!label || item.label.includes(label)) &&
+      (!value || item.value.includes(value)) &&
+      (!status || item.status === status),
+  );
+  return paginate(filtered, query, "page");
+}
+
+function deptMatches(query: URLSearchParams): (item: Department) => boolean {
+  const name = query.get("name");
+  const status = query.get("status");
+  return (item) => (!name || item.name.includes(name)) && (!status || item.status === status);
+}
+
+function getFileList(items: SysFile[], query: URLSearchParams) {
+  const name = query.get("name");
+  const ext = query.get("ext");
+  const storage = query.get("storage");
+  const filtered = items.filter(
+    (item) =>
+      (!name || item.originalName.includes(name)) &&
+      (!ext || item.ext === ext) &&
+      (!storage || item.storage === storage),
+  );
+  return paginate(filtered, query, "page", 20);
+}
+
+function logMatches(query: URLSearchParams): (item: OperationLog | LoginLog) => boolean {
+  const username = query.get("username");
+  const status = query.get("status");
+  const startTime = query.get("startTime");
+  const endTime = query.get("endTime");
+  return (item) =>
+    (!username || item.username.includes(username)) &&
+    (!status || item.status === status) &&
+    (!startTime || item.createTime >= startTime) &&
+    (!endTime || item.createTime <= endTime);
+}
+
+function getOperationLogList(items: OperationLog[], query: URLSearchParams) {
+  const module = query.get("module");
+  const action = query.get("action");
+  const matchesLog = logMatches(query);
+  const filtered = items.filter(
+    (item) =>
+      matchesLog(item) && (!module || item.module === module) && (!action || item.action === action),
+  );
+  return paginate(filtered, query, "page");
+}
+
+function getLoginLogList(items: LoginLog[], query: URLSearchParams) {
+  const ip = query.get("ip");
+  const matchesLog = logMatches(query);
+  const filtered = items.filter((item) => matchesLog(item) && (!ip || item.ip.includes(ip)));
+  return paginate(filtered, query, "page");
+}
+
+function filterTree<Item extends { children?: Item[] }>(
+  items: Item[],
+  matches: (item: Item) => boolean,
+): Item[] {
+  const result: Item[] = [];
+  for (const item of items) {
+    const children = item.children && filterTree(item.children, matches);
+    if (matches(item) || children?.length) result.push({ ...item, children });
   }
-  if (group) {
-    filtered = filtered.filter((item) => item.group === group);
-  }
-
-  filtered.sort((a, b) => a.sort - b.sort);
-  const start = (page - 1) * pageSize;
-
-  return {
-    list: filtered.slice(start, start + pageSize),
-    total: filtered.length,
-    current: page,
-    pageSize,
-  };
+  return result;
 }
 
-function getDictTypeList(url: string | undefined) {
-  const name = getQueryParam(url, "name");
-  const code = getQueryParam(url, "code");
-  const status = getQueryParam(url, "status");
-  const page = Number(getQueryParam(url, "page") || 1);
-  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
-
-  let filtered = cloneData(dictTypes);
-
-  if (name) filtered = filtered.filter((item) => item.name.includes(name));
-  if (code) filtered = filtered.filter((item) => item.code.includes(code));
-  if (status) filtered = filtered.filter((item) => item.status === status);
-
-  const start = (page - 1) * pageSize;
-
-  return {
-    list: filtered.slice(start, start + pageSize),
-    total: filtered.length,
-    current: page,
-    pageSize,
-  };
+function getPermissionList(items: Permission[], query: URLSearchParams): Permission[] {
+  const keyword = query.get("keyword")?.trim().toLowerCase();
+  const type = query.get("type");
+  const status = query.get("status");
+  return filterTree(items, (item) => {
+    const name = typeof item.name === "string" ? item.name : Object.values(item.name).join(" ");
+    return (
+      (!keyword ||
+        name.toLowerCase().includes(keyword) ||
+        item.code.toLowerCase().includes(keyword) ||
+        (item.path ?? "").toLowerCase().includes(keyword)) &&
+      (!type || item.type === type) &&
+      (!status || (item.status ?? "active") === status)
+    );
+  });
 }
 
-function getDictDataList(url: string | undefined) {
-  const typeCode = getQueryParam(url, "typeCode");
-  const label = getQueryParam(url, "label");
-  const value = getQueryParam(url, "value");
-  const status = getQueryParam(url, "status");
-  const page = Number(getQueryParam(url, "page") || 1);
-  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
-
-  let filtered = cloneData<DictData[]>(dictData);
-
-  if (typeCode) filtered = filtered.filter((item) => item.typeCode === typeCode);
-  if (label) filtered = filtered.filter((item) => item.label.includes(label));
-  if (value) filtered = filtered.filter((item) => item.value.includes(value));
-  if (status) filtered = filtered.filter((item) => item.status === status);
-
-  const start = (page - 1) * pageSize;
-
-  return {
-    list: filtered.slice(start, start + pageSize),
-    total: filtered.length,
-    current: page,
-    pageSize,
-  };
+interface PermissionLocation {
+  item: Permission;
+  siblings: Permission[];
+  parent?: Permission;
 }
 
-function getDeptList(url: string | undefined) {
-  const name = getQueryParam(url, "name");
-  const status = getQueryParam(url, "status");
-
-  let filtered = cloneData<Department[]>(departments);
-
-  if (name) filtered = filtered.filter((item) => item.name.includes(name));
-  if (status) filtered = filtered.filter((item) => item.status === status);
-
-  return filtered.sort((a, b) => a.sort - b.sort);
-}
-
-function getFileList(url: string | undefined) {
-  const name = getQueryParam(url, "name");
-  const ext = getQueryParam(url, "ext");
-  const storage = getQueryParam(url, "storage");
-  const page = Number(getQueryParam(url, "page") || 1);
-  const pageSize = Number(getQueryParam(url, "pageSize") || 20);
-
-  let filtered = cloneData<SysFile[]>(sysFiles);
-
-  if (name) filtered = filtered.filter((item) => item.originalName.includes(name));
-  if (ext) filtered = filtered.filter((item) => item.ext === ext);
-  if (storage) filtered = filtered.filter((item) => item.storage === storage);
-
-  const start = (page - 1) * pageSize;
-
-  return {
-    list: filtered.slice(start, start + pageSize),
-    total: filtered.length,
-    current: page,
-    pageSize,
-  };
-}
-
-function getOperationLogList(url: string | undefined) {
-  const username = getQueryParam(url, "username");
-  const module = getQueryParam(url, "module");
-  const action = getQueryParam(url, "action");
-  const status = getQueryParam(url, "status");
-  const startTime = getQueryParam(url, "startTime");
-  const endTime = getQueryParam(url, "endTime");
-  const page = Number(getQueryParam(url, "page") || 1);
-  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
-
-  let filtered = cloneData<OperationLog[]>(operationLogs);
-
-  if (username) filtered = filtered.filter((item) => item.username.includes(username));
-  if (module) filtered = filtered.filter((item) => item.module === module);
-  if (action) filtered = filtered.filter((item) => item.action === action);
-  if (status) filtered = filtered.filter((item) => item.status === status);
-  if (startTime) filtered = filtered.filter((item) => item.createTime >= startTime);
-  if (endTime) filtered = filtered.filter((item) => item.createTime <= endTime);
-
-  const start = (page - 1) * pageSize;
-
-  return {
-    list: filtered.slice(start, start + pageSize),
-    total: filtered.length,
-    current: page,
-    pageSize,
-  };
-}
-
-function getLoginLogList(url: string | undefined) {
-  const username = getQueryParam(url, "username");
-  const ip = getQueryParam(url, "ip");
-  const status = getQueryParam(url, "status");
-  const startTime = getQueryParam(url, "startTime");
-  const endTime = getQueryParam(url, "endTime");
-  const page = Number(getQueryParam(url, "page") || 1);
-  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
-
-  let filtered = cloneData<LoginLog[]>(loginLogs);
-
-  if (username) filtered = filtered.filter((item) => item.username.includes(username));
-  if (ip) filtered = filtered.filter((item) => item.ip.includes(ip));
-  if (status) filtered = filtered.filter((item) => item.status === status);
-  if (startTime) filtered = filtered.filter((item) => item.createTime >= startTime);
-  if (endTime) filtered = filtered.filter((item) => item.createTime <= endTime);
-
-  const start = (page - 1) * pageSize;
-
-  return {
-    list: filtered.slice(start, start + pageSize),
-    total: filtered.length,
-    current: page,
-    pageSize,
-  };
-}
-
-function findPermissionById(list: Permission[], id: string): Permission | null {
-  for (const permission of list) {
-    if (permission.id === id) return permission;
-    const child = permission.children ? findPermissionById(permission.children, id) : null;
+function findPermission(
+  list: Permission[],
+  id: string,
+  parent?: Permission,
+): PermissionLocation | undefined {
+  for (const item of list) {
+    if (item.id === id) return { item, siblings: list, parent };
+    const child = item.children && findPermission(item.children, id, item);
     if (child) return child;
   }
-
-  return null;
 }
 
-function getPaginatedUsers(url: string | undefined) {
-  const username = getQueryParam(url, "username").toLowerCase();
-  const email = getQueryParam(url, "email").toLowerCase();
-  const status = getQueryParam(url, "status");
-  const gender = getQueryParam(url, "gender");
-  const current = Number(getQueryParam(url, "current") || 1);
-  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
-
-  let filtered = cloneData<User[]>(demoUsers);
-
-  if (username) {
-    filtered = filtered.filter((item) => item.username.toLowerCase().includes(username));
-  }
-  if (email) {
-    filtered = filtered.filter((item) => item.email.toLowerCase().includes(email));
-  }
-  if (status) {
-    filtered = filtered.filter((item) => item.status === status);
-  }
-  if (gender) {
-    const genderValues = gender.split(",").map((item) => item.trim()).filter(Boolean);
-    filtered = filtered.filter((item) => genderValues.includes(String(item.gender)));
-  }
-
-  const start = (current - 1) * pageSize;
-
-  return {
-    list: filtered.slice(start, start + pageSize),
-    total: filtered.length,
-    current,
-    pageSize,
-  };
+function removePermission({ item, siblings, parent }: PermissionLocation): void {
+  siblings.splice(siblings.indexOf(item), 1);
+  if (parent && !siblings.length) delete parent.children;
 }
 
-function getPaginatedRoles(url: string | undefined) {
-  const name = getQueryParam(url, "name").toLowerCase();
-  const code = getQueryParam(url, "code").toLowerCase();
-  const current = Number(getQueryParam(url, "current") || 1);
-  const pageSize = Number(getQueryParam(url, "pageSize") || 10);
-
-  let filtered = cloneData<Role[]>(mockRoles);
-
-  if (name) {
-    filtered = filtered.filter((item) => item.name.toLowerCase().includes(name));
-  }
-  if (code) {
-    filtered = filtered.filter((item) => item.code.toLowerCase().includes(code));
-  }
-
-  const start = (current - 1) * pageSize;
-
-  return {
-    list: filtered.slice(start, start + pageSize),
-    total: filtered.length,
-    current,
-    pageSize,
-  };
+function getPaginatedUsers(items: User[], query: URLSearchParams) {
+  const username = query.get("username")?.toLowerCase();
+  const email = query.get("email")?.toLowerCase();
+  const status = query.get("status");
+  const genders = [...query]
+    .filter(([key]) => key === "gender" || /^gender\[\d*\]$/.test(key))
+    .flatMap(([, value]) => value.split(",").map((gender) => gender.trim()))
+    .filter(Boolean);
+  const filtered = items.filter(
+    (item) =>
+      (!username || item.username.toLowerCase().includes(username)) &&
+      (!email || item.email.toLowerCase().includes(email)) &&
+      (!status || item.status === status) &&
+      (!genders.length || (item.gender && genders.includes(item.gender))),
+  );
+  return paginate(filtered, query);
 }
 
-function getPageParams(url: string | undefined) {
-  return {
-    current: Number(getQueryParam(url, "current") || getQueryParam(url, "page") || 1),
-    pageSize: Number(getQueryParam(url, "pageSize") || 10),
-  };
+function getPaginatedRoles(items: Role[], query: URLSearchParams) {
+  const name = query.get("name")?.toLowerCase();
+  const code = query.get("code")?.toLowerCase();
+  const filtered = items.filter(
+    (item) =>
+      (!name || item.name.toLowerCase().includes(name)) &&
+      (!code || item.code.toLowerCase().includes(code)),
+  );
+  return paginate(filtered, query);
 }
 
-function fallbackDemoResponse(config: { data?: unknown; method?: string; url?: string }) {
+function fallbackDemoResponse(config: AxiosRequestConfig, url: URL) {
   const method = config.method?.toLowerCase() || "get";
-  const url = config.url || "";
+  const query = url.searchParams;
 
-  if (method === "get" && /\/list(?:\?.*)?$|[?&](current|page|pageSize)=/.test(url)) {
-    const { current, pageSize } = getPageParams(url);
-    return successResponse({ list: [], total: 0, current, pageSize });
+  if (
+    method === "get" &&
+    (url.pathname.endsWith("/list") || ["current", "page", "pageSize"].some((key) => query.has(key)))
+  ) {
+    return successResponse(paginate([], query));
   }
 
   if (method === "post" || method === "put" || method === "patch") {
@@ -457,6 +480,23 @@ function fallbackDemoResponse(config: { data?: unknown; method?: string; url?: s
 
 export function setupBrowserMock(service: AxiosInstance): AxiosMockAdapter {
   const mock = new AxiosMockAdapter(service, { delayResponse: 250 });
+  const state = cloneData({
+    users: demoUsers,
+    roles: mockRoles,
+    permissions: mockPermissions,
+    departments,
+    dictTypes,
+    dictData,
+    configs: sysConfigs,
+    files: sysFiles,
+    operationLogs,
+    loginLogs,
+  });
+  let nextId = Date.now();
+  const createId = (): string => String(nextId++);
+  const requestUrl = (config: AxiosRequestConfig): URL =>
+    new URL(service.getUri(config), "https://mock.local");
+  const query = (config: AxiosRequestConfig): URLSearchParams => requestUrl(config).searchParams;
 
   mock.onGet(/\/api\/__mock_health$|\/__mock_health$/).reply(200, {
     code: 200,
@@ -539,61 +579,96 @@ export function setupBrowserMock(service: AxiosInstance): AxiosMockAdapter {
 
   mock.onPost(/\/api\/auth\/logout$|\/auth\/logout$/).reply(200, successResponse(null));
 
+  mock.onGet(route("/dict/types")).reply(() => replyWithData(state.dictTypes));
   mock
-    .onGet(/\/api\/dict\/types$|\/dict\/types$/)
-    .reply(200, successResponse(cloneData(dictTypes)));
-  mock
-    .onGet(/\/api\/dict\/type\/list(?:\?.*)?$|\/dict\/type\/list(?:\?.*)?$/)
-    .reply((config) => [200, successResponse(getDictTypeList(config.url))]);
-  mock.onPost(/\/api\/dict\/type$|\/dict\/type$/).reply((config) => {
-    const body = parseJsonBody(config.data, {});
-    return [200, successResponse({ id: String(Date.now()), ...body })];
-  });
-  mock.onPut(/\/api\/dict\/type\/[^/]+$|\/dict\/type\/[^/]+$/).reply((config) => {
-    const body = parseJsonBody(config.data, {});
-    const id = config.url?.split("/dict/type/")[1]?.split("?")[0] || "";
-    return [200, successResponse({ id, ...body })];
-  });
-  mock.onDelete(/\/api\/dict\/type\/[^/]+$|\/dict\/type\/[^/]+$/).reply(200, successResponse(null));
+    .onGet(route("/dict/type/list"))
+    .reply((config) => replyWithData(getDictTypeList(state.dictTypes, query(config))));
+  registerCrud(
+    mock,
+    "/dict/type",
+    state.dictTypes,
+    "Dictionary type",
+    (body): DictType => {
+      const id = createId();
+      const time = new Date().toISOString();
+      return {
+        name: "Custom Dictionary",
+        code: `dict_${id}`,
+        status: "enabled",
+        ...body,
+        id,
+        createTime: time,
+        updateTime: time,
+      };
+    },
+    () => ({ updateTime: new Date().toISOString() }),
+  );
 
+  mock.onGet(route("/dict/data/all")).reply(() => replyWithData(state.dictData));
   mock
-    .onGet(/\/api\/dict\/data\/all$|\/dict\/data\/all$/)
-    .reply(200, successResponse(cloneData<DictData[]>(dictData)));
-  mock
-    .onGet(/\/api\/dict\/data\/list(?:\?.*)?$|\/dict\/data\/list(?:\?.*)?$/)
-    .reply((config) => [200, successResponse(getDictDataList(config.url))]);
-  mock.onGet(/\/api\/dict\/data\/[^/]+$|\/dict\/data\/[^/]+$/).reply((config) => {
-    const typeCode = config.url?.split("/dict/data/")[1]?.split("?")[0] || "";
-    const list = dictData.filter((item) => item.typeCode === typeCode && item.status === "enabled");
-    return [200, successResponse(cloneData(list))];
+    .onGet(route("/dict/data/list"))
+    .reply((config) => replyWithData(getDictDataList(state.dictData, query(config))));
+  mock.onGet(route("/dict/data", true)).reply((config) => {
+    const typeCode = pathValue(config);
+    return replyWithData(
+      state.dictData.filter((item) => item.typeCode === typeCode && item.status === "enabled"),
+    );
   });
-  mock.onPost(/\/api\/dict\/data$|\/dict\/data$/).reply((config) => {
-    const body = parseJsonBody(config.data, {});
-    return [200, successResponse({ id: String(Date.now()), ...body })];
-  });
-  mock.onPut(/\/api\/dict\/data\/[^/]+$|\/dict\/data\/[^/]+$/).reply((config) => {
-    const body = parseJsonBody(config.data, {});
-    const id = config.url?.split("/dict/data/")[1]?.split("?")[0] || "";
-    return [200, successResponse({ id, ...body })];
-  });
-  mock.onDelete(/\/api\/dict\/data\/[^/]+$|\/dict\/data\/[^/]+$/).reply(200, successResponse(null));
+  registerCrud(
+    mock,
+    "/dict/data",
+    state.dictData,
+    "Dictionary entry",
+    (body): DictData => {
+      const time = new Date().toISOString();
+      return {
+        typeCode: "",
+        label: "",
+        value: "",
+        sort: 0,
+        status: "enabled",
+        ...body,
+        id: createId(),
+        createTime: time,
+        updateTime: time,
+      };
+    },
+    () => ({ updateTime: new Date().toISOString() }),
+  );
 
-  mock
-    .onGet(/\/api\/dept\/tree(?:\?.*)?$|\/dept\/tree(?:\?.*)?$/)
-    .reply((config) => [200, successResponse(buildDeptTree(getDeptList(config.url)))]);
-  mock
-    .onGet(/\/api\/dept\/list(?:\?.*)?$|\/dept\/list(?:\?.*)?$/)
-    .reply((config) => [200, successResponse(getDeptList(config.url))]);
-  mock.onPost(/\/api\/dept$|\/dept$/).reply((config) => {
-    const body = parseJsonBody(config.data, {});
-    return [200, successResponse({ id: String(Date.now()), ...body })];
+  mock.onGet(route("/dept/tree")).reply((config) =>
+    replyWithData(filterTree(buildDeptTree(state.departments), deptMatches(query(config)))),
+  );
+  mock.onGet(route("/dept/list")).reply((config) => {
+    const items = state.departments.filter(deptMatches(query(config)));
+    items.sort((first, second) => first.sort - second.sort);
+    return replyWithData(items);
   });
-  mock.onPut(/\/api\/dept\/[^/]+$|\/dept\/[^/]+$/).reply((config) => {
-    const body = parseJsonBody(config.data, {});
-    const id = config.url?.split("/dept/")[1]?.split("?")[0] || "";
-    return [200, successResponse({ id, ...body })];
-  });
-  mock.onDelete(/\/api\/dept\/[^/]+$|\/dept\/[^/]+$/).reply(200, successResponse(null));
+  registerCrud(
+    mock,
+    "/dept",
+    state.departments,
+    "Department",
+    (body): Department => {
+      const time = dateTime();
+      return {
+        name: "Custom Department",
+        parentId: null,
+        sort: 0,
+        status: "enabled",
+        ...body,
+        id: createId(),
+        createTime: time,
+        updateTime: time,
+        children: undefined,
+      };
+    },
+    () => ({ updateTime: dateTime(), children: undefined }),
+    (item) =>
+      state.departments.some((department) => department.parentId === item.id)
+        ? "Department has children"
+        : undefined,
+  );
 
   mock
     .onGet(/\/api\/dashboard\/stats$|\/dashboard\/stats$/)
@@ -612,188 +687,194 @@ export function setupBrowserMock(service: AxiosInstance): AxiosMockAdapter {
     .reply(200, successResponse(mockChartData));
 
   mock
-    .onGet(/\/api\/permissions$|\/permissions$/)
-    .reply(200, successResponse(cloneData<Permission[]>(mockPermissions)));
-  mock
-    .onGet(/\/api\/permissions\/tree$|\/permissions\/tree$/)
-    .reply(200, successResponse(cloneData<Permission[]>(mockPermissions)));
+    .onGet(route("/permissions"))
+    .reply((config) => replyWithData(getPermissionList(state.permissions, query(config))));
+  mock.onGet(route("/permissions/tree")).reply(() => replyWithData(state.permissions));
   mock
     .onGet(/\/api\/permissions\/user$|\/permissions\/user$/)
     .reply(200, successResponse(cloneData<Permission[]>(adminUser.permissions)));
-  mock.onGet(/\/api\/permissions\/[^/]+$|\/permissions\/[^/]+$/).reply((config) => {
-    const id = config.url?.split("/permissions/")[1]?.split("?")[0] || "";
-    const item = findPermissionById(mockPermissions, id);
+  const permissionDetail = route("/permissions", true);
+  mock.onGet(permissionDetail).reply((config) =>
+    replyWithItem(findPermission(state.permissions, pathValue(config))?.item, "Permission"),
+  );
+  mock.onPost(route("/permissions")).reply((config) => {
+    const body = readBody<Permission>(config);
+    const parentId = body.parentId || undefined;
+    const parent = parentId ? findPermission(state.permissions, parentId)?.item : undefined;
+    if (parentId && !parent) return replyWithError(400, "Parent permission not found");
 
-    if (!item) {
-      return [200, { code: 404, message: "Permission not found", success: false, data: null }];
+    const id = createId();
+    const code = body.code || `permission_${id}`;
+    const type = body.type || "menu";
+    const item: Permission = {
+      name: "Custom Permission",
+      description: "",
+      sort: 0,
+      status: "active",
+      visible: true,
+      ...body,
+      id,
+      code,
+      type,
+      parentId,
+      resource: body.resource || body.path || code,
+      action: body.action || (type === "menu" ? "view" : "*"),
+      children: undefined,
+    };
+    const siblings = parent ? (parent.children ??= []) : state.permissions;
+    siblings.push(item);
+    return replyWithData(item);
+  });
+  mock.onPut(permissionDetail).reply((config) => {
+    const id = pathValue(config);
+    const location = findPermission(state.permissions, id);
+    if (!location) return replyWithError(404, "Permission not found");
+
+    const { item, siblings } = location;
+    const body = readBody<Permission>(config);
+    const parentId = body.parentId === undefined ? item.parentId : body.parentId || undefined;
+    const updated = { ...item, ...body, id, parentId, children: item.children };
+    if (parentId === item.parentId) {
+      siblings[siblings.indexOf(item)] = updated;
+    } else {
+      const parent = parentId ? findPermission(state.permissions, parentId)?.item : undefined;
+      if (parentId && !parent) return replyWithError(400, "Parent permission not found");
+      if (parentId && (id === parentId || findPermission(item.children ?? [], parentId))) {
+        return replyWithError(400, "Invalid parent permission");
+      }
+
+      removePermission(location);
+      const target = parent ? (parent.children ??= []) : state.permissions;
+      target.push(updated);
     }
-
-    return [200, successResponse(cloneData(item))];
+    return replyWithData(updated);
   });
-  mock.onPost(/\/api\/permissions$|\/permissions$/).reply((config) => {
-    const body = parseJsonBody(config.data, {});
-    return [200, successResponse({ id: String(Date.now()), ...body })];
-  });
-  mock.onPut(/\/api\/permissions\/[^/]+$|\/permissions\/[^/]+$/).reply((config) => {
-    const body = parseJsonBody(config.data, {});
-    const id = config.url?.split("/permissions/")[1]?.split("?")[0] || "";
-    return [200, successResponse({ id, ...body })];
-  });
-  mock.onDelete(/\/api\/permissions\/[^/]+$|\/permissions\/[^/]+$/).reply(200, successResponse(null));
-
-  mock
-    .onGet(/\/api\/file\/list(?:\?.*)?$|\/file\/list(?:\?.*)?$/)
-    .reply((config) => [200, successResponse(getFileList(config.url))]);
-  mock.onDelete(/\/api\/file\/[^/]+$|\/file\/[^/]+$/).reply(200, successResponse(null));
-
-  mock
-    .onGet(/\/api\/log\/operation\/list(?:\?.*)?$|\/log\/operation\/list(?:\?.*)?$/)
-    .reply((config) => [200, successResponse(getOperationLogList(config.url))]);
-  mock
-    .onGet(/\/api\/log\/login\/list(?:\?.*)?$|\/log\/login\/list(?:\?.*)?$/)
-    .reply((config) => [200, successResponse(getLoginLogList(config.url))]);
-  mock.onDelete(/\/api\/log\/operation\/clear$|\/log\/operation\/clear$/).reply(200, successResponse(null));
-  mock.onDelete(/\/api\/log\/login\/clear$|\/log\/login\/clear$/).reply(200, successResponse(null));
-
-  mock
-    .onGet(/\/api\/users(?:\?.*)?$|\/users(?:\?.*)?$/)
-    .reply((config) => [200, successResponse(getPaginatedUsers(config.url))]);
-
-  mock.onGet(/\/api\/users\/[^/]+$|\/users\/[^/]+$/).reply((config) => {
-    const id = config.url?.split("/users/")[1]?.split("?")[0] || "";
-    const item = demoUsers.find((user) => user.id === id);
-
-    if (!item) {
-      return [200, { code: 404, message: "User not found", success: false, data: null }];
-    }
-
-    return [200, successResponse(cloneData(item))];
+  mock.onDelete(permissionDetail).reply((config) => {
+    const location = findPermission(state.permissions, pathValue(config));
+    if (!location) return replyWithError(404, "Permission not found");
+    removePermission(location);
+    return replyWithData(null);
   });
 
-  mock.onPost(/\/api\/users$|\/users$/).reply((config) => {
-    const body = parseJsonBody<Partial<User>>(config.data, {});
-    return [
-      200,
-      successResponse({
+  mock
+    .onGet(route("/file/list"))
+    .reply((config) => replyWithData(getFileList(state.files, query(config))));
+  mock.onDelete(route("/file", true)).reply((config) =>
+    removeItem(state.files, pathValue(config), "File"),
+  );
+
+  mock
+    .onGet(route("/log/operation/list"))
+    .reply((config) => replyWithData(getOperationLogList(state.operationLogs, query(config))));
+  mock
+    .onGet(route("/log/login/list"))
+    .reply((config) => replyWithData(getLoginLogList(state.loginLogs, query(config))));
+  mock.onDelete(route("/log/operation/clear")).reply(() => {
+    state.operationLogs.length = 0;
+    return replyWithData(null);
+  });
+  mock.onDelete(route("/log/login/clear")).reply(() => {
+    state.loginLogs.length = 0;
+    return replyWithData(null);
+  });
+
+  mock
+    .onGet(route("/users"))
+    .reply((config) => replyWithData(getPaginatedUsers(state.users, query(config))));
+  mock.onGet(route("/users", true)).reply((config) => {
+    const id = pathValue(config);
+    return replyWithItem(state.users.find((item) => item.id === id), "User");
+  });
+  registerCrud(
+    mock,
+    "/users",
+    state.users,
+    "User",
+    (body) => {
+      const id = createId();
+      const time = new Date().toISOString();
+      return {
         ...regularUser,
         ...body,
-        id: String(Date.now()),
-        username: body.username || `user_${Date.now()}`,
+        id,
+        username: body.username || `user_${id}`,
         email: body.email || "user@example.com",
         realName: body.realName || "Demo User",
         avatar: body.avatar || avatarImg,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }),
-    ];
-  });
-
-  mock.onPut(/\/api\/users\/[^/]+$|\/users\/[^/]+$/).reply((config) => {
-    const body = parseJsonBody<Partial<User>>(config.data, {});
-    const id = config.url?.split("/users/")[1]?.split("?")[0] || "";
-    const item = demoUsers.find((user) => user.id === id) || regularUser;
-    return [200, successResponse({ ...item, ...body, updatedAt: new Date().toISOString() })];
-  });
-
-  mock.onDelete(/\/api\/users\/[^/]+$|\/users\/[^/]+$/).reply(200, successResponse(null));
+        roles: body.roles ?? [],
+        permissions: body.permissions ?? [],
+        createdAt: time,
+        updatedAt: time,
+      };
+    },
+    () => ({ updatedAt: new Date().toISOString() }),
+  );
   mock.onPost(/\/api\/users\/change-password$|\/users\/change-password$/).reply(200, successResponse(null));
 
   mock
-    .onGet(/\/api\/roles(?:\?.*)?$|\/roles(?:\?.*)?$/)
-    .reply((config) => [200, successResponse(getPaginatedRoles(config.url))]);
-
-  mock.onGet(/\/api\/roles\/[^/]+$|\/roles\/[^/]+$/).reply((config) => {
-    const id = config.url?.split("/roles/")[1]?.split("?")[0] || "";
-    const item = mockRoles.find((role) => role.id === id);
-
-    if (!item) {
-      return [200, { code: 404, message: "Role not found", success: false, data: null }];
-    }
-
-    return [200, successResponse(cloneData(item))];
+    .onGet(route("/roles"))
+    .reply((config) => replyWithData(getPaginatedRoles(state.roles, query(config))));
+  mock.onGet(route("/roles", true)).reply((config) => {
+    const id = pathValue(config);
+    return replyWithItem(state.roles.find((item) => item.id === id), "Role");
   });
-
-  mock.onPost(/\/api\/roles$|\/roles$/).reply((config) => {
-    const body = parseJsonBody<Partial<Role>>(config.data, {});
-    return [
-      200,
-      successResponse({
-        id: String(Date.now()),
+  registerCrud(
+    mock,
+    "/roles",
+    state.roles,
+    "Role",
+    (body) => {
+      const id = createId();
+      const time = new Date().toISOString();
+      return {
+        id,
         name: body.name || "Custom Role",
-        code: body.code || `role_${Date.now()}`,
+        code: body.code || `role_${id}`,
         description: body.description || "",
-        permissions: body.permissions || [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }),
-    ];
-  });
-
-  mock.onPut(/\/api\/roles\/[^/]+$|\/roles\/[^/]+$/).reply((config) => {
-    const body = parseJsonBody<Partial<Role>>(config.data, {});
-    const id = config.url?.split("/roles/")[1]?.split("?")[0] || "";
-    const item = mockRoles.find((role) => role.id === id) || mockRoles[0];
-    return [200, successResponse({ ...item, ...body, updatedAt: new Date().toISOString() })];
-  });
-
-  mock.onDelete(/\/api\/roles\/[^/]+$|\/roles\/[^/]+$/).reply(200, successResponse(null));
+        permissions: body.permissions ?? [],
+        createdAt: time,
+        updatedAt: time,
+      };
+    },
+    () => ({ updatedAt: new Date().toISOString() }),
+  );
 
   mock
-    .onGet(/\/api\/config\/list(?:\?.*)?$|\/config\/list(?:\?.*)?$/)
-    .reply((config) => [200, successResponse(getConfigList(config.url))]);
-
-  mock.onGet(/\/api\/config\/key\/[^/]+$|\/config\/key\/[^/]+$/).reply((config) => {
-    const key = config.url?.split("/config/key/")[1]?.split("?")[0] || "";
-    const item = sysConfigs.find((configItem) => configItem.key === key);
-
-    if (!item) {
-      return [200, { code: 404, message: "Config not found", success: false }];
-    }
-
-    return [200, successResponse(cloneData(item))];
+    .onGet(route("/config/list"))
+    .reply((config) => replyWithData(getConfigList(state.configs, query(config))));
+  mock.onGet(route("/config/key", true)).reply((config) => {
+    const key = pathValue(config);
+    return replyWithItem(state.configs.find((item) => item.key === key), "Config");
   });
+  registerCrud(
+    mock,
+    "/config",
+    state.configs,
+    "Config",
+    (body) => {
+      const id = createId();
+      const time = dateTime();
+      return {
+        id,
+        name: body.name || "Custom Config",
+        key: body.key || `custom.${id}`,
+        value: body.value ?? "",
+        valueType: body.valueType || "string",
+        group: body.group || "basic",
+        description: body.description || "",
+        builtIn: false,
+        sort: body.sort ?? 100,
+        createTime: time,
+        updateTime: time,
+      };
+    },
+    () => ({ updateTime: dateTime() }),
+    (item) => (item.builtIn ? "Built-in config cannot be deleted" : undefined),
+  );
 
-  mock.onPost(/\/api\/config$|\/config$/).reply((config) => {
-    const body = parseJsonBody<Partial<SysConfig>>(config.data, {});
-    const newConfig: SysConfig = {
-      id: String(Date.now()),
-      name: body.name || "Custom Config",
-      key: body.key || `custom.${Date.now()}`,
-      value: body.value || "",
-      valueType: body.valueType || "string",
-      group: body.group || "basic",
-      description: body.description || "",
-      builtIn: false,
-      sort: body.sort || 100,
-      createTime: new Date().toISOString().replace("T", " ").slice(0, 19),
-      updateTime: new Date().toISOString().replace("T", " ").slice(0, 19),
-    };
-
-    return [200, successResponse(newConfig)];
-  });
-
-  mock.onPut(/\/api\/config\/[^/]+$|\/config\/[^/]+$/).reply((config) => {
-    const body = parseJsonBody<Partial<SysConfig>>(config.data, {});
-    const id = config.url?.split("/config/")[1]?.split("?")[0] || "";
-    const item = sysConfigs.find((configItem) => configItem.id === id);
-
-    if (!item) {
-      return [200, { code: 404, message: "Config not found", success: false }];
-    }
-
-    return [
-      200,
-      successResponse({
-        ...item,
-        ...body,
-        updateTime: new Date().toISOString().replace("T", " ").slice(0, 19),
-      }),
-    ];
-  });
-
-  mock.onDelete(/\/api\/config\/[^/]+$|\/config\/[^/]+$/).reply(200, successResponse(null));
-
-  mock.onAny(/^\/|\/api\//).reply((config) => [200, fallbackDemoResponse(config)]);
+  mock
+    .onAny(/^\/|\/api\//)
+    .reply((config) => [200, fallbackDemoResponse(config, requestUrl(config))]);
 
   mock.onAny().passThrough();
 

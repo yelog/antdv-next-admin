@@ -294,7 +294,13 @@ npm run test:unit:run   # one-shot
 
 当前单测覆盖路由权限过滤、ProTable 请求、搜索、表头过滤和关键词搜索等逻辑。
 
-`tests/e2e/*.spec.ts` 是 Playwright starter，当前项目未安装 Playwright 依赖；如需启用 E2E，需要先补齐依赖、脚本和运行环境。
+构建和浏览器回归可通过下面的命令运行。Playwright 会构建并启动本地静态 Demo，覆盖两种演示角色登录、用户筛选以及页签缓存。
+
+```bash
+npm run test:build       # 检查生产登录入口的静态依赖
+npx playwright install --only-shell chromium
+npm run test:e2e         # 在 Chromium 中运行 Demo 回归
+```
 
 ## 开发约定
 

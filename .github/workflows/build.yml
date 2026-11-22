@@ -42,3 +42,12 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+      - name: Check login bundle
+        run: pnpm run test:build
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps --only-shell chromium
+
+      - name: Browser tests
+        run: pnpm run test:e2e

@@ -51,24 +51,5 @@ export default defineConfig({
     assetsDir: "assets",
     sourcemap: false,
     chunkSizeWarningLimit: 1500,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (
-            id.includes("node_modules/vue/") ||
-            id.includes("node_modules/vue-router/") ||
-            id.includes("node_modules/pinia/")
-          ) {
-            return "vue-vendor";
-          }
-          if (
-            id.includes("node_modules/echarts/") ||
-            id.includes("node_modules/vue-echarts/")
-          ) {
-            return "chart-vendor";
-          }
-        },
-      },
-    },
   },
 });
