@@ -1,15 +1,58 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-async function signIn(page: Page, account: 'admin' | 'user'): Promise<void> {
+import { signIn } from './helpers/signIn';
+
+test('selects a demo role, verifies, and submits using the keyboard', async ({ page }) => {
   await page.goto('/login');
-  await page
-    .locator('.demo-accounts')
-    .getByRole('button', { name: new RegExp(`^${account}\\b`) })
-    .click();
 
+  const roles = page.getByRole('group', { name: '演示账号' });
+  const admin = roles.getByRole('button', { name: /超级管理员.*admin/ });
+  const user = roles.getByRole('button', { name: /普通用户.*user/ });
+  const username = page.getByLabel('用户名', { exact: true });
+  const password = page.getByLabel('密码', { exact: true });
+  const clearButtons = page.getByRole('button', { name: '清除', exact: true });
+  const verification = page.getByRole('group', { name: '验证演示' });
+  const verify = verification.getByRole('button', { name: '直接验证', exact: true });
   const submit = page.getByRole('button', { name: /^登\s*录$/ });
+
+  await expect(admin).toHaveAttribute('aria-pressed', 'true');
+  await admin.focus();
+  await page.keyboard.press('Tab');
+  await expect(user).toBeFocused();
+  await page.keyboard.press('Space');
+  await expect(user).toHaveAttribute('aria-pressed', 'true');
+  await expect(admin).toHaveAttribute('aria-pressed', 'false');
+  await expect(username).toHaveValue('user');
+  await page.keyboard.press('Tab');
+  await expect(username).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(clearButtons.nth(0)).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(password).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL('/login');
   await expect(submit).toBeDisabled();
-  const slider = page.locator('.slider-bg');
+
+  await page.keyboard.press('Tab');
+  await expect(clearButtons.nth(1)).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: '显示', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(verify).toBeFocused();
+  await page.keyboard.press('Space');
+  await expect(verification.getByRole('status')).toHaveText('验证成功');
+  await expect(verify).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(submit).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL('/dashboard');
+});
+
+test('announces a short drag and still accepts a drag to the end', async ({ page }) => {
+  await page.goto('/login');
+  const submit = page.getByRole('button', { name: /^登\s*录$/ });
+  const slider = page.getByRole('group', { name: '验证演示' }).locator('.slider-bg');
+  const status = slider.getByRole('status');
   const handle = slider.locator('.slider-handle');
   await handle.scrollIntoViewIfNeeded();
   const trackBox = await slider.boundingBox();
@@ -19,13 +62,56 @@ async function signIn(page: Page, account: 'admin' | 'user'): Promise<void> {
   const centerY = handleBox.y + handleBox.height / 2;
   await page.mouse.move(centerX, centerY);
   await page.mouse.down();
+  await page.mouse.move(centerX + handleBox.width / 2, centerY, { steps: 4 });
+  await page.mouse.up();
+  await expect(status).toHaveText('未拖到末端，请重试');
+  await expect(submit).toBeDisabled();
+
+  await page.mouse.move(centerX, centerY);
+  await page.mouse.down();
   await page.mouse.move(trackBox.x + trackBox.width, centerY, { steps: 12 });
   await page.mouse.up();
-
+  await expect(status).toHaveText('验证成功');
   await expect(submit).toBeEnabled();
+});
+
+test('reports rejected credentials and returns focus to verification for retry', async ({
+  page,
+}) => {
+  await page.goto('/login');
+  const verify = page
+    .getByRole('group', { name: '验证演示' })
+    .getByRole('button', { name: '直接验证', exact: true });
+  const submit = page.getByRole('button', { name: /^登\s*录$/ });
+
+  await page.getByLabel('密码', { exact: true }).fill('incorrect-demo-password');
+  await verify.click();
+  await submit.click();
+  await expect(page.getByRole('alert').filter({ hasText: '登录失败' })).toBeVisible();
+  await expect(page).toHaveURL('/login');
+  await expect(verify).toBeFocused();
+  await expect(submit).toBeDisabled();
+
+  await page.getByRole('button', { name: /超级管理员.*admin/ }).click();
+  await verify.click();
   await submit.click();
   await expect(page).toHaveURL('/dashboard');
-}
+});
+
+test.describe('touch sign-in', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 320, height: 720 } });
+
+  test('completes the verification demo with one tap', async ({ page }) => {
+    await page.goto('/login');
+    const verification = page.getByRole('group', { name: '验证演示' });
+    const submit = page.getByRole('button', { name: /^登\s*录$/ });
+    await expect(submit).toBeDisabled();
+    await verification.getByRole('button', { name: '直接验证', exact: true }).tap();
+    await expect(verification.getByRole('status')).toHaveText('验证成功');
+    await submit.tap();
+    await expect(page).toHaveURL('/dashboard');
+  });
+});
 
 test('previews and edits operation log filters before running the list query', async ({ page }) => {
   await signIn(page, 'admin');

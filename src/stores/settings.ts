@@ -7,8 +7,9 @@ import type {
 
 import { generate } from "@ant-design/colors";
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { computed, onScopeDispose, ref } from "vue";
 
+const DEFAULT_PAGE_ANIMATION: PageAnimation = "fade";
 const PAGE_ANIMATION_VALUES: Set<string> = new Set([
   "fade",
   "slide-left",
@@ -49,10 +50,24 @@ export const useSettingsStore = defineStore("settings", () => {
   );
   const sidebarTheme = ref<SidebarTheme>("light");
   const layoutMode = ref<LayoutMode>("vertical");
-  const pageAnimation = ref<PageAnimation>("slide-left");
+  const pageAnimation = ref<PageAnimation>(DEFAULT_PAGE_ANIMATION);
+  const motionQuery =
+    typeof window === "undefined" ? undefined : window.matchMedia?.("(prefers-reduced-motion: reduce)");
+  const prefersReducedMotion = ref(motionQuery?.matches ?? false);
+  const effectivePageAnimation = computed<PageAnimation>(() =>
+    prefersReducedMotion.value ? "none" : pageAnimation.value,
+  );
   const grayMode = ref(false);
   const rememberTabState = ref(true);
   const showLanguageSwitch = ref(true);
+
+  if (motionQuery) {
+    const updateReducedMotion = (event: MediaQueryListEvent): void => {
+      prefersReducedMotion.value = event.matches;
+    };
+    motionQuery.addEventListener("change", updateReducedMotion);
+    onScopeDispose(() => motionQuery.removeEventListener("change", updateReducedMotion));
+  }
 
   // Actions
   const setPrimaryColor = (color: PrimaryColor) => {
@@ -123,7 +138,7 @@ export const useSettingsStore = defineStore("settings", () => {
     setPrimaryColor("blue");
     setSidebarTheme("dark");
     setLayoutMode("vertical");
-    setPageAnimation("slide-left");
+    setPageAnimation(DEFAULT_PAGE_ANIMATION);
     setGrayMode(false);
     setRememberTabState(true);
     setShowLanguageSwitch(true);
@@ -177,6 +192,8 @@ export const useSettingsStore = defineStore("settings", () => {
     sidebarTheme,
     layoutMode,
     pageAnimation,
+    prefersReducedMotion,
+    effectivePageAnimation,
     grayMode,
     rememberTabState,
     showLanguageSwitch,

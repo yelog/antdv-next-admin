@@ -1,13 +1,19 @@
-import type { MenuSearchView } from '@/types/navigation';
+import type { MenuHistoryItem, MenuSearchView } from '@/types/navigation';
 
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
-import { resolveStoredFavoritePaths, resolveStoredMenuSearchView } from '@/utils/menuPreferences';
+import {
+  parseMenuHistory,
+  resolveStoredFavoritePaths,
+  resolveStoredMenuSearchView,
+} from '@/utils/menuPreferences';
 
 const MENU_FAVORITES_STORAGE_KEY = 'app-menu-favorites';
 const MENU_SEARCH_VIEW_STORAGE_KEY = 'app-menu-search-view';
 const LEGACY_TABS_STORAGE_KEY = 'app-tabs-state';
+const MENU_HISTORY_KEY = 'app-menu-history';
+export const MENU_HISTORY_LIMIT = 10;
 
 function readStorageItem(key: string): string | null {
   if (typeof window === 'undefined') return null;
@@ -39,6 +45,26 @@ export const useMenuPreferencesStore = defineStore('menu-preferences', () => {
   const searchView = ref<MenuSearchView>(
     resolveStoredMenuSearchView(readStorageItem(MENU_SEARCH_VIEW_STORAGE_KEY)),
   );
+  const history = ref(parseMenuHistory(readStorageItem(MENU_HISTORY_KEY)));
+
+  function refreshHistory(): void {
+    history.value = parseMenuHistory(readStorageItem(MENU_HISTORY_KEY));
+  }
+
+  function recordVisit(visit: MenuHistoryItem): void {
+    const saved = readStorageItem(MENU_HISTORY_KEY);
+    const previous = saved === null ? history.value : parseMenuHistory(saved);
+    history.value = [visit, ...previous.filter((entry) => entry.path !== visit.path)].slice(
+      0,
+      MENU_HISTORY_LIMIT,
+    );
+    writeStorageItem(MENU_HISTORY_KEY, JSON.stringify(history.value));
+  }
+
+  function clearHistory(): void {
+    history.value = [];
+    writeStorageItem(MENU_HISTORY_KEY, '[]');
+  }
 
   const normalizedFavoritePaths = JSON.stringify(initialFavoritePaths);
   if (rawFavoritePaths !== normalizedFavoritePaths) {
@@ -68,6 +94,10 @@ export const useMenuPreferencesStore = defineStore('menu-preferences', () => {
   return {
     favoritePaths,
     searchView,
+    history,
+    refreshHistory,
+    recordVisit,
+    clearHistory,
     isFavorite,
     toggleFavorite,
     setSearchView,

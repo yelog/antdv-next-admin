@@ -16,6 +16,8 @@ export interface ProTableRequestResult<TRecord extends ProTableRecord = ProTable
   success: boolean;
 }
 
+export type ProTableLoadStatus = 'success' | 'failed' | 'superseded';
+
 // ProTable Types
 export type ValueType =
   | 'text'
@@ -151,6 +153,7 @@ export interface ProTableSearch {
   collapsedRows?: number;
   columnsPerRow?: number | Partial<Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', number>>;
   collapseRender?: boolean;
+  submitOnly?: boolean;
   formItems?: ProFormItem[];
 }
 

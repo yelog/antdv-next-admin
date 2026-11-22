@@ -95,12 +95,13 @@
 
 <script setup lang="ts">
 import { CloseOutlined } from '@antdv-next/icons';
-import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { usePermission } from '@/composables/usePermission';
 import { PERMISSIONS } from '@/constants/permissions';
 import { $t } from '@/locales';
+import { useSettingsStore } from '@/stores/settings';
 import { resolveLocaleText } from '@/utils/i18n';
 
 type MessageRole = 'assistant' | 'user';
@@ -122,6 +123,7 @@ const emit = defineEmits<{
 }>();
 
 const route = useRoute();
+const settingsStore = useSettingsStore();
 const { can } = usePermission();
 const draft = ref('');
 const messages = ref<ChatMessage[]>([]);
@@ -206,6 +208,12 @@ const stopStreaming = () => {
 const streamAssistantReply = (fullReply: string) => {
   stopStreaming();
 
+  if (settingsStore.prefersReducedMotion) {
+    appendMessage('assistant', fullReply);
+    scrollToBottom();
+    return;
+  }
+
   const assistantId = appendMessage('assistant', '');
   streamingMessageId.value = assistantId;
   isStreaming.value = true;
@@ -218,8 +226,7 @@ const streamAssistantReply = (fullReply: string) => {
       return;
     }
 
-    const step = Math.random() > 0.82 ? 2 : 1;
-    index = Math.min(fullReply.length, index + step);
+    index = settingsStore.prefersReducedMotion ? fullReply.length : index + 2;
     target.content = fullReply.slice(0, index);
     scrollToBottom();
 
@@ -229,7 +236,7 @@ const streamAssistantReply = (fullReply: string) => {
   }, 30);
 };
 
-const sendMessage = async () => {
+const sendMessage = () => {
   if (isStreaming.value) {
     return;
   }
@@ -241,7 +248,6 @@ const sendMessage = async () => {
 
   appendMessage('user', input);
   draft.value = '';
-  await nextTick();
   scrollToBottom();
 
   const reply = $t('layout.aiDemoReply', { page: currentPageTitle.value });
@@ -249,11 +255,11 @@ const sendMessage = async () => {
 };
 
 const handleEnter = (event: KeyboardEvent) => {
-  if (event.shiftKey) {
+  if (event.shiftKey || event.isComposing) {
     return;
   }
   event.preventDefault();
-  void sendMessage();
+  sendMessage();
 };
 
 const clearMessages = () => {
@@ -320,7 +326,7 @@ onBeforeUnmount(() => {
 .section-title {
   margin-bottom: 8px;
   font-size: 12px;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-muted);
 }
 
 .messages {
@@ -341,7 +347,7 @@ onBeforeUnmount(() => {
 
 .message-role {
   font-size: 11px;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-muted);
 }
 
 .message-content {
@@ -376,7 +382,7 @@ onBeforeUnmount(() => {
 .message-empty {
   margin: auto;
   text-align: center;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-muted);
 }
 
 .empty-title {
@@ -404,7 +410,7 @@ onBeforeUnmount(() => {
 
 .hint {
   font-size: 11px;
-  color: var(--color-text-tertiary);
+  color: var(--color-text-muted);
 }
 
 @keyframes ai-stream-caret {

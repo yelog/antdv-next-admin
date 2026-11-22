@@ -13,10 +13,12 @@
       >
         <template #footer>
           <a-space wrap :size="[8, 8]" class="search-actions-space">
-            <a-button type="primary" @click="handleSearch">
+            <a-button type="primary" :aria-label="$t('common.search')" @click="handleSearch">
               <SearchOutlined /> {{ $t('common.search') }}
             </a-button>
-            <a-button @click="handleReset"> <ReloadOutlined /> {{ $t('common.reset') }} </a-button>
+            <a-button :aria-label="$t('common.reset')" @click="handleReset">
+              <ReloadOutlined /> {{ $t('common.reset') }}
+            </a-button>
             <a-button
               v-if="showSearchCollapseToggle"
               type="link"
@@ -67,15 +69,22 @@
               <span v-if="toolbarConfig.title" class="toolbar-title">{{
                 toolbarConfig.title
               }}</span>
-              <span v-if="toolbarConfig.subTitle" class="toolbar-subtitle">{{
-                toolbarConfig.subTitle
-              }}</span>
+              <slot name="toolbar-subtitle" :total="effectiveTotal" :params="loadedParams">
+                <span v-if="toolbarConfig.subTitle" class="toolbar-subtitle">{{
+                  toolbarConfig.subTitle
+                }}</span>
+              </slot>
             </div>
             <div class="toolbar-right">
               <slot name="toolbar-actions" :fillSearchFields="fillSearchFields"></slot>
               <a-space :size="4">
                 <a-tooltip v-if="showRefreshAction" :title="$t('common.refresh')">
-                  <a-button type="text" class="toolbar-icon-btn" @click="handleRefresh">
+                  <a-button
+                    type="text"
+                    class="toolbar-icon-btn"
+                    :aria-label="$t('common.refresh')"
+                    @click="handleRefresh"
+                  >
                     <ReloadOutlined />
                   </a-button>
                 </a-tooltip>
@@ -176,6 +185,10 @@
               </a-space>
             </div>
           </div>
+        </template>
+
+        <template v-if="$slots.expandedRowRender" #expandedRowRender="slotProps">
+          <slot name="expandedRowRender" v-bind="slotProps" />
         </template>
 
         <template v-if="$slots.filterIcon || hasBuiltInHeaderFilter" #filterIcon="slotProps">
@@ -307,6 +320,8 @@ import type {
   ProTableSearch,
   ProTablePagination,
   ProTableRequest,
+  ProTableRequestParams,
+  ProTableLoadStatus,
   ProTableAction,
   ProTableHeaderFilter,
   ProTableHeaderFilterConfig,
@@ -315,6 +330,7 @@ import type {
   ProFormGrid,
   FormItemType,
 } from '@/types/pro';
+import type { TableProps } from 'antdv-next';
 import type { PropType } from 'vue';
 
 import {
@@ -330,6 +346,7 @@ import {
 import { App, message } from 'antdv-next';
 import {
   ref,
+  shallowRef,
   computed,
   onMounted,
   onBeforeUnmount,
@@ -390,6 +407,7 @@ interface Props {
   bordered?: boolean;
   fixedHeader?: boolean;
   showIndexColumn?: boolean;
+  instantScrollOnChange?: boolean;
   // Built-in CRUD modal
   formItems?: ProFormItem[];
   formGrid?: ProFormGrid;
@@ -587,6 +605,8 @@ const shouldUseVerticalScroll = ref(false);
 const tableViewportWidth = ref(0);
 const viewportWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1200);
 const tableFilters = ref<Record<string, TableFilterValue>>({});
+const loadedParams = shallowRef<ProTableRequestParams>();
+let submittedSearchValues: Record<string, unknown> = {};
 
 interface TableSorterItem {
   field?: string;
@@ -1168,7 +1188,7 @@ const tableColumns = computed(() => {
 });
 
 const tableScroll = computed(() => {
-  const scroll: Record<string, string | number> = {};
+  const scroll: NonNullable<TableProps['scroll']> = {};
 
   if (hasFixedColumns.value && shouldUseHorizontalScroll.value) {
     if (canMeasureColumnWidth.value && tableViewportWidth.value > 0) {
@@ -1180,6 +1200,10 @@ const tableScroll = computed(() => {
 
   if (isFillMode.value && shouldUseVerticalScroll.value && tableScrollY.value) {
     scroll.y = tableScrollY.value;
+  }
+
+  if (props.instantScrollOnChange) {
+    scroll.scrollToFirstRowOnChange = false;
   }
 
   return Object.keys(scroll).length > 0 ? scroll : undefined;
@@ -1210,22 +1234,24 @@ const densityMenuProps = computed(() => ({
 // Methods
 const initializeColumnStates = () => {
   const previousFilters = { ...tableFilters.value };
-  const states = props.columns.filter((column) => !column.hideInTable).map((column, index) => {
-    const key = resolveColumnKey(column, index);
-    const checked = !column.hideInTable;
-    return {
-      key,
-      title: String(column.title ?? column.dataIndex ?? key),
-      checked,
-      fixed: column.fixed,
-      defaultChecked: checked,
-      defaultFixed: column.fixed,
-      column: {
-        ...column,
-        key: column.key || key,
-      },
-    } as ColumnState;
-  });
+  const states = props.columns
+    .filter((column) => !column.hideInTable)
+    .map((column, index) => {
+      const key = resolveColumnKey(column, index);
+      const checked = !column.hideInTable;
+      return {
+        key,
+        title: String(column.title ?? column.dataIndex ?? key),
+        checked,
+        fixed: column.fixed,
+        defaultChecked: checked,
+        defaultFixed: column.fixed,
+        column: {
+          ...column,
+          key: column.key || key,
+        },
+      } as ColumnState;
+    });
 
   columnStates.value = states;
   defaultColumnStates.value = states.map(cloneColumnState);
@@ -1438,36 +1464,54 @@ const buildSorterRequestParams = () => {
   return buildSorterRequestParamsValue(tableSorter.value);
 };
 
-const loadData = async () => {
+const loadData = async (clampPage = false): Promise<ProTableLoadStatus> => {
   const request = props.request;
   if (!request) {
     scheduleMeasureTable();
-    return;
+    return 'success';
   }
 
-  await loadRemoteData(
-    () => {
-      const searchValues = searchFormRef.value?.getFieldsValue() ?? {};
-      const params: Record<string, unknown> = {
-        ...searchValues,
-        ...buildHeaderFilterRequestParams(),
-        ...buildSorterRequestParams(),
-      };
+  const searchValues =
+    props.search && props.search.submitOnly
+      ? submittedSearchValues
+      : (searchFormRef.value?.getFieldsValue() ?? {});
+  const params: ProTableRequestParams = {
+    ...searchValues,
+    ...buildHeaderFilterRequestParams(),
+    ...buildSorterRequestParams(),
+  };
 
-      if (paginationEnabled.value) {
-        params.current = currentPage.value;
-        params.pageSize = pageSize.value;
+  if (paginationEnabled.value) {
+    params.current = currentPage.value;
+    params.pageSize = pageSize.value;
+  }
+
+  let clampedLoad: Promise<ProTableLoadStatus> | undefined;
+  const status = await loadRemoteData(
+    () => request(params),
+    () => {
+      if (clampPage && params.current && params.pageSize) {
+        const lastPage = Math.max(1, Math.ceil(total.value / params.pageSize));
+        if (params.current > lastPage) {
+          currentPage.value = lastPage;
+          clampedLoad = loadData(true);
+          return;
+        }
       }
 
-      return request(params);
+      loadedParams.value = params;
+      scheduleMeasureTable();
     },
-    scheduleMeasureTable,
     (error) =>
       message.error((error instanceof Error && error.message) || $t('proTable.loadDataFailed')),
   );
+  return clampedLoad ?? status;
 };
 
 const handleSearch = () => {
+  if (props.search && props.search.submitOnly) {
+    submittedSearchValues = searchFormRef.value?.getFieldsValue() ?? {};
+  }
   currentPage.value = 1;
   loadData();
 };
@@ -1480,6 +1524,7 @@ function fillSearchFields(values: Record<string, unknown>): void {
 
 const handleReset = () => {
   searchFormRef.value?.resetFields();
+  submittedSearchValues = {};
   tableFilters.value = {};
   tableSorter.value = null;
   currentPage.value = 1;
@@ -1512,6 +1557,12 @@ const handleTableChange = (
   sorter: TableSorter,
   extra: TableExtra,
 ) => {
+  if (props.instantScrollOnChange) {
+    tableSectionRef.value
+      ?.querySelector<HTMLElement>('.ant-table-body')
+      ?.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
   if (paginationEnabled.value) {
     const nextCurrent = Number(pagination?.current || 1);
     const nextPageSize = Number(pagination?.pageSize || pageSize.value || 10);
@@ -1783,7 +1834,10 @@ const handleCrudSubmit = (values: Record<string, unknown>) => {
 
 // Expose methods
 defineExpose({
-  refresh: loadData,
+  refresh: async () => {
+    await loadData();
+  },
+  refreshWithResult: () => loadData(true),
   reload: () => {
     currentPage.value = 1;
     loadData();

@@ -6,27 +6,42 @@
       '--slider-height': typeof height === 'number' ? height + 'px' : height,
     }"
   >
-    <div class="slider-bg" :class="{ success: isSuccess }">
-      <div class="slider-text" :style="{ opacity: isMoving ? 0 : 1 }">
-        {{ isSuccess ? successText : text }}
-      </div>
-      <div class="slider-track" :style="{ width: isSuccess ? '100%' : `${sliderLeft}px` }"></div>
+    <div ref="track" class="slider-bg" :class="{ success: isSuccess, dragging: drag }">
+      <div class="slider-text" role="status" aria-atomic="true">{{ statusText }}</div>
+      <div
+        class="slider-track"
+        aria-hidden="true"
+        :style="{ width: isSuccess ? '100%' : `${sliderLeft}px` }"
+      ></div>
       <div
         class="slider-handle"
-        :class="{ success: isSuccess }"
-        :style="{ left: isSuccess ? 'auto' : `${sliderLeft}px`, right: isSuccess ? 0 : 'auto' }"
-        @mousedown="handleMouseDown"
-        @touchstart.prevent="handleTouchStart"
+        aria-hidden="true"
+        :style="{ left: isSuccess ? undefined : `${sliderLeft}px` }"
+        @pointerdown="startDrag"
+        @pointermove="moveDrag"
+        @pointerup="finishDrag"
+        @pointercancel="cancelDrag"
+        @lostpointercapture="cancelDrag"
       >
-        <span v-if="isSuccess">✔</span>
-        <span v-else>→</span>
+        {{ isSuccess ? '✓' : '→' }}
       </div>
     </div>
+    <button
+      ref="verifyButton"
+      type="button"
+      class="slider-alternative"
+      :aria-disabled="isSuccess"
+      @click="completeVerification"
+    >
+      {{ $t('login.verifyWithoutDragging') }}
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref, shallowRef, useTemplateRef } from 'vue';
+
+import { $t } from '@/locales';
 
 interface Props {
   width?: number | string;
@@ -35,185 +50,221 @@ interface Props {
   successText?: string;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   width: '100%',
-  height: 40,
-  text: 'Slide to verify',
-  successText: 'Success',
+  height: 44,
 });
 
-const emit = defineEmits(['success', 'fail']);
+const emit = defineEmits<{
+  success: [];
+  fail: [];
+}>();
 
-const isMoving = ref(false);
-const isSuccess = ref(false);
+interface Drag {
+  handle: HTMLElement;
+  pointerId: number;
+  startX: number;
+  distance: number;
+}
+
+const track = useTemplateRef<HTMLDivElement>('track');
+const verifyButton = useTemplateRef<HTMLButtonElement>('verifyButton');
+const drag = shallowRef<Drag>();
 const sliderLeft = ref(0);
-const startX = ref(0);
-let containerWidth = 0;
+const result = ref<'idle' | 'success' | 'fail'>('idle');
+const isSuccess = computed(() => result.value === 'success');
+const statusText = computed(() => {
+  if (isSuccess.value) return props.successText ?? $t('login.verifySuccess');
+  if (result.value === 'fail') return $t('login.verifyRetry');
+  return props.text ?? $t('login.slideToVerify');
+});
 
-const handleMouseDown = (e: MouseEvent) => {
-  if (isSuccess.value) return;
-  isMoving.value = true;
-  startX.value = e.clientX;
-
-  // Get container width
-  const container = (e.target as HTMLElement).closest('.slider-bg');
-  const handle = (e.target as HTMLElement).closest('.slider-handle');
-  if (container && handle) {
-    containerWidth = container.clientWidth - handle.clientWidth;
+function startDrag(event: PointerEvent): void {
+  const handle = event.currentTarget;
+  const container = track.value;
+  if (
+    isSuccess.value ||
+    drag.value ||
+    event.button !== 0 ||
+    !event.isPrimary ||
+    !(handle instanceof HTMLElement) ||
+    !container
+  ) {
+    return;
   }
 
-  document.addEventListener('mousemove', handleMouseMove);
-  document.addEventListener('mouseup', handleMouseUp);
-};
+  const distance = container.clientWidth - handle.offsetWidth;
+  if (distance <= 0) return;
 
-const handleMouseMove = (e: MouseEvent) => {
-  if (!isMoving.value) return;
-  const offset = e.clientX - startX.value;
+  handle.setPointerCapture(event.pointerId);
+  drag.value = { handle, pointerId: event.pointerId, startX: event.clientX, distance };
+  result.value = 'idle';
+}
 
-  if (offset < 0) {
-    sliderLeft.value = 0;
-  } else if (offset > containerWidth) {
-    sliderLeft.value = containerWidth;
+function moveDrag(event: PointerEvent): void {
+  const activeDrag = drag.value;
+  if (activeDrag?.pointerId !== event.pointerId) return;
+
+  sliderLeft.value = Math.max(0, Math.min(activeDrag.distance, event.clientX - activeDrag.startX));
+}
+
+function finishDrag(event: PointerEvent): void {
+  const activeDrag = drag.value;
+  if (activeDrag?.pointerId !== event.pointerId) return;
+
+  if (event.clientX - activeDrag.startX >= activeDrag.distance) {
+    completeVerification();
   } else {
-    sliderLeft.value = offset;
+    cancelDrag(event);
   }
-};
+}
 
-const handleMouseUp = () => {
-  isMoving.value = false;
-  document.removeEventListener('mousemove', handleMouseMove);
-  document.removeEventListener('mouseup', handleMouseUp);
-  finishDrag();
-};
+function cancelDrag(event: PointerEvent): void {
+  if (drag.value?.pointerId !== event.pointerId) return;
 
-const handleTouchStart = (e: TouchEvent) => {
-  if (isSuccess.value) return;
-  isMoving.value = true;
-  startX.value = e.touches[0].clientX;
+  stopDrag();
+  result.value = 'fail';
+  emit('fail');
+}
 
-  const container = (e.target as HTMLElement).closest('.slider-bg');
-  const handle = (e.target as HTMLElement).closest('.slider-handle');
-  if (container && handle) {
-    containerWidth = container.clientWidth - handle.clientWidth;
-  }
-
-  document.addEventListener('touchmove', handleTouchMove, { passive: false });
-  document.addEventListener('touchend', handleTouchEnd);
-};
-
-const handleTouchMove = (e: TouchEvent) => {
-  if (!isMoving.value) return;
-  e.preventDefault();
-  const offset = e.touches[0].clientX - startX.value;
-
-  if (offset < 0) {
-    sliderLeft.value = 0;
-  } else if (offset > containerWidth) {
-    sliderLeft.value = containerWidth;
-  } else {
-    sliderLeft.value = offset;
-  }
-};
-
-const handleTouchEnd = () => {
-  isMoving.value = false;
-  document.removeEventListener('touchmove', handleTouchMove);
-  document.removeEventListener('touchend', handleTouchEnd);
-  finishDrag();
-};
-
-const finishDrag = () => {
-  if (sliderLeft.value >= containerWidth) {
-    isSuccess.value = true;
-    sliderLeft.value = containerWidth;
-    emit('success');
-  } else {
-    // Reset animation
-    const animate = () => {
-      if (sliderLeft.value > 0) {
-        sliderLeft.value = Math.max(0, sliderLeft.value - 10);
-        requestAnimationFrame(animate);
-      } else {
-        emit('fail');
-      }
-    };
-    animate();
-  }
-};
-
-const reset = () => {
-  isSuccess.value = false;
-  isMoving.value = false;
+function stopDrag(): void {
+  const activeDrag = drag.value;
+  drag.value = undefined;
   sliderLeft.value = 0;
-};
+  if (activeDrag?.handle.hasPointerCapture(activeDrag.pointerId)) {
+    activeDrag.handle.releasePointerCapture(activeDrag.pointerId);
+  }
+}
 
-defineExpose({ reset });
+function completeVerification(): void {
+  if (isSuccess.value) return;
+
+  stopDrag();
+  result.value = 'success';
+  emit('success');
+}
+
+function reset(): void {
+  stopDrag();
+  result.value = 'idle';
+}
+
+function focus(): void {
+  verifyButton.value?.focus();
+}
+
+defineExpose({ reset, focus });
 </script>
 
 <style scoped>
 .slider-captcha {
-  --slider-height: 40px;
-  user-select: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
+
 .slider-bg {
   position: relative;
-  width: 100%;
+  flex: 1 1 164px;
+  min-width: 0;
   height: var(--slider-height);
   background-color: var(--color-bg-container);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
-  text-align: center;
-  line-height: var(--slider-height);
+  border-radius: var(--radius-base);
   overflow: hidden;
+  user-select: none;
 }
+
 .slider-bg.success {
-  background-color: var(--color-success-bg);
-  border-color: var(--color-success-border);
-  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 12%, var(--color-bg-container));
 }
+
 .slider-text {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  color: var(--color-text-secondary);
-  font-size: 14px;
-  transition: opacity 0.3s;
-  pointer-events: none;
+  position: relative;
   z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding-inline: calc(var(--slider-height) + 6px) 8px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.2;
+  text-align: center;
+  pointer-events: none;
 }
+
+.slider-bg.success .slider-text {
+  padding-inline: 8px calc(var(--slider-height) + 6px);
+}
+
+.slider-bg.dragging .slider-text {
+  opacity: 0;
+}
+
 .slider-track {
   position: absolute;
-  left: 0;
-  top: 0;
+  inset: 0 auto 0 0;
   height: 100%;
-  background-color: var(--color-primary-bg);
-  border-right: 1px solid var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  pointer-events: none;
 }
+
+.slider-bg.success .slider-track {
+  background: transparent;
+}
+
 .slider-handle {
   position: absolute;
+  z-index: 2;
   top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
   width: var(--slider-height);
   height: 100%;
-  background-color: var(--color-bg-container);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  border-inline-end: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  background: var(--color-bg-container);
   cursor: grab;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-  z-index: 2;
-  transition: background-color 0.3s;
+  touch-action: none;
 }
-.slider-handle:active {
+
+.slider-bg.dragging .slider-handle {
   cursor: grabbing;
-  background-color: var(--color-primary);
-  color: #fff;
 }
-.slider-handle.success {
+
+.slider-bg.success .slider-handle {
+  right: 0;
+  left: auto;
+  border: 0;
+  background: transparent;
   cursor: default;
-  background-color: var(--color-success);
-  border-color: var(--color-success);
-  color: #fff;
+  touch-action: auto;
+}
+
+.slider-alternative {
+  min-height: var(--slider-height);
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg-container);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.slider-alternative:hover:not([aria-disabled='true']) {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg-container));
+}
+
+.slider-alternative:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: 2px;
+}
+
+.slider-alternative[aria-disabled='true'] {
+  color: var(--color-text-secondary);
+  cursor: default;
 }
 </style>

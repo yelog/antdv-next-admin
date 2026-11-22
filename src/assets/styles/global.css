@@ -38,13 +38,18 @@ html.theme-view-transition .ant-table-sticky-holder {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.theme-transition,
-  html.theme-transition *,
-  html.theme-transition *::before,
-  html.theme-transition *::after {
-    transition: none !important;
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-delay: 0ms !important;
+    transition-duration: 0ms !important;
   }
 
+  html.theme-view-transition::view-transition-group(root),
   html.theme-view-transition::view-transition-old(root),
   html.theme-view-transition::view-transition-new(root) {
     animation: none !important;
@@ -193,17 +198,20 @@ ol {
 .text-secondary {
   color: var(--color-text-secondary);
 }
+.text-muted {
+  color: var(--color-text-muted);
+}
 .text-tertiary {
   color: var(--color-text-tertiary);
 }
 .text-success {
-  color: var(--color-success);
+  color: var(--color-success-text);
 }
 .text-warning {
   color: var(--color-warning);
 }
 .text-error {
-  color: var(--color-error);
+  color: var(--color-error-text);
 }
 .text-info {
   color: var(--color-info);
@@ -539,7 +547,7 @@ ol {
   align-items: center;
   justify-content: center;
   padding: var(--spacing-3xl) var(--spacing-lg);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-muted);
 }
 
 .empty-icon {

@@ -600,6 +600,17 @@ export const asyncRoutes = nameTabPages([
               order: 3,
             },
           },
+          {
+            path: "/examples/sales",
+            name: "ExamplesSales",
+            component: () => import("@/views/examples/sales/index.vue"),
+            meta: {
+              title: "dashboard.salesExample",
+              icon: "BarChartOutlined",
+              requiresAuth: true,
+              order: 4,
+            },
+          },
         ],
       },
       {

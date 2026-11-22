@@ -105,6 +105,10 @@ export function normalizeMenuHistoryItems(value: unknown): MenuHistoryItem[] {
   });
 }
 
+export function parseMenuHistory(raw: string | null): MenuHistoryItem[] {
+  return normalizeMenuHistoryItems(parseJson(raw));
+}
+
 export function selectMenuItemsByPaths<T extends { path: string }>(
   currentItems: readonly T[],
   paths: readonly string[],

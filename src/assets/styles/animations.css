@@ -1,7 +1,5 @@
 /* Animation Utilities */
 
-/* ========== Page Transition Animations ========== */
-
 /* Fade */
 .fade-enter-active,
 .fade-leave-active {
@@ -12,9 +10,17 @@
   opacity: 0;
 }
 
+/* ========== Page Transition Animations ========== */
+
+.page-fade-enter-active {
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+.page-fade-enter-from {
+  opacity: 0.68;
+}
+
 /* Slide Left */
-.slide-left-enter-active,
-.slide-left-leave-active {
+.slide-left-enter-active {
   transition:
     transform var(--duration-slow) ease,
     opacity var(--duration-slow) ease;
@@ -23,14 +29,8 @@
   transform: translateX(30px);
   opacity: 0;
 }
-.slide-left-leave-to {
-  transform: translateX(-30px);
-  opacity: 0;
-}
-
 /* Slide Right */
-.slide-right-enter-active,
-.slide-right-leave-active {
+.slide-right-enter-active {
   transition:
     transform var(--duration-slow) ease,
     opacity var(--duration-slow) ease;
@@ -39,14 +39,8 @@
   transform: translateX(-30px);
   opacity: 0;
 }
-.slide-right-leave-to {
-  transform: translateX(30px);
-  opacity: 0;
-}
-
 /* Slide Up */
-.slide-up-enter-active,
-.slide-up-leave-active {
+.slide-up-enter-active {
   transition:
     transform var(--duration-slow) ease,
     opacity var(--duration-slow) ease;
@@ -55,14 +49,8 @@
   transform: translateY(24px);
   opacity: 0;
 }
-.slide-up-leave-to {
-  transform: translateY(-24px);
-  opacity: 0;
-}
-
 /* Slide Down */
-.slide-down-enter-active,
-.slide-down-leave-active {
+.slide-down-enter-active {
   transition:
     transform var(--duration-slow) ease,
     opacity var(--duration-slow) ease;
@@ -71,27 +59,19 @@
   transform: translateY(-24px);
   opacity: 0;
 }
-.slide-down-leave-to {
-  transform: translateY(24px);
-  opacity: 0;
-}
-
 /* Zoom */
-.zoom-enter-active,
-.zoom-leave-active {
+.zoom-enter-active {
   transition:
     transform var(--duration-slow) ease,
     opacity var(--duration-slow) ease;
 }
-.zoom-enter-from,
-.zoom-leave-to {
+.zoom-enter-from {
   transform: scale(0.95);
   opacity: 0;
 }
 
 /* Zoom Big */
-.zoom-big-enter-active,
-.zoom-big-leave-active {
+.zoom-big-enter-active {
   transition:
     transform var(--duration-slow) ease,
     opacity var(--duration-slow) ease;
@@ -100,11 +80,6 @@
   transform: scale(0.8);
   opacity: 0;
 }
-.zoom-big-leave-to {
-  transform: scale(1.1);
-  opacity: 0;
-}
-
 /* ========== Keyframe Animations ========== */
 
 /* Spin */
@@ -322,4 +297,22 @@
   width: 20px;
   height: 20px;
   animation: ripple 0.6s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-fade-enter-from,
+  .slide-left-enter-from,
+  .slide-right-enter-from,
+  .slide-up-enter-from,
+  .slide-down-enter-from,
+  .zoom-enter-from,
+  .zoom-big-enter-from {
+    opacity: 1;
+    transform: none;
+  }
+
+  .card-hover:hover,
+  .btn-hover:hover:not(:disabled) {
+    transform: none;
+  }
 }

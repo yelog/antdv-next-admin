@@ -1,29 +1,27 @@
 <template>
-  <article
-    class="relative overflow-hidden min-h-[168px] !p-5 rounded-[var(--radius-lg)] border border-[var(--color-border-secondary)] bg-[var(--color-bg-container)] shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] md:min-h-[150px]"
-  >
-    <p class="text-xs text-[var(--color-text-tertiary)] mb-2.5">{{ label }}</p>
-    <p
-      class="m-0 text-4xl leading-none font-[var(--font-family-number)] font-bold text-[var(--color-text-primary)] tracking-tight md:text-3xl"
-    >
-      {{ value }}
-    </p>
+  <article class="pro-stat-card">
+    <div class="stat-heading">
+      <p class="stat-label">{{ label }}</p>
+      <span
+        v-if="icon"
+        class="stat-icon"
+        :style="{ backgroundColor: accentColors[tone] }"
+        aria-hidden="true"
+      >
+        <component :is="icon" />
+      </span>
+    </div>
+    <p class="stat-value">{{ value }}</p>
     <p
       v-if="trend"
-      class="mt-3.5 inline-flex items-center gap-1.5 text-xs font-medium"
+      class="stat-trend"
       :class="trendDirection === 'down' ? 'text-error' : 'text-success'"
     >
-      <RiseOutlined v-if="trendDirection !== 'down'" />
-      <FallOutlined v-else />
+      <RiseOutlined v-if="trendDirection !== 'down'" aria-hidden="true" />
+      <FallOutlined v-else aria-hidden="true" />
       <span>{{ trend }}</span>
     </p>
     <slot name="extra" />
-    <component
-      :is="icon"
-      v-if="icon"
-      class="absolute right-3.5 -bottom-1.5 text-[96px]"
-      :style="{ color: accentColor }"
-    />
   </article>
 </template>
 
@@ -31,10 +29,9 @@
 import type { Component } from "vue";
 import type { ProStatCardTone } from "@/types/pro";
 
-import { computed } from "vue";
 import { RiseOutlined, FallOutlined } from "@antdv-next/icons";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     label: string;
     value: string | number;
@@ -57,6 +54,58 @@ const accentColors: Record<ProStatCardTone, string> = {
   red: "rgba(245, 34, 45, 0.12)",
   cyan: "rgba(19, 194, 194, 0.12)",
 };
-
-const accentColor = computed(() => accentColors[props.tone]);
 </script>
+
+<style scoped>
+.pro-stat-card {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-container);
+}
+
+.stat-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: var(--line-height-tight);
+  overflow-wrap: anywhere;
+}
+
+.stat-icon {
+  display: grid;
+  flex: 0 0 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.stat-value {
+  color: var(--color-text-primary);
+  font-family: var(--font-family-number);
+  font-size: clamp(1.375rem, 4vw, 1.75rem);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.stat-trend {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+</style>

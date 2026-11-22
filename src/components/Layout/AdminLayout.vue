@@ -43,16 +43,24 @@
                 <div class="page-scroll">
                   <slot v-if="$slots.default" />
                   <router-view v-else v-slot="{ Component }">
-                    <transition :name="settingsStore.pageAnimation" mode="out-in">
+                    <Transition
+                      :name="pageTransitionName"
+                      :css="settingsStore.effectivePageAnimation !== 'none'"
+                      @leave="finishPageLeave"
+                    >
                       <keep-alive :include="cachedTabs">
                         <component :is="Component" :key="pageViewKey" />
                       </keep-alive>
-                    </transition>
+                    </Transition>
                   </router-view>
                 </div>
               </div>
 
-              <Transition name="ai-panel">
+              <Transition
+                v-if="AICollabPanel"
+                name="ai-panel"
+                :css="layoutStore.canUseAiCollab && !settingsStore.prefersReducedMotion"
+              >
                 <div
                   v-if="isAICollabActive"
                   class="page-workspace-side"
@@ -138,16 +146,24 @@
                   <div class="page-scroll">
                     <slot v-if="$slots.default" />
                     <router-view v-else v-slot="{ Component }">
-                      <transition :name="settingsStore.pageAnimation" mode="out-in">
+                      <Transition
+                        :name="pageTransitionName"
+                        :css="settingsStore.effectivePageAnimation !== 'none'"
+                        @leave="finishPageLeave"
+                      >
                         <keep-alive :include="cachedTabs">
                           <component :is="Component" :key="pageViewKey" />
                         </keep-alive>
-                      </transition>
+                      </Transition>
                     </router-view>
                   </div>
                 </div>
 
-                <Transition name="ai-panel">
+                <Transition
+                  v-if="AICollabPanel"
+                  name="ai-panel"
+                  :css="layoutStore.canUseAiCollab && !settingsStore.prefersReducedMotion"
+                >
                   <div
                     v-if="isAICollabActive"
                     class="page-workspace-side"
@@ -195,6 +211,7 @@ import {
 import { useRoute, useRouter } from 'vue-router';
 
 import logoImg from '@/assets/images/logo.png';
+import { isDemoBuild } from '@/constants/environment';
 import { basicRoutes } from '@/router/routes';
 import { routesToMenuTree } from '@/router/utils';
 import { useLayoutStore } from '@/stores/layout';
@@ -209,7 +226,9 @@ import Header from './Header.vue';
 import Sidebar from './Sidebar.vue';
 import TabBar from './TabBar.vue';
 
-const AICollabPanel = defineAsyncComponent(() => import('./AICollabPanel.vue'));
+const AICollabPanel = isDemoBuild
+  ? defineAsyncComponent(() => import('./AICollabPanel.vue'))
+  : null;
 
 type HorizontalMenuItems = NonNullable<MenuProps['items']>;
 
@@ -239,13 +258,20 @@ const isAiResizing = ref(false);
 
 const cachedTabs = computed(() => tabsStore.cachedTabs);
 const pageViewKey = computed(() => route.path);
+const pageTransitionName = computed(() =>
+  settingsStore.effectivePageAnimation === 'fade' ? 'page-fade' : settingsStore.effectivePageAnimation,
+);
+
+function finishPageLeave(_element: Element, done: () => void): void {
+  done();
+}
 
 const isIframePage = computed(() => {
   return route.path.includes('/iframe/');
 });
 
 const isAICollabActive = computed(() => {
-  return layoutStore.aiCollabEnabled && !layoutStore.isMobile && !layoutStore.pageFullscreen;
+  return layoutStore.canUseAiCollab && layoutStore.aiEntryVisible && layoutStore.aiCollabEnabled;
 });
 
 const maxAiPanelWidth = computed(() => {
@@ -503,23 +529,28 @@ const scheduleMenuLayout = () => {
 onMounted(() => {
   layoutStore.initLayout();
   scheduleMenuLayout();
-  updateWorkspaceWidth();
-  syncAiPanelWidth();
-  window.addEventListener('mousemove', handleAiResizeMove);
-  window.addEventListener('mouseup', stopAiResize);
+
+  if (isDemoBuild) {
+    updateWorkspaceWidth();
+    syncAiPanelWidth();
+    window.addEventListener('mousemove', handleAiResizeMove);
+    window.addEventListener('mouseup', stopAiResize);
+  }
 
   if (typeof ResizeObserver !== 'undefined') {
     resizeObserver = new ResizeObserver(() => {
       scheduleMenuLayout();
     });
-    workspaceResizeObserver = new ResizeObserver(() => {
-      updateWorkspaceWidth();
-      syncAiPanelWidth();
-    });
-
     if (menuAreaRef.value) resizeObserver.observe(menuAreaRef.value);
     if (measureMenuWrapRef.value) resizeObserver.observe(measureMenuWrapRef.value);
-    if (workspaceRef.value) workspaceResizeObserver.observe(workspaceRef.value);
+
+    if (isDemoBuild) {
+      workspaceResizeObserver = new ResizeObserver(() => {
+        updateWorkspaceWidth();
+        syncAiPanelWidth();
+      });
+      if (workspaceRef.value) workspaceResizeObserver.observe(workspaceRef.value);
+    }
   }
 });
 
@@ -566,24 +597,6 @@ watch(
   () => route.path,
   () => {
     scheduleMenuLayout();
-  },
-);
-
-watch(
-  () => layoutStore.isMobile,
-  (isMobile) => {
-    if (isMobile && layoutStore.aiCollabEnabled) {
-      layoutStore.setAiCollabEnabled(false);
-    }
-  },
-);
-
-watch(
-  () => layoutStore.pageFullscreen,
-  (isFullscreen) => {
-    if (isFullscreen && layoutStore.aiCollabEnabled) {
-      layoutStore.setAiCollabEnabled(false);
-    }
   },
 );
 
@@ -723,7 +736,7 @@ watch(
 
           :deep(.horizontal-submenu-arrow) {
             font-size: 12px;
-            color: var(--color-text-tertiary);
+            color: var(--color-text-muted);
           }
         }
 

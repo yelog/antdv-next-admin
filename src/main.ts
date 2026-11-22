@@ -2,6 +2,7 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 import App from './App.vue';
+import { isDemoBuild } from './constants/environment';
 import { setupDirectives } from './directives';
 import i18n from './locales';
 import router from './router';
@@ -32,7 +33,7 @@ function restoreGitHubPagesRedirect() {
 }
 
 async function bootstrap() {
-  if (import.meta.env.VITE_DEMO_MODE === 'true') {
+  if (isDemoBuild) {
     const { setupBrowserMock } = await import('./mock/browser');
     setupBrowserMock(service);
   }

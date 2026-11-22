@@ -65,8 +65,12 @@
         <a-select
           v-model:value="settingsStore.pageAnimation"
           :options="pageAnimationOptions"
+          :aria-label="$t('settings.pageAnimation')"
           style="width: 100%"
         />
+        <div v-if="settingsStore.prefersReducedMotion" class="hint">
+          {{ $t('settings.reducedMotionHint') }}
+        </div>
       </div>
 
       <!-- Gray Mode -->
@@ -84,18 +88,14 @@
       </div>
 
       <!-- AI Chat Split Panel -->
-      <div class="settings-section">
+      <div v-if="layoutStore.canUseAiCollab" class="settings-section">
         <h4>{{ $t('settings.aiCollab') }}</h4>
         <a-switch
           :checked="layoutStore.aiEntryVisible"
-          :disabled="layoutStore.isMobile"
+          :aria-label="$t('settings.aiCollab')"
           @change="handleAiEntryChange"
         />
-        <div class="hint">
-          {{
-            layoutStore.isMobile ? $t('settings.aiCollabHintMobile') : $t('settings.aiCollabHint')
-          }}
-        </div>
+        <div class="hint">{{ $t('settings.aiCollabHint') }}</div>
       </div>
 
       <!-- Language Switch -->
@@ -252,8 +252,10 @@ const handleLanguageSwitchChange = (checked: boolean) => {
         border: 2px solid transparent;
         flex-shrink: 0;
 
-        &:hover {
-          transform: scale(1.1);
+        @media (prefers-reduced-motion: no-preference) {
+          &:hover {
+            transform: scale(1.1);
+          }
         }
 
         &.active {
@@ -286,7 +288,7 @@ const handleLanguageSwitchChange = (checked: boolean) => {
     .hint {
       margin-top: var(--spacing-xs);
       font-size: var(--font-size-xs);
-      color: var(--color-text-tertiary);
+      color: var(--color-text-muted);
     }
   }
 

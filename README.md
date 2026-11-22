@@ -11,9 +11,11 @@
 
 在线体验: [https://antdv-next-admin.yelog.org/dashboard](https://antdv-next-admin.yelog.org/dashboard)
 
-![系统截图](docs/images/screenshot.png)
+![管理工作台的操作趋势、最近操作和常用入口](docs/images/workspace-overview.png)
 
-默认账号:
+工作台按当前角色展示数据。管理员可以查看近 7 天的操作趋势和最近操作，并进入日志明细。普通用户可以从最近访问和收藏返回自己有权打开的页面。销售看板位于「示例中心 → 业务脚手架」。
+
+开发 Mock 和在线演示提供以下账号，生产登录页由实际身份服务验证凭据。
 
 ```text
 管理员: admin / 123456

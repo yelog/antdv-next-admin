@@ -1,6 +1,6 @@
-import type { ProTableRequestResult } from "@/types/pro";
+import type { ProTableLoadStatus, ProTableRequestResult } from '@/types/pro';
 
-import { ref } from "vue";
+import { ref } from 'vue';
 
 export function useProTableRemoteData() {
   const remoteDataSource = ref<Record<string, unknown>[]>([]);
@@ -12,19 +12,23 @@ export function useProTableRemoteData() {
     request: () => Promise<ProTableRequestResult>,
     onData: () => void,
     onError: (error: unknown) => void,
-  ): Promise<void> {
+  ): Promise<ProTableLoadStatus> {
     const version = ++requestVersion;
     loading.value = true;
 
     try {
       const result = await request();
-      if (version !== requestVersion || !result.success) return;
+      if (version !== requestVersion) return 'superseded';
+      if (!result.success) return 'failed';
 
       remoteDataSource.value = result.data as Record<string, unknown>[];
       total.value = result.total ?? result.data.length;
       onData();
+      return 'success';
     } catch (error: unknown) {
-      if (version === requestVersion) onError(error);
+      if (version !== requestVersion) return 'superseded';
+      onError(error);
+      return 'failed';
     } finally {
       if (version === requestVersion) loading.value = false;
     }
@@ -40,12 +44,10 @@ export function useProTableRemoteData() {
 
 export interface TableSorterItem {
   field?: string;
-  order?: "ascend" | "descend";
+  order?: 'ascend' | 'descend';
 }
 
-export function buildSorterRequestParams(
-  sorter: TableSorterItem | TableSorterItem[] | null,
-) {
+export function buildSorterRequestParams(sorter: TableSorterItem | TableSorterItem[] | null) {
   if (!sorter) {
     return {};
   }

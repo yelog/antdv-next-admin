@@ -6,6 +6,7 @@
         type="editable-card"
         :hide-add="true"
         :items="tabItems"
+        :indicator="{ align: 'center', size: getIndicatorWidth }"
         :classes="{ popup: { root: 'tab-bar-overflow-dropdown' } }"
         @edit="handleEdit"
         @change="handleChange"
@@ -89,6 +90,10 @@ const activeKey = computed({
   get: () => tabsStore.activeTabPath,
   set: (value) => tabsStore.setActiveTab(value),
 });
+
+function getIndicatorWidth(tabWidth: number): number {
+  return Math.max(0, tabWidth - 20);
+}
 
 const currentTab = computed(() => {
   return tabsStore.activeTab || tabsStore.tabs[0];
@@ -333,6 +338,25 @@ const getTabLabel = (tab: Tab) => {
         align-items: center;
       }
 
+      .ant-tabs-nav-list {
+        transition: transform var(--duration-tab-indicator) var(--ease-out);
+      }
+
+      .ant-tabs-ink-bar {
+        bottom: 0;
+        height: 2px;
+        border-radius: var(--radius-full);
+        background: var(--color-primary);
+        visibility: visible;
+      }
+
+      .ant-tabs-ink-bar-animated {
+        transition:
+          left var(--duration-tab-indicator) var(--ease-out),
+          right var(--duration-tab-indicator) var(--ease-out),
+          width var(--duration-tab-indicator) var(--ease-out);
+      }
+
       .ant-tabs-body-holder {
         display: none;
       }
@@ -342,13 +366,15 @@ const getTabLabel = (tab: Tab) => {
       }
 
       .ant-tabs-tab {
-        border: 1px solid transparent !important;
+        border: 1px solid transparent;
         background: var(--color-bg-layout);
         margin-right: 6px;
         padding: 0 10px;
         height: 28px;
         border-radius: 8px;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition:
+          background-color var(--duration-tab-indicator) var(--ease-out),
+          border-color var(--duration-tab-indicator) var(--ease-out);
 
         .ant-tabs-tab-btn {
           display: flex;
@@ -368,26 +394,18 @@ const getTabLabel = (tab: Tab) => {
         }
 
         &.ant-tabs-tab-active {
-          background: var(--color-primary-1);
-          border-color: var(--color-primary-2);
+          background: color-mix(in srgb, var(--color-primary) 12%, var(--color-bg-container));
+          border-color: color-mix(in srgb, var(--color-primary) 25%, var(--color-border-secondary));
 
           .ant-tabs-tab-btn {
-            color: var(--color-primary);
-            font-weight: 400;
-          }
-
-          .ant-tabs-tab-remove {
-            color: var(--color-primary);
-
-            &:hover {
-              color: var(--color-primary-7);
-            }
+            color: var(--color-text-primary);
+            text-shadow: none;
           }
         }
 
         .ant-tabs-tab-remove {
           margin-left: 6px;
-          color: var(--color-text-tertiary);
+          color: var(--color-text-muted);
           transition: color 0.2s;
           font-size: 12px;
 
@@ -399,7 +417,6 @@ const getTabLabel = (tab: Tab) => {
     }
   }
 
-  // Dark mode specific overrides moved to global style block below to ensure priority
   .tab-actions {
     display: flex;
     align-items: center;
@@ -452,8 +469,6 @@ const getTabLabel = (tab: Tab) => {
 </style>
 
 <style lang="scss">
-// Global style overrides for dark mode
-// Using non-scoped style to ensure we can target Ant Design internals reliably
 .tab-bar-overflow-dropdown {
   .tab-label {
     display: inline-flex;
@@ -481,23 +496,6 @@ const getTabLabel = (tab: Tab) => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-}
-
-html.dark .tab-bar .ant-tabs-tab.ant-tabs-tab-active {
-  background: color-mix(in srgb, var(--color-primary) 25%, transparent) !important;
-  border-color: transparent !important;
-
-  .ant-tabs-tab-btn {
-    color: #ffffff !important;
-  }
-
-  .ant-tabs-tab-remove {
-    color: rgba(255, 255, 255, 0.65) !important;
-
-    &:hover {
-      color: #ffffff !important;
-    }
   }
 }
 </style>

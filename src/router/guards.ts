@@ -1,20 +1,16 @@
-import type { MenuHistoryItem } from '@/types/navigation';
 import type { AppRouteRecordRaw } from '@/types/router';
 import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 
 import { useAuthStore } from '@/stores/auth';
 import { useDictStore } from '@/stores/dict';
+import { useMenuPreferencesStore } from '@/stores/menuPreferences';
 import { usePermissionStore } from '@/stores/permission';
 import { useTabsStore } from '@/stores/tabs';
 import { resolveLocaleText } from '@/utils/i18n';
-import { normalizeMenuHistoryItems } from '@/utils/menuPreferences';
 
 import { shouldRecoverDynamicRoute } from './routeRecovery';
 import { basicRoutes, notFoundRoute, staticRoutes } from './routes';
 import { getRouteNamesToRemove } from './utils';
-
-const MENU_HISTORY_KEY = 'app-menu-history';
-const MAX_HISTORY_ITEMS = 10;
 
 function setDocumentTitle(route: RouteLocationNormalized) {
   if (!route.meta.title) return;
@@ -136,32 +132,12 @@ function shouldAddTab(route: RouteLocationNormalized) {
 }
 
 function recordMenuHistory(route: RouteLocationNormalized) {
-  let history: MenuHistoryItem[] = [];
-  try {
-    const persistedHistory: unknown = JSON.parse(localStorage.getItem(MENU_HISTORY_KEY) || '[]');
-    history = normalizeMenuHistoryItems(persistedHistory);
-  } catch {
-    // Replace malformed persisted history with the current valid navigation below.
-  }
-
-  const title = resolveLocaleText(route.meta?.title as string, String(route.name || route.path));
-
-  const filtered = history.filter((item) => item.path !== route.path);
-
-  filtered.unshift({
+  useMenuPreferencesStore().recordVisit({
     path: route.path,
-    title,
+    title: resolveLocaleText(route.meta?.title as string, String(route.name || route.path)),
     icon: route.meta?.icon as string,
     timestamp: Date.now(),
   });
-
-  const trimmed = filtered.slice(0, MAX_HISTORY_ITEMS);
-
-  try {
-    localStorage.setItem(MENU_HISTORY_KEY, JSON.stringify(trimmed));
-  } catch {
-    // History persistence is optional when storage is unavailable.
-  }
 }
 
 export function resetRouter(router: Router) {

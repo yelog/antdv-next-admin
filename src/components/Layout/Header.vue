@@ -44,18 +44,20 @@
       <!-- Desktop: Show all actions -->
       <template v-if="!layoutStore.isMobile">
         <a-tooltip
-          v-if="layoutStore.aiEntryVisible"
+          v-if="layoutStore.canUseAiCollab && layoutStore.aiEntryVisible"
           :title="
             layoutStore.aiCollabEnabled ? $t('layout.aiCollabDisable') : $t('layout.aiCollabEnable')
           "
         >
           <a-button
             type="text"
-            class="header-action ai-toggle-btn"
+            class="ai-toggle-btn"
             :class="{ active: layoutStore.aiCollabEnabled }"
+            :aria-pressed="layoutStore.aiCollabEnabled"
             @click="layoutStore.toggleAiCollab"
           >
-            <MessageOutlined />
+            <MessageOutlined aria-hidden="true" />
+            {{ $t('layout.aiAssistantTitle') }}
           </a-button>
         </a-tooltip>
 
@@ -73,7 +75,12 @@
 
         <!-- Settings -->
         <a-tooltip :title="$t('settings.title')">
-          <a-button type="text" class="header-action" @click="openSettings">
+        <a-button
+          type="text"
+          class="header-action"
+          :aria-label="$t('settings.title')"
+          @click="openSettings"
+        >
             <SettingOutlined />
           </a-button>
         </a-tooltip>
@@ -84,7 +91,7 @@
 
       <!-- Mobile: More menu (three dots) -->
       <a-dropdown v-else :trigger="['click']" placement="bottomRight" :menu="moreMenuProps">
-        <a-button type="text" class="header-action">
+        <a-button type="text" class="header-action" :aria-label="$t('common.more')">
           <MoreOutlined />
         </a-button>
       </a-dropdown>
@@ -190,9 +197,6 @@ const handleMoreMenuClick = async ({ key }: { key: string }) => {
     case 'fullscreen':
       toggleFullscreen();
       break;
-    case 'ai-collab':
-      layoutStore.toggleAiCollab();
-      break;
     case 'theme-light':
       themeStore.setTheme('light');
       break;
@@ -228,16 +232,6 @@ const moreMenuProps = computed(() => {
       icon: h(FullscreenOutlined),
     },
   ];
-
-  if (layoutStore.aiEntryVisible) {
-    items.push({
-      key: 'ai-collab',
-      label: layoutStore.aiCollabEnabled
-        ? $t('layout.aiCollabDisable')
-        : $t('layout.aiCollabEnable'),
-      icon: h(MessageOutlined),
-    });
-  }
 
   items.push(
     {
@@ -388,8 +382,8 @@ onBeforeUnmount(() => {
 
         .search-key {
           border-color: var(--color-primary-3);
-          color: var(--color-primary);
-          background: var(--color-primary-1);
+          color: var(--color-text-primary);
+          background: color-mix(in srgb, var(--color-primary) 12%, var(--color-bg-container));
         }
       }
 
@@ -402,7 +396,6 @@ onBeforeUnmount(() => {
         font-size: 13px;
         margin-right: 12px;
         line-height: 1;
-        opacity: 0.8;
       }
 
       .search-key {
@@ -415,7 +408,7 @@ onBeforeUnmount(() => {
         border: 1px solid var(--color-border-secondary);
         border-radius: 4px;
         font-size: 12px;
-        color: var(--color-text-tertiary);
+        color: var(--color-text-muted);
         line-height: 18px;
         font-family: var(--font-family-code);
         transition: all 0.2s;
@@ -437,9 +430,15 @@ onBeforeUnmount(() => {
       }
     }
 
-    .ai-toggle-btn.active {
-      color: var(--color-primary);
-      background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    .ai-toggle-btn {
+      height: 32px;
+      padding-inline: 8px;
+      color: var(--color-text-secondary);
+
+      &.active {
+        color: var(--color-text-primary);
+        background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+      }
     }
 
     // Ensure buttons in nested components follow the same style.

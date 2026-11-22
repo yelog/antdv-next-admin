@@ -221,8 +221,8 @@
 </template>
 
 <script setup lang="ts">
-import type { MenuHistoryItem, MenuSearchView } from '@/types/navigation';
-import type { MenuItem } from '@/types/router';
+import type { MenuSearchView } from '@/types/navigation';
+import type { MenuDestination as SearchItem } from '@/composables/useMenuDestinations';
 
 import {
   ArrowDownOutlined,
@@ -242,30 +242,16 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
 import IconView from '@/components/Icon/index.vue';
-import { basicRoutes } from '@/router/routes';
-import { routesToMenuTree } from '@/router/utils';
+import { useMenuDestinations } from '@/composables/useMenuDestinations';
 import { useMenuPreferencesStore } from '@/stores/menuPreferences';
-import { usePermissionStore } from '@/stores/permission';
-import { resolveLocaleText } from '@/utils/i18n';
 import {
-  normalizeMenuHistoryItems,
   resolveMenuSearchViewShortcut,
   selectMenuItemsByPaths,
 } from '@/utils/menuPreferences';
 import { searchMenuItems } from '@/utils/menuSearch';
 
-const MENU_HISTORY_KEY = 'app-menu-history';
-
-interface SearchItem {
-  path: string;
-  title: string;
-  icon?: string;
-  leafTitle: string;
-}
-
 const router = useRouter();
-const { locale, t } = useI18n();
-const permissionStore = usePermissionStore();
+const { t } = useI18n();
 const menuPreferencesStore = useMenuPreferencesStore();
 const visible = defineModel<boolean>('open', { default: false });
 const searchQuery = ref('');
@@ -274,7 +260,6 @@ const activeIndex = ref(0);
 const searchInputRef = ref<HTMLInputElement | null>(null);
 const searchBodyRef = ref<HTMLElement | null>(null);
 const searchContentRef = ref<HTMLElement | null>(null);
-const menuHistory = ref<MenuHistoryItem[]>([]);
 const normalizedSearchQuery = computed(() => searchQuery.value.trim());
 const hasSearchQuery = computed(() => normalizedSearchQuery.value.length > 0);
 const activeView = computed(() => menuPreferencesStore.searchView);
@@ -283,58 +268,12 @@ let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 let previouslyFocusedElement: HTMLElement | null = null;
 let previousBodyOverflow = '';
 
-const fallbackMenus = computed<MenuItem[]>(() => {
-  const basicChildren = basicRoutes.flatMap((route) => route.children || []);
-  return routesToMenuTree(basicChildren);
-});
-
-const menuSource = computed<MenuItem[]>(() => {
-  if (permissionStore.menuTree.length > 0) {
-    return permissionStore.menuTree;
-  }
-  return fallbackMenus.value;
-});
-
-const searchSource = computed<SearchItem[]>(() => {
-  // Establish a dependency so persisted recent/favorite rows follow locale changes.
-  const currentLocale = locale.value;
-  void currentLocale;
-
-  const items: SearchItem[] = [];
-
-  const traverse = (menus: MenuItem[], parentLabels: string[] = []) => {
-    menus.forEach((menu) => {
-      const currentLabel = resolveLocaleText(menu.label, menu.path);
-      const currentLabels = [...parentLabels, currentLabel];
-
-      if (menu.children && menu.children.length > 0) {
-        traverse(menu.children, currentLabels);
-      } else if (menu.path) {
-        items.push({
-          path: menu.path,
-          title: currentLabels.join(' > '),
-          icon: menu.icon,
-          leafTitle: currentLabel,
-        });
-      }
-    });
-  };
-
-  traverse(menuSource.value);
-
-  const uniqueByPath = new Map<string, SearchItem>();
-  items.forEach((item) => {
-    if (!uniqueByPath.has(item.path)) {
-      uniqueByPath.set(item.path, item);
-    }
-  });
-  return Array.from(uniqueByPath.values());
-});
+const searchSource = useMenuDestinations();
 
 const recentItems = computed(() =>
   selectMenuItemsByPaths(
     searchSource.value,
-    menuHistory.value.map((item) => item.path),
+    menuPreferencesStore.history.map((item) => item.path),
   ),
 );
 
@@ -537,38 +476,9 @@ const handleKeydown = (event: KeyboardEvent): void => {
   }
 };
 
-const loadMenuHistory = (): void => {
-  try {
-    const saved = window.localStorage.getItem(MENU_HISTORY_KEY);
-    if (!saved) {
-      menuHistory.value = [];
-      return;
-    }
-
-    const parsed: unknown = JSON.parse(saved);
-    const normalizedHistory = normalizeMenuHistoryItems(parsed);
-    menuHistory.value = normalizedHistory;
-    if (!Array.isArray(parsed) || normalizedHistory.length !== parsed.length) {
-      window.localStorage.setItem(MENU_HISTORY_KEY, JSON.stringify(normalizedHistory));
-    }
-  } catch {
-    menuHistory.value = [];
-    try {
-      window.localStorage.removeItem(MENU_HISTORY_KEY);
-    } catch {
-      // Ignore storage failures after restoring an empty in-memory history.
-    }
-  }
-};
-
 const clearHistory = (): void => {
-  menuHistory.value = [];
+  menuPreferencesStore.clearHistory();
   activeIndex.value = 0;
-  try {
-    window.localStorage.removeItem(MENU_HISTORY_KEY);
-  } catch {
-    // The visible history is still cleared when storage is unavailable.
-  }
   nextTick(() => searchInputRef.value?.focus());
 };
 
@@ -659,7 +569,7 @@ watch(
     searchQuery.value = '';
     searchResults.value = [];
     activeIndex.value = 0;
-    loadMenuHistory();
+    menuPreferencesStore.refreshHistory();
     window.addEventListener('keydown', handleGlobalKeydown);
     nextTick(() => {
       searchInputRef.value?.focus();

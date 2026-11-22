@@ -1,36 +1,113 @@
 <template>
-  <div class="page-container">
+  <div ref="pageRef" class="page-container user-management">
     <ProTable
       ref="tableRef"
       :columns="columns"
       :request="fetchTableData"
       :toolbar="toolbarConfig"
-      :search="{
-        formItems: searchFormItems,
-        labelWidth: 6,
-        defaultCollapsed: true,
-      }"
+      :search="searchConfig"
+      :show-index-column="false"
+      :expandable="{ columnWidth: 36 }"
+      :row-class-name="getRowClassName"
+      instant-scroll-on-change
       row-key="id"
     >
+      <template #toolbar-subtitle="{ total, params }">
+        <div class="user-table-context">
+          <span v-if="params" ref="resultsSummaryRef" tabindex="-1">
+            {{ $t('user.resultsSummary', { count: total, filters: describeFilters(params) }) }}
+          </span>
+          <span role="status" class="user-save-feedback">
+            {{ saveFeedback ? $t(saveFeedback) : '' }}
+          </span>
+        </div>
+      </template>
+
       <template #toolbar-actions>
-        <a-space>
-          <a-upload :show-upload-list="false" accept=".csv" :before-upload="handleImport">
+        <a-space wrap>
+          <a-upload
+            v-if="canCreate"
+            :show-upload-list="false"
+            accept=".csv"
+            :before-upload="handleImport"
+          >
             <a-button> <UploadOutlined /> {{ $t('common.import') }} </a-button>
           </a-upload>
           <a-button @click="handleExport">
             <DownloadOutlined /> {{ $t('common.export') }}
           </a-button>
-          <a-button type="primary" @click="handleCreate">
+          <a-button v-if="canCreate" type="primary" @click="handleCreate">
             <PlusOutlined /> {{ $t('user.createUser') }}
           </a-button>
         </a-space>
+      </template>
+
+      <template #bodyCell="{ column, record, text }">
+        <a-space v-if="column.dataIndex === 'action'" :size="0">
+          <a-button
+            v-if="canEdit"
+            type="link"
+            size="small"
+            :data-user-edit="record.id"
+            @click="handleEdit(record as User)"
+          >
+            {{ $t('common.edit') }}
+          </a-button>
+          <a-dropdown
+            v-if="canDelete"
+            :menu="moreActions"
+            :trigger="['click']"
+            placement="bottomRight"
+            auto-focus
+            @menu-click="handleDelete(record as User)"
+          >
+            <a-button type="text" size="small" aria-haspopup="menu">
+              {{ $t('common.more') }}
+            </a-button>
+          </a-dropdown>
+        </a-space>
+        <strong v-else-if="column.dataIndex === 'username'">{{ text }}</strong>
+        <a-badge
+          v-else-if="column.dataIndex === 'status'"
+          :status="record.status === 'active' ? 'success' : 'default'"
+          :text="record.status === 'active' ? $t('user.active') : $t('user.inactive')"
+        />
+        <template v-else-if="column.dataIndex">{{ text || '—' }}</template>
+      </template>
+
+      <template #expandedRowRender="{ record }">
+        <dl class="user-details">
+          <div>
+            <dt>{{ $t('user.email') }}</dt>
+            <dd>{{ record.email || '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ $t('user.phone') }}</dt>
+            <dd>{{ record.phone || '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ $t('user.gender') }}</dt>
+            <dd>{{ record.gender ? $t(`user.${record.gender}`) : '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ $t('common.createTime') }}</dt>
+            <dd>
+              {{ record.createdAt ? dayjs(record.createdAt).format('YYYY-MM-DD HH:mm') : '—' }}
+            </dd>
+          </div>
+        </dl>
       </template>
     </ProTable>
 
     <ProFormModal
       v-model:open="modalVisible"
       :title="editingUserId ? $t('user.editUser') : $t('user.createUser')"
+      :footer="renderFormFooter"
+      :ok-text="$t('common.save')"
+      :cancel-text="$t('common.cancel')"
       :confirm-loading="submitting"
+      :closable="{ disabled: submitting }"
+      :focusable="{ focusTriggerAfterClose: !pendingEditFeedback }"
       :session-key="formSessionKey"
       :form-items="formItems"
       :initial-values="formData"
@@ -39,32 +116,36 @@
       width="760px"
       @submit="handleSubmit"
       @cancel="handleCancel"
-      @closed="finishFormClose"
+      @closed="handleFormClosed"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import type { ApiResponse, PageResult } from '@/types/api';
 import type { Role, User } from '@/types/auth';
-import type { ProFormItem, ProTableColumn } from '@/types/pro';
+import type {
+  ProFormItem,
+  ProTableColumn,
+  ProTableLoadStatus,
+  ProTableRequestParams,
+  ProTableSearch,
+} from '@/types/pro';
+import type { VNodeChild } from 'vue';
 
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  UploadOutlined,
-  DownloadOutlined,
-} from '@antdv-next/icons';
-import { message, Modal } from 'antdv-next';
-import { computed, onMounted, ref } from 'vue';
+import { PlusOutlined, UploadOutlined, DownloadOutlined } from '@antdv-next/icons';
+import { App } from 'antdv-next';
+import dayjs from 'dayjs';
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue';
 
-import { getRoleList } from '@/api/role';
 import { createUser, deleteUser, getUserList, updateUser } from '@/api/user';
 import ProFormModal from '@/components/Pro/ProFormModal/index.vue';
 import ProTable from '@/components/Pro/ProTable/index.vue';
 import { useCrudFormSession } from '@/composables/useCrudFormSession';
+import { usePermission } from '@/composables/usePermission';
 import { $t } from '@/locales';
 import { exportToCSV, parseCSV } from '@/utils/export';
+import { request } from '@/utils/request';
 
 type UserFormValues = {
   username: string;
@@ -77,10 +158,15 @@ type UserFormValues = {
   bio: string;
 };
 
-const tableRef = ref<{
-  refresh: () => void;
-  reload: () => void;
-} | null>(null);
+const { can } = usePermission();
+const { message, modal } = App.useApp();
+const canCreate = computed(() => can('system.user.create'));
+const canEdit = computed(() => can('system.user.edit'));
+const canDelete = computed(() => can('system.user.delete'));
+
+const pageRef = ref<HTMLElement>();
+const resultsSummaryRef = ref<HTMLElement>();
+const tableRef = ref<InstanceType<typeof ProTable>>();
 const {
   open: modalVisible,
   record: editingUser,
@@ -94,13 +180,17 @@ const {
 const submitting = ref(false);
 const editingUserId = computed(() => editingUser.value?.id ?? null);
 const roleOptions = ref<Role[]>([]);
+const pendingEditFeedback = shallowRef<{ id: string; status: ProTableLoadStatus }>();
+const saveFeedback = ref<string>();
+const highlightedUserId = ref<string>();
+let highlightTimer: ReturnType<typeof setTimeout> | undefined;
 
 const toolbarConfig = computed(() => ({
   title: $t('user.title'),
-  subTitle: 'ProTable + ProForm',
-  actions: ['refresh', 'density', 'columnSetting'] as Array<
-    'refresh' | 'density' | 'columnSetting'
-  >,
+}));
+
+const moreActions = computed(() => ({
+  items: [{ key: 'delete', label: $t('common.delete'), danger: true }],
 }));
 
 const statusOptions = computed(() => [
@@ -113,25 +203,19 @@ const genderOptions = computed(() => [
   { label: $t('user.female'), value: 'female' },
 ]);
 
-const roleSelectOptions = computed(() => {
-  return roleOptions.value.map((role) => ({
-    label: role.name,
-    value: role.id,
-  }));
+const editableRolesById = computed(() => {
+  const rolesById = new Map(roleOptions.value.map((role) => [role.id, role]));
+  for (const role of editingUser.value?.roles ?? []) {
+    if (!rolesById.has(role.id)) rolesById.set(role.id, role);
+  }
+  return rolesById;
 });
 
-const genderValueEnum = computed<Record<string, { text: string; status?: string; color?: string }>>(
-  () => ({
-    male: { text: $t('user.male'), color: 'blue' },
-    female: { text: $t('user.female'), color: 'magenta' },
-  }),
-);
-
-const statusValueEnum = computed<Record<string, { text: string; status?: string; color?: string }>>(
-  () => ({
-    active: { text: $t('user.active'), status: 'success' },
-    inactive: { text: $t('user.inactive'), status: 'default' },
-  }),
+const roleSelectOptions = computed(() =>
+  Array.from(editableRolesById.value.values(), (role) => ({
+    label: role.name,
+    value: role.id,
+  })),
 );
 
 const searchFormItems = computed<ProFormItem[]>(() => [
@@ -140,73 +224,45 @@ const searchFormItems = computed<ProFormItem[]>(() => [
   { name: 'status', label: $t('user.status'), type: 'select', options: statusOptions.value },
 ]);
 
+const searchConfig = computed<ProTableSearch>(() => ({
+  formItems: searchFormItems.value,
+  labelWidth: 6,
+  defaultCollapsed: true,
+  submitOnly: true,
+}));
+
 const columns = computed((): ProTableColumn[] => [
   {
     title: $t('user.username'),
     dataIndex: 'username',
-    width: 150,
-    fixed: 'left',
-  },
-  {
-    title: $t('user.realName'),
-    dataIndex: 'realName',
-    width: 140,
-  },
-  {
-    title: $t('user.email'),
-    dataIndex: 'email',
-    width: 220,
-  },
-  {
-    title: $t('user.phone'),
-    dataIndex: 'phone',
-    width: 150,
+    width: 132,
+    fixed: canEdit.value || canDelete.value ? undefined : 'left',
   },
   {
     title: $t('user.role'),
     dataIndex: 'roleNames',
-    width: 220,
-  },
-  {
-    title: $t('user.gender'),
-    dataIndex: 'gender',
-    width: 100,
-    valueType: 'tag',
-    valueEnum: genderValueEnum.value,
+    width: 150,
   },
   {
     title: $t('user.status'),
     dataIndex: 'status',
-    width: 120,
-    valueType: 'badge',
-    valueEnum: statusValueEnum.value,
+    width: 100,
   },
   {
-    title: $t('common.createTime'),
-    dataIndex: 'createdAt',
-    width: 200,
-    valueType: 'dateTime',
+    title: $t('user.realName'),
+    dataIndex: 'realName',
+    width: 145,
   },
-  {
-    title: $t('common.actions'),
-    dataIndex: 'action',
-    width: 160,
-    fixed: 'right',
-    actions: [
-      {
-        label: $t('common.edit'),
-        icon: EditOutlined,
-        onClick: (record) => handleEdit(record as unknown as User),
-      },
-      {
-        label: $t('common.delete'),
-        icon: DeleteOutlined,
-        danger: true,
-        confirm: $t('user.confirmDelete'),
-        onClick: (record) => handleDelete(record as unknown as User),
-      },
-    ],
-  },
+  ...(canEdit.value || canDelete.value
+    ? [
+        {
+          title: $t('common.actions'),
+          dataIndex: 'action',
+          width: 124,
+          fixed: 'right' as const,
+        },
+      ]
+    : []),
 ]);
 
 const formItems = computed<ProFormItem[]>(() => [
@@ -299,52 +355,76 @@ function createDefaultFormValues(): UserFormValues {
   };
 }
 
-const formatRoleNames = (roles: Role[]) => {
-  if (!roles || roles.length === 0) {
-    return '-';
-  }
-  return roles.map((role) => role.name).join(', ');
-};
+function renderFormFooter({ originNode }: { originNode: VNodeChild }): VNodeChild {
+  return originNode;
+}
 
-const fetchTableData = async (params: Record<string, unknown>) => {
+function getUserFilters(params: ProTableRequestParams) {
+  return {
+    username: typeof params.username === 'string' ? params.username.trim() || undefined : undefined,
+    email: typeof params.email === 'string' ? params.email.trim() || undefined : undefined,
+    status: params.status === 'active' || params.status === 'inactive' ? params.status : undefined,
+  };
+}
+
+function describeFilters(params: ProTableRequestParams): string {
+  const filters = getUserFilters(params);
+  const entries = [
+    { label: $t('user.username'), value: filters.username },
+    { label: $t('user.email'), value: filters.email },
+    { label: $t('user.status'), value: filters.status ? $t(`user.${filters.status}`) : undefined },
+  ];
+  return (
+    entries
+      .filter(({ value }) => value)
+      .map(({ label, value }) => $t('user.filterValue', { label, value }))
+      .join(' · ') || $t('user.noActiveFilters')
+  );
+}
+
+const fetchTableData = async (params: ProTableRequestParams) => {
   const response = await getUserList({
-    current: Number(params.current || 1),
-    pageSize: Number(params.pageSize || 10),
-    username: (params.username as string)?.trim() || undefined,
-    email: (params.email as string)?.trim() || undefined,
-    status: params.status as string,
+    current: params.current ?? 1,
+    pageSize: params.pageSize ?? 10,
+    ...getUserFilters(params),
   });
-
-  const list = response.data.list.map((item) => ({
-    ...item,
-    roleNames: formatRoleNames(item.roles),
-  }));
+  if (!response.success) return { success: false, data: [] };
 
   return {
-    data: list,
+    data: response.data.list.map((item) => ({
+      ...item,
+      roleNames: item.roles?.map((role) => role.name).join(', '),
+    })),
     total: response.data.total,
     success: true,
   };
 };
 
 const fetchRoleOptions = async () => {
-  const response = await getRoleList({ current: 1, pageSize: 200 });
-  roleOptions.value = response.data.list;
+  try {
+    const response = await request.get<ApiResponse<PageResult<Role>>>('/roles', {
+      params: { current: 1, pageSize: 200 },
+      skipRedirect: true,
+    });
+    if (response.success) roleOptions.value = response.data.list;
+  } catch {
+    return;
+  }
 };
 
-const refreshTable = () => {
-  tableRef.value?.refresh();
-};
-
-const reloadTable = () => {
-  tableRef.value?.reload();
-};
+function getRowClassName(record: { id: string }): string {
+  return record.id === highlightedUserId.value ? 'user-row-updated' : '';
+}
 
 const handleCreate = () => {
+  if (!canCreate.value || submitting.value) return;
+  saveFeedback.value = undefined;
   openCreateForm();
 };
 
 const handleEdit = (record: User) => {
+  if (!canEdit.value || submitting.value) return;
+  saveFeedback.value = undefined;
   const statusStr = record.status || 'active';
   const initialValues: UserFormValues = {
     username: record.username,
@@ -363,22 +443,75 @@ const handleCancel = () => {
   closeFormModal();
 };
 
-const handleDelete = async (record: User) => {
-  Modal.confirm({
+function handleFormClosed(): void {
+  finishFormClose();
+  const pending = pendingEditFeedback.value;
+  if (!pending || modalVisible.value) return;
+  pendingEditFeedback.value = undefined;
+
+  const row = pageRef.value?.querySelector<HTMLTableRowElement>(
+    `tr[data-row-key="${CSS.escape(pending.id)}"]`,
+  );
+  if (pending.status === 'success') {
+    saveFeedback.value = row ? 'user.updateSuccess' : 'user.updatedOutsideResults';
+    if (row) {
+      clearTimeout(highlightTimer);
+      highlightedUserId.value = pending.id;
+      highlightTimer = setTimeout(() => {
+        highlightedUserId.value = undefined;
+      }, 600);
+    }
+  } else {
+    saveFeedback.value =
+      pending.status === 'failed' ? 'user.updatedRefreshFailed' : 'user.updatedQueryChanged';
+  }
+
+  if (pageRef.value?.isConnected) {
+    const editControl =
+      pending.status === 'success' ? row?.querySelector<HTMLElement>('[data-user-edit]') : null;
+    (editControl ?? resultsSummaryRef.value)?.focus({ preventScroll: true });
+  }
+}
+
+const handleDelete = (record: User) => {
+  if (!canDelete.value) return;
+  modal.confirm({
     title: $t('user.deleteUser'),
     content: $t('user.confirmDelete'),
+    okText: $t('common.delete'),
+    cancelText: $t('common.cancel'),
+    okButtonProps: { danger: true },
+    autoFocusButton: 'cancel',
     onOk: async () => {
-      await deleteUser(record.id);
+      const response = await deleteUser(record.id);
+      if (!response.success) {
+        message.error(response.message || $t('common.error'));
+        return;
+      }
       message.success($t('common.success'));
-      refreshTable();
+      await tableRef.value?.refreshWithResult();
     },
   });
 };
 
 const handleSubmit = async (rawValues: Record<string, unknown>) => {
+  const record = editingUser.value;
+  if (submitting.value || !modalVisible.value || !(record ? canEdit.value : canCreate.value)) {
+    return;
+  }
+
   const values = rawValues as UserFormValues;
 
-  const selectedRoles = roleOptions.value.filter((role) => values.roleIds?.includes(role.id));
+  const roleIds = values.roleIds ?? record?.roles?.map((role) => role.id) ?? [];
+  const selectedRoles: Role[] = [];
+  for (const roleId of roleIds) {
+    const role = editableRolesById.value.get(roleId);
+    if (!role) {
+      message.error($t('user.roleUnavailable'));
+      return;
+    }
+    selectedRoles.push(role);
+  }
 
   const payload: Partial<User> = {
     username: values.username?.trim(),
@@ -393,23 +526,33 @@ const handleSubmit = async (rawValues: Record<string, unknown>) => {
 
   submitting.value = true;
   try {
-    if (editingUserId.value) {
-      await updateUser(editingUserId.value, payload);
-      message.success($t('user.updateSuccess'));
-      refreshTable();
+    const response = record ? await updateUser(record.id, payload) : await createUser(payload);
+    if (!response.success) {
+      message.error(response.message || $t('common.error'));
+      return;
+    }
+
+    if (record) {
+      const status = (await tableRef.value?.refreshWithResult()) ?? 'superseded';
+      pendingEditFeedback.value = { id: record.id, status };
     } else {
-      await createUser(payload);
       message.success($t('user.createSuccess'));
-      reloadTable();
+      tableRef.value?.reload();
     }
     closeFormModal();
+  } catch {
+    return;
   } finally {
     submitting.value = false;
   }
 };
 
-onMounted(async () => {
-  await fetchRoleOptions();
+onMounted(() => {
+  if (canCreate.value || canEdit.value) void fetchRoleOptions();
+});
+
+onBeforeUnmount(() => {
+  clearTimeout(highlightTimer);
 });
 
 // export user data
@@ -454,6 +597,8 @@ const handleExport = async () => {
 
 // import user data
 const handleImport = async (file: File) => {
+  if (!canCreate.value) return false;
+
   try {
     const rows = await parseCSV(file);
     if (rows.length < 2) {
@@ -461,9 +606,19 @@ const handleImport = async (file: File) => {
       return false;
     }
     const header = rows[0];
-    const usernameIdx = header.findIndex((h) => h.includes('Username') || h.includes('username'));
-    const realNameIdx = header.findIndex((h) => h.includes('Name') || h.includes('name'));
-    const emailIdx = header.findIndex((h) => h.includes('Email') || h.includes('email'));
+    const findColumn = (label: string, ...aliases: string[]) => {
+      const names = [label.toLowerCase(), ...aliases];
+      return header.findIndex((cell) => names.includes(cell.toLowerCase()));
+    };
+    const usernameIdx = findColumn($t('user.username'), 'username', 'user name', 'user_name');
+    const realNameIdx = findColumn(
+      $t('user.realName'),
+      'name',
+      'real name',
+      'realname',
+      'real_name',
+    );
+    const emailIdx = findColumn($t('user.email'), 'email', 'e-mail');
 
     if (usernameIdx === -1 || realNameIdx === -1 || emailIdx === -1) {
       message.error($t('user.importFormatError'));
@@ -482,12 +637,92 @@ const handleImport = async (file: File) => {
         }),
       );
     const results = await Promise.allSettled(importTasks);
-    const successCount = results.filter((result) => result.status === 'fulfilled').length;
+    const successCount = results.filter(
+      (result) => result.status === 'fulfilled' && result.value.success,
+    ).length;
     message.success($t('user.importSuccess', { count: successCount }));
-    refreshTable();
+    await tableRef.value?.refreshWithResult();
   } catch {
     message.error($t('user.importFailed'));
   }
   return false;
 };
 </script>
+
+<style scoped>
+.user-management :deep(.pro-table-toolbar) {
+  height: auto;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding-block: 6px;
+}
+
+.user-management :deep(.toolbar-left) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.user-management :deep(.toolbar-right) {
+  flex-wrap: wrap;
+  flex-shrink: 1;
+  min-inline-size: 0;
+}
+
+.user-table-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  overflow-wrap: anywhere;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.user-table-context [tabindex]:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.user-save-feedback {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.user-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 8px 16px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.user-details dt {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.user-details dd {
+  margin: 2px 0 0;
+}
+
+.user-management :deep(.user-row-updated > td) {
+  --user-row-highlight: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  animation: user-row-saved 600ms ease-out;
+}
+
+@keyframes user-row-saved {
+  from {
+    box-shadow: inset 0 0 0 9999px var(--user-row-highlight);
+  }
+  to {
+    box-shadow: inset 0 0 0 9999px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-management :deep(.user-row-updated > td) {
+    animation: none;
+    box-shadow: inset 0 0 0 9999px var(--user-row-highlight);
+  }
+}
+</style>

@@ -36,6 +36,7 @@ import { CanvasRenderer } from "echarts/renderers";
 import { computed } from "vue";
 import VChart from "vue-echarts";
 
+import { useSettingsStore } from "@/stores/settings";
 import { useThemeStore } from "@/stores/theme";
 
 use([
@@ -67,12 +68,15 @@ interface Props {
   option?: Record<string, unknown>;
 }
 
+const CATEGORY_COLORS = ["#158a77", "#be791d", "#8a6ed4", "#d45c76", "#5687ab", "#6e964d"];
+
 const props = withDefaults(defineProps<Props>(), {
   height: 300,
   loading: false,
 });
 
 const themeStore = useThemeStore();
+const settingsStore = useSettingsStore();
 const isDark = computed(() => themeStore.isDark);
 
 const normalizedHeight = computed(() => {
@@ -140,11 +144,36 @@ const generatedOption = computed(() => {
   };
 });
 
-const mergedOption = computed(() => {
-  if (props.option) {
-    return { ...generatedOption.value, ...props.option };
+function withComponentOverrides(value: unknown, overrides: Record<string, unknown>): unknown {
+  if (Array.isArray(value)) {
+    return value.map((component: unknown) => withComponentOverrides(component, overrides));
   }
-  return generatedOption.value;
+
+  return value === undefined || (typeof value === "object" && value !== null)
+    ? { ...value, ...overrides }
+    : value;
+}
+
+const mergedOption = computed(() => {
+  const option = {
+    color: [settingsStore.primaryColorHex, ...CATEGORY_COLORS],
+    backgroundColor: "transparent",
+    animation: true,
+    ...generatedOption.value,
+    ...props.option,
+  };
+  if (!settingsStore.prefersReducedMotion) return option;
+
+  return {
+    ...option,
+    animation: false,
+    axisPointer: withComponentOverrides(props.option?.axisPointer, { animation: false }),
+    series: withComponentOverrides(option.series, {
+      animation: false,
+      universalTransition: false,
+    }),
+    tooltip: withComponentOverrides(option.tooltip, { transitionDuration: 0 }),
+  };
 });
 </script>
 
