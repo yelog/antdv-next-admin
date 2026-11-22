@@ -76,7 +76,7 @@
             :data="deptDescData"
             :column="2"
             bordered
-            size="middle"
+            size="medium"
             class="dept-descriptions"
           />
 

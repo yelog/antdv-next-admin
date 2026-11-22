@@ -6,7 +6,7 @@ import Components from "unplugin-vue-components/vite";
 import { defineConfig } from "vite";
 import { mockDevServerPlugin } from "vite-plugin-mock-dev-server";
 
-import pkg from "./package.json";
+import pkg from "./package.json" with { type: "json" };
 
 export default defineConfig({
   base: "/",
@@ -17,11 +17,7 @@ export default defineConfig({
     vue(),
     Components({
       dts: false,
-      resolvers: [
-        AntdvNextResolver({
-          exclude: ["Select", "DatePicker", "DateRangePicker"],
-        }),
-      ],
+      resolvers: [AntdvNextResolver()],
     }),
     tailwindcss(),
     mockDevServerPlugin({

@@ -9,7 +9,7 @@
       <!-- Basic -->
       <a-col :span="24" :lg="12">
         <a-card :title="$t('exampleSpin.basic')" :bordered="false">
-          <a-flex align="center" gap="middle">
+          <a-flex align="center" gap="medium">
             <a-spin size="small" />
             <a-spin />
             <a-spin size="large" />
@@ -20,7 +20,7 @@
       <!-- Tip -->
       <a-col :span="24" :lg="12">
         <a-card :title="$t('exampleSpin.tip')" :bordered="false">
-          <a-flex gap="middle">
+          <a-flex gap="medium">
             <a-spin :tip="$t('common.loading')" size="small">
               <div class="p-[50px] bg-black/5 rounded" />
             </a-spin>
@@ -37,7 +37,7 @@
       <!-- Nested -->
       <a-col :span="24" :lg="12">
         <a-card :title="$t('exampleSpin.nested')" :bordered="false">
-          <a-flex gap="middle" vertical>
+          <a-flex gap="medium" vertical>
             <a-spin :spinning="nestedLoading">
               <a-alert
                 message="Alert message title"
@@ -59,7 +59,7 @@
           <template #extra>
             <a-tag color="blue">delay=500ms</a-tag>
           </template>
-          <a-flex gap="middle" vertical>
+          <a-flex gap="medium" vertical>
             <a-spin :spinning="delayLoading" :delay="500">
               <a-alert
                 message="Alert message title"
@@ -78,7 +78,7 @@
       <!-- Custom Indicator -->
       <a-col :span="24" :lg="12">
         <a-card :title="$t('exampleSpin.customIndicator')" :bordered="false">
-          <a-flex align="center" gap="middle">
+          <a-flex align="center" gap="medium">
             <a-spin size="small">
               <template #indicator>
                 <LoadingOutlined spin />
@@ -106,7 +106,7 @@
       <!-- Percent / Progress -->
       <a-col :span="24" :lg="12">
         <a-card :title="$t('exampleSpin.percent')" :bordered="false">
-          <a-flex align="center" gap="middle">
+          <a-flex align="center" gap="medium">
             <a-switch
               v-model:checked="autoPercent"
               checked-children="Auto"
@@ -122,7 +122,7 @@
       <!-- Custom Styles -->
       <a-col :span="24" :lg="12">
         <a-card :title="$t('exampleSpin.customStyle')" :bordered="false">
-          <a-flex align="center" gap="middle">
+          <a-flex align="center" gap="medium">
             <a-spin v-bind="sharedStyleProps" :styles="{ indicator: { color: '#00d4ff' } }" />
             <a-spin
               v-bind="sharedStyleProps"

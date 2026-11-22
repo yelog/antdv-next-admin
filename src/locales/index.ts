@@ -4,6 +4,7 @@ import 'dayjs/locale/en';
 import 'dayjs/locale/ja';
 import 'dayjs/locale/ko';
 import 'dayjs/locale/zh-cn';
+
 import zhCN from './zh-CN';
 
 type SupportedLocale = 'zh-CN' | 'en-US' | 'ja-JP' | 'ko-KR';

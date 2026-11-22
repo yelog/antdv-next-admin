@@ -2,7 +2,7 @@
   <a-descriptions
     :column="column"
     :bordered="bordered"
-    :size="size"
+    :size="normalizedSize"
     :title="title"
     :layout="layout"
   >
@@ -35,6 +35,8 @@
 <script setup lang="ts">
 import type { ProDescriptionItem } from "@/types/pro";
 
+import { computed } from "vue";
+
 import ValueTypeRender from "../ProTable/ValueTypeRender.vue";
 
 interface Props {
@@ -42,7 +44,7 @@ interface Props {
   data: Record<string, unknown>;
   column?: number;
   bordered?: boolean;
-  size?: "default" | "middle" | "small";
+  size?: "default" | "large" | "medium" | "middle" | "small";
   title?: string;
   layout?: "horizontal" | "vertical";
 }
@@ -50,8 +52,14 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   column: 2,
   bordered: false,
-  size: "default",
+  size: "large",
   layout: "horizontal",
+});
+
+const normalizedSize = computed(() => {
+  if (props.size === "default") return "large";
+  if (props.size === "middle") return "medium";
+  return props.size;
 });
 
 const getValue = (item: ProDescriptionItem) => {

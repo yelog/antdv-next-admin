@@ -51,10 +51,7 @@
           </div>
           <div class="config-item">
             <span>{{ $t('exampleTour.indicatorType') }}</span>
-            <a-select v-model:value="tourConfig.type" style="width: 120px">
-              <a-select-option value="default">default</a-select-option>
-              <a-select-option value="primary">primary</a-select-option>
-            </a-select>
+            <a-select v-model:value="tourConfig.type" :options="typeOptions" style="width: 120px" />
           </div>
         </div>
       </div>
@@ -99,6 +96,10 @@ import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+const typeOptions = [
+  { value: 'default', label: 'default' },
+  { value: 'primary', label: 'primary' },
+]
 
 const btn1 = ref()
 const btn2 = ref()

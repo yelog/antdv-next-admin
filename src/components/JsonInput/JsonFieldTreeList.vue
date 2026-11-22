@@ -44,7 +44,7 @@
               <a-input
                 v-if="allowEditKey && !api.isFieldReadonlyByPath(path, key)"
                 :value="key"
-                size="middle"
+                size="medium"
                 class="field-key-input"
                 :class="{ 'is-new': isNewField(key) }"
                 placeholder="字段名"
@@ -85,7 +85,7 @@
                 <a-select
                   v-model:value="currentObject[key]"
                   mode="tags"
-                  size="middle"
+                  size="medium"
                   style="width: 100%"
                   placeholder="输入标签按回车确认"
                   :max-tag-count="2"
@@ -134,7 +134,7 @@
               >
                 <a-textarea
                   :value="api.getArrayFieldTextByPath(path, key)"
-                  size="middle"
+                  size="medium"
                   placeholder="JSON: [1, 2, 3]"
                   :auto-size="{ minRows: 1, maxRows: 3 }"
                   :disabled="api.isFieldDisabledByPath(path, key)"
@@ -147,7 +147,7 @@
               <template v-else-if="api.isLongTextFieldByPath(path, key)">
                 <a-textarea
                   v-model:value="currentObject[key]"
-                  size="middle"
+                  size="medium"
                   :placeholder="api.getFieldLabelByPath(path, key)"
                   :auto-size="{ minRows: 2, maxRows: 4 }"
                   show-count
@@ -162,7 +162,7 @@
               <template v-else>
                 <a-input
                   v-model:value="currentObject[key]"
-                  size="middle"
+                  size="medium"
                   :placeholder="api.getFieldLabelByPath(path, key)"
                   :allow-clear="!api.isFieldReadonlyByPath(path, key)"
                   :disabled="api.isFieldDisabledByPath(path, key)"
@@ -181,7 +181,7 @@
               <a-select
                 v-if="allowEditType && !api.isFieldReadonlyByPath(path, key)"
                 :value="api.getFieldTypeByPath(path, key)"
-                size="middle"
+                size="medium"
                 class="type-selector"
                 :options="fieldTypeOptions"
                 @change="(val: FieldType) => handleTypeChange(key, val)"

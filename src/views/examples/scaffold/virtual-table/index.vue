@@ -14,12 +14,7 @@
       <div class="toolbar">
         <a-space wrap>
           <span class="text-secondary">{{ $t('examples.scaffold.virtualTable.datasetSize') }}</span>
-          <a-select v-model:value="datasetSize" style="width: 140px">
-            <a-select-option :value="5000">5,000</a-select-option>
-            <a-select-option :value="20000">20,000</a-select-option>
-            <a-select-option :value="50000">50,000</a-select-option>
-            <a-select-option :value="100000">100,000</a-select-option>
-          </a-select>
+          <a-select v-model:value="datasetSize" :options="datasetSizeOptions" style="width: 140px" />
           <a-button @click="regenerateRows">{{
             $t('examples.scaffold.virtualTable.regenerate')
           }}</a-button>
@@ -31,20 +26,7 @@
             style="width: 240px"
             :placeholder="$t('examples.scaffold.virtualTable.searchPlaceholder')"
           />
-          <a-select v-model:value="statusFilter" style="width: 150px">
-            <a-select-option value="all">{{
-              $t('examples.scaffold.virtualTable.allStatus')
-            }}</a-select-option>
-            <a-select-option value="active">{{
-              $t('examples.scaffold.virtualTable.statusActive')
-            }}</a-select-option>
-            <a-select-option value="inactive">{{
-              $t('examples.scaffold.virtualTable.statusInactive')
-            }}</a-select-option>
-            <a-select-option value="pending">{{
-              $t('examples.scaffold.virtualTable.statusPending')
-            }}</a-select-option>
-          </a-select>
+          <a-select v-model:value="statusFilter" :options="statusOptions" style="width: 150px" />
         </a-space>
       </div>
 
@@ -108,6 +90,20 @@ const datasetSize = ref(20000);
 const keyword = ref('');
 const statusFilter = ref<'all' | StatusType>('all');
 const allRows = ref<DemoRow[]>([]);
+
+const datasetSizeOptions = [
+  { value: 5000, label: '5,000' },
+  { value: 20000, label: '20,000' },
+  { value: 50000, label: '50,000' },
+  { value: 100000, label: '100,000' },
+];
+
+const statusOptions = computed(() => [
+  { value: 'all', label: $t('examples.scaffold.virtualTable.allStatus') },
+  { value: 'active', label: $t('examples.scaffold.virtualTable.statusActive') },
+  { value: 'inactive', label: $t('examples.scaffold.virtualTable.statusInactive') },
+  { value: 'pending', label: $t('examples.scaffold.virtualTable.statusPending') },
+]);
 
 const columns = computed<ProTableColumn[]>(() => [
   { title: $t('examples.scaffold.virtualTable.colId'), dataIndex: 'id', width: 130 },

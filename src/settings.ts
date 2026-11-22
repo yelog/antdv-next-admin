@@ -1,6 +1,6 @@
 import type { ProTableSearch } from '@/types/pro';
 
-export type ProTableDensity = 'large' | 'middle' | 'small' | 'smal';
+export type ProTableDensity = 'large' | 'medium' | 'middle' | 'small' | 'smal';
 export type ProTableHeight = '100%' | 'auto' | string | number;
 
 export interface ProTableSearchDefaultSettings {
@@ -31,7 +31,7 @@ export interface DatePickerDefaultSettings {
 }
 
 export interface ButtonDefaultSettings {
-  size: 'large' | 'middle' | 'small';
+  size: 'large' | 'medium' | 'middle' | 'small';
 }
 
 export interface AppDefaultSettings {
@@ -44,7 +44,7 @@ export interface AppDefaultSettings {
 
 export const appDefaultSettings: AppDefaultSettings = {
   proTable: {
-    size: 'smal',
+    size: 'small',
     height: 'auto',
     resizable: true,
     columnResizable: true,
@@ -71,6 +71,6 @@ export const appDefaultSettings: AppDefaultSettings = {
     allowClear: true,
   },
   button: {
-    size: 'middle',
+    size: 'medium',
   },
 };

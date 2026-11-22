@@ -2,9 +2,8 @@
   <a-config-provider
     :theme="antdThemeConfig"
     :input="inputConfig"
-    :select="selectConfig"
-    :date-picker="datePickerConfig"
-    :range-picker="datePickerConfig"
+    :select="appDefaultSettings.select"
+    :date-picker="appDefaultSettings.datePicker"
     :button="buttonConfig"
     :locale="antdLocale"
   >
@@ -51,12 +50,6 @@ const antdThemeConfig = computed<ThemeConfig>(() => ({
 }));
 
 const inputConfig = computed(() => appDefaultSettings.input);
-const selectConfig = computed(
-  () => appDefaultSettings.select as unknown as Record<string, unknown>,
-);
-const datePickerConfig = computed(
-  () => appDefaultSettings.datePicker as unknown as Record<string, unknown>,
-);
 const buttonConfig = computed(() => appDefaultSettings.button);
 const antdLocale = computed(() => {
   return antdLocaleMap[locale.value as keyof typeof antdLocaleMap] ?? zhCN;

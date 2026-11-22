@@ -22,7 +22,6 @@
       :initial-values="initialValues"
       :layout="layout"
       :grid="grid"
-      :preserve="false"
       :clear-on-destroy="true"
       @values-change="handleValuesChange"
     />

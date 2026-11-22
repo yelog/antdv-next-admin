@@ -31,12 +31,11 @@
                 <input type="color" v-model="styleFgColor" />
               </a-form-item>
               <a-form-item :label="$t('exampleQRCode.errorLevel')">
-                <a-select v-model:value="styleErrorLevel" style="width: 150px">
-                  <a-select-option value="L">L (7%)</a-select-option>
-                  <a-select-option value="M">M (15%)</a-select-option>
-                  <a-select-option value="Q">Q (25%)</a-select-option>
-                  <a-select-option value="H">H (30%)</a-select-option>
-                </a-select>
+                <a-select
+                  v-model:value="styleErrorLevel"
+                  :options="errorLevelOptions"
+                  style="width: 150px"
+                />
               </a-form-item>
             </a-form>
             <div class="qrcode-preview">
@@ -44,7 +43,7 @@
                 value="https://www.antdv-next.com"
                 :size="200"
                 :bg-color="styleBgColor"
-                :fg-color="styleFgColor"
+                :color="styleFgColor"
                 :error-level="styleErrorLevel"
               />
             </div>
@@ -55,15 +54,13 @@
           <div class="qrcode-section">
             <p class="hint">{{ $t('exampleQRCode.logoHint') }}</p>
             <div class="qrcode-preview">
-              <a-qrcode value="https://www.antdv-next.com" :size="280" :error-level="'H'">
-                <template #icon>
-                  <img
-                    src="https://www.antdv-next.com/antdv-next.svg"
-                    alt="logo"
-                    style="width: 40px; height: 40px"
-                  />
-                </template>
-              </a-qrcode>
+              <a-qrcode
+                value="https://www.antdv-next.com"
+                :size="280"
+                error-level="H"
+                icon="https://www.antdv-next.com/antdv-next.svg"
+                :icon-size="40"
+              />
             </div>
           </div>
         </a-tab-pane>
@@ -76,8 +73,14 @@
                 <span class="status-label">{{ $t('exampleQRCode.statusActive') }}</span>
               </div>
               <div class="status-item">
-                <a-qrcode value="https://www.antdv-next.com" status="expired" />
-                <span class="status-label">{{ $t('exampleQRCode.statusExpired') }}</span>
+                <a-qrcode
+                  value="https://www.antdv-next.com"
+                  :status="showExpired ? 'expired' : 'active'"
+                  @refresh="showExpired = false"
+                />
+                <span class="status-label">
+                  {{ $t(showExpired ? 'exampleQRCode.statusExpired' : 'exampleQRCode.statusActive') }}
+                </span>
               </div>
               <div class="status-item">
                 <a-qrcode value="https://www.antdv-next.com" status="loading" />
@@ -126,6 +129,13 @@ const basicSize = ref(200)
 const styleBgColor = ref('#ffffff')
 const styleFgColor = ref('#000000')
 const styleErrorLevel = ref<QRCodeProps['errorLevel']>('M')
+const errorLevelOptions = [
+  { value: 'L', label: 'L (7%)' },
+  { value: 'M', label: 'M (15%)' },
+  { value: 'Q', label: 'Q (25%)' },
+  { value: 'H', label: 'H (30%)' },
+]
+const showExpired = ref(true)
 
 const downloadContent = ref('https://www.antdv-next.com')
 const downloadFileName = ref('antdv-next-qrcode')

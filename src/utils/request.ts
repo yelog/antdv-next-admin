@@ -1,9 +1,10 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
+import {
+  create,
+  type AxiosError,
+  type AxiosInstance,
+  type AxiosRequestConfig,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
 } from "axios";
 
 import { message } from "antdv-next";
@@ -25,7 +26,7 @@ type RetriableRequestConfig = InternalAxiosRequestConfig & RequestConfig & {
 
 let refreshPromise: Promise<string> | null = null;
 
-export const service: AxiosInstance = axios.create({
+export const service: AxiosInstance = create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 15000,
   headers: {
@@ -169,7 +170,7 @@ service.interceptors.response.use(
 
 export const request = {
   get<T = unknown>(url: string, config?: RequestConfig): Promise<T> {
-    return service.get(url, config);
+    return service.get<unknown, unknown>(url, config) as Promise<T>;
   },
 
   post<T = unknown>(
@@ -177,7 +178,7 @@ export const request = {
     data?: unknown,
     config?: RequestConfig,
   ): Promise<T> {
-    return service.post(url, data, config);
+    return service.post<unknown, unknown>(url, data, config) as Promise<T>;
   },
 
   put<T = unknown>(
@@ -185,11 +186,11 @@ export const request = {
     data?: unknown,
     config?: RequestConfig,
   ): Promise<T> {
-    return service.put(url, data, config);
+    return service.put<unknown, unknown>(url, data, config) as Promise<T>;
   },
 
   delete<T = unknown>(url: string, config?: RequestConfig): Promise<T> {
-    return service.delete(url, config);
+    return service.delete<unknown, unknown>(url, config) as Promise<T>;
   },
 
   patch<T = unknown>(
@@ -197,7 +198,7 @@ export const request = {
     data?: unknown,
     config?: RequestConfig,
   ): Promise<T> {
-    return service.patch(url, data, config);
+    return service.patch<unknown, unknown>(url, data, config) as Promise<T>;
   },
 };
 

@@ -22,6 +22,8 @@
 
 ## 快速开始
 
+开发和验证使用 Node.js 22.13+（22.x LTS）或更新的 LTS 版本。
+
 ```bash
 npm install
 npm run dev
@@ -51,7 +53,7 @@ npm run lint && npm run format:check && npm run type-check && npm run test:unit:
 
 ## 技术栈
 
-- 核心框架: Vue 3.5、TypeScript 6、Vite 8、Pinia 3、Vue Router 5、vue-i18n 11
+- 核心框架: Vue 3.5、TypeScript 6、Vite 8、Pinia 4、Vue Router 5、vue-i18n 11
 - UI 与图标: antdv-next、@antdv-next/icons、Iconify
 - 样式体系: CSS Variables、Tailwind CSS 4、SCSS
 - 数据与 Mock: Axios、vite-plugin-mock-dev-server、@faker-js/faker

@@ -47,26 +47,12 @@
           <a-radio-button value="read">{{ $t('notificationCenter.filters.read') }}</a-radio-button>
         </a-radio-group>
 
-        <a-select v-model:value="toneFilter" size="small" class="tone-select">
-          <a-select-option value="all">{{
-            $t('notificationCenter.filters.allTypes')
-          }}</a-select-option>
-          <a-select-option value="system">{{
-            $t('notificationCenter.filters.system')
-          }}</a-select-option>
-          <a-select-option value="message">{{
-            $t('notificationCenter.filters.message')
-          }}</a-select-option>
-          <a-select-option value="security">{{
-            $t('notificationCenter.filters.security')
-          }}</a-select-option>
-          <a-select-option value="task">{{
-            $t('notificationCenter.filters.task')
-          }}</a-select-option>
-          <a-select-option value="error">{{
-            $t('notificationCenter.filters.error')
-          }}</a-select-option>
-        </a-select>
+        <a-select
+          v-model:value="toneFilter"
+          :options="toneOptions"
+          size="small"
+          class="tone-select"
+        />
       </div>
     </section>
 
@@ -243,6 +229,15 @@ const notificationStore = useNotificationStore();
 const keyword = ref('');
 const readFilter = ref<ReadFilter>('all');
 const toneFilter = ref<ToneFilter>('all');
+
+const toneOptions = computed(() => [
+  { value: 'all', label: $t('notificationCenter.filters.allTypes') },
+  { value: 'system', label: $t('notificationCenter.filters.system') },
+  { value: 'message', label: $t('notificationCenter.filters.message') },
+  { value: 'security', label: $t('notificationCenter.filters.security') },
+  { value: 'task', label: $t('notificationCenter.filters.task') },
+  { value: 'error', label: $t('notificationCenter.filters.error') },
+]);
 
 const notifications = computed(() => {
   return [...notificationStore.notifications].toSorted((a, b) => b.timestamp - a.timestamp);

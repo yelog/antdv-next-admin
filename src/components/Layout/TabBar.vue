@@ -6,7 +6,7 @@
         type="editable-card"
         :hide-add="true"
         :items="tabItems"
-        :classes="{ popup: 'tab-bar-overflow-dropdown' }"
+        :classes="{ popup: { root: 'tab-bar-overflow-dropdown' } }"
         @edit="handleEdit"
         @change="handleChange"
       />
@@ -333,7 +333,7 @@ const getTabLabel = (tab: Tab) => {
         align-items: center;
       }
 
-      .ant-tabs-content-holder {
+      .ant-tabs-body-holder {
         display: none;
       }
 

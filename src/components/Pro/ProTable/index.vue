@@ -420,7 +420,7 @@ interface ResizableTitleProps {
   onResize?: (event: MouseEvent, info: ResizeInfo) => void;
 }
 
-type TableSize = 'large' | 'middle' | 'small';
+type TableSize = 'large' | 'medium' | 'small';
 
 const MIN_COLUMN_WIDTH = 40;
 
@@ -542,7 +542,8 @@ const resolveActionIcon = (icon: unknown) => {
 };
 
 const normalizeDensity = (size: ProTableDensity | undefined): TableSize => {
-  if (size === 'large' || size === 'middle' || size === 'small') {
+  if (size === 'middle') return 'medium';
+  if (size === 'large' || size === 'medium' || size === 'small') {
     return size;
   }
   return 'small';
@@ -1063,10 +1064,11 @@ const tableColumns = computed(() => {
       }));
 
   return sourceColumns.map((column, index) => {
+    const { resizable, ...antdColumn } = column;
     const key = resolveColumnKey(column, index);
     const width = parseColumnWidth(column.width);
     const canResize = Boolean(
-      effectiveColumnResizable.value && (column.resizable ?? effectiveResizable.value),
+      effectiveColumnResizable.value && (resizable ?? effectiveResizable.value),
     );
     const headerFilter = column.headerFilter;
     const headerFilterMode = normalizeHeaderFilterMode(headerFilter?.mode);
@@ -1078,9 +1080,7 @@ const tableColumns = computed(() => {
     const currentFilterIconType =
       headerFilter?.icon ?? (headerFilter?.type === 'keyword' ? 'search' : 'filter');
 
-    const enhancedColumn: Record<string, unknown> = {
-      ...column,
-    };
+    const enhancedColumn: Record<string, unknown> = antdColumn;
 
     if (headerFilter) {
       enhancedColumn.__proHeaderFilter = headerFilter;
@@ -1185,7 +1185,7 @@ const densityMenuProps = computed(() => ({
       label: $t('proTable.densityLarge'),
     },
     {
-      key: 'middle',
+      key: 'medium',
       label: $t('proTable.densityMiddle'),
     },
     {
