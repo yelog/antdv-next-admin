@@ -1,11 +1,16 @@
 <template>
-  <aside class="ai-panel">
+  <aside class="ai-panel" :aria-label="$t('layout.aiAssistantTitle')">
     <div class="panel-header">
       <div class="title-wrap">
         <div class="title">{{ $t('layout.aiAssistantTitle') }}</div>
         <div class="subtitle">{{ $t('layout.aiAssistantSubtitle') }}</div>
       </div>
-      <a-button type="text" class="close-btn" @click="emitClose">
+      <a-button
+        type="text"
+        class="close-btn"
+        :aria-label="$t('layout.aiCollabDisable')"
+        @click="emitClose"
+      >
         <CloseOutlined />
       </a-button>
     </div>
@@ -13,6 +18,13 @@
     <div class="context-row">
       <a-tag color="blue">{{ $t('layout.aiCurrentPage') }}: {{ currentPageTitle }}</a-tag>
       <a-tag>{{ route.path }}</a-tag>
+      <RouterLink
+        v-if="route.name !== 'SystemLog' && can(PERMISSIONS.SYSTEM_LOG_VIEW)"
+        :to="{ name: 'SystemLog' }"
+        @click="emitClose"
+      >
+        {{ $t('log.intent.openLogs') }}
+      </RouterLink>
     </div>
 
     <div class="quick-actions">
@@ -40,7 +52,11 @@
             { 'is-streaming': isStreaming && streamingMessageId === message.id },
           ]"
         >
-          <div class="message-role">{{ message.role === 'assistant' ? 'AI' : 'You' }}</div>
+          <div class="message-role">
+            {{
+              $t(message.role === 'assistant' ? 'layout.aiDemoReplyLabel' : 'layout.aiYourMessage')
+            }}
+          </div>
           <div class="message-content">{{ message.content }}</div>
         </div>
       </template>
@@ -82,6 +98,8 @@ import { CloseOutlined } from '@antdv-next/icons';
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
+import { usePermission } from '@/composables/usePermission';
+import { PERMISSIONS } from '@/constants/permissions';
 import { $t } from '@/locales';
 import { resolveLocaleText } from '@/utils/i18n';
 
@@ -104,6 +122,7 @@ const emit = defineEmits<{
 }>();
 
 const route = useRoute();
+const { can } = usePermission();
 const draft = ref('');
 const messages = ref<ChatMessage[]>([]);
 const messagesBodyRef = ref<HTMLElement | null>(null);

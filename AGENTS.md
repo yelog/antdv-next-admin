@@ -2,6 +2,10 @@
 
 A Vue 3 + TypeScript + Ant Design Vue admin scaffold with RBAC, theming, i18n (zh-CN/en-US/ja-JP/ko-KR), Tailwind CSS 4, Codemirror 6, and mock APIs.
 
+## 业务页面与搜索工作流
+
+根据 API 文档或示例响应新增 CRUD 页面，以及单独调整 ProTable 搜索时，先读取仓库 Skill。它记录了请求适配、路由权限、四语、开发与静态 Demo Mock，以及按自身顺序展示的独立搜索示例。[Antdv Next Admin Skill](.agents/skills/antdv-next-admin/SKILL.md)
+
 ## Project Structure
 
 ```
@@ -11,7 +15,8 @@ src/
 ├── components/       # Reusable components (Layout/, Permission/, etc.)
 ├── composables/      # Composition functions (usePermission.ts, useWatermark.ts)
 ├── directives/       # Custom Vue directives (permission.ts)
-├── locales/          # i18n translations (zh-CN.ts, en-US.ts)
+├── locales/          # 四语资源，zh-CN、en-US、ja-JP、ko-KR
+├── mock/browser.ts   # 静态 Demo 的浏览器端 Mock
 ├── router/           # Vue Router (routes.ts, guards.ts, utils.ts)
 ├── stores/           # Pinia stores - one per domain (auth.ts, theme.ts, layout.ts)
 ├── types/            # TypeScript interfaces/types (auth.ts, api.ts, router.ts)
@@ -23,8 +28,9 @@ mock/
 └── handlers/         # Mock API handlers (auth.mock.ts, user.mock.ts)
 
 tests/
-├── e2e/              # End-to-end tests (*.spec.ts) - templates for future Playwright setup
-└── unit/             # Unit tests (*.spec.ts) - templates for future Vitest setup
+├── build/            # 生产构建产物检查
+├── e2e/              # Playwright 浏览器回归
+└── unit/             # Vitest 单元测试
 ```
 
 ## Build, Test, and Development Commands
@@ -39,9 +45,11 @@ npm run build:demo       # Demo build for static hosting (browser-side mock)
 npm run preview          # Preview production build locally
 npm run type-check       # Run vue-tsc --noEmit (NO auto-fix)
 
-# Testing (Vitest)
-npm run test:unit        # Run unit tests in watch mode
-npm run test:unit:run    # Run unit tests once
+# 测试
+npm run test:unit        # Vitest 监听模式
+npm run test:unit:run    # 单次运行 Vitest
+npm run test:build       # 检查生产登录入口的构建产物
+npm run test:e2e         # Playwright 构建并启动静态 Demo 后执行浏览器回归
 
 # Linting & Formatting
 npm run lint             # Lint with oxlint
@@ -58,9 +66,9 @@ npm run format:check     # Check formatting
 4. For RBAC/auth changes: manually verify login with `admin/123456` and `user/123456`
 
 ### Testing
-- **Vitest** is configured (`vitest.config.ts`): `environment: 'node'`, `globals: false`
-- Test files: `tests/unit/**/*.spec.ts` — must import `describe`/`it`/`expect` from vitest
-- **Playwright** e2e templates exist in `tests/e2e/` but Playwright is not yet installed
+- `vitest.config.ts` 使用 `environment: 'node'` 和 `globals: false`。在 `tests/unit/**/*.spec.ts` 中显式从 `vitest` 导入 `describe`、`it`、`expect`。
+- Playwright 依赖已在 `package.json` 中声明。首次运行 `npm run test:e2e` 前用 `npx playwright install --only-shell chromium` 安装 Chromium headless shell。
+- `playwright.config.ts` 自动构建并启动 Demo。用例覆盖管理员和普通用户登录、用户筛选及页签缓存。[测试说明](README.md#测试)
 
 ## Code Style Guidelines
 
@@ -194,25 +202,25 @@ export const useAuthStore = defineStore('auth', () => {
 **Directive (in templates):**
 ```vue
 <!-- Single permission (OR logic by default) -->
-<a-button v-permission="'user.create'">Create</a-button>
+<a-button v-permission="'system.user.create'">创建</a-button>
 
 <!-- Multiple permissions (OR logic) -->
-<a-button v-permission="['user.edit', 'user.delete']">Actions</a-button>
+<a-button v-permission="['system.user.edit', 'system.user.delete']">操作</a-button>
 
 <!-- ALL permissions required (AND logic) -->
-<a-button v-permission.all="['user.edit', 'user.approve']">Approve</a-button>
+<a-button v-permission.all="['system.user.edit', 'system.user.delete']">管理</a-button>
 ```
 
 **Composable (in script):**
 ```ts
 const { can, canAll, hasRole } = usePermission()
 
-if (can('user.create')) {
+if (can('system.user.create')) {
   // User has permission
 }
 
-if (canAll(['user.edit', 'user.approve'])) {
-  // User has ALL permissions
+if (canAll(['system.user.edit', 'system.user.delete'])) {
+  // 同时拥有编辑和删除用户权限
 }
 ```
 
@@ -224,17 +232,15 @@ if (canAll(['user.edit', 'user.approve'])) {
 - **Never commit secrets** - use `.env.local` for sensitive values (gitignored)
 
 ### Mock API System
-- **Auto-enabled in dev** via `vite-plugin-mock-dev-server`
-- **Handlers**: `mock/handlers/*.mock.ts` define endpoints
-- **Data**: `mock/data/*.data.ts` contain sample datasets
-- **Prefix**: all mock APIs use `/api` prefix (e.g., `/api/auth/login`)
+- 开发服务通过 `vite-plugin-mock-dev-server` 提供 `/api` 接口，处理器在 `mock/handlers/`，数据在 `mock/data/`。
+- 静态 Demo 由 `.env.demo` 的 `VITE_DEMO_MODE=true` 启用 `src/mock/browser.ts` 的 Axios Mock。涉及接口契约的改动应同时验证两套 Mock。
 
 ## Common Pitfalls to Avoid
 
 1. **Oxlint** lints `src/` and `mock/` — run `npm run lint` before committing. Oxfmt handles import sorting automatically.
 2. **Don't suppress TypeScript errors** - fix the root cause instead
-3. **Test files are templates** - don't try to run them without installing test frameworks
-4. **Mock users**: `admin/123456` has full permissions, `user/123456` has limited permissions
+3. **独立搜索** 使用 `search.formItems` 控制字段和顺序，在页面请求函数中映射后端参数。
+4. **Mock 账号** `admin / 123456` 拥有通配权限，`user / 123456` 只有看板权限。
 5. **Dynamic routes**: permissions control route visibility via `src/router/guards.ts`
 6. **KeepAlive caching**: managed by `tabs` store - check cached component names
 

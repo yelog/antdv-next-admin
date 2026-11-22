@@ -27,6 +27,71 @@ async function signIn(page: Page, account: 'admin' | 'user'): Promise<void> {
   await expect(page).toHaveURL('/dashboard');
 }
 
+test('previews and edits operation log filters before running the list query', async ({ page }) => {
+  await signIn(page, 'admin');
+  await page.goto('/system/log');
+  const operations = page.getByRole('tabpanel');
+  const form = operations.locator('.pro-table-search');
+  const operator = form.getByRole('textbox');
+  const rows = operations.locator('tbody tr.ant-table-row');
+  const total = operations.locator('.ant-pagination-total-text');
+  await expect(rows.first()).toBeVisible();
+  const initialTotal = await total.innerText();
+  const firstRow = await rows.first().innerText();
+  await operator.fill('operator-draft');
+
+  const start = operations.getByRole('button', { name: '自然语言筛选' });
+  const dialog = page.getByRole('dialog', { name: '自然语言筛选' });
+  await start.click();
+  await dialog.getByRole('button', { name: '使用示例' }).click();
+  await dialog.getByRole('button', { name: '预览条件' }).click();
+  await expect(dialog.getByText('来源：本地示例规则')).toBeVisible();
+  for (const value of ['用户管理', '删除', '失败']) {
+    await expect(dialog.getByText(value, { exact: true })).toBeVisible();
+  }
+  await dialog.getByRole('button', { name: '填入筛选表单' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(operator).toHaveValue('operator-draft');
+  for (const value of ['用户管理', '删除', '失败']) {
+    await expect(form.getByText(value, { exact: true })).toBeVisible();
+  }
+  await expect(total).toHaveText(initialTotal);
+  expect(await rows.first().innerText()).toBe(firstRow);
+  await operator.clear();
+  await form.getByRole('button', { name: /搜\s*索/ }).click();
+  await expect(total).not.toHaveText(initialTotal);
+  await expect(rows.first()).toBeVisible();
+  const matchCount = Number((await total.innerText()).match(/\d+/)?.[0]);
+  expect(matchCount).toBeGreaterThan(0);
+  expect(await rows.count()).toBe(Math.min(matchCount, 10));
+  for (const row of await rows.all()) {
+    await expect(row.getByRole('cell', { name: '失败', exact: true })).toBeVisible();
+    await expect(row.getByRole('cell', { name: '删除', exact: true })).toBeVisible();
+    await expect(row.getByRole('cell', { name: 'userManagement', exact: true })).toBeVisible();
+  }
+
+  await start.click();
+  await dialog.getByRole('textbox').fill('只看失败');
+  await dialog.getByRole('button', { name: '预览条件' }).click();
+  await expect(dialog.getByRole('button', { name: '填入筛选表单' })).toBeVisible();
+  await dialog.getByRole('textbox').fill('昨天失败的操作');
+  await expect(dialog.getByRole('button', { name: '填入筛选表单' })).toHaveCount(0);
+  await dialog.getByRole('button', { name: '预览条件' }).click();
+  await expect(dialog.getByText(/请换一种说法/)).toBeVisible();
+  await dialog.getByRole('button', { name: /取\s*消/ }).click();
+  await expect(form.getByText('用户管理', { exact: true })).toBeVisible();
+  await operations.getByRole('button', { name: /重\s*置/ }).click();
+  await expect(total).toHaveText(initialTotal);
+});
+
+test('keeps operation log filters outside the regular demo user session', async ({ page }) => {
+  await signIn(page, 'user');
+  await page.goto('/system/log');
+  await expect(page.locator('#main-content')).toBeVisible();
+  await expect(page.getByRole('button', { name: '自然语言筛选' })).toHaveCount(0);
+  await expect(page.getByRole('tabpanel', { name: '操作日志' })).toHaveCount(0);
+});
+
 test('keeps the filtered user table until its tab is closed', async ({ page }) => {
   await signIn(page, 'admin');
   const sidebar = page.locator('.sidebar-menu');

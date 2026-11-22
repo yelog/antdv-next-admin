@@ -70,8 +70,25 @@ function generateTime(daysAgo: number): string {
   return d.toISOString().replace('T', ' ').slice(0, 19);
 }
 
-export const operationLogs: OperationLog[] = [];
-for (let i = 1; i <= 80; i++) {
+export const operationLogs: OperationLog[] = [
+  {
+    id: '1',
+    username: 'user',
+    module: 'userManagement',
+    action: 'delete',
+    description: 'Delete user',
+    method: 'DELETE',
+    url: '/api/users/demo-user',
+    ip: '192.0.2.10',
+    browser: 'Chrome 120',
+    os: 'Windows 11',
+    status: 'fail',
+    errorMsg: 'Insufficient permissions',
+    duration: 42,
+    createTime: '2026-01-01 09:00:00',
+  },
+];
+for (let i = 2; i <= 80; i++) {
   const action = randomItem(actions);
   const descs = actionDescMap[action];
   const urls = actionUrlMap[action];

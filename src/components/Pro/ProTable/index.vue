@@ -72,7 +72,7 @@
               }}</span>
             </div>
             <div class="toolbar-right">
-              <slot name="toolbar-actions"></slot>
+              <slot name="toolbar-actions" :fillSearchFields="fillSearchFields"></slot>
               <a-space :size="4">
                 <a-tooltip v-if="showRefreshAction" :title="$t('common.refresh')">
                   <a-button type="text" class="toolbar-icon-btn" @click="handleRefresh">
@@ -1471,6 +1471,12 @@ const handleSearch = () => {
   currentPage.value = 1;
   loadData();
 };
+
+function fillSearchFields(values: Record<string, unknown>): void {
+  if (!searchFormRef.value) return;
+  searchCollapsed.value = false;
+  searchFormRef.value.setFieldsValue(values);
+}
 
 const handleReset = () => {
   searchFormRef.value?.resetFields();

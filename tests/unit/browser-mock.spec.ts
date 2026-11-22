@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { setupBrowserMock } from "@/mock/browser";
 import type { ApiResponse, PageResult } from "@/types/api";
-import type { Permission, Role, User } from "@/types/auth";
+import type { LoginResult, Permission, Role, User } from "@/types/auth";
 import type { SysConfig } from "@/types/config";
 import type { Department } from "@/types/dept";
 import type { DictData, DictType } from "@/types/dict";
@@ -20,6 +20,14 @@ function createDemoClient(): AxiosInstance {
   });
   setupBrowserMock(client);
   return client;
+}
+
+async function getAdminHeaders(client: AxiosInstance): Promise<{ Authorization: string }> {
+  const { data } = await client.post<ApiResponse<LoginResult>>("/auth/login", {
+    username: "admin",
+    password: "123456",
+  });
+  return { Authorization: `Bearer ${data.data.token}` };
 }
 
 describe("setupBrowserMock", () => {
@@ -130,6 +138,7 @@ describe("setupBrowserMock", () => {
 
   it("handles system demo endpoints with expected data shapes", async () => {
     const client = createDemoClient();
+    const headers = await getAdminHeaders(client);
 
     const [dictTypes, dictData, deptTree, deptList, files, operationLogs, loginLogs, userPermissions] =
       await Promise.all([
@@ -138,7 +147,7 @@ describe("setupBrowserMock", () => {
         client.get("/dept/tree"),
         client.get("/dept/list"),
         client.get("/file/list?page=1&pageSize=10"),
-        client.get("/log/operation/list?page=1&pageSize=10"),
+        client.get("/log/operation/list?page=1&pageSize=10", { headers }),
         client.get("/log/login/list?page=1&pageSize=10"),
         client.get("/permissions/user"),
       ]);
@@ -185,7 +194,9 @@ describe("setupBrowserMock", () => {
     ["/log/login/list", { ip: "no-demo-match", page: 2 }],
   ])("applies Axios filters before slicing %s", async (url, params) => {
     const client = createDemoClient();
+    const headers = url === "/log/operation/list" ? await getAdminHeaders(client) : undefined;
     const { data } = await client.get<ApiResponse<PageResult<unknown>>>(url, {
+      headers,
       params: { ...params, pageSize: 1 },
     });
 
@@ -404,12 +415,13 @@ describe("setupBrowserMock", () => {
   it("removes files and clears both log lists without affecting another mock", async () => {
     const client = createDemoClient();
     const other = createDemoClient();
+    const headers = await getAdminHeaders(client);
     const fileListUrl = "/file/list";
     const operationUrl = "/log/operation";
     const loginUrl = "/log/login";
     const [files, operation, login] = await Promise.all([
       client.get<ApiResponse<PageResult<SysFile>>>(fileListUrl),
-      client.get<ApiResponse<PageResult<unknown>>>(`${operationUrl}/list`),
+      client.get<ApiResponse<PageResult<unknown>>>(`${operationUrl}/list`, { headers }),
       client.get<ApiResponse<PageResult<unknown>>>(`${loginUrl}/list`),
     ]);
     const deletedFile = files.data.data.list[0];
@@ -423,7 +435,7 @@ describe("setupBrowserMock", () => {
     ]);
     const [filesAfter, operationAfter, loginAfter, otherFiles, otherLogs] = await Promise.all([
       client.get<ApiResponse<PageResult<SysFile>>>(fileListUrl),
-      client.get<ApiResponse<PageResult<unknown>>>(`${operationUrl}/list`),
+      client.get<ApiResponse<PageResult<unknown>>>(`${operationUrl}/list`, { headers }),
       client.get<ApiResponse<PageResult<unknown>>>(`${loginUrl}/list`),
       other.get<ApiResponse<PageResult<SysFile>>>(fileListUrl),
       other.get<ApiResponse<PageResult<unknown>>>(`${loginUrl}/list`),

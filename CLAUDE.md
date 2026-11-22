@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 业务页面与搜索工作流
+
+新增 API 驱动的 CRUD 页面或局部调整 ProTable 搜索时，先读仓库约定和业务 Skill。Skill 包含用户页参考、权限、四语和两套 Mock 的验收步骤。[项目约定](AGENTS.md) · [Antdv Next Admin Skill](.agents/skills/antdv-next-admin/SKILL.md)
+
 ## Project Overview
 
 **antdv-next-admin** is a modern Vue 3 + TypeScript admin scaffold built on:
@@ -17,8 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Environment Requirements
 
-- Node.js >= 18
-- npm >= 9
+- Node.js 22.13+（22.x LTS）或更新的 LTS。
 
 ## Common Commands
 
@@ -36,9 +39,11 @@ npm run preview          # Preview production build
 # Type Checking
 npm run type-check       # TypeScript type checking (vue-tsc --noEmit)
 
-# Testing (Vitest)
-npm run test:unit        # Run unit tests in watch mode
-npm run test:unit:run    # Run unit tests once
+# 测试
+npm run test:unit        # Vitest 监听模式
+npm run test:unit:run    # 单次运行 Vitest
+npm run test:build       # 检查生产登录入口的构建产物
+npm run test:e2e         # Playwright 浏览器回归
 
 # Linting (oxlint)
 npm run lint             # Lint src/ and mock/
@@ -50,6 +55,8 @@ npm run format:check     # Check formatting without writing
 ```
 
 **Vitest config** (`vitest.config.ts`): `environment: 'node'`, `globals: false` (must import `describe`/`it`/`expect` from vitest). Test files: `tests/unit/**/*.spec.ts`. No jsdom/happy-dom — tests run in a Node environment.
+
+Playwright 依赖已随项目声明。首次用 `npx playwright install --only-shell chromium` 安装浏览器，`npm run test:e2e` 会按 `playwright.config.ts` 构建和启动静态 Demo，执行 `tests/e2e/` 的回归用例。[测试说明](README.md#测试)
 
 **Oxlint config** (`.oxlintrc.json`): Vue/TypeScript/import plugins. `correctness: error`, `suspicious: warn`, `perf: warn`. `no-explicit-any: warn`, `no-unused-vars: warn`, `import/no-duplicates: error`. Console allowed in `mock/` directory only.
 
@@ -110,22 +117,22 @@ Three ways to check permissions:
 
 1. **Directive** (`src/directives/permission.ts`):
    ```vue
-   <a-button v-permission="'user.create'">Create</a-button>
-   <a-button v-permission="['user.edit', 'user.delete']">Actions</a-button>
-   <a-button v-permission.all="['user.edit', 'user.approve']">Approve</a-button>
+   <a-button v-permission="'system.user.create'">创建</a-button>
+   <a-button v-permission="['system.user.edit', 'system.user.delete']">操作</a-button>
+   <a-button v-permission.all="['system.user.edit', 'system.user.delete']">管理</a-button>
    ```
 
 2. **Composable** (`src/composables/usePermission.ts`):
    ```typescript
    const { can, canAll } = usePermission()
-   if (can('user.create')) { /* ... */ }
-   if (canAll(['user.edit', 'user.approve'])) { /* ... */ }
+   if (can('system.user.create')) { /* ... */ }
+   if (canAll(['system.user.edit', 'system.user.delete'])) { /* ... */ }
    ```
 
 3. **Component** (`src/components/Permission/PermissionButton.vue`):
    ```vue
-   <PermissionButton permission="user.create">
-     <a-button>Create User</a-button>
+   <PermissionButton permission="system.user.create">
+     <a-button>创建用户</a-button>
    </PermissionButton>
    ```
 
@@ -144,7 +151,7 @@ Three ways to check permissions:
 - Available mock APIs: auth, users, roles, permissions, dashboard
 - Supports pagination, search, CRUD operations
 
-**Browser Mock** (`src/mock/browser/`):
+**Browser Mock** (`src/mock/browser.ts`):
 - For static hosting (GitHub Pages demo), uses `axios-mock-adapter` to intercept API calls client-side
 - Enabled when `VITE_DEMO_MODE=true` (set in `.env.demo`)
 - `src/main.ts` conditionally imports and sets up browser mock on app startup
@@ -290,7 +297,7 @@ Export from `src/stores/index.ts` for centralized access.
 
 ### Working with ProTable
 
-Always define columns using the `ProTableColumn` type:
+搜索项与列有不同字段或顺序时，用 `search.formItems` 单独声明 `ProFormItem[]`，在页面请求函数映射接口参数。简单列表可以用 `ProTableColumn` 上的 `search: true` 自动生成搜索项。
 
 ```typescript
 import type { ProTableColumn } from '@/types/pro'
@@ -337,7 +344,7 @@ To add new mock endpoints:
 
 1. Create data source in `mock/data/[entity].data.ts`
 2. Create handler in `mock/handlers/[entity].mock.ts`
-3. For demo/static hosting support, add browser mock handler in `src/mock/browser/`
+3. 在 `src/mock/browser.ts` 添加对应的静态 Demo 处理器，两套 Mock 使用相同的参数和响应契约。
 4. Mock server auto-reloads, accessible at `/api/*` prefix
 
 ## Common Patterns
@@ -348,7 +355,7 @@ To add new mock endpoints:
 import { useAuthStore } from '@/stores/auth'
 const authStore = useAuthStore()
 
-if (authStore.hasAnyPermission(['user.edit', 'user.delete'])) {
+if (authStore.hasAnyPermission(['system.user.edit', 'system.user.delete'])) {
   // Show actions
 }
 ```

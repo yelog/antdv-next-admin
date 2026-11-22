@@ -51,6 +51,13 @@ npm run preview          # 预览生产构建
 npm run lint && npm run format:check && npm run type-check && npm run test:unit:run && npm run build:check
 ```
 
+## Agent 开发工作流
+
+在仓库内使用编程 Agent 时，可以显式指定 `antdv-next-admin` Skill，从接口文档或示例响应实现业务 CRUD，或局部修改 ProTable 搜索。[业务 Skill](.agents/skills/antdv-next-admin/SKILL.md) · [通用项目约定](AGENTS.md) · [Claude Code 入口](CLAUDE.md)
+
+- 开发工作流、日志筛选和验收范围。[实施计划](docs/plans/2026-11-22-agent-workflows-and-log-filters.md)
+- 操作日志的自然语言筛选。[日志筛选说明](docs/log-filter-intent.md)
+
 ## 技术栈
 
 - 核心框架: Vue 3.5、TypeScript 6、Vite 8、Pinia 4、Vue Router 5、vue-i18n 11
@@ -59,7 +66,7 @@ npm run lint && npm run format:check && npm run type-check && npm run test:unit:
 - 数据与 Mock: Axios、vite-plugin-mock-dev-server、@faker-js/faker
 - 编辑器: TipTap、Milkdown、CodeMirror
 - 图表: ECharts、vue-echarts
-- 工程化: vue-tsc、Vitest、oxlint、oxfmt
+- 工程化: vue-tsc、Vitest、Playwright、oxlint、oxfmt
 
 ## 架构概览
 
@@ -101,8 +108,10 @@ src/utils/                # 请求、存储、i18n、图标等工具
 src/views/                # 页面与示例
 mock/data/                # Mock 数据源
 mock/handlers/            # Mock 接口处理器
+src/mock/browser.ts       # 静态 Demo 的浏览器端 Mock
+tests/build/              # 生产构建产物检查
 tests/unit/               # Vitest 单元测试
-tests/e2e/                # Playwright starter，依赖未安装
+tests/e2e/                # Playwright 静态 Demo 回归
 ```
 
 ## 功能矩阵
@@ -125,7 +134,7 @@ tests/e2e/                # Playwright starter，依赖未安装
 
 | 组件 | 定位 |
 | --- | --- |
-| ProTable | 配置化表格，支持请求、搜索、分页、工具栏、列设置、表头过滤、列宽调整、权限动作 |
+| ProTable | 配置化表格，支持请求、搜索、分页、工具栏、列设置、表头过滤、列宽调整、行操作 |
 | ProForm | 配置化表单，支持网格布局、校验、动态选项和自定义渲染 |
 | ProModal | 增强弹窗，支持拖拽、全屏和表单集成 |
 | ProDescriptions | 配置化描述列表 |
@@ -138,58 +147,24 @@ tests/e2e/                # Playwright starter，依赖未安装
 | ProStatus | dot/tag/badge 状态展示 |
 | ProCodeEditor | CodeMirror 代码编辑器 |
 
-ProTable 请求函数需要返回 `ProTableRequestResult`:
-
-```ts
-import type {
-  ProTableColumn,
-  ProFormItem,
-  ProTableRequestParams,
-  ProTableRequestResult,
-} from "@/types/pro";
-
-interface UserRecord {
-  id: number;
-  name: string;
-  status: "active" | "disabled";
-  createdAt: string;
-}
-
-const columns: ProTableColumn<UserRecord>[] = [
-  { title: "姓名", dataIndex: "name", valueType: "text" },
-  { title: "状态", dataIndex: "status", valueType: "tag" },
-  { title: "创建时间", dataIndex: "createdAt", valueType: "date" },
-];
-
-const searchFormItems: ProFormItem[] = [
-  { name: "keyword", label: "关键词", type: "input" },
-  { name: "status", label: "状态", type: "select", options: statusOptions },
-];
-
-async function loadData(
-  params: ProTableRequestParams,
-): Promise<ProTableRequestResult<UserRecord>> {
-  console.log(params);
-  return { data: [], total: 0, success: true };
-}
-```
+ProTable 的请求函数返回 `ProTableRequestResult`。用户管理页调用 `getUserList`，把接口信封中的 `response.data.list` 和 `response.data.total` 分别映射到表格的 `data` 和 `total`。[用户管理页](src/views/system/user/index.vue)
 
 ```vue
-<ProTable :columns="columns" :request="loadData" :search="{ formItems: searchFormItems }" />
+<ProTable :columns="columns" :request="fetchTableData" :search="{ formItems: searchFormItems }" />
 ```
 
-搜索表单推荐通过 `search.formItems` 独立配置（使用 `ProFormItem`），适合搜索条件和表格列不一致或顺序不同的场景；简单列表仍可继续在 `columns` 中使用 `search: true` 快捷生成搜索项。
+搜索字段及顺序由 `search.formItems` 的 `ProFormItem[]` 独立配置。简单列表也可以用 `columns` 中的 `search: true` 自动生成搜索项。[独立搜索示例](.agents/skills/antdv-next-admin/SKILL.md#独立配置搜索)
 
 ## 权限用法
 
-权限码集中维护在 `src/constants/permissions.ts`，路由 `meta.requiredPermissions`、按钮权限和业务判断应优先复用常量，避免散落字符串。
+路由 `meta.requiredPermissions` 优先复用 `src/constants/permissions.ts` 的读取权限常量。按钮按实际操作权限控制，例如用户示例使用 `system.user.create`、`system.user.edit`、`system.user.delete`。[权限示例页](src/views/examples/scaffold/rbac/index.vue)
 
 模板指令:
 
 ```vue
-<a-button v-permission="'user.create'">创建用户</a-button>
-<a-button v-permission="['user.edit', 'user.delete']">操作</a-button>
-<a-button v-permission.all="['user.edit', 'user.approve']">审批</a-button>
+<a-button v-permission="'system.user.create'">创建用户</a-button>
+<a-button v-permission="['system.user.edit', 'system.user.delete']">操作</a-button>
+<a-button v-permission.all="['system.user.edit', 'system.user.delete']">管理</a-button>
 ```
 
 组合式函数:
@@ -197,12 +172,12 @@ async function loadData(
 ```ts
 const { can, canAll, hasRole } = usePermission();
 
-if (can("user.create")) {
+if (can("system.user.create")) {
   // 有创建权限
 }
 
-if (canAll(["user.edit", "user.approve"])) {
-  // 同时拥有编辑和审批权限
+if (canAll(["system.user.edit", "system.user.delete"])) {
+  // 同时拥有编辑和删除用户权限
 }
 
 if (hasRole("admin")) {
@@ -213,7 +188,7 @@ if (hasRole("admin")) {
 组件方式:
 
 ```vue
-<PermissionButton permission="user.create">
+<PermissionButton permission="system.user.create">
   <a-button>创建用户</a-button>
 </PermissionButton>
 ```
@@ -252,10 +227,11 @@ interface ApiResponse<T> {
   code: number;
   data: T;
   message: string;
+  success: boolean;
 }
 ```
 
-`src/utils/request.ts` 的 Axios 响应拦截器会返回 `response.data`，并将 `{ code !== 200 }` 视为错误。业务 API 方法应按调用方实际消费的数据结构声明类型。
+`src/utils/request.ts` 的响应拦截器返回 Axios `response.data` 中的业务响应信封。如果信封提供了 `code`，`200` 表示成功。业务 API 的返回类型应包括调用方使用的信封和内部数据。
 
 ## Mock 数据
 
@@ -274,11 +250,12 @@ interface ApiResponse<T> {
 - 日志: `/api/log/operation/list`、`/api/log/login/list`
 - Dashboard: `/api/dashboard/stats`、`/api/dashboard/sales-trend`、`/api/dashboard/user-distribution`、`/api/dashboard/activities`、`/api/dashboard/chart-data`
 
-新增 Mock 接口时通常需要同时新增:
+新增 Mock 接口时通常涉及以下文件，两套 Mock 应使用相同的过滤、分页与响应契约。
 
 ```text
 mock/data/[entity].data.ts
 mock/handlers/[entity].mock.ts
+src/mock/browser.ts
 src/api/[entity].ts
 src/types/[entity].ts
 ```

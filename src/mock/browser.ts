@@ -10,6 +10,7 @@ import type { AxiosInstance, AxiosRequestConfig } from "axios";
 import AxiosMockAdapter from "axios-mock-adapter";
 
 import avatarImg from "@/assets/images/avatar-256.png";
+import { parseDemoLogFilters, readLogFilterRequest } from "@/utils/logFilterIntent";
 
 import {
   mockActivities,
@@ -25,6 +26,8 @@ import { sysFiles } from "../../mock/data/file.data";
 import { operationLogs, loginLogs } from "../../mock/data/log.data";
 import { mockPermissions } from "../../mock/data/permissions.data";
 import { mockRoles } from "../../mock/data/roles.data";
+import { readMockLogPrincipal } from "../../mock/logAccess";
+import { operationLogAccessError } from "../../server/operationLogAccess";
 
 const SUCCESS_MESSAGE = "success";
 const DEMO_CREATED_AT = "2023-01-01T00:00:00.000Z";
@@ -198,6 +201,16 @@ function replyWithData<T>(data: T): DemoReply {
 
 function replyWithError(code: number, message: string): DemoReply {
   return [200, { code, message, success: false, data: null }];
+}
+
+function replyWithOperationLogAccess(
+  config: AxiosRequestConfig,
+  reply: () => DemoReply,
+): DemoReply {
+  const error = operationLogAccessError(
+    readMockLogPrincipal(config.headers, [adminUser, regularUser]),
+  );
+  return error ? [200, error] : reply();
 }
 
 function replyWithItem<T>(item: T | undefined, entity: string): DemoReply {
@@ -763,9 +776,22 @@ export function setupBrowserMock(service: AxiosInstance): AxiosMockAdapter {
     removeItem(state.files, pathValue(config), "File"),
   );
 
-  mock
-    .onGet(route("/log/operation/list"))
-    .reply((config) => replyWithData(getOperationLogList(state.operationLogs, query(config))));
+  mock.onGet(route("/log/operation/list")).reply((config) =>
+    replyWithOperationLogAccess(config, () =>
+      replyWithData(getOperationLogList(state.operationLogs, query(config))),
+    ),
+  );
+  mock.onPost(route("/log/operation/filter-intent")).reply((config) =>
+    replyWithOperationLogAccess(config, () => {
+      const input = readLogFilterRequest(parseJsonBody<unknown>(config.data, null));
+      if (!input) return replyWithError(400, "Invalid log filter request");
+
+      return replyWithData({
+        filters: parseDemoLogFilters(input.prompt, input.locale),
+        source: "rules",
+      });
+    }),
+  );
   mock
     .onGet(route("/log/login/list"))
     .reply((config) => replyWithData(getLoginLogList(state.loginLogs, query(config))));
